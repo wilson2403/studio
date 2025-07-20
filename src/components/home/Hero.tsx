@@ -1,3 +1,7 @@
+'use client';
+
+import { EditableTitle } from './EditableTitle';
+
 export default function Hero() {
   return (
     <section className="relative w-full h-screen overflow-hidden flex items-center justify-center">
@@ -14,16 +18,23 @@ export default function Hero() {
       
       <div className="container relative text-center animate-in fade-in-0 duration-1000 z-20">
         <div className="flex flex-col items-center space-y-6">
-          <h1 className="text-4xl md:text-6xl font-headline tracking-tight bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
-            Un Encuentro Sagrado con Medicinas Ancestrales
-          </h1>
+          <EditableTitle 
+            tag="h1"
+            id="heroTitle"
+            initialValue="Un Encuentro Sagrado con Medicinas Ancestrales"
+            className="text-4xl md:text-6xl font-headline tracking-tight bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+          />
           <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body">
-            <p>
-              👋 Hola, soy Wilson Alfaro, formado en la selva del Amazonas, Perú 🇵🇪🌿. Junto a un círculo de 3 guías espirituales, sostendremos un espacio de sanación profunda, cuidado y transformación ✨
-            </p>
-            <p>
-              ¿Sientes el llamado a sanar y despertar? 🦋 Este encuentro sagrado es para quienes desean soltar cargas, sanar heridas profundas y recordar su verdadero propósito.
-            </p>
+             <EditableTitle 
+                tag="p"
+                id="heroSubtitle1"
+                initialValue="👋 Hola, soy Wilson Alfaro, formado en la selva del Amazonas, Perú 🇵🇪🌿. Junto a un círculo de 3 guías espirituales, sostendremos un espacio de sanación profunda, cuidado y transformación ✨"
+            />
+             <EditableTitle 
+                tag="p"
+                id="heroSubtitle2"
+                initialValue="¿Sientes el llamado a sanar y despertar? 🦋 Este encuentro sagrado es para quienes desean soltar cargas, sanar heridas profundas y recordar su verdadero propósito."
+            />
           </div>
         </div>
       </div>

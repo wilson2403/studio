@@ -52,9 +52,12 @@ export default function Header() {
 
   const AuthContent = () => {
     if (loading) {
-      return <Skeleton className="h-9 w-24 hidden md:block" />;
+      return (
+        <div className="hidden md:flex">
+            <Skeleton className="h-9 w-24" />
+        </div>
+      );
     }
-
     if (user) {
       return (
         <DropdownMenu>
@@ -96,7 +99,6 @@ export default function Header() {
         </DropdownMenu>
       );
     }
-
     return (
       <Button asChild className="hidden md:flex">
         <Link href="/login">Ingresar</Link>
@@ -105,8 +107,8 @@ export default function Header() {
   };
 
   const MobileAuthContent = () => {
-     if (loading) {
-      return <Skeleton className="h-10 w-full" />;
+    if (loading) {
+       return <Skeleton className="h-10 w-full" />;
     }
     if (user) {
       return (
@@ -123,7 +125,7 @@ export default function Header() {
         </Button>
       </SheetClose>
     );
-  }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur">

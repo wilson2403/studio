@@ -27,6 +27,7 @@ import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Progress } from '../ui/progress';
+import { EditableTitle } from './EditableTitle';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -264,12 +265,18 @@ export default function PastCeremonies() {
   return (
     <section className="container py-12 md:py-24">
       <div className="flex flex-col items-center text-center space-y-4 mb-12">
-        <h2 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
-          Ceremonias Anteriores
-        </h2>
-        <p className="max-w-2xl text-lg text-foreground/80 font-body">
-          Recuerda y revive los momentos de transformación de nuestros encuentros pasados.
-        </p>
+        <EditableTitle
+          tag="h2"
+          id="pastCeremoniesTitle"
+          initialValue="Ceremonias Anteriores"
+          className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+        />
+        <EditableTitle
+          tag="p"
+          id="pastCeremoniesSubtitle"
+          initialValue="Recuerda y revive los momentos de transformación de nuestros encuentros pasados."
+          className="max-w-2xl text-lg text-foreground/80 font-body"
+        />
         {isAdmin && (
            <Dialog open={isFormOpen} onOpenChange={(open) => {
             if (!open) {

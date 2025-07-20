@@ -1,11 +1,39 @@
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
 const pastCeremoniesCollection = collection(db, 'pastCeremonies');
+const contentCollection = collection(db, 'content');
+
+
+// --- Page Content ---
+
+export const getContent = async (id: string): Promise<string | null> => {
+  try {
+    const docRef = doc(db, 'content', id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data().value;
+    }
+    return null;
+  } catch (error) {
+    console.error("Error getting content: ", error);
+    return null;
+  }
+}
+
+export const setContent = async (id: string, value: string): Promise<void> => {
+   try {
+    const docRef = doc(db, 'content', id);
+    await setDoc(docRef, { value });
+  } catch (error) {
+    console.error("Error setting content: ", error);
+    throw error;
+  }
+}
 
 
 // --- Ceremonies ---

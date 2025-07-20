@@ -17,6 +17,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
+import { EditableTitle } from './EditableTitle';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -132,13 +133,18 @@ export default function Ceremonies() {
       className="container py-12 md:py-24 animate-in fade-in-0 duration-1000 delay-500"
     >
       <div className="flex flex-col items-center text-center space-y-4 mb-12">
-        <h2 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
-          Próximas Ceremonias
-        </h2>
-        <p className="max-w-2xl text-lg text-foreground/80 font-body">
-          Estos son nuestros próximos encuentros. Cada uno es una oportunidad
-          única para sanar y reconectar.
-        </p>
+        <EditableTitle
+          tag="h2"
+          id="upcomingCeremoniesTitle"
+          initialValue="Próximas Ceremonias"
+          className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+        />
+        <EditableTitle
+          tag="p"
+          id="upcomingCeremoniesSubtitle"
+          initialValue="Estos son nuestros próximos encuentros. Cada uno es una oportunidad única para sanar y reconectar."
+          className="max-w-2xl text-lg text-foreground/80 font-body"
+         />
          {isAdmin && (
           <Button onClick={() => setIsAdding(true)}>
             <PlusCircle className="mr-2" />
