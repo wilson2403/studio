@@ -17,7 +17,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-grid-white/[0.07] bg-center [mask-image:linear-gradient(to_bottom,white,transparent_70%)] z-10"></div>
       
       <div className="container relative text-center animate-in fade-in-0 duration-1000 z-20">
-        <div className="flex flex-col items-center space-y-6">
+        <div className="flex flex-col items-center space-y-4">
           <EditableTitle 
             tag="h1"
             id="heroTitle"
