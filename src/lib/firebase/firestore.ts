@@ -294,13 +294,18 @@ export const uploadVideo = (file: File, onProgress: (progress: number) => void, 
         onProgress(progress);
       },
       (error) => {
-        console.error("Upload failed:", error);
+        console.error("Video upload failed:", error);
+        // Important: Reject the promise on error.
         reject(error);
       },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
           resolve(downloadURL);
-        });
+        } catch (error) {
+           console.error("Failed to get download URL:", error);
+           reject(error);
+        }
       }
     );
   });
