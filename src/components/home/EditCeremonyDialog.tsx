@@ -97,13 +97,22 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
   });
 
   const onSubmit = async (data: EditCeremonyFormValues) => {
+    if (!data.mediaUrl && !mediaFile) {
+        toast({
+           title: 'Falta media',
+           description: 'Por favor, proporciona una URL o sube un archivo.',
+           variant: 'destructive',
+       });
+       return;
+   }
+
     setIsUploading(true);
     let finalMediaUrl = data.mediaUrl;
 
     if (mediaFile) {
         try {
             const onProgress = (progress: number) => setUploadProgress(progress);
-            if(data.mediaType === 'video') {
+            if(form.getValues('mediaType') === 'video') {
                 finalMediaUrl = await uploadVideo(mediaFile, onProgress, 'ceremonies-videos');
             } else {
                 finalMediaUrl = await uploadImage(mediaFile, onProgress);
@@ -118,17 +127,6 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
             return;
         }
     }
-    
-    if (!finalMediaUrl) {
-         toast({
-            title: 'Falta media',
-            description: 'Por favor, proporciona una URL o sube un archivo.',
-            variant: 'destructive',
-        });
-        setIsUploading(false);
-        return;
-    }
-
 
     try {
       const ceremonyData = { ...data, mediaUrl: finalMediaUrl, features: data.features.map(f => f.value) };
