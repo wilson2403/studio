@@ -72,11 +72,21 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDe
     setIsUploading(true);
     setUploadProgress(0);
     
+    let finalImageUrl = guide.imageUrl;
+
     try {
-        let finalImageUrl = guide.imageUrl;
         if (imageFile) {
-            const onProgress = (progress: number) => setUploadProgress(progress);
-            finalImageUrl = await uploadImage(imageFile, onProgress);
+            try {
+                const onProgress = (progress: number) => setUploadProgress(progress);
+                finalImageUrl = await uploadImage(imageFile, onProgress);
+            } catch (uploadError: any) {
+                 toast({
+                    title: t('errorUploadingImage'),
+                    description: uploadError.message || 'An unexpected error occurred during upload.',
+                    variant: 'destructive',
+                });
+                throw uploadError; // Stop execution if upload fails
+            }
         }
 
         const updatedData: Guide = {
@@ -91,13 +101,18 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDe
             title: t('guideUpdated'),
         });
         onClose();
+
     } catch (error: any) {
+        // This will catch errors from both upload and updateGuide.
+        // The toast for upload errors is already handled above.
+        if (!imageFile) { // Only show general error if it's not an upload error
+             toast({
+                title: t('errorUpdatingGuide'),
+                description: error.message || 'An unexpected error occurred.',
+                variant: 'destructive',
+            });
+        }
         console.error("Failed to update guide:", error);
-        toast({
-            title: t('errorUpdatingGuide'),
-            description: error.message || 'An unexpected error occurred.',
-            variant: 'destructive',
-        });
     } finally {
         setIsUploading(false);
         setUploadProgress(0);
