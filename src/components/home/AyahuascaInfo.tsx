@@ -2,7 +2,7 @@
 'use client';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Leaf, Heart, Globe, Users, User } from 'lucide-react';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';

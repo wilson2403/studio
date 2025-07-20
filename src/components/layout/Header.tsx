@@ -41,6 +41,7 @@ export default function Header() {
 
   const navLinks = [
     { href: '/', label: t('navHome') },
+    { href: '/ayahuasca', label: t('navAyahuasca') },
     { href: '/#ceremonias', label: t('navCeremonies') },
     { href: '/guides', label: t('navGuides') },
     { href: '/preparation', label: t('navPreparation') },
@@ -150,7 +151,7 @@ export default function Header() {
               href={link.href}
               className={cn(
                 'transition-colors hover:text-primary',
-                (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href)))
+                (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
                   ? 'text-primary'
                   : 'text-foreground/60'
               )}
