@@ -71,9 +71,9 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDe
     
     setIsUploading(true);
     setUploadProgress(0);
-    let finalImageUrl = guide.imageUrl;
-
+    
     try {
+        let finalImageUrl = guide.imageUrl;
         if (imageFile) {
             const onProgress = (progress: number) => setUploadProgress(progress);
             finalImageUrl = await uploadImage(imageFile, onProgress);
