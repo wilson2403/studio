@@ -3,7 +3,7 @@
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Leaf, Heart, Globe } from 'lucide-react';
+import { Leaf, Heart, Globe, Users, User } from 'lucide-react';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
 
@@ -42,7 +42,7 @@ export default function AyahuascaInfo() {
         />
       </div>
 
-      <div className="grid md:grid-cols-2 gap-12 items-center">
+      <div className="grid md:grid-cols-2 gap-12 items-start">
         <div className="space-y-8 animate-in fade-in-0 duration-1000 delay-200">
             <div className='space-y-2'>
                  <EditableTitle
@@ -88,7 +88,7 @@ export default function AyahuascaInfo() {
             </div>
         </div>
         
-        <div className="animate-in fade-in-0 duration-1000 delay-400">
+        <div className="space-y-8 animate-in fade-in-0 duration-1000 delay-400">
              <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-2xl">
@@ -125,6 +125,46 @@ export default function AyahuascaInfo() {
                     </Accordion>
                 </CardContent>
              </Card>
+             <div className='space-y-6'>
+                <div className='flex gap-4 items-start'>
+                    <div className="p-3 bg-primary/10 rounded-full mt-1">
+                        <Users className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                        <EditableTitle
+                            tag="h3"
+                            id="groupCeremonyTitle"
+                            initialValue={t('groupCeremonyTitle')}
+                            className="text-2xl font-headline text-primary"
+                        />
+                        <EditableTitle
+                            tag="p"
+                            id="groupCeremonyDescription"
+                            initialValue={t('groupCeremonyDescription')}
+                            className="text-foreground/80 font-body text-lg mt-1"
+                        />
+                    </div>
+                </div>
+                <div className='flex gap-4 items-start'>
+                    <div className="p-3 bg-primary/10 rounded-full mt-1">
+                        <User className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                        <EditableTitle
+                            tag="h3"
+                            id="privateCeremonyTitle"
+                            initialValue={t('privateCeremonyTitle')}
+                            className="text-2xl font-headline text-primary"
+                        />
+                        <EditableTitle
+                            tag="p"
+                            id="privateCeremonyDescription"
+                            initialValue={t('privateCeremonyDescription')}
+                            className="text-foreground/80 font-body text-lg mt-1"
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
       </div>
     </section>
