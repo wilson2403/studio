@@ -17,14 +17,14 @@ export default function Contact() {
             title: t('contactSanCarlosTitle'),
             handle: '@ElArteDeSanarcr',
             instagramUrl: 'https://www.instagram.com/elartedesanarcr',
-            whatsappUrl: 'https://wa.me/50670519145?text=Hola,%20vengo%20de%20la%20página%20web%20y%20quisiera%20más%20información%20sobre%20El%20Arte%20de%20Sanar%20en%20San%20Carlos'
+            whatsappUrl: 'https://wa.me/50687992560?text=Hola,%20vengo%20de%20la%20página%20web%20y%20quisiera%20más%20información%20sobre%20El%20Arte%20de%20Sanar%20en%20San%20Carlos'
         },
         {
             id: 'guanacaste',
             title: t('contactGuanacasteTitle'),
             handle: '@CasaTrinitos',
             instagramUrl: 'https://www.instagram.com/casatrinitos',
-            whatsappUrl: 'https://wa.me/50670519145?text=Hola,%20vengo%20de%20la%20página%20web%20y%20quisiera%20más%20información%20sobre%20Casa%20Trinitos%20en%20Guanacaste'
+            whatsappUrl: 'https://wa.me/50687992560?text=Hola,%20vengo%20de%20la%20página%20web%20y%20quisiera%20más%20información%20sobre%20Casa%20Trinitos%20en%20Guanacaste'
         }
     ];
 

@@ -73,8 +73,8 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     } : {
       title: '',
       description: '',
-      price: '',
-      link: 'https://wa.me/50670519145',
+      price: 'desde ₡80.000',
+      link: 'https://wa.me/50687992560',
       featured: false,
       features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
       mediaUrl: '',

@@ -95,23 +95,24 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
   
   if (tiktokData) {
     return (
-       <blockquote
-          className="tiktok-embed w-full h-full"
-          cite={mediaUrl}
-          data-video-id={tiktokData.videoId}
-        >
-          <section>
-            <a target="_blank" title={title} href={mediaUrl}>
-              {title}
-            </a>
-          </section>
-        </blockquote>
+      <blockquote
+        className="tiktok-embed w-full h-full"
+        cite={mediaUrl}
+        data-video-id={tiktokData.videoId}
+        style={{maxWidth: '100%', minHeight: '100%'}}
+      >
+        <section className='w-full h-full'>
+          <a target="_blank" title={title} href={mediaUrl}>
+            {title}
+          </a>
+        </section>
+      </blockquote>
     );
   }
   
   if (facebookEmbedUrl) {
     return (
-        <div className="fb-video w-full h-full"
+        <div className="fb-video w-full h-full flex items-center justify-center"
              data-href={mediaUrl}
              data-width="auto"
              data-show-text="false"
@@ -280,7 +281,7 @@ export default function Ceremonies() {
             <CardContent className="flex-1 space-y-6 mt-6 p-0">
               <div className="text-center">
                 <span className="text-4xl font-bold text-foreground">
-                  {t('priceFrom', { price: ceremony.price })}
+                  {ceremony.price}
                 </span>
                 <p className="text-sm text-muted-foreground">
                   {t('fullPlanUpTo')}
