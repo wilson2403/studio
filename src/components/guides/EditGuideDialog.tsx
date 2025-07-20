@@ -114,10 +114,10 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDe
         title: t('guideDeleted'),
       });
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       toast({
-        title: 'Error',
-        description: t('errorDeletingGuide'),
+        title: t('errorDeletingGuide'),
+        description: error.message || 'An unexpected error occurred.',
         variant: 'destructive',
       });
     }
