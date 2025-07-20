@@ -24,3 +24,18 @@ export type Guide = {
   description: string;
   imageUrl: string;
 };
+
+export type UserProfile = {
+    uid: string;
+    email: string;
+    displayName?: string;
+    photoURL?: string;
+    phone?: string;
+    address?: string;
+}
+
+export type ThemeSettings = {
+    primary: string;
+    background: string;
+    accent: string;
+}

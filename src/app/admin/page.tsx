@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Code, FileType, Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import SettingsTabs from '@/components/admin/SettingsTabs';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -31,6 +33,7 @@ const projectStructure = [
   'src/app/layout.tsx',
   'src/app/page.tsx',
   'src/app/preparation/page.tsx',
+  'src/components/admin/SettingsTabs.tsx',
   'src/components/auth/RegistrationPromptDialog.tsx',
   'src/components/guides/EditGuideDialog.tsx',
   'src/components/home/AyahuascaInfo.tsx',
@@ -49,6 +52,8 @@ const projectStructure = [
   'src/components/layout/Header.tsx',
   'src/components/layout/I18nProvider.tsx',
   'src/components/layout/LanguageSwitcher.tsx',
+  'src/components/layout/ThemeProvider.tsx',
+  'src/components/layout/ThemeSwitcher.tsx',
   'src/components/ui/accordion.tsx',
   'src/components/ui/alert-dialog.tsx',
   'src/components/ui/alert.tsx',
@@ -115,7 +120,7 @@ Eres un experto desarrollador de aplicaciones web full-stack especializado en el
 - **Página de Guías (\`/guides\`):** Muestra los perfiles de los guías espirituales del centro.
 - **Página de Preparación (\`/preparation\`):** Una guía detallada sobre cómo prepararse para una ceremonia, incluyendo dieta, preparación mental y qué llevar.
 - **Páginas de Autenticación (\`/login\`, \`/register\`):** Formularios para que los usuarios y administradores inicien sesión o se registren.
-- **Página de Administración (\`/admin\`):** Una página protegida visible solo para administradores. Muestra la estructura de archivos del proyecto y este mismo prompt.
+- **Página de Administración (\`/admin\`):** Una página protegida visible solo para administradores. Muestra la estructura de archivos del proyecto, el prompt del sistema y permite editar el perfil del usuario y los colores del tema.
 
 **Funcionalidades Clave:**
 1.  **Contenido Editable en Vivo:**
@@ -146,6 +151,12 @@ Eres un experto desarrollador de aplicaciones web full-stack especializado en el
     -   Toda la UI de texto (títulos, botones, etiquetas) está traducida usando \`i18next\`.
     -   Los usuarios pueden cambiar entre inglés y español con un selector de idioma en el encabezado.
 
+7. **Personalización del Tema y Perfil**
+   - La página de administración tiene pestañas para gestionar el perfil y el tema.
+   - El administrador puede actualizar su número de teléfono y dirección.
+   - Se pueden cambiar los colores primario, de fondo y de acento de la aplicación.
+   - Un conmutador en el encabezado permite cambiar entre temas claro, oscuro y de sistema.
+
 **Estilo y Diseño:**
 -   **Tema:** Oscuro, elegante y espiritual. La paleta de colores se define en \`globals.css\` usando variables HSL para primario, fondo, tarjeta, etc.
 -   **Tipografía:** Se usan fuentes específicas (Alegreya para el cuerpo, Belleza para los titulares) importadas desde Google Fonts.
@@ -175,7 +186,11 @@ export default function AdminPage() {
   if (loading || !user || user.email !== ADMIN_EMAIL) {
     return (
       <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
-        <p>{t('loading')}...</p>
+        <div className="space-y-4 w-full">
+            <Skeleton className="h-12 w-1/4 mx-auto" />
+            <Skeleton className="h-8 w-1/2 mx-auto" />
+            <Skeleton className="h-96 w-full" />
+        </div>
       </div>
     );
   }
@@ -188,6 +203,8 @@ export default function AdminPage() {
         </h1>
         <p className="mt-2 text-lg text-foreground/80 font-body">{t('adminPanelSubtitle')}</p>
       </div>
+      
+      <SettingsTabs user={user} />
 
       <div className="grid md:grid-cols-2 gap-8">
         <Card className="bg-card/50 backdrop-blur-sm">

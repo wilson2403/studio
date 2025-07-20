@@ -31,6 +31,7 @@ import { Skeleton } from '../ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -171,6 +172,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2">
+          <ThemeSwitcher />
           <LanguageSwitcher />
           <div className="hidden md:flex items-center">
             <AuthContent />

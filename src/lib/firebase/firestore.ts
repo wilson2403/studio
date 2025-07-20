@@ -1,14 +1,17 @@
 
 
+
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
 const pastCeremoniesCollection = collection(db, 'pastCeremonies');
 const contentCollection = collection(db, 'content');
 const guidesCollection = collection(db, 'guides');
+const usersCollection = collection(db, 'users');
+const settingsCollection = collection(db, 'settings');
 
 
 // --- Page Content ---
@@ -310,3 +313,55 @@ export const uploadVideo = (file: File, onProgress: (progress: number) => void, 
     );
   });
 };
+
+// --- User Profile ---
+
+export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+    try {
+        const docRef = doc(db, 'users', uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data() as UserProfile;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error getting user profile:", error);
+        return null;
+    }
+};
+
+export const updateUserProfile = async (uid: string, data: Partial<UserProfile>): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, data);
+    } catch (error) {
+        console.error("Error updating user profile:", error);
+        throw error;
+    }
+};
+
+
+// --- Theme Settings ---
+export const getThemeSettings = async (): Promise<ThemeSettings | null> => {
+    try {
+        const docRef = doc(db, 'settings', 'theme');
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data() as ThemeSettings;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error getting theme settings:", error);
+        return null;
+    }
+}
+
+export const setThemeSettings = async (settings: ThemeSettings): Promise<void> => {
+    try {
+        const docRef = doc(db, 'settings', 'theme');
+        await setDoc(docRef, settings);
+    } catch (error) {
+        console.error("Error setting theme settings:", error);
+        throw error;
+    }
+}

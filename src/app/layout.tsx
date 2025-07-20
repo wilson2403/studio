@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import Script from 'next/script';
 import { I18nProvider } from '@/components/layout/I18nProvider';
+import { ThemeProvider } from '@/components/layout/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'El Arte de Sanar',
@@ -19,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -36,19 +37,25 @@ export default function RootLayout({
         className={cn('min-h-screen bg-background font-body antialiased')}
       >
         <I18nProvider>
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-          <Toaster />
-          
-          <div id="fb-root"></div>
-          <Script 
-            id="facebook-sdk"
-            strategy="lazyOnload" 
-            src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
-          />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+            >
+              <div className="relative flex min-h-screen flex-col">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+              <Toaster />
+              
+              <div id="fb-root"></div>
+              <Script 
+                id="facebook-sdk"
+                strategy="lazyOnload" 
+                src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
+              />
+          </ThemeProvider>
         </I18nProvider>
       </body>
     </html>
