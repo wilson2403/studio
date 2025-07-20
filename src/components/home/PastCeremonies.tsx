@@ -9,26 +9,14 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import {
-  addPastCeremony,
-  deletePastCeremony,
   getPastCeremonies,
   PastCeremony,
   seedPastCeremonies,
-  updatePastCeremony,
-  uploadVideo,
 } from '@/lib/firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { Button } from '../ui/button';
-import { Copy, Edit, PlusCircle, Trash } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
-import { Progress } from '../ui/progress';
-import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
+import { EditableTitle } from './EditableTitle';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -43,138 +31,17 @@ function getYouTubeEmbedUrl(url: string): string | null {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
 
-const PastCeremonyForm = ({
-  item,
-  onSave,
-  onClose,
-}: {
-  item?: PastCeremony;
-  onSave: (data: PastCeremony) => void;
-  onClose: () => void;
-}) => {
-  const [title, setTitle] = React.useState(item?.title || '');
-  const [description, setDescription] = React.useState(item?.description || '');
-  const [videoUrl, setVideoUrl] = React.useState(item?.videoUrl || '');
-  const [videoFile, setVideoFile] = React.useState<File | null>(null);
-  const [uploading, setUploading] = React.useState(false);
-  const [uploadProgress, setUploadProgress] = React.useState(0);
-  const { toast } = useToast();
-  const { t } = useTranslation();
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setVideoFile(e.target.files[0]);
-      setVideoUrl(''); // Clear URL if a file is chosen
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!videoUrl && !videoFile) {
-        toast({ title: t('videoFormUrlOrUpload'), variant: 'destructive' });
-        return;
-    }
-
-    setUploading(true);
-
-    try {
-      let finalVideoUrl = videoUrl;
-      
-      if (videoFile) {
-          finalVideoUrl = await uploadVideo(videoFile, (progress) => {
-              setUploadProgress(progress);
-          });
-      }
-
-      if (!finalVideoUrl) {
-          toast({ title: t('errorSavingVideo'), description: 'No se pudo obtener la URL del video.', variant: 'destructive' });
-          setUploading(false);
-          return;
-      }
-      
-      const ceremonyData = { title, description, videoUrl: finalVideoUrl };
-
-      if (item) { // Edit
-        const updatedItem = { ...item, ...ceremonyData };
-        await updatePastCeremony(updatedItem);
-        onSave(updatedItem);
-        toast({ title: t('videoUpdated') });
-      } else { // Add
-        const id = await addPastCeremony(ceremonyData);
-        onSave({ id, ...ceremonyData });
-        toast({ title: t('videoAdded') });
-      }
-      onClose();
-    } catch (error) {
-      console.error("Error during submit:", error);
-      toast({ title: t('errorSavingVideo'), variant: 'destructive' });
-    } finally {
-      setUploading(false);
-      setUploadProgress(0);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Label htmlFor="title">{t('videoFormTitle')}</Label>
-        <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-      </div>
-      <div>
-        <Label htmlFor="description">{t('videoFormDescription')}</Label>
-        <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
-      </div>
-      
-      <div className="space-y-2">
-        <Label htmlFor="videoUrl">{t('videoFormUrl')}</Label>
-        <Input id="videoUrl" value={videoUrl} onChange={(e) => {setVideoUrl(e.target.value); setVideoFile(null)}} type="url" placeholder="https://youtube.com/watch?v=..." />
-      </div>
-
-      <div className="relative flex items-center justify-center w-full">
-        <div className="absolute w-full border-t border-muted-foreground/20"></div>
-        <span className="relative px-2 text-xs text-muted-foreground bg-card">{t('or')}</span>
-      </div>
-
-      <div className="space-y-2">
-         <Label htmlFor="videoFile">{t('videoFormUpload')}</Label>
-         <div className="flex items-center gap-2">
-          <Input id="videoFile" type="file" accept="video/*" onChange={handleFileChange} className="flex-grow"/>
-         </div>
-         {videoFile && <p className="text-sm text-muted-foreground">{t('videoFormSelected', { fileName: videoFile.name })}</p>}
-      </div>
-
-      {uploading && (
-        <div className='space-y-1'>
-           <Label>{videoFile ? t('videoFormUploading') : t('videoFormSaving')}</Label>
-           <Progress value={uploadProgress} />
-        </div>
-      )}
-
-      <DialogFooter>
-        <Button type="button" variant="ghost" onClick={onClose} disabled={uploading}>{t('cancel')}</Button>
-        <Button type="submit" disabled={uploading}>
-            {uploading ? t('videoFormSaving') : t('videoFormSave')}
-        </Button>
-      </DialogFooter>
-    </form>
-  );
-};
-
-
 const VideoPlayer = ({ video, isAdmin }: { video: PastCeremony, isAdmin: boolean }) => {
-  const [isHovering, setIsHovering] = React.useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const youtubeEmbedUrl = getYouTubeEmbedUrl(video.videoUrl);
 
   const handleMouseEnter = () => {
-    setIsHovering(true);
     if(videoRef.current) {
         videoRef.current.play().catch(e => console.log("Video play failed:", e));
     }
   };
 
   const handleMouseLeave = () => {
-    setIsHovering(false);
     if(videoRef.current) {
         videoRef.current.pause();
     }
@@ -183,7 +50,7 @@ const VideoPlayer = ({ video, isAdmin }: { video: PastCeremony, isAdmin: boolean
   if (youtubeEmbedUrl) {
     return (
        <iframe
-        src={youtubeEmbedUrl + (isAdmin ? '' : '?autoplay=1&mute=1&controls=0&loop=1')}
+        src={youtubeEmbedUrl + (isAdmin ? '' : '?autoplay=0&mute=1&controls=0&loop=1')}
         title={video.title}
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -212,12 +79,9 @@ export default function PastCeremonies() {
   const [videos, setVideos] = React.useState<PastCeremony[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [user, setUser] = React.useState<User | null>(null);
-  const [isFormOpen, setFormOpen] = React.useState(false);
-  const [editingItem, setEditingItem] = React.useState<PastCeremony | undefined>(undefined);
   const { t } = useTranslation();
 
   const isAdmin = user?.email === ADMIN_EMAIL;
-  const { toast } = useToast();
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, setUser);
@@ -238,41 +102,6 @@ export default function PastCeremonies() {
     fetchVideos();
   }, []);
   
-  const handleSave = (savedItem: PastCeremony) => {
-    if (videos.find(v => v.id === savedItem.id)) {
-      setVideos(videos.map(v => v.id === savedItem.id ? savedItem : v));
-    } else {
-      setVideos([...videos, savedItem]);
-    }
-    setFormOpen(false);
-    setEditingItem(undefined);
-  }
-
-  const handleDelete = async (id: string) => {
-     try {
-      await deletePastCeremony(id);
-      setVideos(videos.filter(v => v.id !== id));
-      toast({ title: t("videoDeleted") });
-    } catch (error) {
-      toast({ title: t("errorDeletingVideo"), variant: 'destructive' });
-    }
-  }
-
-  const handleDuplicate = async (itemToDuplicate: PastCeremony) => {
-    try {
-      const { id, ...originalData } = itemToDuplicate;
-      const duplicatedData: Omit<PastCeremony, 'id'> = {
-        ...originalData,
-        title: `${originalData.title} (Copia)`,
-      };
-      const newId = await addPastCeremony(duplicatedData);
-      setVideos([...videos, { ...duplicatedData, id: newId }]);
-      toast({ title: t("videoDuplicated") });
-    } catch (error) {
-      toast({ title: t("errorDuplicatingVideo"), variant: 'destructive' });
-    }
-  };
-
   return (
     <section className="container py-12 md:py-24">
       <div className="flex flex-col items-center text-center space-y-4 mb-12">
@@ -314,10 +143,10 @@ export default function PastCeremonies() {
               <div className="p-1">
                 <div className="relative rounded-2xl overflow-hidden aspect-video group">
                   <VideoPlayer video={video} isAdmin={isAdmin} />
-                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300"></div>
-                   <div className="absolute bottom-0 left-0 p-6 text-white">
-                      <h3 className="text-xl font-headline">{video.title}</h3>
-                      <p className="font-body text-sm opacity-90">{video.description}</p>
+                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
+                   <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100">
+                      <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>
+                      <p className="font-body text-sm opacity-90 mt-1">{video.description}</p>
                    </div>
                 </div>
               </div>
