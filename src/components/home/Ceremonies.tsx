@@ -52,10 +52,12 @@ function getTikTokEmbedData(url: string): { embedUrl: string; videoId: string } 
 
 function getFacebookEmbedUrl(url: string): string | null {
     if (!url) return null;
-    const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\?v=|video\.php\?v=|.*\/videos\/|share\/(?:v|r)\/)([0-9]+)/;
+    // This regex now supports posts and reels URLs
+    const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\/?\?v=|video\.php\?v=|photo\.php\?v=|reel\/|.*\/videos\/|share\/(?:v|r)\/)([0-9a-zA-Z_.-]+)/;
     const match = url.match(facebookRegex);
     if (match && match[1]) {
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560`;
+        // Construct the embed URL using the original URL for consistency
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=true&mute=1`;
     }
     return null;
 }
@@ -69,12 +71,14 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
   const youtubeEmbedUrl = getYouTubeEmbedUrl(mediaUrl);
   const tiktokData = getTikTokEmbedData(mediaUrl);
   const facebookEmbedUrl = getFacebookEmbedUrl(mediaUrl);
-
+  
   useEffect(() => {
-    if (facebookEmbedUrl && (window as any).FB) {
+    // This will re-parse the DOM for any new Facebook video embeds
+    if (facebookEmbedUrl && typeof (window as any).FB !== 'undefined') {
         (window as any).FB.XFBML.parse();
     }
-  }, [facebookEmbedUrl]);
+  }, [facebookEmbedUrl, mediaUrl]);
+
 
   if (youtubeEmbedUrl) {
     return (
@@ -95,7 +99,6 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
           className="tiktok-embed w-full h-full"
           cite={mediaUrl}
           data-video-id={tiktokData.videoId}
-          style={{ maxWidth: '605px', minHeight: '325px' }}
         >
           <section>
             <a target="_blank" title={title} href={mediaUrl}>
@@ -108,15 +111,13 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
   
   if (facebookEmbedUrl) {
     return (
-        <div className="fb-video"
+        <div className="fb-video w-full h-full"
              data-href={mediaUrl}
-             data-width="100%"
+             data-width="auto"
              data-show-text="false"
              data-autoplay="true"
-             data-allowfullscreen="true">
-            <blockquote cite={mediaUrl} className="fb-xfbml-parse-ignore">
-                <a href={mediaUrl}>Video</a>
-            </blockquote>
+             data-allowfullscreen="true"
+             data-lazy="true">
         </div>
     );
   }
@@ -167,6 +168,13 @@ export default function Ceremonies() {
     fetchCeremonies();
   }, []);
 
+  useEffect(() => {
+    // Re-initialize Facebook SDK when ceremonies data changes
+    if (typeof (window as any).FB !== 'undefined') {
+      (window as any).FB.XFBML.parse();
+    }
+  }, [ceremonies]);
+
   const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
     setCeremonies(ceremonies.map(c => c.id === updatedCeremony.id ? updatedCeremony : c));
     setEditingCeremony(null);
@@ -210,6 +218,7 @@ export default function Ceremonies() {
 
   return (
     <>
+    <Script async defer crossOrigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v12.0&appId=YOUR_APP_ID&autoLogAppEvents=1" nonce="aAbBcCdD"></Script>
     <Script async src="https://www.tiktok.com/embed.js"></Script>
     <section
       id="ceremonias"

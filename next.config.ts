@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
         hostname: '**.tiktok.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'm.facebook.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
