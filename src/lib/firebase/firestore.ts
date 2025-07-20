@@ -160,6 +160,30 @@ export const deletePastCeremony = async (id: string): Promise<void> => {
 
 // --- Firebase Storage ---
 
+export const uploadImage = (file: File, onProgress: (progress: number) => void): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const storageRef = ref(storage, `ceremonies-images/${Date.now()}-${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        onProgress(progress);
+      },
+      (error) => {
+        console.error("Image upload failed:", error);
+        reject(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          resolve(downloadURL);
+        });
+      }
+    );
+  });
+};
+
 export const uploadVideo = (file: File, onProgress: (progress: number) => void): Promise<string> => {
   return new Promise((resolve, reject) => {
     const storageRef = ref(storage, `past-ceremonies/${Date.now()}-${file.name}`);
@@ -183,5 +207,3 @@ export const uploadVideo = (file: File, onProgress: (progress: number) => void):
     );
   });
 };
-
-    
