@@ -19,7 +19,7 @@ import {
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '../ui/button';
-import { Edit, PlusCircle, Trash } from 'lucide-react';
+import { Copy, Edit, PlusCircle, Trash } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -132,6 +132,21 @@ export default function PastCeremonies() {
     }
   }
 
+  const handleDuplicate = async (itemToDuplicate: PastCeremony) => {
+    try {
+      const { id, ...originalData } = itemToDuplicate;
+      const duplicatedData: Omit<PastCeremony, 'id'> = {
+        ...originalData,
+        title: `${originalData.title} (Copia)`,
+      };
+      const newId = await addPastCeremony(duplicatedData);
+      setVideos([...videos, { ...duplicatedData, id: newId }]);
+      toast({ title: "Video duplicado" });
+    } catch (error) {
+      toast({ title: "Error al duplicar", variant: 'destructive' });
+    }
+  };
+
   return (
     <section className="container py-12 md:py-24">
       <div className="flex flex-col items-center text-center space-y-4 mb-12">
@@ -189,6 +204,9 @@ export default function PastCeremonies() {
                     <div className="absolute top-2 right-2 z-20 flex gap-2">
                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
                         <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => handleDuplicate(video)}>
+                        <Copy className="h-4 w-4" />
                       </Button>
                        <AlertDialog>
                         <AlertDialogTrigger asChild>

@@ -20,7 +20,7 @@ import * as z from 'zod';
 import { Ceremony } from '@/types';
 import { addCeremony, updateCeremony, deleteCeremony } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Trash } from 'lucide-react';
+import { Copy, Trash } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
@@ -44,9 +44,10 @@ interface EditCeremonyDialogProps {
   onUpdate: (ceremony: Ceremony) => void;
   onAdd: (ceremony: Ceremony) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (ceremony: Ceremony) => void;
 }
 
-export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate, onAdd, onDelete }: EditCeremonyDialogProps) {
+export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate, onAdd, onDelete, onDuplicate }: EditCeremonyDialogProps) {
   const { toast } = useToast();
   const isEditMode = !!ceremony;
 
@@ -133,6 +134,32 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     }
   }
 
+  const handleDuplicate = async () => {
+    if (!ceremony) return;
+    try {
+      const { id, ...originalData } = ceremony;
+      const duplicatedData: Omit<Ceremony, 'id'> = {
+        ...originalData,
+        title: `${originalData.title} (Copia)`,
+        featured: false, // Duplicates are not featured by default
+      };
+      const newId = await addCeremony(duplicatedData);
+      onDuplicate({ ...duplicatedData, id: newId });
+      toast({
+        title: '¡Duplicada!',
+        description: 'La ceremonia ha sido duplicada.',
+      });
+      onClose();
+    } catch (error) {
+       toast({
+        title: 'Error',
+        description: 'No se pudo duplicar la ceremonia.',
+        variant: 'destructive',
+      });
+    }
+  }
+
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] bg-card">
@@ -204,26 +231,32 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
           <DialogFooter className="justify-between">
             <div>
               {isEditMode && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button type="button" variant="destructive">
-                      <Trash className="mr-2 h-4 w-4" />
-                      Eliminar
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Esta acción no se puede deshacer. Esto eliminará permanentemente la ceremonia.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete}>Continuar</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                <div className="flex gap-2">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button type="button" variant="destructive">
+                        <Trash className="mr-2 h-4 w-4" />
+                        Eliminar
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta acción no se puede deshacer. Esto eliminará permanentemente la ceremonia.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>Continuar</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <Button type="button" variant="outline" onClick={handleDuplicate}>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Duplicar
+                  </Button>
+                </div>
               )}
             </div>
             <div className="flex gap-2">

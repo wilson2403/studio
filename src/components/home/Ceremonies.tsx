@@ -63,6 +63,10 @@ export default function Ceremonies() {
     setCeremonies(ceremonies.filter(c => c.id !== id));
     setEditingCeremony(null);
   }
+  
+  const handleCeremonyDuplicate = (newCeremony: Ceremony) => {
+     setCeremonies([...ceremonies, newCeremony]);
+  }
 
   const isAdmin = user && user.email === ADMIN_EMAIL;
 
@@ -191,6 +195,7 @@ export default function Ceremonies() {
           onUpdate={handleCeremonyUpdate}
           onAdd={handleCeremonyAdd}
           onDelete={handleCeremonyDelete}
+          onDuplicate={handleCeremonyDuplicate}
         />
       )}
     </section>
