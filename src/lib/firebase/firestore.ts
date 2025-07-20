@@ -1,7 +1,5 @@
 
-
-
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -316,6 +314,17 @@ export const uploadVideo = (file: File, onProgress: (progress: number) => void, 
 
 // --- User Profile ---
 
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+    try {
+        const q = query(collection(db, 'users'));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => doc.data() as UserProfile);
+    } catch (error) {
+        console.error("Error getting all users:", error);
+        return [];
+    }
+};
+
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
     try {
         const docRef = doc(db, 'users', uid);
@@ -336,6 +345,16 @@ export const updateUserProfile = async (uid: string, data: Partial<UserProfile>)
         await updateDoc(userRef, data);
     } catch (error) {
         console.error("Error updating user profile:", error);
+        throw error;
+    }
+};
+
+export const updateUserRole = async (uid: string, isAdmin: boolean): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, { isAdmin });
+    } catch (error) {
+        console.error("Error updating user role:", error);
         throw error;
     }
 };

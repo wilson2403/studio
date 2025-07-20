@@ -32,6 +32,7 @@ export type UserProfile = {
     photoURL?: string;
     phone?: string;
     address?: string;
+    isAdmin?: boolean;
 }
 
 export type ThemeSettings = {

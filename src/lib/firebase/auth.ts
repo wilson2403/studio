@@ -1,3 +1,4 @@
+
 import {
   getAuth,
   signInWithPopup,
@@ -15,6 +16,8 @@ import { doc, setDoc } from 'firebase/firestore';
 
 const googleProvider = new GoogleAuthProvider();
 
+const ADMIN_EMAIL = 'wilson2403@gmail.com';
+
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
@@ -27,6 +30,7 @@ export const signInWithGoogle = async () => {
       displayName: user.displayName,
       photoURL: user.photoURL,
       providerId: result.providerId,
+      isAdmin: user.email === ADMIN_EMAIL,
     }, { merge: true });
     return user;
   } catch (error) {
@@ -52,6 +56,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
       displayName: displayName,
       photoURL: user.photoURL,
       providerId: 'password',
+      isAdmin: user.email === ADMIN_EMAIL,
     });
 
     return user;
