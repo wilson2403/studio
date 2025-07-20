@@ -22,7 +22,7 @@ export default function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Sprout className="h-6 w-6 text-primary" />
             <span className="font-bold font-headline text-lg">
-              El Artesanat Sanador
+              El Arte de Sanar
             </span>
           </Link>
         </div>

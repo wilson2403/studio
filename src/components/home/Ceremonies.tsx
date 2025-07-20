@@ -7,23 +7,28 @@ import { Check } from 'lucide-react';
 
 const ceremonies = [
   {
-    title: 'Ceremonia de Ayahuasca',
-    price: 150,
-    features: ['Guía experta', 'Espacio seguro', 'Integración post-ceremonia', 'Música medicinal'],
-    link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20la%20Ceremonia%20de%20Ayahuasca',
+    title: 'Sábado 26 de julio – Guanacaste',
+    description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
+    price: 'Desde ₡50.000',
+    features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
+    link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2026%20de%20julio%20en%20Guanacaste',
     featured: true,
   },
   {
-    title: 'Retiro de Silencio',
-    price: 300,
-    features: ['Alojamiento completo', 'Meditaciones guiadas', 'Caminatas en naturaleza', 'Alimentación consciente'],
-    link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20el%20Retiro%20de%20Silencio',
+    title: 'Sábado 9 de agosto – Pérez Zeledón',
+    description: 'Horario: 5:00 p.m. a 8:00 a.m. del día siguiente',
+    price: 'Desde ₡50.000',
+    features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
+    link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%209%20de%20agosto%20en%20Pérez%20Zeledón',
+    featured: false,
   },
   {
-    title: 'Círculo de Sonido',
-    price: 50,
-    features: ['Viaje sonoro', 'Cuencos de cuarzo', 'Tambores chamánicos', 'Sanación vibracional'],
-    link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20el%20Círculo%20de%20Sonido',
+    title: 'Sábado 23 de agosto – La Fortuna',
+    description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
+    price: 'Desde ₡50.000',
+    features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Círculo de sonido'],
+    link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2023%20de%20agosto%20en%20La%20Fortuna',
+    featured: false,
   },
 ];
 
@@ -49,16 +54,23 @@ export default function Ceremonies() {
           >
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-headline tracking-wide">{ceremony.title}</CardTitle>
-              <CardDescription>
-                <span className="text-4xl font-bold text-foreground">${ceremony.price}</span>
-                <span className="text-muted-foreground"> / persona</span>
+              <CardDescription className="font-body text-base">
+                {ceremony.description}
               </CardDescription>
             </CardHeader>
-            <CardContent className="flex-1">
+            <CardContent className="flex-1 space-y-6">
+               <div className="text-center">
+                <span className="text-4xl font-bold text-foreground">{ceremony.price}</span>
+                <p className="text-sm text-muted-foreground">hasta 100.000 plan completo</p>
+              </div>
               <ul className="space-y-4">
-                {ceremony.features.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3">
+                 <li className="flex items-center gap-3 font-bold">
                     <Check className="h-5 w-5 text-primary" />
+                    <span>🍲 Incluye:</span>
+                  </li>
+                {ceremony.features.map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3 ml-4">
+                    <Check className="h-5 w-5 text-primary/70" />
                     <span className="text-muted-foreground">{feature}</span>
                   </li>
                 ))}

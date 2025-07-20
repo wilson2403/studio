@@ -6,7 +6,7 @@ import Footer from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'El Artesanat Sanador',
+  title: 'El Arte de Sanar',
   description:
     'Un espacio de sanación profunda, cuidado y transformación con medicinas ancestrales.',
 };
