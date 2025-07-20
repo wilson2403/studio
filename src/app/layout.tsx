@@ -33,7 +33,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={cn('min-h-screen bg-background font-body antialiased pl-5')}
+        className={cn('min-h-screen bg-background font-body antialiased')}
       >
         <I18nProvider>
           <div id="fb-root"></div>

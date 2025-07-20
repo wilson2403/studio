@@ -55,11 +55,16 @@ export default function GuidesPage() {
     setEditingGuide(null);
   };
   
+  const handleGuideDelete = (id: string) => {
+    setGuides(guides.filter(g => g.id !== id));
+    setEditingGuide(null);
+  };
+
   const isAdmin = user && user.email === ADMIN_EMAIL;
 
   if (loading) {
     return (
-      <section id="guias" className="container py-12 md:py-24">
+      <section id="guias" className="container py-12 md:py-24 pl-5">
          <div className="flex flex-col items-center text-center space-y-4 mb-12">
             <div className="h-12 w-1/2 bg-card/50 animate-pulse rounded-md"></div>
             <div className="h-8 w-2/3 bg-card/50 animate-pulse rounded-md"></div>
@@ -76,7 +81,7 @@ export default function GuidesPage() {
 
   return (
     <EditableProvider>
-      <div className="container py-12 md:py-24">
+      <div className="container py-12 md:py-24 pl-5">
           <div className="flex flex-col items-center text-center space-y-4 mb-12 animate-in fade-in-0 duration-1000">
               <EditableTitle
                   tag="h1"
@@ -131,6 +136,7 @@ export default function GuidesPage() {
                   isOpen={!!editingGuide}
                   onClose={() => setEditingGuide(null)}
                   onUpdate={handleGuideUpdate}
+                  onDelete={handleGuideDelete}
               />
           )}
       </div>

@@ -239,6 +239,16 @@ export const updateGuide = async (guide: Guide): Promise<void> => {
     }
 }
 
+export const deleteGuide = async (id: string): Promise<void> => {
+    try {
+        const guideRef = doc(db, 'guides', id);
+        await deleteDoc(guideRef);
+    } catch (error) {
+        console.error("Error deleting guide: ", error);
+        throw error;
+    }
+};
+
 
 // --- Firebase Storage ---
 

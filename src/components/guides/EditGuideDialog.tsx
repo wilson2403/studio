@@ -18,12 +18,14 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Guide } from '@/types';
-import { updateGuide, uploadImage } from '@/lib/firebase/firestore';
+import { updateGuide, uploadImage, deleteGuide } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Progress } from '../ui/progress';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { Trash } from 'lucide-react';
 
 const formSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(1, t('errorRequired', { field: t('formName') })),
@@ -38,9 +40,10 @@ interface EditGuideDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onUpdate: (guide: Guide) => void;
+  onDelete: (id: string) => void;
 }
 
-export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate }: EditGuideDialogProps) {
+export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDelete }: EditGuideDialogProps) {
   const { toast } = useToast();
   const { t } = useTranslation();
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -108,6 +111,24 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate }: Ed
     }
   };
 
+  const handleDelete = async () => {
+    if (!guide) return;
+    try {
+      await deleteGuide(guide.id);
+      onDelete(guide.id);
+      toast({
+        title: t('guideDeleted'),
+      });
+      onClose();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: t('errorDeletingGuide'),
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) {
@@ -158,13 +179,37 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate }: Ed
             </div>
            )}
 
-          <DialogFooter>
-            <DialogClose asChild>
-                <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
-            </DialogClose>
-            <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
-                {isUploading ? t('saving') : t('saveChanges')}
-            </Button>
+          <DialogFooter className="flex justify-between w-full">
+            <div>
+              <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button type="button" variant="destructive" disabled={isUploading}>
+                      <Trash className="mr-2 h-4 w-4" />
+                      {t('delete')}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('deleteGuideConfirmTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t('deleteGuideConfirmDescription')}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>{t('continue')}</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+            </div>
+            <div className="flex gap-2">
+              <DialogClose asChild>
+                  <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
+              </DialogClose>
+              <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
+                  {isUploading ? t('saving') : t('saveChanges')}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>
