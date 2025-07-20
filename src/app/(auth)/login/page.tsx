@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +25,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
+import { signInWithGoogle, signInWithEmail } from '@/lib/firebase/auth';
+import { Separator } from '@/components/ui/separator';
+import { GoogleIcon } from '@/components/icons/GoogleIcon';
 
 const formSchema = z.object({
   email: z.string().email({
@@ -36,6 +40,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,14 +50,38 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // TODO: Implement Firebase login
-    toast({
-      title: 'Función no implementada',
-      description: 'El inicio de sesión se conectará a Firebase próximamente.',
-      variant: 'default',
-    });
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await signInWithEmail(values.email, values.password);
+      toast({
+        title: '¡Bienvenido de vuelta!',
+        description: 'Has iniciado sesión correctamente.',
+      });
+      router.push('/');
+    } catch (error: any) {
+      toast({
+        title: 'Error al iniciar sesión',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    try {
+      await signInWithGoogle();
+      toast({
+        title: '¡Bienvenido!',
+        description: 'Has iniciado sesión con Google correctamente.',
+      });
+      router.push('/');
+    } catch (error: any) {
+      toast({
+        title: 'Error con Google',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   }
 
   return (
@@ -65,6 +94,19 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignIn}
+          >
+            <GoogleIcon className="mr-2" />
+            Ingresar con Google
+          </Button>
+          <div className="my-4 flex items-center">
+            <Separator className="flex-1" />
+            <span className="mx-4 text-xs text-muted-foreground">O CONTINÚA CON</span>
+            <Separator className="flex-1" />
+          </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -94,7 +136,7 @@ export default function LoginPage() {
                 )}
               />
               <Button type="submit" className="w-full">
-                Ingresar
+                Ingresar con correo
               </Button>
             </form>
           </Form>
