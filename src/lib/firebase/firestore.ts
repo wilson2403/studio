@@ -1,3 +1,4 @@
+
 import { collection, getDocs, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from './config';
 import type { Ceremony } from '@/types';
@@ -16,16 +17,24 @@ export const seedCeremonies = async () => {
       title: 'Sábado 26 de julio – Guanacaste',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
       price: 'Desde ₡50.000',
-      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
-      link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2026%20de%20julio%20en%20Guanacaste',
+      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo hasta 100.000'],
+      link: 'https://wa.me/50670519145?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2026%20de%20julio%20en%20Guanacaste',
       featured: true,
+    },
+    {
+      title: 'Sábado 2 de agosto – San Carlos',
+      description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
+      price: 'Desde ₡50.000',
+      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo hasta 100.000'],
+      link: 'https://wa.me/50670519145?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%202%20de%20agosto%20en%20San%20Carlos',
+      featured: false,
     },
     {
       title: 'Sábado 9 de agosto – Pérez Zeledón',
       description: 'Horario: 5:00 p.m. a 8:00 a.m. del día siguiente',
       price: 'Desde ₡50.000',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
-      link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%209%20de%20agosto%20en%20Pérez%20Zeledón',
+      link: 'https://wa.me/50670519145?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%209%20de%20agosto%20en%20Pérez%20Zeledón',
       featured: false,
     },
     {
@@ -33,7 +42,7 @@ export const seedCeremonies = async () => {
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
       price: 'Desde ₡50.000',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Círculo de sonido'],
-      link: 'https://wa.me/1234567890?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2023%20de%20agosto%20en%20La%20Fortuna',
+      link: 'https://wa.me/50670519145?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2023%20de%20agosto%20en%20La%20Fortuna',
       featured: false,
     },
   ];
