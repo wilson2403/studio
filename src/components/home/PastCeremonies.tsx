@@ -28,6 +28,17 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
+function getYouTubeEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  let videoId = null;
+  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(youtubeRegex);
+  if (match) {
+    videoId = match[1];
+  }
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+}
+
 const PastCeremonyForm = ({
   item,
   onSave,
@@ -72,7 +83,7 @@ const PastCeremonyForm = ({
         <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
       </div>
       <div>
-        <Label htmlFor="videoUrl">URL del Video</Label>
+        <Label htmlFor="videoUrl">URL del Video (YouTube o .mp4)</Label>
         <Input id="videoUrl" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} required type="url" />
       </div>
       <DialogFooter>
@@ -82,6 +93,53 @@ const PastCeremonyForm = ({
     </form>
   );
 };
+
+const VideoPlayer = ({ video, isAdmin }: { video: PastCeremony, isAdmin: boolean }) => {
+  const [isHovering, setIsHovering] = React.useState(false);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(video.videoUrl);
+
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    if(videoRef.current) {
+        videoRef.current.play().catch(e => console.log("Video play failed:", e));
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    if(videoRef.current) {
+        videoRef.current.pause();
+    }
+  };
+
+  if (youtubeEmbedUrl) {
+    return (
+       <iframe
+        src={youtubeEmbedUrl + (isAdmin ? '' : '?autoplay=1&mute=1&controls=0&loop=1')}
+        title={video.title}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      ></iframe>
+    )
+  }
+
+  return (
+    <video
+      ref={videoRef}
+      src={video.videoUrl}
+      playsInline
+      loop
+      muted
+      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    />
+  );
+};
+
 
 export default function PastCeremonies() {
   const [videos, setVideos] = React.useState<PastCeremony[]>([]);
@@ -229,15 +287,7 @@ export default function PastCeremonies() {
                       </AlertDialog>
                     </div>
                   )}
-                  <video
-                    src={video.videoUrl}
-                    playsInline
-                    loop
-                    muted
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onMouseOver={event => (event.target as HTMLVideoElement).play()}
-                    onMouseOut={event => (event.target as HTMLVideoElement).pause()}
-                  />
+                  <VideoPlayer video={video} isAdmin={isAdmin} />
                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300"></div>
                    <div className="absolute bottom-0 left-0 p-6 text-white">
                       <h3 className="text-xl font-headline">{video.title}</h3>

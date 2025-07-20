@@ -20,6 +20,45 @@ import EditCeremonyDialog from './EditCeremonyDialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
+function getYouTubeEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  let videoId = null;
+  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(youtubeRegex);
+  if (match) {
+    videoId = match[1];
+  }
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+}
+
+const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, mediaType?: 'image' | 'video', title: string }) => {
+  if (!mediaUrl) {
+    return <Image src='https://placehold.co/600x400.png' alt={title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-ai-hint="spiritual ceremony" />;
+  }
+  
+  const youtubeEmbedUrl = getYouTubeEmbedUrl(mediaUrl);
+
+  if (youtubeEmbedUrl) {
+    return (
+      <iframe
+        src={youtubeEmbedUrl}
+        title={title}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="w-full h-full object-cover"
+      ></iframe>
+    );
+  }
+
+  if (mediaType === 'video' && mediaUrl.match(/\.(mp4|webm)$/)) {
+     return <video src={mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
+  }
+
+  return <Image src={mediaUrl} alt={title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-ai-hint="spiritual event" />;
+};
+
+
 export default function Ceremonies() {
   const [user, setUser] = useState<User | null>(null);
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
@@ -125,11 +164,7 @@ export default function Ceremonies() {
             )}
              <CardHeader className="p-0">
                <div className="aspect-video overflow-hidden">
-                {ceremony.mediaType === 'video' ? (
-                   <video src={ceremony.mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <Image src={ceremony.mediaUrl || 'https://placehold.co/600x400.png'} alt={ceremony.title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-ai-hint="spiritual ceremony" />
-                )}
+                <MediaPreview mediaUrl={ceremony.mediaUrl} mediaType={ceremony.mediaType} title={ceremony.title} />
                </div>
             </CardHeader>
             <div className="p-6 flex flex-col flex-1">
