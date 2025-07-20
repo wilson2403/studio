@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Check, Edit, PlusCircle } from 'lucide-react';
+import { Check, Edit, PlusCircle, Copy, Trash } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -76,14 +76,19 @@ export default function Ceremonies() {
   useEffect(() => {
     const fetchCeremonies = async () => {
       setLoading(true);
-      let ceremoniesData = await getCeremonies();
-      if (ceremoniesData.length === 0) {
-        console.log('No ceremonies found, seeding database...');
-        await seedCeremonies();
-        ceremoniesData = await getCeremonies();
+      try {
+        let ceremoniesData = await getCeremonies();
+        if (ceremoniesData.length === 0) {
+          console.log('No ceremonies found, seeding database...');
+          await seedCeremonies();
+          ceremoniesData = await getCeremonies();
+        }
+        setCeremonies(ceremoniesData);
+      } catch (error) {
+        console.error("Failed to fetch or seed ceremonies:", error);
+      } finally {
+        setLoading(false);
       }
-      setCeremonies(ceremoniesData);
-      setLoading(false);
     };
     fetchCeremonies();
   }, []);
