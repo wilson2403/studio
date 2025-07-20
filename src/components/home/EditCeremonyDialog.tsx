@@ -18,7 +18,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Ceremony } from '@/types';
-import { addCeremony, updateCeremony, deleteCeremony, uploadImage } from '@/lib/firebase/firestore';
+import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Copy, Trash } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -52,7 +52,7 @@ interface EditCeremonyDialogProps {
 export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate, onAdd, onDelete, onDuplicate }: EditCeremonyDialogProps) {
   const { toast } = useToast();
   const isEditMode = !!ceremony;
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -82,7 +82,10 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setMediaFile(file);
+      const fileType = file.type.startsWith('video/') ? 'video' : 'image';
+      form.setValue('mediaType', fileType);
       form.setValue('mediaUrl', ''); // Clear URL if a file is chosen
     }
   };
@@ -97,15 +100,18 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     setIsUploading(true);
     let finalMediaUrl = data.mediaUrl;
 
-    if (imageFile) {
+    if (mediaFile) {
         try {
-            finalMediaUrl = await uploadImage(imageFile, (progress) => {
-                setUploadProgress(progress);
-            });
+            const onProgress = (progress: number) => setUploadProgress(progress);
+            if(data.mediaType === 'video') {
+                finalMediaUrl = await uploadVideo(mediaFile, onProgress, 'ceremonies-videos');
+            } else {
+                finalMediaUrl = await uploadImage(mediaFile, onProgress);
+            }
         } catch (error) {
             toast({
                 title: 'Error de subida',
-                description: 'No se pudo subir la imagen.',
+                description: 'No se pudo subir el archivo.',
                 variant: 'destructive',
             });
             setIsUploading(false);
@@ -116,7 +122,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     if (!finalMediaUrl) {
          toast({
             title: 'Falta media',
-            description: 'Por favor, proporciona una URL o sube una imagen.',
+            description: 'Por favor, proporciona una URL o sube un archivo.',
             variant: 'destructive',
         });
         setIsUploading(false);
@@ -159,7 +165,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     } finally {
         setIsUploading(false);
         setUploadProgress(0);
-        setImageFile(null);
+        setMediaFile(null);
     }
   };
 
@@ -212,7 +218,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) {
           form.reset();
-          setImageFile(null);
+          setMediaFile(null);
           setIsUploading(false);
           setUploadProgress(0);
         }
@@ -248,20 +254,20 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
           </div>
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="mediaUrl" className="text-right">URL de Media</Label>
-            <Input id="mediaUrl" {...form.register('mediaUrl')} className="col-span-3" placeholder="https://example.com/image.png" disabled={isUploading || !!imageFile}/>
+            <Input id="mediaUrl" {...form.register('mediaUrl')} className="col-span-3" placeholder="https://youtube.com/watch?v=..." disabled={isUploading || !!mediaFile}/>
             {form.formState.errors.mediaUrl && <p className="col-span-4 text-red-500 text-xs text-right">{form.formState.errors.mediaUrl.message}</p>}
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
              <Label htmlFor="media-upload" className="text-right">O Subir</Label>
              <div className="col-span-3">
-                <Input id="media-upload" type="file" accept="image/*" onChange={handleFileChange} disabled={isUploading || !!form.watch('mediaUrl')}/>
-                {imageFile && <p className="text-sm text-muted-foreground mt-1">Seleccionado: {imageFile.name}</p>}
+                <Input id="media-upload" type="file" accept="image/*,video/*" onChange={handleFileChange} disabled={isUploading || !!form.watch('mediaUrl')}/>
+                {mediaFile && <p className="text-sm text-muted-foreground mt-1">Seleccionado: {mediaFile.name}</p>}
              </div>
           </div>
           
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="mediaType" className="text-right">Tipo de Media</Label>
-            <Select onValueChange={(value) => form.setValue('mediaType', value as 'image' | 'video')} defaultValue={form.getValues('mediaType')} disabled={isUploading}>
+            <Select onValueChange={(value) => form.setValue('mediaType', value as 'image' | 'video')} defaultValue={form.getValues('mediaType')} disabled={isUploading || !!mediaFile}>
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Selecciona un tipo" />
               </SelectTrigger>
@@ -295,7 +301,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
           {isUploading && (
             <div className='grid grid-cols-4 items-center gap-4'>
                 <div className='col-start-2 col-span-3 space-y-1'>
-                    <Label>{imageFile ? 'Subiendo imagen...' : 'Guardando...'}</Label>
+                    <Label>{mediaFile ? 'Subiendo archivo...' : 'Guardando...'}</Label>
                     <Progress value={uploadProgress} />
                 </div>
             </div>

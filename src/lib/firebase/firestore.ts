@@ -212,9 +212,9 @@ export const uploadImage = (file: File, onProgress: (progress: number) => void):
   });
 };
 
-export const uploadVideo = (file: File, onProgress: (progress: number) => void): Promise<string> => {
+export const uploadVideo = (file: File, onProgress: (progress: number) => void, path: string = 'past-ceremonies'): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const storageRef = ref(storage, `past-ceremonies/${Date.now()}-${file.name}`);
+    const storageRef = ref(storage, `${path}/${Date.now()}-${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
