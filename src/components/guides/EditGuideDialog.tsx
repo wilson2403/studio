@@ -175,7 +175,7 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDe
             </div>
            )}
 
-          <DialogFooter className="flex justify-between w-full">
+          <DialogFooter className="flex justify-between w-full pt-4">
             <div>
               <AlertDialog>
                   <AlertDialogTrigger asChild>
