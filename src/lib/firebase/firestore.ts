@@ -45,7 +45,7 @@ export const seedCeremonies = async () => {
     {
       title: 'Sábado 26 de julio – Guanacaste',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
-      price: 'Desde ₡50.000',
+      price: '₡50.000',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo hasta 100.000'],
       link: 'https://wa.me/50670519145?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2026%20de%20julio%20en%20Guanacaste',
       featured: true,
@@ -55,7 +55,7 @@ export const seedCeremonies = async () => {
     {
       title: 'Sábado 2 de agosto – San Carlos',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
-      price: 'Desde ₡50.000',
+      price: '₡50.000',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo hasta 100.000'],
       link: 'https://wa.me/50670519145?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%202%20de%20agosto%20en%20San%20Carlos',
       featured: false,
@@ -65,7 +65,7 @@ export const seedCeremonies = async () => {
     {
       title: 'Sábado 9 de agosto – Pérez Zeledón',
       description: 'Horario: 5:00 p.m. a 8:00 a.m. del día siguiente',
-      price: 'Desde ₡50.000',
+      price: '₡50.000',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
       link: 'https://wa.me/50670519145?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%209%20de%20agosto%20en%20Pérez%20Zeledón',
       featured: false,
@@ -75,7 +75,7 @@ export const seedCeremonies = async () => {
     {
       title: 'Sábado 23 de agosto – La Fortuna',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
-      price: 'Desde ₡50.000',
+      price: '₡50.000',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Círculo de sonido'],
       link: 'https://wa.me/50670519145?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2023%20de%20agosto%20en%20La%20Fortuna',
       featured: false,
@@ -254,6 +254,9 @@ export const deleteGuide = async (id: string): Promise<void> => {
 
 export const uploadImage = (file: File, onProgress: (progress: number) => void): Promise<string> => {
   return new Promise((resolve, reject) => {
+    if (!file) {
+        return reject(new Error("No file provided for upload."));
+    }
     const storageRef = ref(storage, `images/${Date.now()}-${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
