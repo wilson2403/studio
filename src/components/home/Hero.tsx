@@ -281,7 +281,7 @@ export default function Hero() {
 
 
   return (
-    <section className="relative w-full py-20 md:py-32 flex flex-col items-center justify-center text-center gap-12 group">
+    <section className="relative w-full py-12 md:py-20 flex flex-col items-center justify-center text-center gap-12 group">
       
       <div className="container relative animate-in fade-in-0 duration-1000 z-20">
         <div className="flex flex-col items-center space-y-2">
@@ -378,8 +378,8 @@ export default function Hero() {
                     </CarouselItem>
                 ))}
                 </CarouselContent>
-                <CarouselPrevious className="hidden md:flex left-[-50px]" />
-                <CarouselNext className="hidden md:flex right-[-50px]"/>
+                <CarouselPrevious className="left-4" />
+                <CarouselNext className="right-4"/>
             </Carousel>
            )}
       </div>
@@ -394,3 +394,4 @@ export default function Hero() {
     </section>
   );
 }
+
