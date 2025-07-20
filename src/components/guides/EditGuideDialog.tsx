@@ -68,42 +68,36 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDe
 
   const onSubmit = async (data: EditGuideFormValues) => {
     if (!guide) return;
+    
     setIsUploading(true);
+    setUploadProgress(0);
     let finalImageUrl = guide.imageUrl;
 
-    if (imageFile) {
-        try {
+    try {
+        if (imageFile) {
             const onProgress = (progress: number) => setUploadProgress(progress);
             finalImageUrl = await uploadImage(imageFile, onProgress);
-        } catch (error) {
-            toast({
-                title: 'Error de subida',
-                description: 'No se pudo subir el archivo.',
-                variant: 'destructive',
-            });
-            setIsUploading(false);
-            return;
         }
-    }
 
-    try {
-      const updatedData: Guide = {
-        ...guide,
-        ...data,
-        imageUrl: finalImageUrl,
-      };
-      await updateGuide(updatedData);
-      onUpdate(updatedData);
-      toast({
-        title: t('guideUpdated'),
-      });
-      onClose();
-    } catch (error) {
-       toast({
-        title: 'Error',
-        description: t('errorUpdatingGuide'),
-        variant: 'destructive',
-      });
+        const updatedData: Guide = {
+            ...guide,
+            ...data,
+            imageUrl: finalImageUrl,
+        };
+
+        await updateGuide(updatedData);
+        onUpdate(updatedData);
+        toast({
+            title: t('guideUpdated'),
+        });
+        onClose();
+    } catch (error: any) {
+        console.error("Failed to update guide:", error);
+        toast({
+            title: t('errorUpdatingGuide'),
+            description: error.message || 'An unexpected error occurred.',
+            variant: 'destructive',
+        });
     } finally {
         setIsUploading(false);
         setUploadProgress(0);
@@ -128,21 +122,23 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDe
       });
     }
   };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-        if (!open) {
-          form.reset({
+  
+  const handleClose = (open: boolean) => {
+    if (!open) {
+        form.reset({
             name: guide?.name,
             description: guide?.description,
             imageUrl: guide?.imageUrl
-          });
-          setImageFile(null);
-          setIsUploading(false);
-          setUploadProgress(0);
-        }
+        });
+        setImageFile(null);
+        setIsUploading(false);
+        setUploadProgress(0);
         onClose();
-    }}>
+    }
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px] bg-card">
         <DialogHeader>
           <DialogTitle>{t('editGuideTitle')}</DialogTitle>
