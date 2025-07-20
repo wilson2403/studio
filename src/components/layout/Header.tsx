@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -32,6 +32,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 
+const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
 export default function Header() {
   const pathname = usePathname();
@@ -60,6 +61,8 @@ export default function Header() {
     await signOut();
     router.push('/');
   };
+
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   const AuthContent = () => {
     if (loading) {
@@ -98,6 +101,12 @@ export default function Header() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {isAdmin && (
+              <DropdownMenuItem onClick={() => router.push('/admin')}>
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                <span>{t('admin')}</span>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>{t('signOut')}</span>
@@ -180,6 +189,14 @@ export default function Header() {
               </SheetHeader>
               <div className="flex flex-col h-full">
                 <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
+                  {isAdmin && (
+                     <SheetClose asChild>
+                        <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2">
+                            <ShieldCheck className="h-5 w-5" />
+                            {t('admin')}
+                        </Link>
+                    </SheetClose>
+                  )}
                   {navLinks.map((link) => (
                     <SheetClose asChild key={link.href}>
                       <Link
