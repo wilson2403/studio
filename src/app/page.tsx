@@ -2,7 +2,6 @@
 
 import Hero from '@/components/home/Hero';
 import Ceremonies from '@/components/home/Ceremonies';
-import PastCeremonies from '@/components/home/PastCeremonies';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import PreparationCta from '@/components/home/PreparationCta';
 import Contact from '@/components/home/Contact';
@@ -15,7 +14,6 @@ export default function Home() {
       <Hero />
       <Ceremonies />
       <PreparationCta />
-      <PastCeremonies />
       <Contact />
     </EditableProvider>
   );

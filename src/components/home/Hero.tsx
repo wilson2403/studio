@@ -208,7 +208,7 @@ const VideoPlayer = ({ video }: { video: PastCeremony }) => {
             muted
             loop
             playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             src={video.videoUrl}
         ></video>
     );
@@ -341,7 +341,7 @@ export default function Hero() {
                 <CarouselContent>
                 {videos.map((video) => (
                     <CarouselItem key={video.id} className="md:basis-full">
-                    <div className="p-1">
+                      <div className="p-1">
                         <div className="relative rounded-2xl overflow-hidden aspect-video group shadow-2xl shadow-primary/20 border-2 border-primary/30">
                            {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
@@ -373,6 +373,11 @@ export default function Hero() {
                             </div>
                           )}
                           <VideoPlayer video={video} />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
+                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left">
+                              <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>
+                              <p className="font-body text-sm opacity-90 mt-1">{video.description}</p>
+                           </div>
                         </div>
                     </div>
                     </CarouselItem>
@@ -394,4 +399,5 @@ export default function Hero() {
     </section>
   );
 }
+
 
