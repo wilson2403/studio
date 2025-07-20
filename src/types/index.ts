@@ -6,4 +6,13 @@ export type Ceremony = {
   features: string[];
   link: string;
   featured: boolean;
+  mediaUrl?: string;
+  mediaType?: 'image' | 'video';
+};
+
+export type PastCeremony = {
+  id: string;
+  title: string;
+  description: string;
+  videoUrl: string;
 };

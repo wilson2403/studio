@@ -1,12 +1,12 @@
 import Hero from '@/components/home/Hero';
 import Ceremonies from '@/components/home/Ceremonies';
-import VideoCarousel from '@/components/home/VideoCarousel';
+import PastCeremonies from '@/components/home/PastCeremonies';
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <VideoCarousel />
+      <PastCeremonies />
       <Ceremonies />
     </>
   );
