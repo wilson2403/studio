@@ -43,6 +43,7 @@ export default function Header() {
     { href: '/', label: t('navHome') },
     { href: '/#ceremonias', label: t('navCeremonies') },
     { href: '/guides', label: t('navGuides') },
+    { href: '/preparation', label: t('navPreparation') },
   ];
 
   useEffect(() => {
