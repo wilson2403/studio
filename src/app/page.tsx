@@ -6,6 +6,7 @@ import { EditableProvider } from '@/components/home/EditableProvider';
 import PreparationCta from '@/components/home/PreparationCta';
 import Contact from '@/components/home/Contact';
 import RegistrationPromptDialog from '@/components/auth/RegistrationPromptDialog';
+import PastCeremonies from '@/components/home/PastCeremonies';
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Hero />
       <Ceremonies />
       <PreparationCta />
+      <PastCeremonies />
       <Contact />
     </EditableProvider>
   );
