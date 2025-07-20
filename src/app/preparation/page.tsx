@@ -5,7 +5,7 @@ import { EditableTitle } from '@/components/home/EditableTitle';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Check, HeartHand, Leaf, Minus, Sparkles, Sprout, Wind } from 'lucide-react';
+import { Check, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export default function PreparationPage() {
@@ -15,7 +15,7 @@ export default function PreparationPage() {
         { id: "preparation", title: "preparationProcessTitle", description: "preparationProcessDescription", Icon: Sprout },
         { id: "ceremony", title: "ceremonyProcessTitle", description: "ceremonyProcessDescription", Icon: Sparkles },
         { id: "experience", title: "experienceProcessTitle", description: "experienceProcessDescription", Icon: Wind },
-        { id: "integration", title: "integrationProcessTitle", description: "integrationProcessDescription", Icon: HeartHand },
+        { id: "integration", title: "integrationProcessTitle", description: "integrationProcessDescription", Icon: HeartHandshake },
     ];
     
     const mentalPrepSteps = [
