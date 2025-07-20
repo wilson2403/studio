@@ -326,6 +326,7 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
 };
 
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
+    if (!uid) return null;
     try {
         const docRef = doc(db, 'users', uid);
         const docSnap = await getDoc(docRef);

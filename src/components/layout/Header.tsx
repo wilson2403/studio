@@ -57,7 +57,7 @@ export default function Header() {
       setUser(currentUser);
       if (currentUser) {
         const profile = await getUserProfile(currentUser.uid);
-        setIsAdmin(profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+        setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
       } else {
         setIsAdmin(false);
       }

@@ -49,28 +49,38 @@ export default function AdminUsersPage() {
     });
 
     useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const allUsers = await getAllUsers();
+                setUsers(allUsers);
+            } catch (error) {
+                console.error("Failed to fetch users:", error);
+                toast({ title: "Error", description: "Could not fetch user list.", variant: "destructive" });
+            }
+        };
+
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
                 router.push('/');
                 return;
             }
+
             const profile = await getUserProfile(currentUser.uid);
-            if (!profile?.isAdmin && currentUser.email !== ADMIN_EMAIL) {
+            const isAdmin = profile?.isAdmin || currentUser.email === ADMIN_EMAIL;
+            
+            if (!isAdmin) {
                 router.push('/');
                 return;
             }
+
             setUser(currentUser);
-            fetchUsers();
+            await fetchUsers();
             setLoading(false);
         });
 
-        const fetchUsers = async () => {
-            const allUsers = await getAllUsers();
-            setUsers(allUsers);
-        };
-
         return () => unsubscribe();
-    }, [router]);
+    }, [router, toast]);
+
 
     const handleRoleChange = async (uid: string, isAdmin: boolean) => {
         try {
