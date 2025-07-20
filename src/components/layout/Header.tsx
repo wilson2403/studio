@@ -24,6 +24,7 @@ import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { signOut } from '@/lib/firebase/auth';
+import { Skeleton } from '../ui/skeleton';
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -51,7 +52,7 @@ export default function Header() {
 
   const AuthContent = () => {
     if (loading) {
-      return null; // O un spinner
+      return <Skeleton className="h-9 w-24 hidden md:block" />;
     }
 
     if (user) {
@@ -105,7 +106,7 @@ export default function Header() {
 
   const MobileAuthContent = () => {
      if (loading) {
-      return null;
+      return <Skeleton className="h-10 w-full" />;
     }
     if (user) {
       return (
