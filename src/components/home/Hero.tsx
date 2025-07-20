@@ -1,3 +1,4 @@
+
 'use client';
 
 import { EditableTitle } from './EditableTitle';
@@ -11,6 +12,15 @@ import EditHeroDialog from './EditHeroDialog';
 
 const DEFAULT_VIDEO_URL = "https://videos.pexels.com/video-files/3130181/3130181-hd_1920_1080_25fps.mp4";
 const VIDEO_CONTENT_ID = 'heroVideoUrl';
+
+function getStreamableEmbedUrl(url: string): string | null {
+  const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
+  if (match && match[1]) {
+    return `https://streamable.com/e/${match[1]}?autoplay=1&muted=1&loop=1`;
+  }
+  return null;
+}
+
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -33,17 +43,29 @@ export default function Hero() {
     setIsEditDialogOpen(false);
   }
 
+  const streamableEmbedUrl = getStreamableEmbedUrl(videoUrl);
+
   return (
     <section className="relative w-full h-screen overflow-hidden flex items-center justify-center group">
-      <video
-        key={videoUrl}
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute top-0 left-0 w-full h-full object-cover z-0"
-        src={videoUrl}
-      ></video>
+      {streamableEmbedUrl ? (
+        <iframe
+          src={streamableEmbedUrl}
+          frameBorder="0"
+          allow="autoplay; muted; loop"
+          allowFullScreen
+          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+        ></iframe>
+      ) : (
+        <video
+          key={videoUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute top-0 left-0 w-full h-full object-cover z-0"
+          src={videoUrl}
+        ></video>
+      )}
       <div className="absolute inset-0 bg-black/60 z-10"></div>
       <div className="absolute inset-0 bg-grid-white/[0.07] bg-center [mask-image:linear-gradient(to_bottom,white,transparent_70%)] z-10"></div>
       
