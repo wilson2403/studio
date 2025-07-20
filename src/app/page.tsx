@@ -6,10 +6,12 @@ import PastCeremonies from '@/components/home/PastCeremonies';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import PreparationCta from '@/components/home/PreparationCta';
 import Contact from '@/components/home/Contact';
+import RegistrationPromptDialog from '@/components/auth/RegistrationPromptDialog';
 
 export default function Home() {
   return (
     <EditableProvider>
+      <RegistrationPromptDialog />
       <Hero />
       <Ceremonies />
       <PreparationCta />

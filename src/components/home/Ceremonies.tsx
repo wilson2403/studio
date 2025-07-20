@@ -20,6 +20,8 @@ import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import Script from 'next/script';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'next/navigation';
+import CeremonyDetailsDialog from './CeremonyDetailsDialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -133,8 +135,10 @@ export default function Ceremonies() {
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
+  const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { t } = useTranslation();
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -181,6 +185,14 @@ export default function Ceremonies() {
   const handleCeremonyDuplicate = (newCeremony: Ceremony) => {
      setCeremonies([...ceremonies, newCeremony]);
   }
+
+  const handleViewPlans = (ceremony: Ceremony) => {
+    if (user) {
+      setViewingCeremony(ceremony);
+    } else {
+      router.push('/login');
+    }
+  };
 
   const isAdmin = user && user.email === ADMIN_EMAIL;
 
@@ -278,9 +290,9 @@ export default function Ceremonies() {
                 ))}
               </ul>
             </CardContent>
-            <CardFooter className="p-0 pt-6">
+            <CardFooter className="p-0 pt-6 flex flex-col gap-2">
               <Button
-                asChild
+                onClick={() => handleViewPlans(ceremony)}
                 className={`w-full text-lg font-bold rounded-xl h-12 ${
                   ceremony.featured
                     ? 'bg-gradient-to-r from-primary via-fuchsia-500 to-purple-500 text-primary-foreground hover:opacity-90'
@@ -288,6 +300,9 @@ export default function Ceremonies() {
                 }`}
                 variant={ceremony.featured ? 'default' : 'outline'}
               >
+                {t('viewPlans')}
+              </Button>
+              <Button asChild className="w-full" variant="link">
                 <Link
                   href={ceremony.link}
                   target="_blank"
@@ -313,6 +328,13 @@ export default function Ceremonies() {
           onAdd={handleCeremonyAdd}
           onDelete={handleCeremonyDelete}
           onDuplicate={handleCeremonyDuplicate}
+        />
+      )}
+       {viewingCeremony && (
+        <CeremonyDetailsDialog
+          ceremony={viewingCeremony}
+          isOpen={!!viewingCeremony}
+          onClose={() => setViewingCeremony(null)}
         />
       )}
     </section>
