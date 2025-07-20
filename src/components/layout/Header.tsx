@@ -49,6 +49,81 @@ export default function Header() {
     router.push('/');
   };
 
+  const AuthContent = () => {
+    if (loading) {
+      return null; // O un spinner
+    }
+
+    if (user) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="relative h-8 w-8 rounded-full"
+            >
+              <Avatar className="h-9 w-9">
+                <AvatarImage
+                  src={user.photoURL || undefined}
+                  alt={user.displayName || 'Avatar'}
+                />
+                <AvatarFallback>
+                  {user.displayName
+                    ? user.displayName.charAt(0).toUpperCase()
+                    : user.email?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">
+                  {user.displayName}
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Cerrar sesión</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+
+    return (
+      <Button asChild className="hidden md:flex">
+        <Link href="/login">Ingresar</Link>
+      </Button>
+    );
+  };
+
+  const MobileAuthContent = () => {
+     if (loading) {
+      return null;
+    }
+    if (user) {
+      return (
+        <Button onClick={handleSignOut} className="w-full">
+          <LogOut className="mr-2 h-4 w-4" />
+          Cerrar sesión
+        </Button>
+      );
+    }
+    return (
+      <SheetClose asChild>
+        <Button asChild className="w-full">
+          <Link href="/login">Ingresar</Link>
+        </Button>
+      </SheetClose>
+    );
+  }
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur">
       <div className="container flex h-16 items-center">
@@ -78,50 +153,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
-          {!loading &&
-            (user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
-                  >
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage
-                        src={user.photoURL || undefined}
-                        alt={user.displayName || 'Avatar'}
-                      />
-                      <AvatarFallback>
-                        {user.displayName
-                          ? user.displayName.charAt(0).toUpperCase()
-                          : user.email?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user.displayName}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Cerrar sesión</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button asChild className="hidden md:flex">
-                <Link href="/login">Ingresar</Link>
-              </Button>
-            ))}
+          <AuthContent />
 
           <Sheet>
             <SheetTrigger asChild>
@@ -145,18 +177,7 @@ export default function Header() {
                   ))}
                 </nav>
                 <div className="mt-auto pb-4">
-                  {user ? (
-                     <Button onClick={handleSignOut} className="w-full">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Cerrar sesión
-                      </Button>
-                  ) : (
-                    <SheetClose asChild>
-                      <Button asChild className="w-full">
-                        <Link href="/login">Ingresar</Link>
-                      </Button>
-                    </SheetClose>
-                  )}
+                  <MobileAuthContent />
                 </div>
               </div>
             </SheetContent>
