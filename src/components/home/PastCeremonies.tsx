@@ -76,15 +76,22 @@ const PastCeremonyForm = ({
     }
 
     setUploading(true);
-    let finalVideoUrl = videoUrl;
 
     try {
+      let finalVideoUrl = videoUrl;
+      
       if (videoFile) {
-        finalVideoUrl = await uploadVideo(videoFile, (progress) => {
-          setUploadProgress(progress);
-        });
+          finalVideoUrl = await uploadVideo(videoFile, (progress) => {
+              setUploadProgress(progress);
+          });
       }
 
+      if (!finalVideoUrl) {
+          toast({ title: t('errorSavingVideo'), description: 'No se pudo obtener la URL del video.', variant: 'destructive' });
+          setUploading(false);
+          return;
+      }
+      
       const ceremonyData = { title, description, videoUrl: finalVideoUrl };
 
       if (item) { // Edit
@@ -99,6 +106,7 @@ const PastCeremonyForm = ({
       }
       onClose();
     } catch (error) {
+      console.error("Error during submit:", error);
       toast({ title: t('errorSavingVideo'), variant: 'destructive' });
     } finally {
       setUploading(false);
