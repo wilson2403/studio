@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, Sprout, LogOut } from 'lucide-react';
+import { Menu, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -30,6 +30,7 @@ import { signOut } from '@/lib/firebase/auth';
 import { Skeleton } from '../ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
+import { Logo } from '../icons/Logo';
 
 
 export default function Header() {
@@ -138,7 +139,7 @@ export default function Header() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Sprout className="h-6 w-6 text-primary" />
+            <Logo className="h-10 w-10" />
             <span className="font-bold font-headline text-lg">
               {t('appName')}
             </span>
