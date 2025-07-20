@@ -6,7 +6,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Code, FileTree, Bot } from 'lucide-react';
+import { Code, FileType, Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -193,7 +193,7 @@ export default function AdminPage() {
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-3">
-              <FileTree />
+              <FileType />
               {t('projectStructure')}
             </CardTitle>
           </CardHeader>
