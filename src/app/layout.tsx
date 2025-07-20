@@ -36,15 +36,19 @@ export default function RootLayout({
         className={cn('min-h-screen bg-background font-body antialiased')}
       >
         <I18nProvider>
-          <div id="fb-root"></div>
-          <Script async defer crossOrigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0" nonce="YOUR_NONCE_HERE"></Script>
-          
           <div className="relative flex min-h-screen flex-col">
             <Header />
             <main className="flex-1 p-10">{children}</main>
             <Footer />
           </div>
           <Toaster />
+          
+          <div id="fb-root"></div>
+          <Script 
+            id="facebook-sdk"
+            strategy="lazyOnload" 
+            src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0"
+          />
         </I18nProvider>
       </body>
     </html>
