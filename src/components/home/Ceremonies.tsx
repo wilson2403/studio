@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Check, Edit, PlusCircle, Copy, Trash } from 'lucide-react';
+import { Check, Edit, PlusCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -19,6 +19,7 @@ import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestor
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import Script from 'next/script';
+import { useTranslation } from 'react-i18next';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -68,7 +69,6 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
   const facebookEmbedUrl = getFacebookEmbedUrl(mediaUrl);
 
   useEffect(() => {
-    // This is for Facebook embeds to re-render when the URL changes
     if (facebookEmbedUrl && (window as any).FB) {
         (window as any).FB.XFBML.parse();
     }
@@ -134,6 +134,7 @@ export default function Ceremonies() {
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -206,19 +207,19 @@ export default function Ceremonies() {
         <EditableTitle
           tag="h2"
           id="upcomingCeremoniesTitle"
-          initialValue="Próximas Ceremonias"
+          initialValue={t('upcomingCeremoniesTitle')}
           className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
         />
         <EditableTitle
           tag="p"
           id="upcomingCeremoniesSubtitle"
-          initialValue="Estos son nuestros próximos encuentros. Cada uno es una oportunidad única para sanar y reconectar."
+          initialValue={t('upcomingCeremoniesSubtitle')}
           className="max-w-2xl text-lg text-foreground/80 font-body"
          />
          {isAdmin && (
           <Button onClick={() => setIsAdding(true)}>
             <PlusCircle className="mr-2" />
-            Añadir Ceremonia
+            {t('addCeremony')}
           </Button>
         )}
       </div>
@@ -258,16 +259,16 @@ export default function Ceremonies() {
             <CardContent className="flex-1 space-y-6 mt-6 p-0">
               <div className="text-center">
                 <span className="text-4xl font-bold text-foreground">
-                  {ceremony.price}
+                  {t('priceFrom', { price: ceremony.price })}
                 </span>
                 <p className="text-sm text-muted-foreground">
-                  hasta 100.000 plan completo
+                  {t('fullPlanUpTo')}
                 </p>
               </div>
               <ul className="space-y-4">
                 <li className="flex items-center gap-3 font-bold">
                   <Check className="h-5 w-5 text-primary" />
-                  <span>🍲 Incluye:</span>
+                  <span>{t('includes')}</span>
                 </li>
                 {ceremony.features.map((feature, i) => (
                   <li key={i} className="flex items-center gap-3 ml-4">
@@ -292,7 +293,7 @@ export default function Ceremonies() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Reservar Cupo
+                  {t('bookSpot')}
                 </Link>
               </Button>
             </CardFooter>

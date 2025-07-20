@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -29,30 +30,31 @@ import { signUpWithEmail, signInWithGoogle } from '@/lib/firebase/auth';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import { Separator } from '@/components/ui/separator';
 
-const formSchema = z
+const formSchema = (t: (key: string, options?: any) => string) => z
   .object({
     name: z.string().min(2, {
-      message: 'El nombre debe tener al menos 2 caracteres.',
+      message: t('errorMinLength', { field: t('registerNameLabel'), count: 2 }),
     }),
     email: z.string().email({
-      message: 'Por favor ingresa un correo electrónico válido.',
+      message: t('errorInvalidEmail'),
     }),
     password: z.string().min(6, {
-      message: 'La contraseña debe tener al menos 6 caracteres.',
+      message: t('errorMinLength', { field: t('loginPasswordLabel'), count: 6 }),
     }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Las contraseñas no coinciden.',
+    message: t('errorPasswordsDontMatch'),
     path: ['confirmPassword'],
   });
 
 export default function RegisterPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { t } = useTranslation();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
+    resolver: zodResolver(formSchema(t)),
     defaultValues: {
       name: '',
       email: '',
@@ -61,17 +63,17 @@ export default function RegisterPage() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     try {
       await signUpWithEmail(values.email, values.password, values.name);
       toast({
-        title: '¡Cuenta creada!',
-        description: 'Te hemos enviado un correo de verificación.',
+        title: t('registerSuccessTitle'),
+        description: t('registerSuccessDescription'),
       });
       router.push('/');
     } catch (error: any) {
       toast({
-        title: 'Error al registrarse',
+        title: t('registerErrorTitle'),
         description: error.message,
         variant: 'destructive',
       });
@@ -82,13 +84,13 @@ export default function RegisterPage() {
     try {
       await signInWithGoogle();
       toast({
-        title: '¡Bienvenido!',
-        description: 'Has iniciado sesión con Google correctamente.',
+        title: t('googleSuccessTitle'),
+        description: t('googleSuccessDescription'),
       });
       router.push('/');
     } catch (error: any) {
       toast({
-        title: 'Error con Google',
+        title: t('googleErrorTitle'),
         description: error.message,
         variant: 'destructive',
       });
@@ -99,9 +101,9 @@ export default function RegisterPage() {
     <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
       <Card className="w-full max-w-md shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Crea tu cuenta</CardTitle>
+          <CardTitle className="font-headline text-3xl">{t('registerTitle')}</CardTitle>
           <CardDescription className="font-body">
-            Únete a nuestra comunidad y empieza tu viaje de transformación.
+            {t('registerSubtext')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -111,11 +113,11 @@ export default function RegisterPage() {
             onClick={handleGoogleSignIn}
           >
             <GoogleIcon className="mr-2" />
-            Continuar con Google
+            {t('registerWithGoogle')}
           </Button>
           <div className="my-4 flex items-center">
             <Separator className="flex-1" />
-            <span className="mx-4 text-xs text-muted-foreground">O REGÍSTRATE CON CORREO</span>
+            <span className="mx-4 text-xs text-muted-foreground">{t('registerContinueWith')}</span>
             <Separator className="flex-1" />
           </div>
           <Form {...form}>
@@ -125,9 +127,9 @@ export default function RegisterPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre</FormLabel>
+                    <FormLabel>{t('registerNameLabel')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Tu nombre" {...field} />
+                      <Input placeholder={t('registerNamePlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -138,9 +140,9 @@ export default function RegisterPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Correo electrónico</FormLabel>
+                    <FormLabel>{t('loginEmailLabel')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="tu@correo.com" {...field} />
+                      <Input placeholder={t('loginEmailPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -151,9 +153,9 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contraseña</FormLabel>
+                    <FormLabel>{t('loginPasswordLabel')}</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="********" {...field} />
+                      <Input type="password" placeholder={t('loginPasswordPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -164,25 +166,25 @@ export default function RegisterPage() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirmar Contraseña</FormLabel>
+                    <FormLabel>{t('registerConfirmPasswordLabel')}</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="********" {...field} />
+                      <Input type="password" placeholder={t('loginPasswordPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <Button type="submit" className="w-full">
-                Crear cuenta
+                {t('registerButton')}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
-            ¿Ya tienes una cuenta?{' '}
+            {t('registerHaveAccount')}{' '}
             <Link href="/login" className="text-primary hover:underline">
-              Ingresa aquí
+              {t('registerLoginHere')}
             </Link>
           </p>
         </CardFooter>

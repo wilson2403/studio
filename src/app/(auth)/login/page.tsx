@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -29,38 +30,40 @@ import { signInWithGoogle, signInWithEmail } from '@/lib/firebase/auth';
 import { Separator } from '@/components/ui/separator';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 
-const formSchema = z.object({
+const formSchema = (t: (key: string) => string) => z.object({
   email: z.string().email({
-    message: 'Por favor ingresa un correo electrónico válido.',
+    message: t('errorInvalidEmail'),
   }),
   password: z.string().min(6, {
-    message: 'La contraseña debe tener al menos 6 caracteres.',
+    message: t('errorMinLength', { field: t('loginPasswordLabel'), count: 6 }),
   }),
 });
+
 
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { t } = useTranslation();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
+    resolver: zodResolver(formSchema(t)),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     try {
       await signInWithEmail(values.email, values.password);
       toast({
-        title: '¡Bienvenido de vuelta!',
-        description: 'Has iniciado sesión correctamente.',
+        title: t('loginSuccessTitle'),
+        description: t('loginSuccessDescription'),
       });
       router.push('/');
     } catch (error: any) {
       toast({
-        title: 'Error al iniciar sesión',
+        title: t('loginErrorTitle'),
         description: error.message,
         variant: 'destructive',
       });
@@ -71,13 +74,13 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       toast({
-        title: '¡Bienvenido!',
-        description: 'Has iniciado sesión con Google correctamente.',
+        title: t('googleSuccessTitle'),
+        description: t('googleSuccessDescription'),
       });
       router.push('/');
     } catch (error: any) {
       toast({
-        title: 'Error con Google',
+        title: t('googleErrorTitle'),
         description: error.message,
         variant: 'destructive',
       });
@@ -88,9 +91,9 @@ export default function LoginPage() {
     <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
       <Card className="w-full max-w-md shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
         <CardHeader>
-          <CardTitle className="font-headline text-3xl">Bienvenido de vuelta</CardTitle>
+          <CardTitle className="font-headline text-3xl">{t('loginWelcome')}</CardTitle>
           <CardDescription className="font-body">
-            Ingresa a tu cuenta para continuar tu camino de sanación.
+            {t('loginSubtext')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -100,11 +103,11 @@ export default function LoginPage() {
             onClick={handleGoogleSignIn}
           >
             <GoogleIcon className="mr-2" />
-            Ingresar con Google
+            {t('loginWithGoogle')}
           </Button>
           <div className="my-4 flex items-center">
             <Separator className="flex-1" />
-            <span className="mx-4 text-xs text-muted-foreground">O CONTINÚA CON</span>
+            <span className="mx-4 text-xs text-muted-foreground">{t('loginContinueWith')}</span>
             <Separator className="flex-1" />
           </div>
           <Form {...form}>
@@ -114,9 +117,9 @@ export default function LoginPage() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Correo electrónico</FormLabel>
+                    <FormLabel>{t('loginEmailLabel')}</FormLabel>
                     <FormControl>
-                      <Input placeholder="tu@correo.com" {...field} />
+                      <Input placeholder={t('loginEmailPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -127,25 +130,25 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contraseña</FormLabel>
+                    <FormLabel>{t('loginPasswordLabel')}</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="********" {...field} />
+                      <Input type="password" placeholder={t('loginPasswordPlaceholder')} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <Button type="submit" className="w-full">
-                Ingresar con correo
+                {t('loginButton')}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
-            ¿No tienes cuenta?{' '}
+            {t('loginNoAccount')}{' '}
             <Link href="/register" className="text-primary hover:underline">
-              Regístrate aquí
+              {t('loginSignUpHere')}
             </Link>
           </p>
         </CardFooter>

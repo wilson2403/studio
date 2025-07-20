@@ -27,17 +27,21 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { signOut } from '@/lib/firebase/auth';
 import { Skeleton } from '../ui/skeleton';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
-const navLinks = [
-  { href: '/', label: 'Inicio' },
-  { href: '/#ceremonias', label: 'Ceremonias' },
-];
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+
+  const navLinks = [
+    { href: '/', label: t('navHome') },
+    { href: '/#ceremonias', label: t('navCeremonies') },
+  ];
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -91,7 +95,7 @@ export default function Header() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Cerrar sesión</span>
+              <span>{t('signOut')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -99,7 +103,7 @@ export default function Header() {
     }
     return (
       <Button asChild>
-        <Link href="/login">Ingresar</Link>
+        <Link href="/login">{t('signIn')}</Link>
       </Button>
     );
   };
@@ -112,14 +116,14 @@ export default function Header() {
       return (
         <Button onClick={handleSignOut} className="w-full">
           <LogOut className="mr-2 h-4 w-4" />
-          Cerrar sesión
+          {t('signOut')}
         </Button>
       );
     }
     return (
       <SheetClose asChild>
         <Button asChild className="w-full">
-          <Link href="/login">Ingresar</Link>
+          <Link href="/login">{t('signIn')}</Link>
         </Button>
       </SheetClose>
     );
@@ -132,7 +136,7 @@ export default function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Sprout className="h-6 w-6 text-primary" />
             <span className="font-bold font-headline text-lg">
-              El Arte de Sanar
+              {t('appName')}
             </span>
           </Link>
         </div>
@@ -153,7 +157,8 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <div className="flex flex-1 items-center justify-end space-x-4">
+        <div className="flex flex-1 items-center justify-end space-x-2">
+          <LanguageSwitcher />
           <div className="hidden md:flex items-center">
             <AuthContent />
           </div>
@@ -167,7 +172,7 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right">
               <SheetHeader>
-                <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
+                <SheetTitle className="sr-only">{t('headerMenuTitle')}</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col h-full">
                 <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">

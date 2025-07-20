@@ -20,7 +20,7 @@ import {
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '../ui/button';
-import { Copy, Edit, PlusCircle, Trash, Upload } from 'lucide-react';
+import { Copy, Edit, PlusCircle, Trash } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -28,6 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Progress } from '../ui/progress';
 import { EditableTitle } from './EditableTitle';
+import { useTranslation } from 'react-i18next';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -58,6 +59,7 @@ const PastCeremonyForm = ({
   const [uploading, setUploading] = React.useState(false);
   const [uploadProgress, setUploadProgress] = React.useState(0);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -69,7 +71,7 @@ const PastCeremonyForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!videoUrl && !videoFile) {
-        toast({ title: 'Por favor, proporciona una URL o sube un video.', variant: 'destructive' });
+        toast({ title: t('videoFormUrlOrUpload'), variant: 'destructive' });
         return;
     }
 
@@ -89,15 +91,15 @@ const PastCeremonyForm = ({
         const updatedItem = { ...item, ...ceremonyData };
         await updatePastCeremony(updatedItem);
         onSave(updatedItem);
-        toast({ title: 'Video actualizado' });
+        toast({ title: t('videoUpdated') });
       } else { // Add
         const id = await addPastCeremony(ceremonyData);
         onSave({ id, ...ceremonyData });
-        toast({ title: 'Video añadido' });
+        toast({ title: t('videoAdded') });
       }
       onClose();
     } catch (error) {
-      toast({ title: 'Error al guardar', description: 'No se pudo guardar el video.', variant: 'destructive' });
+      toast({ title: t('errorSavingVideo'), variant: 'destructive' });
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -107,43 +109,43 @@ const PastCeremonyForm = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="title">Título</Label>
+        <Label htmlFor="title">{t('videoFormTitle')}</Label>
         <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
       </div>
       <div>
-        <Label htmlFor="description">Descripción</Label>
+        <Label htmlFor="description">{t('videoFormDescription')}</Label>
         <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
       </div>
       
       <div className="space-y-2">
-        <Label htmlFor="videoUrl">URL del Video (YouTube o .mp4)</Label>
+        <Label htmlFor="videoUrl">{t('videoFormUrl')}</Label>
         <Input id="videoUrl" value={videoUrl} onChange={(e) => {setVideoUrl(e.target.value); setVideoFile(null)}} type="url" placeholder="https://youtube.com/watch?v=..." />
       </div>
 
       <div className="relative flex items-center justify-center w-full">
         <div className="absolute w-full border-t border-muted-foreground/20"></div>
-        <span className="relative px-2 text-xs text-muted-foreground bg-card">O</span>
+        <span className="relative px-2 text-xs text-muted-foreground bg-card">{t('or')}</span>
       </div>
 
       <div className="space-y-2">
-         <Label htmlFor="videoFile">Subir un video</Label>
+         <Label htmlFor="videoFile">{t('videoFormUpload')}</Label>
          <div className="flex items-center gap-2">
           <Input id="videoFile" type="file" accept="video/*" onChange={handleFileChange} className="flex-grow"/>
          </div>
-         {videoFile && <p className="text-sm text-muted-foreground">Seleccionado: {videoFile.name}</p>}
+         {videoFile && <p className="text-sm text-muted-foreground">{t('videoFormSelected', { fileName: videoFile.name })}</p>}
       </div>
 
       {uploading && (
         <div className='space-y-1'>
-           <Label>{videoFile ? 'Subiendo video...' : 'Guardando...'}</Label>
+           <Label>{videoFile ? t('videoFormUploading') : t('videoFormSaving')}</Label>
            <Progress value={uploadProgress} />
         </div>
       )}
 
       <DialogFooter>
-        <Button type="button" variant="ghost" onClick={onClose} disabled={uploading}>Cancelar</Button>
+        <Button type="button" variant="ghost" onClick={onClose} disabled={uploading}>{t('cancel')}</Button>
         <Button type="submit" disabled={uploading}>
-            {uploading ? 'Guardando...' : 'Guardar'}
+            {uploading ? t('videoFormSaving') : t('videoFormSave')}
         </Button>
       </DialogFooter>
     </form>
@@ -204,6 +206,7 @@ export default function PastCeremonies() {
   const [user, setUser] = React.useState<User | null>(null);
   const [isFormOpen, setFormOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<PastCeremony | undefined>(undefined);
+  const { t } = useTranslation();
 
   const isAdmin = user?.email === ADMIN_EMAIL;
   const { toast } = useToast();
@@ -241,9 +244,9 @@ export default function PastCeremonies() {
      try {
       await deletePastCeremony(id);
       setVideos(videos.filter(v => v.id !== id));
-      toast({ title: "Video eliminado" });
+      toast({ title: t("videoDeleted") });
     } catch (error) {
-      toast({ title: "Error al eliminar", variant: 'destructive' });
+      toast({ title: t("errorDeletingVideo"), variant: 'destructive' });
     }
   }
 
@@ -256,9 +259,9 @@ export default function PastCeremonies() {
       };
       const newId = await addPastCeremony(duplicatedData);
       setVideos([...videos, { ...duplicatedData, id: newId }]);
-      toast({ title: "Video duplicado" });
+      toast({ title: t("videoDuplicated") });
     } catch (error) {
-      toast({ title: "Error al duplicar", variant: 'destructive' });
+      toast({ title: t("errorDuplicatingVideo"), variant: 'destructive' });
     }
   };
 
@@ -268,13 +271,13 @@ export default function PastCeremonies() {
         <EditableTitle
           tag="h2"
           id="pastCeremoniesTitle"
-          initialValue="Ceremonias Anteriores"
+          initialValue={t('pastCeremoniesTitle')}
           className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
         />
         <EditableTitle
           tag="p"
           id="pastCeremoniesSubtitle"
-          initialValue="Recuerda y revive los momentos de transformación de nuestros encuentros pasados."
+          initialValue={t('pastCeremoniesSubtitle')}
           className="max-w-2xl text-lg text-foreground/80 font-body"
         />
         {isAdmin && (
@@ -287,14 +290,14 @@ export default function PastCeremonies() {
             <DialogTrigger asChild>
               <Button onClick={() => {setEditingItem(undefined); setFormOpen(true);}}>
                 <PlusCircle className="mr-2" />
-                Añadir Video
+                {t('addVideo')}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{editingItem ? 'Editar Video' : 'Añadir Video'}</DialogTitle>
+                <DialogTitle>{editingItem ? t('editVideo') : t('addVideo')}</DialogTitle>
                 <DialogDescription>
-                  Completa los detalles del video de la ceremonia. Puedes usar una URL o subir un archivo.
+                  {t('addVideoDescription')}
                 </DialogDescription>
               </DialogHeader>
               <PastCeremonyForm item={editingItem} onSave={handleSave} onClose={() => {setFormOpen(false); setEditingItem(undefined)}} />
@@ -342,14 +345,14 @@ export default function PastCeremonies() {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                            <AlertDialogTitle>{t('deleteVideoConfirmTitle')}</AlertDialogTitle>
                              <AlertDialogDescription>
-                              Esta acción eliminará el video permanentemente.
+                              {t('deleteVideoConfirmDescription')}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(video.id)}>Eliminar</AlertDialogAction>
+                             <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(video.id)}>{t('delete')}</AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
@@ -373,5 +376,3 @@ export default function PastCeremonies() {
     </section>
   );
 }
-
-    

@@ -8,6 +8,7 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface EditableTitleProps {
   tag: 'h1' | 'h2' | 'p';
@@ -21,6 +22,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(initialValue);
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const currentValue = content[id] ?? initialValue;
 
@@ -36,10 +38,10 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const handleSave = async () => {
     try {
         await updateContent(id, editValue);
-        toast({ title: '¡Éxito!', description: 'El contenido ha sido actualizado.' });
+        toast({ title: t('editableSuccess'), description: '' });
         setIsEditing(false);
     } catch (error) {
-        toast({ title: 'Error', description: 'No se pudo guardar el contenido.', variant: 'destructive' });
+        toast({ title: t('editableError'), description: '', variant: 'destructive' });
     }
   };
 
@@ -57,8 +59,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
             <Input value={editValue} onChange={(e) => setEditValue(e.target.value)} className="text-4xl md:text-6xl font-headline tracking-tight text-center h-auto bg-card text-card-foreground p-2 rounded-md" />
          )}
         <div className="flex gap-2 mt-2">
-          <Button onClick={handleSave} size="sm"><Save className="mr-2"/> Guardar</Button>
-          <Button onClick={handleCancel} variant="outline" size="sm"><X className="mr-2"/> Cancelar</Button>
+          <Button onClick={handleSave} size="sm"><Save className="mr-2"/> {t('save')}</Button>
+          <Button onClick={handleCancel} variant="outline" size="sm"><X className="mr-2"/> {t('cancel')}</Button>
         </div>
       </div>
     );
