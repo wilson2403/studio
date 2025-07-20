@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'El Arte de Sanar',
@@ -33,6 +34,9 @@ export default function RootLayout({
       <body
         className={cn('min-h-screen bg-background font-body antialiased')}
       >
+        <div id="fb-root"></div>
+        <Script async defer crossOrigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0" nonce="YOUR_NONCE_HERE"></Script>
+        
         <div className="relative flex min-h-screen flex-col">
           <Header />
           <main className="flex-1">{children}</main>

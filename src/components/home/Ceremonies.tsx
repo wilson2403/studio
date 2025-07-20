@@ -47,6 +47,16 @@ function getTikTokEmbedData(url: string): { embedUrl: string; videoId: string } 
   return null;
 }
 
+function getFacebookEmbedUrl(url: string): string | null {
+    if (!url) return null;
+    const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\?v=|video\.php\?v=|.*\/videos\/|share\/(?:v|r)\/)([0-9]+)/;
+    const match = url.match(facebookRegex);
+    if (match && match[1]) {
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560`;
+    }
+    return null;
+}
+
 
 const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, mediaType?: 'image' | 'video', title: string }) => {
   if (!mediaUrl) {
@@ -55,6 +65,14 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
   
   const youtubeEmbedUrl = getYouTubeEmbedUrl(mediaUrl);
   const tiktokData = getTikTokEmbedData(mediaUrl);
+  const facebookEmbedUrl = getFacebookEmbedUrl(mediaUrl);
+
+  useEffect(() => {
+    // This is for Facebook embeds to re-render when the URL changes
+    if (facebookEmbedUrl && (window as any).FB) {
+        (window as any).FB.XFBML.parse();
+    }
+  }, [facebookEmbedUrl]);
 
   if (youtubeEmbedUrl) {
     return (
@@ -83,6 +101,21 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
             </a>
           </section>
         </blockquote>
+    );
+  }
+  
+  if (facebookEmbedUrl) {
+    return (
+        <div className="fb-video"
+             data-href={mediaUrl}
+             data-width="100%"
+             data-show-text="false"
+             data-autoplay="true"
+             data-allowfullscreen="true">
+            <blockquote cite={mediaUrl} className="fb-xfbml-parse-ignore">
+                <a href={mediaUrl}>Video</a>
+            </blockquote>
+        </div>
     );
   }
 
