@@ -18,6 +18,7 @@ import { auth } from '@/lib/firebase/config';
 import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
+import Script from 'next/script';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -32,12 +33,28 @@ function getYouTubeEmbedUrl(url: string): string | null {
   return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
 }
 
+function getTikTokEmbedData(url: string): { embedUrl: string; videoId: string } | null {
+  if (!url) return null;
+  const tiktokRegex = /tiktok\.com\/.*\/video\/(\d+)/;
+  const match = url.match(tiktokRegex);
+  if (match && match[1]) {
+    const videoId = match[1];
+    return {
+      embedUrl: `https://www.tiktok.com/embed/v2/${videoId}`,
+      videoId: videoId
+    };
+  }
+  return null;
+}
+
+
 const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, mediaType?: 'image' | 'video', title: string }) => {
   if (!mediaUrl) {
     return <Image src='https://placehold.co/600x400.png' alt={title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-ai-hint="spiritual ceremony" />;
   }
   
   const youtubeEmbedUrl = getYouTubeEmbedUrl(mediaUrl);
+  const tiktokData = getTikTokEmbedData(mediaUrl);
 
   if (youtubeEmbedUrl) {
     return (
@@ -51,6 +68,24 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
       ></iframe>
     );
   }
+  
+  if (tiktokData) {
+    return (
+       <blockquote
+          className="tiktok-embed w-full h-full"
+          cite={mediaUrl}
+          data-video-id={tiktokData.videoId}
+          style={{ maxWidth: '605px', minHeight: '325px' }}
+        >
+          <section>
+            <a target="_blank" title={title} href={mediaUrl}>
+              {title}
+            </a>
+          </section>
+        </blockquote>
+    );
+  }
+
 
   if (mediaType === 'video' && mediaUrl.match(/\.(mp4|webm)$/)) {
      return <video src={mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
@@ -128,6 +163,8 @@ export default function Ceremonies() {
   }
 
   return (
+    <>
+    <Script async src="https://www.tiktok.com/embed.js"></Script>
     <section
       id="ceremonias"
       className="container py-12 md:py-24 animate-in fade-in-0 duration-1000 delay-500"
@@ -245,5 +282,6 @@ export default function Ceremonies() {
         />
       )}
     </section>
+    </>
   );
 }
