@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -41,6 +42,7 @@ export default function Header() {
   const navLinks = [
     { href: '/', label: t('navHome') },
     { href: '/#ceremonias', label: t('navCeremonies') },
+    { href: '/guides', label: t('navGuides') },
   ];
 
   useEffect(() => {
@@ -147,8 +149,7 @@ export default function Header() {
               href={link.href}
               className={cn(
                 'transition-colors hover:text-primary',
-                pathname === link.href ||
-                  (link.href !== '/' && pathname.startsWith(link.href))
+                (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href)))
                   ? 'text-primary'
                   : 'text-foreground/60'
               )}

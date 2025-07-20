@@ -1,12 +1,14 @@
 
+
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony } from '@/types';
+import type { Ceremony, PastCeremony, Guide } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
 const pastCeremoniesCollection = collection(db, 'pastCeremonies');
 const contentCollection = collection(db, 'content');
+const guidesCollection = collection(db, 'guides');
 
 
 // --- Page Content ---
@@ -185,12 +187,64 @@ export const deletePastCeremony = async (id: string): Promise<void> => {
     await deleteDoc(docRef);
 }
 
+// --- Guides ---
+export const seedGuides = async () => {
+    const initialGuides: Omit<Guide, 'id'>[] = [
+        {
+            name: 'Wilson',
+            description: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
+            imageUrl: 'https://placehold.co/160x160.png',
+        },
+        {
+            name: 'Jacob',
+            description: 'Maestro espiritual formado en la Amazonía de perú, donde aprendió directamente de curanderos el uso sagrado de la medicina ancestral. Con una presencia serena y profunda, guía ceremonias en Casa Trinitos (Guanacaste), donde acompaña procesos de transformación.',
+            imageUrl: 'https://placehold.co/160x160.png',
+        },
+        {
+            name: 'Harley',
+            description: 'Especialista en atención médica y primeros auxilios, con experiencia en meditaciones guiadas y masajes terapéuticos. Su presencia tranquila y profesional garantiza un entorno seguro durante toda la ceremonia, brindando confianza y contención tanto al equipo como a las participantes.',
+            imageUrl: 'https://placehold.co/160x160.png',
+        },
+        {
+            name: 'Johanna',
+            description: 'Guardiana de la medicina formada en la Amazonía de perú. Brindando ceremonias en Colombia y Costa Rica, su presencia aporta seguridad, contención y equilibrio entre lo físico y espiritual, sosteniendo el espacio ceremonial con firmeza, cuidado y profunda conexión con la sanación femenina.',
+            imageUrl: 'https://placehold.co/160x160.png',
+        },
+    ];
+
+    for (const guide of initialGuides) {
+        await addDoc(guidesCollection, guide);
+    }
+    console.log('Seeded guides data.');
+}
+
+export const getGuides = async (): Promise<Guide[]> => {
+    try {
+        const snapshot = await getDocs(guidesCollection);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Guide));
+    } catch (error) {
+        console.error("Error fetching guides: ", error);
+        return [];
+    }
+}
+
+export const updateGuide = async (guide: Guide): Promise<void> => {
+    try {
+        const guideRef = doc(db, 'guides', guide.id);
+        const { id, ...data } = guide;
+        await updateDoc(guideRef, data);
+    } catch (error) {
+        console.error("Error updating guide: ", error);
+        throw error;
+    }
+}
+
 
 // --- Firebase Storage ---
 
 export const uploadImage = (file: File, onProgress: (progress: number) => void): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const storageRef = ref(storage, `ceremonies-images/${Date.now()}-${file.name}`);
+    const storageRef = ref(storage, `images/${Date.now()}-${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(
@@ -212,7 +266,7 @@ export const uploadImage = (file: File, onProgress: (progress: number) => void):
   });
 };
 
-export const uploadVideo = (file: File, onProgress: (progress: number) => void, path: string = 'past-ceremonies'): Promise<string> => {
+export const uploadVideo = (file: File, onProgress: (progress: number) => void, path: string = 'videos'): Promise<string> => {
   return new Promise((resolve, reject) => {
     const storageRef = ref(storage, `${path}/${Date.now()}-${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);

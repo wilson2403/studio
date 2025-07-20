@@ -1,3 +1,4 @@
+
 export type Ceremony = {
   id: string;
   title: string;
@@ -15,4 +16,11 @@ export type PastCeremony = {
   title: string;
   description: string;
   videoUrl: string;
+};
+
+export type Guide = {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
 };
