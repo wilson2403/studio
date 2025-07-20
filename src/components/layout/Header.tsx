@@ -156,7 +156,9 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <AuthContent />
+          <div className="hidden md:flex">
+            <AuthContent />
+          </div>
 
           <Sheet>
             <SheetTrigger asChild>
