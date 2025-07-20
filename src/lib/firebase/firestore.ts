@@ -1,7 +1,8 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc } from 'firebase/firestore';
-import { db } from './config';
+import { db, storage } from './config';
 import type { Ceremony, PastCeremony } from '@/types';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
 const pastCeremoniesCollection = collection(db, 'pastCeremonies');
@@ -155,3 +156,32 @@ export const deletePastCeremony = async (id: string): Promise<void> => {
     const docRef = doc(db, 'pastCeremonies', id);
     await deleteDoc(docRef);
 }
+
+
+// --- Firebase Storage ---
+
+export const uploadVideo = (file: File, onProgress: (progress: number) => void): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const storageRef = ref(storage, `past-ceremonies/${Date.now()}-${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        onProgress(progress);
+      },
+      (error) => {
+        console.error("Upload failed:", error);
+        reject(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          resolve(downloadURL);
+        });
+      }
+    );
+  });
+};
+
+    
