@@ -47,7 +47,7 @@ export default function RootLayout({
           <Script 
             id="facebook-sdk"
             strategy="lazyOnload" 
-            src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0"
+            src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
           />
         </I18nProvider>
       </body>

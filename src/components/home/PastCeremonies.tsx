@@ -288,30 +288,6 @@ export default function PastCeremonies() {
           initialValue={t('pastCeremoniesSubtitle')}
           className="max-w-2xl text-lg text-foreground/80 font-body"
         />
-        {isAdmin && (
-           <Dialog open={isFormOpen} onOpenChange={(open) => {
-            if (!open) {
-                setEditingItem(undefined);
-            }
-            setFormOpen(open);
-           }}>
-            <DialogTrigger asChild>
-              <Button onClick={() => {setEditingItem(undefined); setFormOpen(true);}}>
-                <PlusCircle className="mr-2" />
-                {t('addVideo')}
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editingItem ? t('editVideo') : t('addVideo')}</DialogTitle>
-                <DialogDescription>
-                  {t('addVideoDescription')}
-                </DialogDescription>
-              </DialogHeader>
-              <PastCeremonyForm item={editingItem} onSave={handleSave} onClose={() => {setFormOpen(false); setEditingItem(undefined)}} />
-            </DialogContent>
-          </Dialog>
-        )}
       </div>
 
        {loading ? (
@@ -337,35 +313,6 @@ export default function PastCeremonies() {
             <CarouselItem key={video.id} className="md:basis-1/2 lg:basis-1/3">
               <div className="p-1">
                 <div className="relative rounded-2xl overflow-hidden aspect-video group">
-                   {isAdmin && (
-                    <div className="absolute top-2 right-2 z-20 flex gap-2">
-                       <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => handleDuplicate(video)}>
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                       <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                           <Button variant="destructive" size="icon" className="h-8 w-8 rounded-full">
-                            <Trash className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>{t('deleteVideoConfirmTitle')}</AlertDialogTitle>
-                             <AlertDialogDescription>
-                              {t('deleteVideoConfirmDescription')}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                             <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(video.id)}>{t('delete')}</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  )}
                   <VideoPlayer video={video} isAdmin={isAdmin} />
                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300"></div>
                    <div className="absolute bottom-0 left-0 p-6 text-white">
