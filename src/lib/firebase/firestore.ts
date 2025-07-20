@@ -193,7 +193,7 @@ export const seedGuides = async () => {
         {
             name: 'Wilson',
             description: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
-            imageUrl: '/__ps-images__/2b7e51c0-0db6-4447-975a-5f80f1d63e9f.jpg',
+            imageUrl: '/images/wilson.jpg',
         },
         {
             name: 'Jacob',
@@ -281,6 +281,9 @@ export const uploadImage = (file: File, onProgress: (progress: number) => void):
 
 export const uploadVideo = (file: File, onProgress: (progress: number) => void, path: string = 'videos'): Promise<string> => {
   return new Promise((resolve, reject) => {
+     if (!file) {
+        return reject(new Error("No file provided for upload."));
+    }
     const storageRef = ref(storage, `${path}/${Date.now()}-${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 

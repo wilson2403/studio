@@ -86,7 +86,7 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
     }
   };
 
-  const handleClose = (open: boolean) => {
+  const handleCloseDialog = (open: boolean) => {
     if (!open) {
       setVideoFile(null);
       setIsUploading(false);
@@ -96,7 +96,7 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
       <DialogContent className="sm:max-w-md bg-card">
         <DialogHeader>
           <DialogTitle>{t('editHeroVideoTitle')}</DialogTitle>
