@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -30,14 +31,29 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
   const { toast } = useToast();
   const { t } = useTranslation();
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUrlInput, setVideoUrlInput] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  useEffect(() => {
+    if (isOpen) {
+      setVideoUrlInput(currentVideoUrl);
+    }
+  }, [isOpen, currentVideoUrl]);
+
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVideoUrlInput(e.target.value);
+    if (e.target.value) {
+      setVideoFile(null); // Clear file if URL is entered
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       if (file.type.startsWith('video/')) {
         setVideoFile(file);
+        setVideoUrlInput(''); // Clear URL if a file is chosen
       } else {
         toast({
           title: t('errorInvalidFileType'),
@@ -49,10 +65,10 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
   };
 
   const handleSubmit = async () => {
-    if (!videoFile) {
+    if (!videoFile && !videoUrlInput) {
       toast({
-        title: t('errorNoFileSelected'),
-        description: t('errorSelectVideoToUpload'),
+        title: t('errorNoFileOrUrl'),
+        description: t('errorSelectVideoOrUrl'),
         variant: 'destructive',
       });
       return;
@@ -62,12 +78,16 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
     setUploadProgress(0);
 
     try {
-      const onProgress = (progress: number) => setUploadProgress(progress);
-      const newVideoUrl = await uploadVideo(videoFile, onProgress, 'hero-videos');
+      let finalVideoUrl = videoUrlInput;
       
-      await setContent(contentId, newVideoUrl);
+      if (videoFile) {
+        const onProgress = (progress: number) => setUploadProgress(progress);
+        finalVideoUrl = await uploadVideo(videoFile, onProgress, 'hero-videos');
+      }
       
-      onUpdate(newVideoUrl);
+      await setContent(contentId, finalVideoUrl);
+      
+      onUpdate(finalVideoUrl);
       toast({
         title: t('videoUpdatedSuccessfully'),
       });
@@ -89,6 +109,7 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
       setVideoFile(null);
       setIsUploading(false);
       setUploadProgress(0);
+      setVideoUrlInput(currentVideoUrl);
       onClose();
     }
   };
@@ -102,12 +123,22 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div>
+            <Label htmlFor="video-url">{t('videoUrlLabel')}</Label>
+            <Input id="video-url" type="url" placeholder="https://example.com/video.mp4" value={videoUrlInput} onChange={handleUrlChange} disabled={isUploading || !!videoFile} />
+          </div>
+
+          <div className="relative flex items-center justify-center w-full">
+            <div className="absolute w-full border-t border-muted-foreground/20"></div>
+            <span className="relative px-2 text-xs text-muted-foreground bg-card">{t('or')}</span>
+          </div>
+
+          <div>
             <Label htmlFor="video-upload">{t('selectNewVideo')}</Label>
-            <Input id="video-upload" type="file" accept="video/*" onChange={handleFileChange} disabled={isUploading} />
+            <Input id="video-upload" type="file" accept="video/*" onChange={handleFileChange} disabled={isUploading || !!videoUrlInput} />
             {videoFile && <p className="text-sm text-muted-foreground mt-2">{t('videoFormSelected', { fileName: videoFile.name })}</p>}
           </div>
 
-          {isUploading && (
+          {isUploading && videoFile && (
             <div className="space-y-1">
               <Label>{t('uploadingFile')}</Label>
               <Progress value={uploadProgress} />
@@ -120,7 +151,7 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
               {t('cancel')}
             </Button>
           </DialogClose>
-          <Button onClick={handleSubmit} disabled={isUploading || !videoFile}>
+          <Button onClick={handleSubmit} disabled={isUploading || (!videoFile && !videoUrlInput)}>
             {isUploading ? t('saving') : t('saveChanges')}
           </Button>
         </DialogFooter>
