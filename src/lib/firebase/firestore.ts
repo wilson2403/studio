@@ -273,7 +273,7 @@ export const uploadImage = (file: File, onProgress: (progress: number) => void):
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           resolve(downloadURL);
-        });
+        }).catch(reject);
       }
     );
   });
@@ -295,17 +295,17 @@ export const uploadVideo = (file: File, onProgress: (progress: number) => void, 
       },
       (error) => {
         console.error("Video upload failed:", error);
-        // Important: Reject the promise on error.
         reject(error);
       },
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          resolve(downloadURL);
-        } catch (error) {
-           console.error("Failed to get download URL:", error);
-           reject(error);
-        }
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref)
+          .then((downloadURL) => {
+            resolve(downloadURL);
+          })
+          .catch((error) => {
+            console.error("Failed to get download URL:", error);
+            reject(error);
+          });
       }
     );
   });
