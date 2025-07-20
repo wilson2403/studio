@@ -21,6 +21,34 @@ function getStreamableEmbedUrl(url: string): string | null {
   return null;
 }
 
+const VideoPlayer = ({ url, title }: { url: string; title: string }) => {
+    const streamableEmbedUrl = getStreamableEmbedUrl(url);
+
+    if (streamableEmbedUrl) {
+    return (
+        <iframe
+        src={streamableEmbedUrl}
+        frameBorder="0"
+        allow="autoplay; muted; loop"
+        allowFullScreen
+        className="w-full h-full object-cover"
+        ></iframe>
+    );
+    }
+
+    return (
+        <video
+            key={url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+            src={url}
+        ></video>
+    );
+}
+
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -43,53 +71,10 @@ export default function Hero() {
     setIsEditDialogOpen(false);
   }
 
-  const streamableEmbedUrl = getStreamableEmbedUrl(videoUrl);
-
   return (
-    <section className="relative w-full h-screen overflow-hidden flex items-center justify-center group">
-      {streamableEmbedUrl ? (
-        <iframe
-          src={streamableEmbedUrl}
-          frameBorder="0"
-          allow="autoplay; muted; loop"
-          allowFullScreen
-          className="absolute top-0 left-0 w-full h-full object-cover z-0"
-        ></iframe>
-      ) : (
-        <video
-          key={videoUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute top-0 left-0 w-full h-full object-cover z-0"
-          src={videoUrl}
-        ></video>
-      )}
-      <div className="absolute inset-0 bg-black/60 z-10"></div>
-      <div className="absolute inset-0 bg-grid-white/[0.07] bg-center [mask-image:linear-gradient(to_bottom,white,transparent_70%)] z-10"></div>
+    <section className="relative w-full py-20 md:py-32 flex flex-col items-center justify-center text-center gap-12 group">
       
-      {isAdmin && (
-        <>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="absolute top-20 right-4 z-30 h-10 w-10 rounded-full bg-black/50 hover:bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity"
-            onClick={() => setIsEditDialogOpen(true)}
-           >
-            <Edit className="h-5 w-5" />
-          </Button>
-          <EditHeroDialog 
-            isOpen={isEditDialogOpen}
-            onClose={() => setIsEditDialogOpen(false)}
-            onUpdate={handleUpdate}
-            currentVideoUrl={videoUrl}
-            contentId={VIDEO_CONTENT_ID}
-          />
-        </>
-      )}
-
-      <div className="container relative text-center animate-in fade-in-0 duration-1000 z-20">
+      <div className="container relative animate-in fade-in-0 duration-1000 z-20">
         <div className="flex flex-col items-center space-y-2">
           <EditableTitle 
             tag="h1"
@@ -103,14 +88,42 @@ export default function Hero() {
                 id="heroSubtitle1"
                 initialValue={t('heroSubtitle1')}
             />
-             <EditableTitle 
-                tag="p"
-                id="heroSubtitle2"
-                initialValue={t('heroSubtitle2')}
-            />
           </div>
         </div>
       </div>
+      
+       <div className="relative w-full max-w-5xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
+            {isAdmin && (
+            <>
+            <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute -top-4 -right-4 z-30 h-10 w-10 rounded-full bg-black/50 hover:bg-black/80 transition-opacity"
+                onClick={() => setIsEditDialogOpen(true)}
+            >
+                <Edit className="h-5 w-5" />
+            </Button>
+            <EditHeroDialog 
+                isOpen={isEditDialogOpen}
+                onClose={() => setIsEditDialogOpen(false)}
+                onUpdate={handleUpdate}
+                currentVideoUrl={videoUrl}
+                contentId={VIDEO_CONTENT_ID}
+            />
+            </>
+        )}
+            <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30">
+                 <VideoPlayer url={videoUrl} title={t('heroTitle')} />
+            </div>
+      </div>
+      <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700">
+        <EditableTitle 
+            tag="p"
+            id="heroSubtitle2"
+            initialValue={t('heroSubtitle2')}
+        />
+      </div>
+
     </section>
   );
 }

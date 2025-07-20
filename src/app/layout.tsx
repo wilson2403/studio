@@ -38,7 +38,7 @@ export default function RootLayout({
         <I18nProvider>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1 p-10">{children}</main>
+            <main className="flex-1">{children}</main>
             <Footer />
           </div>
           <Toaster />
