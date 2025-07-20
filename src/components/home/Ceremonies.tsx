@@ -14,7 +14,7 @@ import { Check, Edit } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
@@ -37,7 +37,12 @@ export default function Ceremonies() {
   useEffect(() => {
     const fetchCeremonies = async () => {
       setLoading(true);
-      const ceremoniesData = await getCeremonies();
+      let ceremoniesData = await getCeremonies();
+      if (ceremoniesData.length === 0) {
+        console.log('No ceremonies found, seeding database...');
+        await seedCeremonies();
+        ceremoniesData = await getCeremonies();
+      }
       setCeremonies(ceremoniesData);
       setLoading(false);
     };
