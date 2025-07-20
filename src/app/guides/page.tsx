@@ -64,14 +64,14 @@ export default function GuidesPage() {
 
   if (loading) {
     return (
-      <section id="guias" className="container py-12 md:py-24 pl-5">
+      <section id="guias" className="container py-12 md:py-24">
          <div className="flex flex-col items-center text-center space-y-4 mb-12">
             <div className="h-12 w-1/2 bg-card/50 animate-pulse rounded-md"></div>
             <div className="h-8 w-2/3 bg-card/50 animate-pulse rounded-md"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           {[...Array(4)].map((_, i) => (
-             <Card key={i} className="flex flex-col md:flex-row items-center gap-8 p-6 rounded-2xl border-2 border-card-foreground/10 h-[300px] animate-pulse bg-card/50"></Card>
+             <Card key={i} className="flex flex-col items-center justify-center gap-8 p-6 rounded-2xl border-2 border-card-foreground/10 h-[350px] animate-pulse bg-card/50"></Card>
           ))}
         </div>
       </section>
@@ -81,7 +81,7 @@ export default function GuidesPage() {
 
   return (
     <EditableProvider>
-      <div className="container py-12 md:py-24 pl-5">
+      <div className="container py-12 md:py-24">
           <div className="flex flex-col items-center text-center space-y-4 mb-12 animate-in fade-in-0 duration-1000">
               <EditableTitle
                   tag="h1"
@@ -99,7 +99,7 @@ export default function GuidesPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 animate-in fade-in-0 duration-1000 delay-300">
               {guides.map((guide) => (
-                  <Card key={guide.id} className="relative flex flex-col md:flex-row items-center gap-8 p-6 rounded-2xl border-2 border-card-foreground/10 bg-card/80 backdrop-blur-sm shadow-lg group">
+                  <Card key={guide.id} className="relative flex flex-col items-center justify-start text-center gap-6 p-6 rounded-2xl border-2 border-card-foreground/10 bg-card/80 backdrop-blur-sm shadow-lg group">
                       {isAdmin && (
                           <Button
                               variant="ghost"
@@ -110,7 +110,7 @@ export default function GuidesPage() {
                               <Edit className="h-4 w-4" />
                           </Button>
                       )}
-                      <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
+                      <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 mt-4">
                         <Image
                               src={guide.imageUrl}
                               alt={guide.name}
@@ -120,7 +120,7 @@ export default function GuidesPage() {
                               data-ai-hint="spiritual guide portrait"
                           />
                       </div>
-                      <div className="text-center md:text-left">
+                      <div className="flex flex-col">
                           <CardTitle className="text-2xl font-headline tracking-wide text-primary">{guide.name}</CardTitle>
                           <CardContent className="p-0 mt-2">
                               <p className="font-body text-base text-foreground/80">{guide.description}</p>
