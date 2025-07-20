@@ -81,8 +81,6 @@ export default function EditHeroDialog({ isOpen, onClose, onUpdate, currentVideo
       });
     } finally {
       setIsUploading(false);
-      setUploadProgress(0);
-      setVideoFile(null);
     }
   };
 
