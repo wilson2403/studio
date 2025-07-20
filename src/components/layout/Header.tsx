@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
   SheetClose,
 } from '@/components/ui/sheet';
@@ -52,11 +54,7 @@ export default function Header() {
 
   const AuthContent = () => {
     if (loading) {
-      return (
-        <div className="hidden md:flex">
-            <Skeleton className="h-9 w-24" />
-        </div>
-      );
+      return <Skeleton className="h-10 w-24" />;
     }
     if (user) {
       return (
@@ -64,7 +62,7 @@ export default function Header() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="relative h-8 w-8 rounded-full"
+              className="relative h-8 w-8 rounded-full mr-2"
             >
               <Avatar className="h-9 w-9">
                 <AvatarImage
@@ -100,7 +98,7 @@ export default function Header() {
       );
     }
     return (
-      <Button asChild className="hidden md:flex">
+      <Button asChild>
         <Link href="/login">Ingresar</Link>
       </Button>
     );
@@ -108,7 +106,7 @@ export default function Header() {
 
   const MobileAuthContent = () => {
     if (loading) {
-       return <Skeleton className="h-10 w-full" />;
+      return <Skeleton className="h-10 w-full" />;
     }
     if (user) {
       return (
@@ -156,7 +154,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <div className="hidden md:flex">
+          <div className="hidden md:flex items-center">
             <AuthContent />
           </div>
 
@@ -168,6 +166,9 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right">
+              <SheetHeader>
+                <SheetTitle className="sr-only">Menú de Navegación</SheetTitle>
+              </SheetHeader>
               <div className="flex flex-col h-full">
                 <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
                   {navLinks.map((link) => (
