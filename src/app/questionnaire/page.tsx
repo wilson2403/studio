@@ -73,14 +73,18 @@ export default function QuestionnairePage() {
       } else {
         setUser(currentUser);
         const profile = await getUserProfile(currentUser.uid);
-        if (profile?.questionnaireCompleted) {
-            setIsCompleted(true);
-        } else {
-            const answers = await getQuestionnaire(currentUser.uid);
-            if (answers) {
-              form.reset(answers);
-            }
+        const completed = !!profile?.questionnaireCompleted;
+        setIsCompleted(completed);
+
+        const answers = await getQuestionnaire(currentUser.uid);
+        if (answers) {
+          form.reset(answers);
         }
+        
+        if (completed) {
+            form.disable();
+        }
+
         setLoading(false);
       }
     });
@@ -98,6 +102,7 @@ export default function QuestionnairePage() {
       });
       setIsSuccessDialogOpen(true);
       setIsCompleted(true);
+      form.disable();
     } catch (error) {
       toast({
         title: t('questionnaireErrorTitle'),
@@ -125,7 +130,7 @@ export default function QuestionnairePage() {
                   <FormItem className="mt-4">
                     <FormLabel>{label}</FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Textarea {...field} disabled={isCompleted} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -151,6 +156,7 @@ export default function QuestionnairePage() {
                   defaultValue={field.value}
                   className="flex flex-col space-y-1"
                   value={field.value}
+                  disabled={isCompleted}
                 >
                   <FormItem className="flex items-center space-x-3 space-y-0">
                     <FormControl>
@@ -208,37 +214,13 @@ export default function QuestionnairePage() {
     )
   }
 
-  if (isCompleted) {
-    return (
-      <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
-        <Card className="w-full max-w-md text-center p-6">
-            <div className="p-3 bg-primary/10 rounded-full mb-4 inline-block">
-                <Sprout className="h-8 w-8 text-primary" />
-            </div>
-            <CardHeader className="p-0">
-                <CardTitle className="text-2xl font-headline">{t('questionnaireCompletedTitle')}</CardTitle>
-                <CardDescription className="pt-2">
-                    {t('questionnaireCompletedDescription')}
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0 mt-6">
-                <Button onClick={() => router.push('/preparation')}>
-                    {t('dialogSuccessButton')}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-            </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <>
     <div className="container py-12 md:py-16">
       <Card className="mx-auto max-w-3xl">
         <CardHeader>
-          <CardTitle className="text-3xl font-headline">{t('questionnaireTitle')}</CardTitle>
-          <CardDescription className="font-body">{t('questionnaireDescription')}</CardDescription>
+          <CardTitle className="text-3xl font-headline">{isCompleted ? t('questionnaireCompletedTitle') : t('questionnaireTitle')}</CardTitle>
+          <CardDescription className="font-body">{isCompleted ? t('questionnaireCompletedDescription') : t('questionnaireDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -266,17 +248,24 @@ export default function QuestionnairePage() {
                   <FormItem>
                     <FormLabel>{t('questionnaireIntention')}</FormLabel>
                     <FormControl>
-                      <Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} />
+                      <Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} disabled={isCompleted} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                <Save className="mr-2 h-4 w-4" />
-                {form.formState.isSubmitting ? t('saving') : t('saveAnswers')}
-              </Button>
+              {!isCompleted ? (
+                 <Button type="submit" disabled={form.formState.isSubmitting}>
+                    <Save className="mr-2 h-4 w-4" />
+                    {form.formState.isSubmitting ? t('saving') : t('saveAnswers')}
+                 </Button>
+              ) : (
+                <Button onClick={() => router.push('/preparation')}>
+                    {t('dialogSuccessButton')}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              )}
             </form>
           </Form>
         </CardContent>
