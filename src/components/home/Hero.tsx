@@ -288,7 +288,7 @@ export default function Hero() {
                   {videos.map((video) => (
                       <CarouselItem key={video.id} className="basis-full md:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
-                          <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer" onClick={(e) => { e.stopPropagation(); setViewingVideo(video);}}>
+                          <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer">
                             {isAdmin && (
                               <div className="absolute top-2 right-2 z-20 flex gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingItem(video); setFormOpen(true); }}>
