@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Check, Edit, PlusCircle } from 'lucide-react';
+import { Check, Edit, ExternalLink, PlusCircle } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -140,25 +140,32 @@ export default function Ceremonies() {
                 : 'border-card-foreground/10'
             }`}
           >
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 rounded-full z-10 bg-black/50 hover:bg-black/80"
-                onClick={() => setEditingCeremony(ceremony)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-            )}
-             <CardHeader className="p-0">
-               <div className="aspect-video overflow-hidden">
+            <CardHeader className="p-0">
+              <div className="relative aspect-video overflow-hidden">
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8 rounded-full z-20 bg-black/50 hover:bg-black/80 text-white"
+                    onClick={() => setEditingCeremony(ceremony)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+                {ceremony.mediaUrl && (
+                  <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </a>
+                )}
                 <VideoPlayer 
                   videoUrl={ceremony.mediaUrl} 
                   mediaType={ceremony.mediaType}
                   title={ceremony.title} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-               </div>
+              </div>
             </CardHeader>
             <div className="p-6 flex flex-col flex-1">
               <CardTitle className="text-2xl font-headline tracking-wide">

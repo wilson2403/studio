@@ -23,7 +23,7 @@ import { useEditable } from './EditableProvider';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '../ui/button';
-import { Copy, Edit, PlusCircle, Trash } from 'lucide-react';
+import { Copy, Edit, ExternalLink, PlusCircle, Trash } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -277,10 +277,10 @@ export default function PastCeremoniesSection() {
                             <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group shadow-2xl shadow-primary/20 border-2 border-primary/30">
                             {isAdmin && (
                                 <div className="absolute top-2 right-2 z-20 flex gap-2">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
                                     <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => handleDuplicate(video)}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => handleDuplicate(video)}>
                                     <Copy className="h-4 w-4" />
                                 </Button>
                                 <AlertDialog>
@@ -304,6 +304,11 @@ export default function PastCeremoniesSection() {
                                 </AlertDialog>
                                 </div>
                             )}
+                            <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                    <ExternalLink className="h-4 w-4" />
+                                </Button>
+                            </a>
                             <VideoPlayer 
                                 videoUrl={video.videoUrl} 
                                 title={video.title}

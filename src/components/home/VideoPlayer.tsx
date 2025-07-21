@@ -4,13 +4,13 @@
 import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import Script from 'next/script';
 
 interface VideoPlayerProps {
   videoUrl?: string;
   mediaType?: 'image' | 'video';
   title: string;
   className?: string;
-  containerClassName?: string;
 }
 
 function getYouTubeEmbedUrl(url: string): string | null {
@@ -43,8 +43,7 @@ function getFacebookEmbedUrl(url: string): string | null {
     const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\/?\?v=|video\.php\?v=|photo\.php\?v=|reel\/|.*\/videos\/|share\/(?:v|r)\/)([0-9a-zA-Z_.-]+)/;
     const match = url.match(facebookRegex);
     if (match && match[1]) {
-        // Note: Facebook's oEmbed might not support autoplay consistently.
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1`;
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1&loop=1`;
     }
     return null;
 }
@@ -57,10 +56,9 @@ function getStreamableEmbedUrl(url: string): string | null {
   return null;
 }
 
-export const VideoPlayer = ({ videoUrl, mediaType, title, className, containerClassName }: VideoPlayerProps) => {
-  const tiktokRef = useRef<HTMLQuoteElement>(null);
-  const facebookRef = useRef<HTMLDivElement>(null);
-
+export const VideoPlayer = ({ videoUrl, mediaType, title, className }: VideoPlayerProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
   const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) : null;
   const tiktokData = videoUrl ? getTikTokEmbedData(videoUrl) : null;
   const facebookEmbedUrl = videoUrl ? getFacebookEmbedUrl(videoUrl) : null;
@@ -68,58 +66,35 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, containerCl
 
   useEffect(() => {
     // For Facebook embeds
-    if (facebookEmbedUrl && facebookRef.current) {
+    if (facebookEmbedUrl && containerRef.current) {
         if (typeof (window as any).FB !== 'undefined') {
-            (window as any).FB.XFBML.parse(facebookRef.current);
+            (window as any).FB.XFBML.parse(containerRef.current.parentElement);
         }
     }
+  }, [facebookEmbedUrl]);
 
-    // For TikTok embeds
-    if (tiktokData) {
-        if (typeof (window as any).tiktok !== 'undefined') {
-            (window as any).tiktok.load();
-        } else {
-            const script = document.createElement('script');
-            script.id = 'tiktok-embed-script';
-            script.src = "https://www.tiktok.com/embed.js";
-            script.async = true;
-            document.head.appendChild(script);
-        }
-    }
-  }, [facebookEmbedUrl, tiktokData]);
-
-  // Autoplay logic for TikTok
   useEffect(() => {
-      if (!tiktokData || !tiktokRef.current) return;
-
-      const attemptPlay = () => {
-          if (!tiktokRef.current) return;
-          const iframe = tiktokRef.current.querySelector('iframe');
-          if (iframe && iframe.contentWindow) {
-              const video = iframe.contentWindow.document.querySelector('video');
-              if (video) {
-                  video.muted = true;
-                  video.setAttribute('playsinline', 'true');
-                  const promise = video.play();
-                  if (promise !== undefined) {
-                    promise.catch(error => {
-                        console.error("TikTok Autoplay failed:", error)
-                    });
-                  }
-                  return true;
-              }
-          }
-          return false;
+    if (tiktokData) {
+      const scriptId = 'tiktok-embed-script';
+      let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+      
+      const loadTikTok = () => {
+        if (typeof (window as any).tiktok !== 'undefined') {
+          (window as any).tiktok.load();
+        }
       };
 
-      const interval = setInterval(() => {
-          if (attemptPlay()) {
-              clearInterval(interval);
-          }
-      }, 500);
-
-      // Cleanup on component unmount
-      return () => clearInterval(interval);
+      if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.src = "https://www.tiktok.com/embed.js";
+        script.async = true;
+        script.onload = loadTikTok;
+        document.head.appendChild(script);
+      } else if (typeof (window as any).tiktok !== 'undefined') {
+        loadTikTok();
+      }
+    }
   }, [tiktokData]);
 
   if (youtubeEmbedUrl || streamableEmbedUrl) {
@@ -137,32 +112,36 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, containerCl
 
   if (tiktokData) {
     return (
-      <blockquote
-        ref={tiktokRef}
-        className={cn("tiktok-embed", className)}
-        cite={videoUrl}
-        data-video-id={tiktokData.videoId}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <section className='w-full h-full flex items-center justify-center'>
-          <a target="_blank" title={title} rel="noopener noreferrer" href={videoUrl}>
-            {title}
-          </a>
-        </section>
-      </blockquote>
+       <div ref={containerRef} className={cn('w-full h-full', className)}>
+         <blockquote
+            className={cn("tiktok-embed w-full h-full")}
+            cite={videoUrl}
+            data-video-id={tiktokData.videoId}
+            style={{ width: '100%', height: '100%', minHeight: '400px' }}
+          >
+           <section className='w-full h-full flex items-center justify-center'>
+            <a target="_blank" title={title} rel="noopener noreferrer" href={videoUrl}>
+                {title}
+            </a>
+           </section>
+        </blockquote>
+      </div>
     );
   }
   
   if (facebookEmbedUrl) {
     return (
-        <div ref={facebookRef} className={cn("fb-video", className)}
-             data-href={videoUrl}
-             data-width="auto"
-             data-show-text="false"
-             data-autoplay="true"
-             data-mute="true"
-             data-allowfullscreen="true"
-             data-lazy="true">
+        <div ref={containerRef} className={cn('w-full h-full', className)}>
+            <div className="fb-video"
+                data-href={videoUrl}
+                data-width="auto"
+                data-height="auto"
+                data-show-text="false"
+                data-autoplay="true"
+                data-mute="true"
+                data-allowfullscreen="true"
+                data-lazy="true">
+            </div>
         </div>
     );
   }
