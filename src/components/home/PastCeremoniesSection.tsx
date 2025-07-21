@@ -339,16 +339,6 @@ export default function PastCeremoniesSection() {
                       <CarouselItem key={video.id} className="basis-full md:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
                           <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer">
-                            <div 
-                                className="absolute inset-0"
-                                onClick={(e) => {
-                                    const target = e.target as HTMLElement;
-                                    if (target.closest('button, a')) return;
-                                    
-                                    const playerWrapper = (e.currentTarget.querySelector('[data-video-player]') as HTMLElement | null);
-                                    playerWrapper?.click();
-                                }}
-                            >
                             {isAdmin && (
                               <div className="absolute top-2 right-2 z-20 flex gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingItem(video); setFormOpen(true); }}>
@@ -379,9 +369,8 @@ export default function PastCeremoniesSection() {
                                   <p className="font-mono text-xs opacity-70 mt-2 flex items-center gap-1.5"><CalendarIcon className='w-3 h-3'/> {video.date}</p>
                                 )}
                             </div>
-                            </div>
                           </div>
-                      </div>
+                        </div>
                       </CarouselItem>
                   ))}
                   </CarouselContent>
@@ -410,3 +399,4 @@ export default function PastCeremoniesSection() {
       </section>
     );
 }
+

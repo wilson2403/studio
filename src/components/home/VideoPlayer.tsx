@@ -27,7 +27,7 @@ function getYouTubeEmbedUrl(url: string, controls: boolean, autoplay: boolean): 
   
   const params = new URLSearchParams({
     autoplay: autoplay ? '1' : '0',
-    mute: '1',
+    mute: autoplay ? '1' : '0',
     loop: controls ? '0' : '1',
     controls: controls ? '1' : '0',
     playlist: videoId,
@@ -88,7 +88,7 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
         e?.stopPropagation(); 
         if (videoRef.current) {
             if (videoRef.current.paused) {
-                videoRef.current.play();
+                videoRef.current.play().catch(console.error);
                 setIsPlaying(true);
             } else {
                 videoRef.current.pause();
@@ -101,8 +101,11 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
         if(videoRef.current) {
             videoRef.current.onplay = () => setIsPlaying(true);
             videoRef.current.onpause = () => setIsPlaying(false);
+            if (!controls) {
+              videoRef.current.muted = true;
+            }
         }
-    }, [])
+    }, [controls])
 
     return (
         <div className={cn("relative w-full h-full group/video", className)} onClick={togglePlay}>
@@ -130,7 +133,7 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
 };
 
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false }: VideoPlayerProps) => {
-  const [isIframeActivated, setIsIframeActivated] = useState(false);
+  const [isIframeActivated, setIsIframeActivated] = useState(controls);
 
   const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls, isIframeActivated && !controls) : null;
   const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl, controls) : null;
@@ -144,7 +147,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
 
   const renderPlayer = () => {
       if (youtubeEmbedUrl || streamableEmbedUrl) {
-        if (!isIframeActivated && !controls) {
+        if (!isIframeActivated) {
            return (
                 <>
                    <Image src={'https://placehold.co/600x400.png?text=YouTube'} alt="Video thumbnail" layout="fill" objectFit="cover" data-ai-hint="video social media" />
@@ -171,7 +174,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       }
     
       if (isTikTok) {
-        if (!isIframeActivated && !controls) {
+        if (!isIframeActivated) {
            return (
                 <>
                    <Image src={'https://placehold.co/100x100/000000/ffffff.png?text=TikTok'} alt="TikTok Logo" width={50} height={50} data-ai-hint="tiktok logo" />
@@ -190,7 +193,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       }
       
       if (isFacebook) {
-        if (!isIframeActivated && !controls) {
+        if (!isIframeActivated) {
             return (
                 <>
                     <Image src={'https://placehold.co/600x400.png?text=Facebook'} alt="Facebook video thumbnail" layout="fill" objectFit="cover" data-ai-hint="social media video" />
