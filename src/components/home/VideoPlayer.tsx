@@ -66,6 +66,11 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)(\?.*)?$/.test(url);
 };
 
+const isGitHubRawUrl = (url: string): boolean => {
+    if (!url) return false;
+    return url.includes('raw.githubusercontent.com');
+}
+
 
 const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
     <div className={cn("relative w-full h-full cursor-pointer", className)} onClick={onClick}>
@@ -178,7 +183,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       getFacebookEmbedUrl(videoUrl || '') ||
       getStreamableEmbedUrl(videoUrl || '');
 
-  const isVideoUrlFromPlatform = !!embedUrl || isDirectVideoUrl(videoUrl || '');
+  const isVideoUrlFromPlatform = !!embedUrl || isDirectVideoUrl(videoUrl || '') || isGitHubRawUrl(videoUrl || '');
 
   const renderContent = () => {
     // Render as an image only if mediaType is explicitly 'image' AND it's not a known video URL.
@@ -216,22 +221,23 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     if (isDirectVideoUrl(videoUrl || '')) {
       return <DirectVideoPlayer src={videoUrl!} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
-
-    // Fallback for unsupported URLs or empty videoUrl
-    if (!videoUrl) {
-       return (
-        <Image
-          src={'https://placehold.co/600x400.png'}
-          alt={title}
-          layout="fill"
-          objectFit="cover"
-          className={cn('object-cover', className)}
-          data-ai-hint="spiritual event"
-        />
-      );
-    }
     
-    return <IframePlaceholder onClick={() => window.open(videoUrl, '_blank')} title={title} className={className} />;
+    // For GitHub raw URLs or other unsupported embeddable links, use the placeholder that opens in a new tab.
+    if (isGitHubRawUrl(videoUrl || '') || videoUrl) {
+        return <IframePlaceholder onClick={() => window.open(videoUrl, '_blank')} title={title} className={className} />;
+    }
+
+    // Fallback for empty videoUrl
+    return (
+    <Image
+        src={'https://placehold.co/600x400.png'}
+        alt={title}
+        layout="fill"
+        objectFit="cover"
+        className={cn('object-cover', className)}
+        data-ai-hint="spiritual event"
+    />
+    );
   };
 
   return (
