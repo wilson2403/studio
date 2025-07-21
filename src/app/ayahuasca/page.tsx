@@ -108,12 +108,7 @@ export default function AyahuascaInfoPage() {
                               <AccordionTrigger>
                                 <div className="flex items-center gap-4 text-left">
                                   <Icon className="h-6 w-6 text-primary flex-shrink-0" />
-                                  <EditableTitle
-                                    tag="p"
-                                    id={title}
-                                    initialValue={t(title)}
-                                    className="flex-1 font-bold text-lg"
-                                  />
+                                  <p className="flex-1 font-bold text-lg">{t(title)}</p>
                                 </div>
                               </AccordionTrigger>
                               <AccordionContent>
