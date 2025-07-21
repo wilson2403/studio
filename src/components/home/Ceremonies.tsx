@@ -131,7 +131,7 @@ export default function Ceremonies() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
         {ceremonies.map((ceremony) => (
           <Card
             key={ceremony.id}
@@ -192,12 +192,8 @@ export default function Ceremonies() {
             <CardFooter className="p-0 pt-6 flex flex-col gap-2">
               <Button
                 onClick={() => handleViewPlans(ceremony)}
-                className={cn(`w-full text-lg font-bold rounded-xl h-12`,
-                  ceremony.featured
-                    ? 'bg-gradient-to-r from-primary via-fuchsia-500 to-purple-500 text-primary-foreground hover:opacity-90'
-                    : ''
-                )}
-                variant={ceremony.featured ? 'default' : 'outline'}
+                className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
+                variant={'outline'}
               >
                 {t('viewPlans')}
               </Button>
