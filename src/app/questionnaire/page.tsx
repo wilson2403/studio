@@ -98,16 +98,18 @@ export default function QuestionnairePage() {
     }
   };
   
-  const renderDetailsField = (name: keyof QuestionnaireAnswers, condition: 'yes' | 'no') => {
-      const fieldName = name as "medicalConditionsDetails" | "medicationDetails" | "mentalHealthDetails" | "previousExperienceDetails";
-      if (form.watch(fieldName.replace('Details','')) === 'yes') {
+  const renderDetailsField = (name: keyof QuestionnaireAnswers, conditionName: keyof QuestionnaireAnswers, label: string) => {
+      const detailsFieldName = name as "medicalConditionsDetails" | "medicationDetails" | "mentalHealthDetails" | "previousExperienceDetails";
+      const conditionFieldName = conditionName as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
+      
+      if (form.watch(conditionFieldName) === 'yes') {
           return (
              <FormField
                 control={form.control}
-                name={fieldName}
+                name={detailsFieldName}
                 render={({ field }) => (
-                  <FormItem className="mt-2">
-                    <FormLabel>{t('questionnaireProvideDetails')}</FormLabel>
+                  <FormItem className="mt-4">
+                    <FormLabel>{label}</FormLabel>
                     <FormControl>
                       <Textarea {...field} />
                     </FormControl>
@@ -204,19 +206,19 @@ export default function QuestionnairePage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div>
                   {renderRadioGroup('hasMedicalConditions', t('questionnaireMedicalConditions'))}
-                  {renderDetailsField('medicalConditionsDetails', form.watch('hasMedicalConditions'))}
+                  {renderDetailsField('medicalConditionsDetails', 'hasMedicalConditions', t('questionnaireMedicalConditionsDetails'))}
                 </div>
                 <div>
                   {renderRadioGroup('isTakingMedication', t('questionnaireMedication'))}
-                  {renderDetailsField('medicationDetails', form.watch('isTakingMedication'))}
+                  {renderDetailsField('medicationDetails', 'isTakingMedication', t('questionnaireMedicationDetails'))}
                 </div>
                 <div>
                   {renderRadioGroup('hasMentalHealthHistory', t('questionnaireMentalHealth'))}
-                  {renderDetailsField('mentalHealthDetails', form.watch('hasMentalHealthHistory'))}
+                  {renderDetailsField('mentalHealthDetails', 'hasMentalHealthHistory', t('questionnaireMentalHealthDetails'))}
                 </div>
                 <div>
                     {renderRadioGroup('hasPreviousExperience', t('questionnaireExperience'))}
-                    {renderDetailsField('previousExperienceDetails', form.watch('hasPreviousExperience'))}
+                    {renderDetailsField('previousExperienceDetails', 'hasPreviousExperience', t('questionnaireExperienceDetails'))}
                 </div>
               <FormField
                 control={form.control}
@@ -243,3 +245,4 @@ export default function QuestionnairePage() {
     </div>
   );
 }
+
