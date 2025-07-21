@@ -179,7 +179,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
 
   const renderPlayer = () => {
     if (mediaType === 'image' && videoUrl) {
-      return <Image src={videoUrl} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual ceremony" />;
+      return <Image src={videoUrl} alt={title} width={600} height={400} className={cn(className, 'object-contain')} data-ai-hint="spiritual ceremony" />;
     }
 
     if (youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook) {
@@ -216,7 +216,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
   
     // Fallback for image type or if no videoUrl
-    return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual event" />;
+    return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-contain')} data-ai-hint="spiritual event" />;
   }
   
   const isEmbed = youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook;
