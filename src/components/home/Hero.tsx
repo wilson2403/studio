@@ -17,7 +17,7 @@ import {
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '../ui/button';
-import { Copy, Edit, PlusCircle, Trash } from 'lucide-react';
+import { Copy, Edit, ExternalLink, PlusCircle, Trash } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -31,27 +31,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import { VideoPlayer } from './VideoPlayer';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-
-function getYouTubeEmbedUrl(url: string): string | null {
-  if (!url) return null;
-  let videoId = null;
-  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  const match = url.match(youtubeRegex);
-  if (match) {
-    videoId = match[1];
-  }
-  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0` : null;
-}
-
-function getStreamableEmbedUrl(url: string): string | null {
-  const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
-  if (match && match[1]) {
-    return `https://streamable.com/e/${match[1]}?autoplay=1&muted=1&loop=1`;
-  }
-  return null;
-}
 
 const PastCeremonyForm = ({
   item,
@@ -171,49 +153,6 @@ const PastCeremonyForm = ({
 };
 
 
-const VideoPlayer = ({ video }: { video: PastCeremony }) => {
-    const streamableEmbedUrl = getStreamableEmbedUrl(video.videoUrl);
-    const youtubeEmbedUrl = getYouTubeEmbedUrl(video.videoUrl);
-
-    if (streamableEmbedUrl) {
-    return (
-        <iframe
-        src={streamableEmbedUrl}
-        frameBorder="0"
-        allow="autoplay; muted; loop"
-        allowFullScreen
-        className="w-full h-full object-cover"
-        ></iframe>
-    );
-    }
-    
-    if (youtubeEmbedUrl) {
-        return (
-           <iframe
-            src={youtubeEmbedUrl}
-            title={video.title}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          ></iframe>
-        )
-      }
-
-
-    return (
-        <video
-            key={video.videoUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            src={video.videoUrl}
-        ></video>
-    );
-}
-
 export default function Hero() {
   const { t } = useTranslation();
   const { isAdmin } = useEditable();
@@ -301,93 +240,105 @@ export default function Hero() {
         </div>
       </div>
       
-       <div className="relative w-full max-w-5xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
-           {isAdmin && (
-             <div className="absolute -top-12 right-0 z-30 flex gap-2">
-               <Dialog open={isFormOpen} onOpenChange={(open) => {
-                if (!open) {
-                    setEditingItem(undefined);
-                }
-                setFormOpen(open);
-               }}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => {setEditingItem(undefined); setFormOpen(true);}}>
-                    <PlusCircle className="mr-2" />
-                    {t('addVideo')}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{editingItem ? t('editVideo') : t('addVideo')}</DialogTitle>
-                    <DialogDescription>
-                      {t('addVideoDescription')}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <PastCeremonyForm item={editingItem} onSave={handleSave} onClose={() => {setFormOpen(false); setEditingItem(undefined)}} />
-                </DialogContent>
-              </Dialog>
-            </div>
-           )}
-           {loading ? (
-             <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card animate-pulse"></div>
-           ) : (
-            <Carousel
-                opts={{
-                align: 'start',
-                loop: true,
-                }}
-                className="w-full"
-            >
-                <CarouselContent>
-                {videos.map((video) => (
-                    <CarouselItem key={video.id} className="md:basis-full">
-                      <div className="p-1">
-                        <div className="relative rounded-2xl overflow-hidden aspect-video group shadow-2xl shadow-primary/20 border-2 border-primary/30">
-                           {isAdmin && (
-                            <div className="absolute top-2 right-2 z-20 flex gap-2">
-                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => handleDuplicate(video)}>
-                                <Copy className="h-4 w-4" />
-                              </Button>
-                               <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                   <Button variant="destructive" size="icon" className="h-8 w-8 rounded-full">
-                                    <Trash className="h-4 w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>{t('deleteVideoConfirmTitle')}</AlertDialogTitle>
-                                     <AlertDialogDescription>
-                                      {t('deleteVideoConfirmDescription')}
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                     <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDelete(video.id)}>{t('delete')}</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+       <div className="w-full px-4 md:px-0">
+          <div className="relative w-full max-w-5xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
+            {isAdmin && (
+              <div className="absolute -top-12 right-0 z-30 flex gap-2">
+                <Dialog open={isFormOpen} onOpenChange={(open) => {
+                  if (!open) {
+                      setEditingItem(undefined);
+                  }
+                  setFormOpen(open);
+                }}>
+                  <DialogTrigger asChild>
+                    <Button onClick={() => {setEditingItem(undefined); setFormOpen(true);}}>
+                      <PlusCircle className="mr-2" />
+                      {t('addVideo')}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{editingItem ? t('editVideo') : t('addVideo')}</DialogTitle>
+                      <DialogDescription>
+                        {t('addVideoDescription')}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <PastCeremonyForm item={editingItem} onSave={handleSave} onClose={() => {setFormOpen(false); setEditingItem(undefined)}} />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
+            {loading ? (
+              <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card animate-pulse"></div>
+            ) : (
+              <Carousel
+                  opts={{
+                  align: 'start',
+                  loop: true,
+                  }}
+                  className="w-full"
+              >
+                  <CarouselContent>
+                  {videos.map((video) => (
+                      <CarouselItem key={video.id} className="md:basis-full">
+                        <div className="p-1">
+                          <div className="relative rounded-2xl overflow-hidden aspect-video group shadow-2xl shadow-primary/20 border-2 border-primary/30">
+                            {isAdmin && (
+                              <div className="absolute top-2 right-2 z-20 flex gap-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => handleDuplicate(video)}>
+                                  <Copy className="h-4 w-4" />
+                                </Button>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="icon" className="h-8 w-8 rounded-full">
+                                      <Trash className="h-4 w-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>{t('deleteVideoConfirmTitle')}</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        {t('deleteVideoConfirmDescription')}
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDelete(video.id)}>{t('delete')}</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            )}
+                             <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                    <ExternalLink className="h-4 w-4" />
+                                </Button>
+                            </a>
+                            <VideoPlayer 
+                              videoUrl={video.videoUrl} 
+                              title={video.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
+                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left">
+                                <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>
+                                <p className="font-body text-sm opacity-90 mt-1">{video.description}</p>
                             </div>
-                          )}
-                          <VideoPlayer video={video} />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
-                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left">
-                              <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>
-                              <p className="font-body text-sm opacity-90 mt-1">{video.description}</p>
-                           </div>
-                        </div>
-                    </div>
-                    </CarouselItem>
-                ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4"/>
-            </Carousel>
-           )}
-      </div>
+                          </div>
+                      </div>
+                      </CarouselItem>
+                  ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-4" />
+                  <CarouselNext className="right-4"/>
+              </Carousel>
+            )}
+        </div>
+       </div>
+
       <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700">
         <EditableTitle 
             tag="p"

@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Progress } from '../ui/progress';
 import { VideoPlayer } from './VideoPlayer';
+import { EditableTitle } from './EditableTitle';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -217,101 +218,117 @@ export default function PastCeremonies() {
     };
 
     return (
-        <div className="relative w-full max-w-7xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
-           {isAdmin && (
-             <div className="absolute -top-12 right-0 z-30 flex gap-2">
-               <Dialog open={isFormOpen} onOpenChange={(open) => {
-                if (!open) {
-                    setEditingItem(undefined);
-                }
-                setFormOpen(open);
-               }}>
-                <DialogTrigger asChild>
-                  <Button onClick={() => {setEditingItem(undefined); setFormOpen(true);}}>
-                    <PlusCircle className="mr-2" />
-                    {t('addVideo')}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>{editingItem ? t('editVideo') : t('addVideo')}</DialogTitle>
-                    <DialogDescription>
-                      {t('addVideoDescription')}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <PastCeremonyForm item={editingItem} onSave={handleSave} onClose={() => {setFormOpen(false); setEditingItem(undefined)}} />
-                </DialogContent>
-              </Dialog>
+        <section className="container py-12 md:py-24 animate-in fade-in-0 duration-1000 delay-500">
+             <div className="flex flex-col items-center text-center space-y-4 mb-12">
+                <EditableTitle
+                tag="h2"
+                id="pastCeremoniesTitle"
+                initialValue={t('pastCeremoniesTitle')}
+                className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+                />
+                <EditableTitle
+                tag="p"
+                id="pastCeremoniesSubtitle"
+                initialValue={t('pastCeremoniesSubtitle')}
+                className="max-w-2xl text-lg text-foreground/80 font-body"
+                />
             </div>
-           )}
-           {loading ? (
-             <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card animate-pulse"></div>
-           ) : (
-            <Carousel
-                opts={{
-                    align: 'start',
-                    loop: true,
-                }}
-                className="w-full"
-            >
-                <CarouselContent>
-                {videos.map((video) => (
-                    <CarouselItem key={video.id} className="basis-[80%] md:basis-1/2 lg:basis-1/3">
-                      <div className="p-1 md:p-2">
-                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group shadow-2xl shadow-primary/20 border-2 border-primary/30">
-                           {isAdmin && (
-                            <div className="absolute top-2 right-2 z-20 flex gap-2">
-                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => handleDuplicate(video)}>
-                                <Copy className="h-4 w-4" />
-                              </Button>
-                               <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                   <Button variant="destructive" size="icon" className="h-8 w-8 rounded-full">
-                                    <Trash className="h-4 w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>{t('deleteVideoConfirmTitle')}</AlertDialogTitle>
-                                     <AlertDialogDescription>
-                                      {t('deleteVideoConfirmDescription')}
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                     <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDelete(video.id)}>{t('delete')}</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+            <div className="relative w-full max-w-7xl mx-auto">
+            {isAdmin && (
+                <div className="absolute -top-12 right-0 z-30 flex gap-2">
+                <Dialog open={isFormOpen} onOpenChange={(open) => {
+                    if (!open) {
+                        setEditingItem(undefined);
+                    }
+                    setFormOpen(open);
+                }}>
+                    <DialogTrigger asChild>
+                    <Button onClick={() => {setEditingItem(undefined); setFormOpen(true);}}>
+                        <PlusCircle className="mr-2" />
+                        {t('addVideo')}
+                    </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{editingItem ? t('editVideo') : t('addVideo')}</DialogTitle>
+                        <DialogDescription>
+                        {t('addVideoDescription')}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <PastCeremonyForm item={editingItem} onSave={handleSave} onClose={() => {setFormOpen(false); setEditingItem(undefined)}} />
+                    </DialogContent>
+                </Dialog>
+                </div>
+            )}
+            {loading ? (
+                <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card animate-pulse"></div>
+            ) : (
+                <Carousel
+                    opts={{
+                        align: 'start',
+                        loop: true,
+                    }}
+                    className="w-full"
+                >
+                    <CarouselContent>
+                    {videos.map((video) => (
+                        <CarouselItem key={video.id} className="md:basis-1/2 lg:basis-1/3">
+                        <div className="p-1 md:p-2">
+                            <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group shadow-2xl shadow-primary/20 border-2 border-primary/30">
+                            {isAdmin && (
+                                <div className="absolute top-2 right-2 z-20 flex gap-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
+                                    <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => handleDuplicate(video)}>
+                                    <Copy className="h-4 w-4" />
+                                </Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="icon" className="h-8 w-8 rounded-full">
+                                        <Trash className="h-4 w-4" />
+                                    </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>{t('deleteVideoConfirmTitle')}</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                        {t('deleteVideoConfirmDescription')}
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDelete(video.id)}>{t('delete')}</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                                </div>
+                            )}
+                            <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                    <ExternalLink className="h-4 w-4" />
+                                </Button>
+                            </a>
+                            <VideoPlayer 
+                                videoUrl={video.videoUrl} 
+                                title={video.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
+                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left">
+                                <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>
+                                <p className="font-body text-sm opacity-90 mt-1">{video.description}</p>
                             </div>
-                          )}
-                          <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                <ExternalLink className="h-4 w-4" />
-                            </Button>
-                          </a>
-                          <VideoPlayer 
-                            videoUrl={video.videoUrl} 
-                            title={video.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
-                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left">
-                              <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>
-                              <p className="font-body text-sm opacity-90 mt-1">{video.description}</p>
-                           </div>
+                            </div>
                         </div>
-                    </div>
-                    </CarouselItem>
-                ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-[-1rem] md:left-4" />
-                <CarouselNext className="right-[-1rem] md:right-4"/>
-            </Carousel>
-           )}
-      </div>
+                        </CarouselItem>
+                    ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-[-1rem] md:left-4" />
+                    <CarouselNext className="right-[-1rem] md:right-4"/>
+                </Carousel>
+            )}
+            </div>
+      </section>
     );
 }
