@@ -66,7 +66,7 @@ export default function AllCeremoniesPage() {
 
     const isAdmin = user && user.email === ADMIN_EMAIL;
 
-    const getStatusVariant = (status: Ceremony['status']) => {
+    const getStatusVariant = (status?: Ceremony['status']) => {
         switch (status) {
             case 'active': return 'default';
             case 'finished': return 'secondary';
@@ -99,48 +99,51 @@ export default function AllCeremoniesPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-                {ceremonies.map(ceremony => (
-                    <Card key={ceremony.id} className="relative group overflow-hidden rounded-lg shadow-lg bg-card/50">
-                        {isAdmin && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="absolute top-2 right-2 h-8 w-8 rounded-full z-20 bg-black/50 hover:bg-black/80 text-white"
-                                onClick={() => setEditingCeremony(ceremony)}
-                            >
-                                <Edit className="h-4 w-4" />
-                            </Button>
-                        )}
-                        <CardHeader className="p-0">
-                            <div className="relative aspect-video">
-                                <VideoPlayer 
-                                    videoUrl={ceremony.mediaUrl}
-                                    mediaType={ceremony.mediaType}
-                                    title={ceremony.title}
-                                    isActivated={true} // Simplified for list view
-                                />
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-4">
-                            <div className="flex justify-between items-start">
-                                <CardTitle className="text-xl font-headline mb-2 pr-4">{ceremony.title}</CardTitle>
-                                <Badge variant={getStatusVariant(ceremony.status)} className="capitalize flex-shrink-0">
-                                    {t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`)}
-                                </Badge>
-                            </div>
-                             <div className="font-mono text-xs text-muted-foreground mt-2 space-y-1">
-                                {ceremony.date && (
-                                <p className="flex items-center gap-1.5">
-                                    <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-                                </p>
-                                )}
-                            </div>
-                            <CardDescription className="mt-2 text-sm text-foreground/80 line-clamp-3">
-                                {ceremony.description}
-                            </CardDescription>
-                        </CardContent>
-                    </Card>
-                ))}
+                {ceremonies.map(ceremony => {
+                    const status = ceremony.status || 'inactive';
+                    return (
+                        <Card key={ceremony.id} className="relative group overflow-hidden rounded-lg shadow-lg bg-card/50">
+                            {isAdmin && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-2 right-2 h-8 w-8 rounded-full z-20 bg-black/50 hover:bg-black/80 text-white"
+                                    onClick={() => setEditingCeremony(ceremony)}
+                                >
+                                    <Edit className="h-4 w-4" />
+                                </Button>
+                            )}
+                            <CardHeader className="p-0">
+                                <div className="relative aspect-video">
+                                    <VideoPlayer 
+                                        videoUrl={ceremony.mediaUrl}
+                                        mediaType={ceremony.mediaType}
+                                        title={ceremony.title}
+                                        isActivated={true} // Simplified for list view
+                                    />
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-4">
+                                <div className="flex justify-between items-start">
+                                    <CardTitle className="text-xl font-headline mb-2 pr-4">{ceremony.title}</CardTitle>
+                                    <Badge variant={getStatusVariant(status)} className="capitalize flex-shrink-0">
+                                        {t(`status${status.charAt(0).toUpperCase() + status.slice(1)}`)}
+                                    </Badge>
+                                </div>
+                                 <div className="font-mono text-xs text-muted-foreground mt-2 space-y-1">
+                                    {ceremony.date && (
+                                    <p className="flex items-center gap-1.5">
+                                        <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                                    </p>
+                                    )}
+                                </div>
+                                <CardDescription className="mt-2 text-sm text-foreground/80 line-clamp-3">
+                                    {ceremony.description}
+                                </CardDescription>
+                            </CardContent>
+                        </Card>
+                    );
+                })}
             </div>
             
             {editingCeremony && (
