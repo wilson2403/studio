@@ -18,21 +18,14 @@ export default function Hero() {
             initialValue={t('heroTitle')}
             className="text-4xl md:text-6xl font-headline tracking-tight bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
           />
-          <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body">
-             <EditableTitle 
-                tag="p"
-                id="heroSubtitle1"
-                initialValue={t('heroSubtitle1')}
-            />
-          </div>
         </div>
       </div>
       
       <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700 mt-6 mb-8">
         <EditableTitle 
             tag="p"
-            id="heroSubtitle2"
-            initialValue={t('heroSubtitle2')}
+            id="heroSubtitle"
+            initialValue={t('heroSubtitle')}
         />
       </div>
 
