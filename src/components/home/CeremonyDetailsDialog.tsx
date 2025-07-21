@@ -80,7 +80,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                         {getBasePriceText()}
                     </span>
                     <p className="text-sm text-muted-foreground">
-                        {t('fullPlanUpTo')}
+                        {ceremony.contributionText || t('fullPlanUpTo')}
                     </p>
                 </div>
             ) : (
@@ -99,6 +99,11 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                              </Label>
                         ))}
                     </RadioGroup>
+                    {ceremony.contributionText && (
+                        <p className="text-sm text-center text-muted-foreground">
+                            {ceremony.contributionText}
+                        </p>
+                    )}
                 </div>
             )}
             <ul className="space-y-3 pt-4">

@@ -18,6 +18,7 @@ export type Ceremony = {
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
   plans?: Plan[];
+  contributionText?: string;
 };
 
 export type PastCeremony = {

@@ -55,6 +55,7 @@ export const seedCeremonies = async () => {
       featured: false,
       mediaUrl: 'https://placehold.co/600x400.png',
       mediaType: 'image',
+      contributionText: 'Puedes reservar con el 20%',
     },
     {
       title: 'Sábado 2 de agosto – San Carlos',
@@ -69,7 +70,8 @@ export const seedCeremonies = async () => {
       plans: [
         { name: 'Plan Básico', price: 80000 },
         { name: 'Plan Completo', price: 100000 }
-      ]
+      ],
+      contributionText: 'Puedes reservar con el 20%',
     },
     {
       title: 'Sábado 9 de agosto – Pérez Zeledón',
@@ -84,7 +86,8 @@ export const seedCeremonies = async () => {
       plans: [
         { name: 'Individual', price: 80000 },
         { name: 'Pareja', price: 150000 }
-      ]
+      ],
+      contributionText: 'Puedes reservar con el 20%',
     },
     {
       title: 'Sábado 23 de agosto – La Fortuna',
@@ -98,7 +101,8 @@ export const seedCeremonies = async () => {
       mediaType: 'image',
       plans: [
         { name: 'Plan Básico', price: 80000 }
-      ]
+      ],
+      contributionText: 'Puedes reservar con el 20%',
     },
   ];
 

@@ -44,6 +44,7 @@ const formSchema = (t: (key: string) => string) => z.object({
   mediaUrl: z.string().url('Debe ser una URL válida').optional().or(z.literal('')),
   mediaType: z.enum(['image', 'video']).default('image'),
   plans: z.array(planSchema(t)).optional(),
+  contributionText: z.string().optional(),
 });
 
 type EditCeremonyFormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -80,6 +81,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       mediaUrl: ceremony.mediaUrl || '',
       mediaType: ceremony.mediaType || 'image',
       plans: ceremony.plans || [],
+      contributionText: ceremony.contributionText || '',
     } : {
       title: '',
       description: '',
@@ -91,6 +93,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       mediaUrl: '',
       mediaType: 'image',
       plans: [{ name: 'Plan Básico', price: 80000 }, { name: 'Plan Completo', price: 100000 }],
+      contributionText: t('defaultContributionText'),
     },
   });
   
@@ -275,6 +278,10 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                 <SelectItem value="from">{t('priceTypeFrom')}</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="contributionText" className="text-right">{t('formContributionText')}</Label>
+            <Input id="contributionText" {...form.register('contributionText')} className="col-span-3" disabled={isUploading} />
           </div>
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="link" className="text-right">{t('formLink')}</Label>
