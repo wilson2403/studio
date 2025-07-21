@@ -39,6 +39,12 @@ const nextConfig: NextConfig = {
         hostname: 'm.facebook.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.postimg.cc',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
