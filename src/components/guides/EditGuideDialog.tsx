@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Trash } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '../ui/form';
 
 const formSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(1, t('errorRequired', { field: t('formName') })),
@@ -176,100 +177,118 @@ export default function EditGuideDialog({ guide, isOpen, onClose, onUpdate, onDe
             {t('editGuideDescription')}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">{t('formName')}</Label>
-            <Input id="name" {...form.register('name')} className="col-span-3" disabled={isUploading} />
-            {form.formState.errors.name && <p className="col-span-4 text-red-500 text-xs text-right">{form.formState.errors.name.message}</p>}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">{t('formDescription')}</Label>
-            <Textarea id="description" {...form.register('description')} className="col-span-3" rows={5} disabled={isUploading} />
-            {form.formState.errors.description && <p className="col-span-4 text-red-500 text-xs text-right">{form.formState.errors.description.message}</p>}
-          </div>
-          
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label className="text-right">{t('formImage')}</Label>
-            <div className='col-span-3'>
-                <Image src={previewUrl} alt={form.getValues('name')} width={80} height={80} className='rounded-full object-cover mb-4' />
-            </div>
-          </div>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>{t('formName')}</Label>
+                    <FormControl>
+                      <Input {...field} disabled={isUploading} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-           <div className="grid grid-cols-4 items-start gap-4">
-             <Label htmlFor="imageUrl" className="text-right pt-2">{t('formImageUrl')}</Label>
-             <div className="col-span-3">
-                <Input 
-                    id="imageUrl" 
-                    {...form.register('imageUrl')} 
-                    onChange={handleUrlChange}
-                    placeholder="https://i.postimg.cc/..." 
-                    disabled={isUploading || !!imageFile} 
-                 />
-                 {form.formState.errors.imageUrl && <p className="text-red-500 text-xs mt-1">{form.formState.errors.imageUrl.message}</p>}
-             </div>
-           </div>
-          
-           <div className="relative flex items-center w-full col-start-2 col-span-3">
-             <div className="flex-grow border-t border-muted-foreground/20"></div>
-             <span className="flex-shrink mx-4 text-xs text-muted-foreground">{t('or')}</span>
-             <div className="flex-grow border-t border-muted-foreground/20"></div>
-           </div>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>{t('formDescription')}</Label>
+                    <FormControl>
+                      <Textarea {...field} rows={5} disabled={isUploading} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-           <div className="grid grid-cols-4 items-start gap-4">
-             <Label htmlFor="image-upload" className="text-right pt-2">{t('formUploadFile')}</Label>
-             <div className="col-span-3">
-                <Input 
+              <div className="space-y-2">
+                <Label>{t('formImage')}</Label>
+                <Image src={previewUrl} alt={form.getValues('name')} width={80} height={80} className='rounded-full object-cover' />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>{t('formImageUrl')}</Label>
+                    <FormControl>
+                       <Input 
+                          {...field}
+                          onChange={handleUrlChange}
+                          placeholder="https://i.postimg.cc/..." 
+                          disabled={isUploading || !!imageFile} 
+                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="relative flex items-center w-full">
+                <div className="flex-grow border-t border-muted-foreground/20"></div>
+                <span className="flex-shrink mx-4 text-xs text-muted-foreground">{t('or')}</span>
+                <div className="flex-grow border-t border-muted-foreground/20"></div>
+              </div>
+
+              <div className="space-y-2">
+                 <Label htmlFor="image-upload">{t('formUploadFile')}</Label>
+                 <Input 
                     id="image-upload" 
                     type="file" 
                     accept="image/*" 
                     onChange={handleFileChange} 
                     disabled={isUploading || !!form.watch('imageUrl')}
                 />
-             </div>
-           </div>
-          
-          {isUploading && (
-            <div className='grid grid-cols-4 items-center gap-4'>
-                <div className='col-start-2 col-span-3 space-y-1'>
+              </div>
+
+              {isUploading && (
+                <div className='space-y-1'>
                     <Label>{imageFile ? t('uploadingFile') : t('saving')}</Label>
                     <Progress value={uploadProgress} />
                 </div>
-            </div>
-           )}
+              )}
 
-          <DialogFooter className="flex justify-between w-full pt-4">
-            <div>
-              <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button type="button" variant="destructive" disabled={isUploading}>
-                      <Trash className="mr-2 h-4 w-4" />
-                      {t('delete')}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>{t('deleteGuideConfirmTitle')}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t('deleteGuideConfirmDescription')}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete}>{t('continue')}</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-            </div>
-            <div className="flex gap-2">
-              <DialogClose asChild>
-                  <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
-              </DialogClose>
-              <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
-                  {isUploading ? t('saving') : t('saveChanges')}
-              </Button>
-            </div>
-          </DialogFooter>
-        </form>
+              <DialogFooter className="flex justify-between w-full pt-4">
+                <div>
+                  <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button type="button" variant="destructive" disabled={isUploading}>
+                          <Trash className="mr-2 h-4 w-4" />
+                          {t('delete')}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{t('deleteGuideConfirmTitle')}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t('deleteGuideConfirmDescription')}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDelete}>{t('continue')}</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                </div>
+                <div className="flex gap-2">
+                  <DialogClose asChild>
+                      <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
+                  </DialogClose>
+                  <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
+                      {isUploading ? t('saving') : t('saveChanges')}
+                  </Button>
+                </div>
+              </DialogFooter>
+            </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
