@@ -283,12 +283,6 @@ export default function PastCeremoniesSection() {
                 initialValue={t('pastCeremoniesTitle')}
                 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                 />
-                 <EditableTitle
-                  tag="p"
-                  id="pastCeremoniesLocations"
-                  initialValue={'Guanacaste y San Carlos'}
-                  className="text-lg text-primary font-body"
-                />
             </div>
              <div className="w-full px-4 md:px-0">
           <div className="relative w-full max-w-xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
@@ -399,5 +393,3 @@ export default function PastCeremoniesSection() {
       </section>
     );
 }
-
-
