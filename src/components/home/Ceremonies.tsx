@@ -142,7 +142,7 @@ export default function Ceremonies() {
             )}
           >
             <CardHeader className="p-0">
-              <div className="relative aspect-video overflow-hidden">
+              <div className="relative aspect-video overflow-hidden pt-[56.25%]">
                 {isAdmin && (
                   <Button
                     variant="ghost"
@@ -164,7 +164,7 @@ export default function Ceremonies() {
                   videoUrl={ceremony.mediaUrl} 
                   mediaType={ceremony.mediaType}
                   title={ceremony.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
             </CardHeader>
@@ -172,22 +172,10 @@ export default function Ceremonies() {
               <CardTitle className="text-2xl font-headline tracking-wide">
                 {ceremony.title}
               </CardTitle>
-              <CardDescription className="font-body text-base mt-2">
+              <CardDescription className="font-body text-base mt-2 flex-1">
                 {ceremony.description}
               </CardDescription>
             <CardContent className="flex-1 space-y-4 mt-6 p-0">
-              <ul className="space-y-2">
-                <li className="flex items-center gap-3 font-bold">
-                  <Check className="h-5 w-5 text-primary" />
-                  <span>{t('includes')}</span>
-                </li>
-                {ceremony.features.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 ml-4">
-                    <Check className="h-5 w-5 text-primary/70" />
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
             </CardContent>
             <CardFooter className="p-0 pt-6 flex flex-col gap-2">
               <Button
