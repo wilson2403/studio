@@ -141,7 +141,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) : null;
   const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl, controls) : null;
   const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
-  const isFacebook = videoUrl && videoUrl.includes('facebook.com');
+  const isFacebook = videoUrl && (videoUrl.includes('facebook.com') || videoUrl.includes('fb.watch'));
 
   const activateIframe = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -165,7 +165,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
     return (
         <>
-           <Image src={`https://placehold.co/600x400.png?text=${text[type]}`} alt={`${text[type]} video thumbnail`} layout="fill" objectFit="cover" data-ai-hint={hints[type]} />
+           <Image src={`https://placehold.co/600x400.png?text=${text[type]}`} alt={`${text[type]} video thumbnail`} layout="fill" objectFit="contain" data-ai-hint={hints[type]} />
            <div className="absolute inset-0 bg-black/50"></div>
             <div className="relative z-10 flex flex-col items-center">
                <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
@@ -191,12 +191,15 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
         if (isTikTok && videoUrl) {
             return <TikTokPlayer url={videoUrl} title={title} controls={controls} />;
         }
+        
+        if (isFacebook && videoUrl) {
+            return <FacebookPlayer url={videoUrl} title={title} className={className} controls={controls} />;
+        }
 
         let src = '';
         if (youtubeEmbedUrl) src = youtubeEmbedUrl;
         else if (streamableEmbedUrl) src = streamableEmbedUrl;
-        else if (isFacebook) src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(videoUrl!)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
-
+       
         return (
             <div className="absolute inset-0 w-full h-full">
                 <iframe
