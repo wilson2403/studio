@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -30,7 +31,8 @@ import { useTranslation } from 'react-i18next';
 const formSchema = (t: (key: string) => string) => z.object({
   title: z.string().min(1, t('errorRequired', { field: t('formTitle') })),
   description: z.string().min(1, t('errorRequired', { field: t('formDescription') })),
-  price: z.string().min(1, t('errorRequired', { field: t('formPrice') })),
+  price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('formPrice') })),
+  priceType: z.enum(['exact', 'from']),
   link: z.string().url('Debe ser una URL válida'),
   featured: z.boolean(),
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
@@ -65,6 +67,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       title: ceremony.title,
       description: ceremony.description,
       price: ceremony.price,
+      priceType: ceremony.priceType,
       link: ceremony.link,
       featured: ceremony.featured,
       features: ceremony.features.map(f => ({ value: f })),
@@ -73,7 +76,8 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     } : {
       title: '',
       description: '',
-      price: 'desde ₡80.000',
+      price: 80000,
+      priceType: 'from',
       link: 'https://wa.me/50687992560',
       featured: false,
       features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
@@ -240,8 +244,20 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="price" className="text-right">{t('formPrice')}</Label>
-            <Input id="price" {...form.register('price')} className="col-span-3" disabled={isUploading} />
+            <Input id="price" type="number" {...form.register('price')} className="col-span-3" disabled={isUploading} />
             {form.formState.errors.price && <p className="col-span-4 text-red-500 text-xs text-right">{form.formState.errors.price.message}</p>}
+          </div>
+           <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="priceType" className="text-right">{t('formPriceType')}</Label>
+            <Select onValueChange={(value) => form.setValue('priceType', value as 'exact' | 'from')} defaultValue={form.getValues('priceType')} disabled={isUploading}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder={t('formSelectType')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="exact">{t('priceTypeExact')}</SelectItem>
+                <SelectItem value="from">{t('priceTypeFrom')}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="link" className="text-right">{t('formLink')}</Label>
@@ -324,7 +340,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete}>{t('continue')}</AlertDialogAction>
+                        <AlertDialogAction onClick={handleDelete}>{t('delete')}</AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>

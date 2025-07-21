@@ -5,7 +5,8 @@ export type Ceremony = {
   id: string;
   title: string;
   description: string;
-  price: string;
+  price: number;
+  priceType: 'exact' | 'from';
   features: string[];
   link: string;
   featured: boolean;

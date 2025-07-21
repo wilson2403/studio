@@ -21,10 +21,30 @@ interface CeremonyDetailsDialogProps {
   onClose: () => void;
 }
 
+const USD_EXCHANGE_RATE = 500;
+
 export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: CeremonyDetailsDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (!ceremony) return null;
+
+  const formatPrice = () => {
+    const { price, priceType } = ceremony;
+    const isEnglish = i18n.language === 'en';
+    
+    let formattedPrice: string;
+
+    if (isEnglish) {
+      const priceInUSD = Math.round(price / USD_EXCHANGE_RATE);
+      formattedPrice = `$${priceInUSD} USD`;
+    } else {
+      formattedPrice = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+    }
+    
+    const prefix = priceType === 'from' ? (isEnglish ? 'From ' : 'Desde ') : '';
+
+    return `${prefix}${formattedPrice}`;
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -38,7 +58,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         <div className="space-y-4 py-4">
             <div className="text-center">
                 <span className="text-4xl font-bold text-foreground">
-                    {t('priceFrom', { price: ceremony.price })}
+                    {formatPrice()}
                 </span>
                 <p className="text-sm text-muted-foreground">
                     {t('fullPlanUpTo')}

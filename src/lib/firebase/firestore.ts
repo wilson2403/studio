@@ -48,8 +48,9 @@ export const seedCeremonies = async () => {
     {
       title: 'Sábado 26 de julio – Guanacaste',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
-      price: 'desde ₡80.000',
-      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo hasta 100.000'],
+      price: 100000,
+      priceType: 'exact',
+      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo'],
       link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2026%20de%20julio%20en%20Guanacaste',
       featured: false,
       mediaUrl: 'https://placehold.co/600x400.png',
@@ -58,7 +59,8 @@ export const seedCeremonies = async () => {
     {
       title: 'Sábado 2 de agosto – San Carlos',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
-      price: 'desde ₡80.000',
+      price: 80000,
+      priceType: 'from',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo hasta 100.000'],
       link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%202%20de%20agosto%20en%20San%20Carlos',
       featured: true,
@@ -68,7 +70,8 @@ export const seedCeremonies = async () => {
     {
       title: 'Sábado 9 de agosto – Pérez Zeledón',
       description: 'Horario: 5:00 p.m. a 8:00 a.m. del día siguiente',
-      price: 'desde ₡80.000',
+      price: 80000,
+      priceType: 'from',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
       link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%209%20de%20agosto%20en%20Pérez%20Zeledón',
       featured: false,
@@ -78,7 +81,8 @@ export const seedCeremonies = async () => {
     {
       title: 'Sábado 23 de agosto – La Fortuna',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
-      price: 'desde ₡80.000',
+      price: 80000,
+      priceType: 'from',
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Círculo de sonido'],
       link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2023%20de%20agosto%20en%20La%20Fortuna',
       featured: false,
@@ -198,7 +202,7 @@ export const seedGuides = async () => {
     const initialGuides: Omit<Guide, 'id'>[] = [
         {
             name: 'Wilson Alfaro',
-            description: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
+            description: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson Alfaro aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
             imageUrl: '/images/wilson.jpg',
         },
         {
@@ -450,6 +454,7 @@ export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswe
             ...answers,
             updatedAt: serverTimestamp(),
         }, { merge: true });
+        await updateUserProfile(uid, { questionnaireCompleted: true });
     } catch (error) {
         console.error("Error saving questionnaire:", error);
         throw error;
