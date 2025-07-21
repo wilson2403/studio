@@ -56,9 +56,12 @@ export type UserProfile = {
 }
 
 export type ThemeSettings = {
-    primary: string;
-    background: string;
-    accent: string;
+    lightPrimary: string;
+    lightBackground: string;
+    lightAccent: string;
+    darkPrimary: string;
+    darkBackground: string;
+    darkAccent: string;
 }
 
 export type ChatMessage = {

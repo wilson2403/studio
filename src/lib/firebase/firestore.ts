@@ -98,7 +98,7 @@ export const seedCeremonies = async () => {
     batch.set(docRef, ceremony);
   });
   
-  const heroTitleContent = {
+ const heroTitleContent = {
     es: 'Un Encuentro Sagrado con Medicinas Ancestrales',
     en: 'A Sacred Encounter with Ancestral Medicines'
   };
@@ -257,9 +257,28 @@ export const seedGuides = async () => {
 }
 
 export const getGuides = async (): Promise<Guide[]> => {
+    const guides: Guide[] = [];
     try {
         const snapshot = await getDocs(guidesCollection);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Guide));
+        for (const guideDoc of snapshot.docs) {
+            const guideData = guideDoc.data() as Omit<Guide, 'id'>;
+            const descriptionContent = await getContent(guideData.description);
+            
+            let description = '';
+            if (typeof descriptionContent === 'object' && descriptionContent !== null) {
+                // Assuming you want to return a specific language or a default
+                description = (descriptionContent as any).es || (descriptionContent as any).en || '';
+            } else if (typeof descriptionContent === 'string') {
+                description = descriptionContent;
+            }
+
+            guides.push({
+                id: guideDoc.id,
+                ...guideData,
+                description: description // This will be language-specific based on your logic
+            });
+        }
+        return guides;
     } catch (error) {
         console.error("Error fetching guides: ", error);
         return [];
@@ -270,7 +289,7 @@ export const getGuides = async (): Promise<Guide[]> => {
 export const updateGuide = async (guide: Guide): Promise<void> => {
     try {
         const guideRef = doc(db, 'guides', guide.id);
-        const { id, ...data } = guide; // Exclude description from the main guide document
+        const { id, ...data } = guide; 
         await updateDoc(guideRef, data);
 
     } catch (error) {

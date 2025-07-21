@@ -16,6 +16,7 @@ import { getUserProfile, updateUserProfile, getThemeSettings, setThemeSettings, 
 import { useToast } from '@/hooks/use-toast';
 import { User as UserIcon, Palette, Save } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
+import { Separator } from '../ui/separator';
 
 
 const profileFormSchema = (t: (key: string) => string) => z.object({
@@ -24,9 +25,12 @@ const profileFormSchema = (t: (key: string) => string) => z.object({
 });
 
 const themeFormSchema = z.object({
-  primary: z.string(),
-  background: z.string(),
-  accent: z.string(),
+  lightPrimary: z.string(),
+  lightBackground: z.string(),
+  lightAccent: z.string(),
+  darkPrimary: z.string(),
+  darkBackground: z.string(),
+  darkAccent: z.string(),
 });
 
 type ProfileFormValues = z.infer<ReturnType<typeof profileFormSchema>>;
@@ -50,9 +54,12 @@ export default function SettingsTabs({ user }: { user: User }) {
   const themeForm = useForm<ThemeFormValues>({
     resolver: zodResolver(themeFormSchema),
     defaultValues: {
-      primary: '150 40% 45%',
-      background: '20 14.3% 4.1%',
-      accent: '140 10% 15%',
+      lightPrimary: '125 33% 74%',
+      lightBackground: '40 33% 98%',
+      lightAccent: '47 62% 52%',
+      darkPrimary: '150 40% 45%',
+      darkBackground: '20 14.3% 4.1%',
+      darkAccent: '140 10% 15%',
     },
   });
 
@@ -72,11 +79,18 @@ export default function SettingsTabs({ user }: { user: User }) {
   }, [user.uid, profileForm]);
   
   const applyTheme = (settings: ThemeSettings) => {
-      const root = document.querySelector('.dark') as HTMLElement;
-      if (root) {
-        root.style.setProperty('--primary', settings.primary);
-        root.style.setProperty('--background', settings.background);
-        root.style.setProperty('--accent', settings.accent);
+      const lightRoot = document.querySelector(':root') as HTMLElement;
+      if (lightRoot) {
+        lightRoot.style.setProperty('--primary', settings.lightPrimary);
+        lightRoot.style.setProperty('--background', settings.lightBackground);
+        lightRoot.style.setProperty('--accent', settings.lightAccent);
+      }
+      
+      const darkRoot = document.querySelector('.dark') as HTMLElement;
+      if (darkRoot) {
+        darkRoot.style.setProperty('--primary', settings.darkPrimary);
+        darkRoot.style.setProperty('--background', settings.darkBackground);
+        darkRoot.style.setProperty('--accent', settings.darkAccent);
       }
   };
 
@@ -88,7 +102,6 @@ export default function SettingsTabs({ user }: { user: User }) {
             themeForm.reset(settings);
             applyTheme(settings);
         } else {
-            // Apply default if no settings found
              const defaultSettings = themeForm.getValues();
              applyTheme(defaultSettings);
         }
@@ -201,45 +214,99 @@ export default function SettingsTabs({ user }: { user: User }) {
                         onChange={() => handleThemeChange(themeForm.getValues())}
                         className="space-y-6"
                     >
-                         <FormField
-                            control={themeForm.control}
-                            name="primary"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('themePrimaryLabel')} (HSL)</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="150 40% 45%" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={themeForm.control}
-                            name="background"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('themeBackgroundLabel')} (HSL)</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="20 14.3% 4.1%" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={themeForm.control}
-                            name="accent"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('themeAccentLabel')} (HSL)</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="140 10% 15%" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        {/* Light Theme */}
+                        <div>
+                            <h3 className="text-lg font-medium mb-4">{t('themeLight')}</h3>
+                            <div className="space-y-4">
+                                <FormField
+                                    control={themeForm.control}
+                                    name="lightPrimary"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('themePrimaryLabel')} (HSL)</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="125 33% 74%" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={themeForm.control}
+                                    name="lightBackground"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('themeBackgroundLabel')} (HSL)</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="40 33% 98%" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={themeForm.control}
+                                    name="lightAccent"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('themeAccentLabel')} (HSL)</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="47 62% 52%" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
+
+                        <Separator />
+
+                        {/* Dark Theme */}
+                        <div>
+                            <h3 className="text-lg font-medium mb-4">{t('themeDark')}</h3>
+                             <div className="space-y-4">
+                                <FormField
+                                    control={themeForm.control}
+                                    name="darkPrimary"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('themePrimaryLabel')} (HSL)</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="150 40% 45%" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={themeForm.control}
+                                    name="darkBackground"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('themeBackgroundLabel')} (HSL)</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="20 14.3% 4.1%" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={themeForm.control}
+                                    name="darkAccent"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('themeAccentLabel')} (HSL)</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="140 10% 15%" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
                         <Button type="submit" disabled={themeForm.formState.isSubmitting}>
                             <Save className="mr-2 h-4 w-4"/>
                             {themeForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
