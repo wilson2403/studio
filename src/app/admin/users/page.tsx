@@ -194,10 +194,12 @@ export default function AdminUsersPage() {
                                                 />
                                             </TableCell>
                                             <TableCell className='flex gap-2'>
-                                                <Button variant="outline" size="sm" onClick={() => setViewingUser(u)}>
-                                                    <FileText className="mr-2 h-4 w-4"/>
-                                                    {t('viewQuestionnaire')}
-                                                </Button>
+                                                {u.questionnaireCompleted && (
+                                                    <Button variant="outline" size="sm" onClick={() => setViewingUser(u)}>
+                                                        <FileText className="mr-2 h-4 w-4"/>
+                                                        {t('viewQuestionnaire')}
+                                                    </Button>
+                                                )}
                                                 {!u.questionnaireCompleted && (
                                                     <Button variant="outline" size="sm" onClick={() => handleInvite(u.phone)}>
                                                         <WhatsappIcon className="mr-2 h-4 w-4"/>
