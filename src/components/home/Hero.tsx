@@ -226,9 +226,9 @@ export default function Hero() {
 
 
   return (
-    <section className="relative w-full py-12 md:py-20 flex flex-col items-center justify-center text-center gap-12 group">
+    <section className="relative w-full pt-12 md:pt-20 flex flex-col items-center justify-center text-center group">
       
-      <div className="container relative animate-in fade-in-0 duration-1000 z-20">
+      <div className="container relative animate-in fade-in-0 duration-1000 z-20 space-y-8">
         <div className="flex flex-col items-center space-y-2">
           <EditableTitle 
             tag="h1"
@@ -246,7 +246,7 @@ export default function Hero() {
         </div>
       </div>
       
-       <div className="w-full px-4 md:px-0">
+       <div className="w-full px-4 md:px-0 mt-12">
           <div className="relative w-full max-w-xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
             {isAdmin && (
               <div className="absolute -top-12 right-0 z-30 flex gap-2">
@@ -288,7 +288,14 @@ export default function Hero() {
                   {videos.map((video) => (
                       <CarouselItem key={video.id} className="basis-full md:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
-                          <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer">
+                          <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer" onClick={(e) => {
+                            const target = e.target as HTMLElement;
+                            // Prevent modal from opening if an action button was clicked
+                            if (target.closest('button') || target.closest('a')) {
+                              return;
+                            }
+                            setViewingVideo(video);
+                          }}>
                             {isAdmin && (
                               <div className="absolute top-2 right-2 z-20 flex gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingItem(video); setFormOpen(true); }}>
@@ -353,7 +360,7 @@ export default function Hero() {
         </div>
        </div>
 
-      <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700">
+      <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700 mt-12 mb-8">
         <EditableTitle 
             tag="p"
             id="heroSubtitle2"
