@@ -16,8 +16,8 @@ export default function Home() {
     <EditableProvider>
       <RegistrationPromptDialog />
       <Hero />
-      <Ceremonies />
       <PastCeremoniesSection />
+      <Ceremonies />
       <PreparationCta />
       <Contact />
     </EditableProvider>
