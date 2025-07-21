@@ -159,7 +159,7 @@ export default function Ceremonies({
                     <Edit className="h-4 w-4" />
                   </Button>
                 )}
-                {ceremony.mediaUrl && ceremony.mediaType === 'video' && (
+                {ceremony.mediaUrl && (
                   <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                       <ExternalLink className="h-4 w-4" />

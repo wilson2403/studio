@@ -48,6 +48,7 @@ const getFacebookEmbedUrl = (url: string): string | null => {
 };
 
 const getStreamableEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
