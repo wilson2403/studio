@@ -10,6 +10,7 @@ import { Textarea } from '../ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
+import { Label } from '../ui/label';
 
 interface EditableTitleProps {
   tag: 'h1' | 'h2' | 'p' | 'h3';
@@ -27,31 +28,39 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   const contentValue = content[id];
   let displayValue: string;
+  let esValue: string;
+  let enValue: string;
   
   if(typeof contentValue === 'object' && contentValue !== null) {
       displayValue = contentValue[lang] || contentValue['es'] || initialValue;
+      esValue = contentValue['es'] || (lang === 'es' ? initialValue : '');
+      enValue = contentValue['en'] || (lang === 'en' ? initialValue : '');
   } else if (typeof contentValue === 'string') {
       displayValue = contentValue;
+      esValue = lang === 'es' ? contentValue : '';
+      enValue = lang === 'en' ? contentValue : '';
   } else {
       displayValue = initialValue;
+      esValue = lang === 'es' ? initialValue : '';
+      enValue = lang === 'en' ? initialValue : '';
   }
 
-  const [editValue, setEditValue] = useState(displayValue);
+  const [editValues, setEditValues] = useState({ es: esValue, en: enValue });
 
   useEffect(() => {
     if (id) {
         fetchContent(id, initialValue);
     }
-  }, [id, initialValue]);
+  }, [id, initialValue, fetchContent]);
 
   useEffect(() => {
-    setEditValue(displayValue);
-  }, [displayValue]);
+    setEditValues({ es: esValue, en: enValue });
+  }, [esValue, enValue]);
 
 
   const handleSave = async () => {
     try {
-        await updateContent(id, editValue, lang);
+        await updateContent(id, editValues);
         toast({ title: t('editableSuccess'), description: '' });
         setIsEditing(false);
     } catch (error) {
@@ -60,23 +69,41 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   };
 
   const handleCancel = () => {
-    setEditValue(displayValue);
+    setEditValues({ es: esValue, en: enValue });
     setIsEditing(false);
   };
   
   const handleEditClick = () => {
-    setEditValue(displayValue); // Ensure we're editing the latest value for the current language
     setIsEditing(true);
   }
 
+  const handleInputChange = (lang: 'es' | 'en', value: string) => {
+    setEditValues(prev => ({ ...prev, [lang]: value }));
+  }
+
   if (isEditing) {
+    const InputComponent = Tag === 'p' ? Textarea : Input;
+
     return (
-      <div className="flex flex-col gap-2 w-full max-w-3xl items-center">
-         {Tag === 'p' ? (
-             <Textarea value={editValue} onChange={(e) => setEditValue(e.target.value)} className="text-lg bg-card text-card-foreground p-2 rounded-md"/>
-         ) : (
-            <Input value={editValue} onChange={(e) => setEditValue(e.target.value)} className="text-4xl md:text-6xl font-headline tracking-tight text-center h-auto bg-card text-card-foreground p-2 rounded-md" />
-         )}
+      <div className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">
+        <div className='w-full space-y-2'>
+            <Label htmlFor={`${id}-es`}>Español</Label>
+            <InputComponent 
+                id={`${id}-es`}
+                value={editValues.es} 
+                onChange={(e) => handleInputChange('es', e.target.value)} 
+                className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
+            />
+        </div>
+        <div className='w-full space-y-2'>
+            <Label htmlFor={`${id}-en`}>English</Label>
+             <InputComponent 
+                id={`${id}-en`}
+                value={editValues.en} 
+                onChange={(e) => handleInputChange('en', e.target.value)} 
+                className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
+            />
+        </div>
         <div className="flex gap-2 mt-2">
           <Button onClick={handleSave} size="sm"><Save className="mr-2"/> {t('save')}</Button>
           <Button onClick={handleCancel} variant="outline" size="sm"><X className="mr-2"/> {t('cancel')}</Button>

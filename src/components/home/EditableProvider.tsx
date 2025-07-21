@@ -4,16 +4,16 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { auth } from '@/lib/firebase/config';
 import { getContent, setContent } from '@/lib/firebase/firestore';
-import { translateText } from '@/ai/flows/translate-flow';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
-type ContentValue = string | { [key: string]: string };
+type ContentObject = { [key: string]: string };
+type ContentValue = string | ContentObject;
 
 interface EditableContextType {
   isAdmin: boolean;
   content: Record<string, ContentValue>;
-  updateContent: (id: string, value: string, lang: string) => void;
+  updateContent: (id: string, value: ContentObject) => void;
   fetchContent: (id: string, initialValue: string) => void;
 }
 
@@ -49,46 +49,21 @@ export const EditableProvider = ({ children }: { children: React.ReactNode }) =>
     }));
   };
 
-  const updateContent = async (id: string, value: string, lang: string) => {
-    const otherLang = lang === 'es' ? 'en' : 'es';
-    
-    // First, update the local state for immediate feedback
-    setContentState((prev) => {
-        const currentContent = prev[id] || {};
-        const newContent = typeof currentContent === 'object' ? { ...currentContent } : {};
-        newContent[lang] = value;
-        return { ...prev, [id]: newContent };
-    });
+  const updateContent = async (id: string, value: ContentObject) => {
+    // Update local state for immediate feedback
+    setContentState((prev) => ({
+        ...prev,
+        [id]: value,
+    }));
 
     try {
-        // Translate the text
-        const { translatedText } = await translateText({
-            text: value,
-            sourceLang: lang,
-            targetLang: otherLang
-        });
-
-        // Prepare the full content object to be saved
-        const fullContent = {
-            [lang]: value,
-            [otherLang]: translatedText,
-        };
-
-        // Update local state again with the translated text
-        setContentState((prev) => ({
-            ...prev,
-            [id]: fullContent,
-        }));
-        
         // Save the full object to Firestore
-        await setContent(id, fullContent);
-
+        await setContent(id, value);
     } catch (error) {
-        console.error("Failed to translate or save content:", error);
-        // If translation fails, just save the edited value
-        await setContent(id, { [lang]: value });
+        console.error("Failed to save content:", error);
+        // Optionally, revert state or show an error to the user
     }
-};
+  };
 
   return (
     <EditableContext.Provider value={{ isAdmin, content, updateContent, fetchContent }}>
