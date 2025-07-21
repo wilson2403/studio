@@ -201,7 +201,7 @@ export default function Ceremonies({
                 onClick={() => handleViewPlans(ceremony)}
                 className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
               >
-                {t('viewPrices')}
+                {t('reserve')}
               </Button>
             </CardFooter>
             </div>
