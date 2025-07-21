@@ -15,16 +15,13 @@ interface VideoPlayerProps {
   isActivated?: boolean;
 }
 
-function getYouTubeEmbedUrl(url: string, controls: boolean): string | null {
+const getYoutubeEmbedUrl = (url: string, controls: boolean): string | null => {
   if (!url) return null;
-  let videoId = null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = url.match(youtubeRegex);
-  if (match) {
-    videoId = match[1];
-  }
+  const videoId = match ? match[1] : null;
   if (!videoId) return null;
-  
+
   const params = new URLSearchParams({
     autoplay: '1',
     mute: '1',
@@ -33,57 +30,50 @@ function getYouTubeEmbedUrl(url: string, controls: boolean): string | null {
     playlist: videoId,
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
-}
-
-const TikTokPlayer = ({ url, title, controls }: { url: string; title: string; controls?: boolean }) => {
-  const videoId = url.split('video/')[1]?.split('?')[0];
-  if (!videoId) return null;
-
-  const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&mute=1&loop=1&controls=${controls ? '1' : '0'}`;
-
-  return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden">
-      <iframe
-        src={embedUrl}
-        title={title}
-        className="absolute inset-0 w-full h-full"
-        allow="autoplay; encrypted-media; picture-in-picture"
-        allowFullScreen
-        scrolling="no"
-      ></iframe>
-    </div>
-  );
 };
 
-const FacebookPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
-    const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
-
-    return (
-        <iframe
-            src={embedUrl}
-            title={title}
-            className={cn('w-full h-full bg-black', className)}
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-        >
-        </iframe>
-    );
+const getTikTokEmbedUrl = (url: string, controls: boolean): string | null => {
+    if (!url) return null;
+    const videoId = url.split('video/')[1]?.split('?')[0];
+    if (!videoId) return null;
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&controls=${controls ? '1' : '0'}`;
 };
 
+const getFacebookEmbedUrl = (url: string, controls: boolean): string | null => {
+    if (!url) return null;
+    if (!url.includes('facebook.com') && !url.includes('fb.watch')) return null;
+    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=${controls ? '1' : '0'}`;
+};
 
-function getStreamableEmbedUrl(url: string, controls: boolean): string | null {
+const getStreamableEmbedUrl = (url: string, controls: boolean): string | null => {
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
-  if (match && match[1]) {
-    const params = new URLSearchParams({
-        autoplay: '1',
-        mute: '1',
-        loop: '1',
-        controls: controls ? '1' : '0'
-    })
-    return `https://streamable.com/e/${match[1]}?${params.toString()}`;
-  }
-  return null;
-}
+  if (!match || !match[1]) return null;
+  const params = new URLSearchParams({
+    autoplay: '1',
+    mute: '1',
+    loop: '1',
+    controls: controls ? '1' : '0',
+  });
+  return `https://streamable.com/e/${match[1]}?${params.toString()}`;
+};
+
+const IframePlaceholder = ({ title }: { title: string }) => (
+  <div className="absolute inset-0 flex items-center justify-center text-white bg-black/50">
+    <Image
+      src="https://placehold.co/600x400.png"
+      alt={`${title} video thumbnail`}
+      layout="fill"
+      objectFit="cover"
+      data-ai-hint="video social media"
+    />
+    <div className="absolute inset-0 bg-black/50"></div>
+    <div className="relative z-10 flex flex-col items-center">
+      <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
+        <Play className="h-8 w-8 fill-white" />
+      </div>
+    </div>
+  </div>
+);
 
 const DirectVideoPlayer = ({ src, className, controls }: { src: string, className?: string, controls?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -108,7 +98,7 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
               videoRef.current.muted = true;
             }
         }
-    }, [controls])
+    }, [controls]);
 
     return (
         <div className={cn("relative w-full h-full group/video", className)} onClick={togglePlay}>
@@ -135,95 +125,64 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
     );
 };
 
+
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false }: VideoPlayerProps) => {
 
-  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls) : null;
-  const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl, controls) : null;
-  const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
-  const isFacebook = videoUrl && (videoUrl.includes('facebook.com') || videoUrl.includes('fb.watch'));
-  const isEmbed = youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook;
-  
-  const IframePlaceholder = ({ type }: {type: 'youtube' | 'tiktok' | 'facebook' | 'streamable'}) => {
-    const hints = {
-        youtube: 'video social media',
-        tiktok: 'tiktok logo',
-        facebook: 'social media video',
-        streamable: 'video social media'
+  const renderContent = () => {
+    if (mediaType === 'image' || !videoUrl) {
+      return (
+        <Image
+          src={videoUrl || 'https://placehold.co/600x400.png'}
+          alt={title}
+          layout="fill"
+          objectFit="cover"
+          className={cn('object-cover', className)}
+          data-ai-hint="spiritual event"
+        />
+      );
     }
-    const text = {
-        youtube: 'YouTube',
-        tiktok: 'TikTok',
-        facebook: 'Facebook',
-        streamable: 'Streamable'
-    }
-    return (
-      <div className="absolute inset-0 flex items-center justify-center text-white bg-black/50">
-           <Image src={`https://placehold.co/600x400.png?text=${text[type]}`} alt={`${text[type]} video thumbnail`} layout="fill" objectFit="cover" data-ai-hint={hints[type]} />
-           <div className="absolute inset-0 bg-black/50"></div>
-            <div className="relative z-10 flex flex-col items-center">
-               <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
-                   <Play className="h-8 w-8 fill-white" />
-               </Button>
-                <p className="mt-4 font-semibold">{title}</p>
-            </div>
-      </div>
-    );
-  }
+    
+    // Check for embeddable URLs
+    const embedUrl = 
+      getYoutubeEmbedUrl(videoUrl, controls) ||
+      getTikTokEmbedUrl(videoUrl, controls) ||
+      getFacebookEmbedUrl(videoUrl, controls) ||
+      getStreamableEmbedUrl(videoUrl, controls);
 
-  const renderPlayer = () => {
-    if (mediaType === 'image' && videoUrl) {
-      return <Image src={videoUrl} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual ceremony" />;
-    }
-
-    if (isEmbed) {
-        if (!isActivated && !controls) {
-             const type = youtubeEmbedUrl ? 'youtube' : streamableEmbedUrl ? 'streamable' : isTikTok ? 'tiktok' : 'facebook';
-             return <IframePlaceholder type={type} />;
-        }
-        
-        if (isTikTok && videoUrl) {
-            return <TikTokPlayer url={videoUrl} title={title} controls={controls} />;
-        }
-        
-        if (isFacebook && videoUrl) {
-            return <FacebookPlayer url={videoUrl} title={title} className={className} controls={controls} />;
-        }
-
-        let src = '';
-        if (youtubeEmbedUrl) src = youtubeEmbedUrl;
-        else if (streamableEmbedUrl) src = streamableEmbedUrl;
-       
+    if (embedUrl) {
+      if (isActivated || controls) {
         return (
-            <div className="absolute inset-0 w-full h-full">
-                <iframe
-                    src={src}
-                    title={title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                ></iframe>
-            </div>
+          <iframe
+            src={embedUrl}
+            title={title}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full"
+          ></iframe>
         );
+      }
+      return <IframePlaceholder title={title} />;
     }
-  
-    if (mediaType === 'video' && videoUrl && (videoUrl.startsWith('https') || videoUrl.startsWith('data:'))) {
-       return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} controls={controls} />;
+
+    // Fallback to direct video player
+    if (mediaType === 'video') {
+      return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} controls={controls} />;
     }
-  
-    // Fallback for image type or if no videoUrl
-    return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual event" />;
-  }
-  
+
+    // Final fallback
+    return <IframePlaceholder title={title} />;
+  };
+
   return (
-    <div 
-        data-video-player
-        className={cn(
-            "relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
-            className
-        )}
+    <div
+      data-video-player
+      className={cn(
+        "absolute inset-0 w-full h-full bg-black flex items-center justify-center text-white cursor-pointer overflow-hidden",
+        className
+      )}
     >
-      {renderPlayer()}
+      {renderContent()}
     </div>
   );
 };

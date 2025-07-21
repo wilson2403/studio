@@ -259,7 +259,7 @@ export default function Ceremonies({
     );
   }
   
-  if (ceremonies.length === 0 && status === 'active') {
+  if (ceremonies.length === 0 && isAdmin) {
       return (
         <section id={id} className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500">
             <div className="flex flex-col items-center text-center space-y-4 mb-12">
