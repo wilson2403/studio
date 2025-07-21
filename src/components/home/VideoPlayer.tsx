@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
 import { useTranslation } from 'react-i18next';
+import { Button } from '../ui/button';
+import { Play } from 'lucide-react';
 
 interface VideoPlayerProps {
   videoUrl?: string;
@@ -15,7 +17,7 @@ interface VideoPlayerProps {
   controls?: boolean;
 }
 
-function getYouTubeEmbedUrl(url: string, controls: boolean): string | null {
+function getYouTubeEmbedUrl(url: string, controls: boolean, autoplay: boolean): string | null {
   if (!url) return null;
   let videoId = null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -26,7 +28,7 @@ function getYouTubeEmbedUrl(url: string, controls: boolean): string | null {
   if (!videoId) return null;
   
   const params = new URLSearchParams({
-    autoplay: '1',
+    autoplay: autoplay ? '1' : '0',
     mute: '1',
     loop: controls ? '0' : '1',
     controls: controls ? '1' : '0',
@@ -36,26 +38,39 @@ function getYouTubeEmbedUrl(url: string, controls: boolean): string | null {
 }
 
 const TikTokPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
-  const { t } = useTranslation();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
+  const [isActivated, setIsActivated] = useState(false);
+  
   const videoIdMatch = url.match(/video\/(\d+)/);
   if (!videoIdMatch) {
     return (
       <a href={url} target="_blank" rel="noopener noreferrer" className={cn("w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center", className)}>
          <Image src={'https://placehold.co/100x100/000000/ffffff.png?text=TikTok'} alt="TikTok Logo" width={50} height={50} />
          <p className="mt-4 font-semibold">{title}</p>
-         <p className="text-sm text-gray-300 mt-2">{t('videoPlayerClickToPlay')}</p>
+         <p className="text-sm text-gray-300 mt-2">Haz clic para ver en TikTok</p>
       </a>
     );
   }
+  
+  if (!isActivated) {
+    return (
+      <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center", className)} onClick={() => setIsActivated(true)}>
+        <Image src={'https://p16-sign-va.tiktokcdn.com/obj/tos-useast2a-p-0037-euttp/98471a6296314f149b81b8f52281a711_1622323062?x-expires=1671566400&x-signature=2B7x7B4bZ9f5j3v9a5H3jD%2B5f%2B4%3D'} alt="TikTok thumbnail" layout="fill" objectFit="cover" />
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="relative z-10 flex flex-col items-center">
+            <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
+                <Play className="h-8 w-8 fill-white" />
+            </Button>
+            <p className="mt-4 font-semibold">{title}</p>
+        </div>
+      </div>
+    );
+  }
+
   const videoId = videoIdMatch[1];
   const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&mute=0&controls=${controls ? '1' : '0'}`;
 
   return (
     <iframe
-      ref={iframeRef}
       src={embedUrl}
       title={title}
       className={cn("w-full h-full", className)}
@@ -66,16 +81,16 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
 };
 
 
-function getFacebookEmbedUrl(url: string, controls: boolean): string | null {
+function getFacebookEmbedUrl(url: string, controls: boolean, autoplay: boolean): string | null {
     if (!url) return null;
-    const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\/?\?v=|video\.php\?v=|photo\.php\?v=|reel\/|.*\/videos\/|share\/(?:v|r)\/)([0-9a-zA-Z_.-]+)/;
+    const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\/?\?v=|video\.php\?v=|reel\/|.*\/videos\/|share\/(?:v|r)\/)([0-9a-zA-Z_.-]+)/;
     const match = url.match(facebookRegex);
     if (match && match[1]) {
         const params = new URLSearchParams({
             href: url,
             show_text: '0',
             width: '560',
-            autoplay: '1',
+            autoplay: autoplay ? '1' : '0',
             mute: '1',
             loop: controls ? '0' : '1',
             controls: controls ? '1' : '0'
@@ -84,6 +99,56 @@ function getFacebookEmbedUrl(url: string, controls: boolean): string | null {
     }
     return null;
 }
+
+const FacebookPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
+    const [isActivated, setIsActivated] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const embedUrl = getFacebookEmbedUrl(url, controls, isActivated);
+
+    useEffect(() => {
+        if (isActivated && embedUrl && containerRef.current) {
+            if (typeof (window as any).FB !== 'undefined') {
+                (window as any).FB.XFBML.parse(containerRef.current.parentElement);
+            }
+        }
+    }, [isActivated, embedUrl]);
+
+    if (!embedUrl) {
+         return <Image src={'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={className} data-ai-hint="social media video" />;
+    }
+
+    if (!isActivated) {
+         return (
+             <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className)} onClick={() => setIsActivated(true)}>
+                <Image src={'https://placehold.co/600x400.png?text=Facebook'} alt="Facebook video thumbnail" layout="fill" objectFit="cover" />
+                <div className="absolute inset-0 bg-black/50"></div>
+                 <div className="relative z-10 flex flex-col items-center">
+                    <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
+                        <Play className="h-8 w-8 fill-white" />
+                    </Button>
+                     <p className="mt-4 font-semibold">{title}</p>
+                 </div>
+             </div>
+         );
+    }
+
+    return (
+        <div ref={containerRef} className={cn('w-full h-full bg-black', className)} data-href={url} data-lazy="true">
+            <div className="fb-video"
+                data-href={url}
+                data-width="auto"
+                data-height="auto"
+                data-show-text="false"
+                data-autoplay="true"
+                data-mute="0"
+                data-loop={controls ? "false" : "true"}
+                data-allowfullscreen="true"
+                data-controls={controls ? "true" : "false"}>
+            </div>
+        </div>
+    );
+};
+
 
 function getStreamableEmbedUrl(url: string): string | null {
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
@@ -96,18 +161,10 @@ function getStreamableEmbedUrl(url: string): string | null {
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false }: VideoPlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls) : null;
+  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls, !controls) : null;
   const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
-  const facebookEmbedUrl = videoUrl ? getFacebookEmbedUrl(videoUrl, controls) : null;
+  const isFacebook = videoUrl && videoUrl.includes('facebook.com');
   const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl) : null;
-
-  useEffect(() => {
-    if (facebookEmbedUrl && containerRef.current) {
-        if (typeof (window as any).FB !== 'undefined') {
-            (window as any).FB.XFBML.parse(containerRef.current.parentElement);
-        }
-    }
-  }, [facebookEmbedUrl]);
 
   if (youtubeEmbedUrl || streamableEmbedUrl) {
     return (
@@ -126,26 +183,12 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     return <TikTokPlayer url={videoUrl!} title={title} className={className} controls={controls} />;
   }
   
-  if (facebookEmbedUrl) {
-    return (
-        <div ref={containerRef} className={cn('w-full h-full', className)} data-href={videoUrl} data-lazy="true">
-            <div className="fb-video"
-                data-href={videoUrl}
-                data-width="auto"
-                data-height="auto"
-                data-show-text="false"
-                data-autoplay="true"
-                data-mute="true"
-                data-loop={controls ? "false" : "true"}
-                data-allowfullscreen="true"
-                data-controls={controls ? "true" : "false"}>
-            </div>
-        </div>
-    );
+  if (isFacebook) {
+    return <FacebookPlayer url={videoUrl!} title={title} className={className} controls={controls} />;
   }
 
   if (mediaType === 'video' && videoUrl && videoUrl.match(/\.(mp4|webm)$/)) {
-     return <video src={videoUrl} autoPlay loop={!controls} muted playsInline controls={controls} className={className} />;
+     return <video src={videoUrl} autoPlay={!controls} loop={!controls} muted playsInline controls={controls} className={className} />;
   }
 
   if (mediaType === 'image' || !videoUrl) {
