@@ -6,7 +6,6 @@ import PreparationCta from '@/components/home/PreparationCta';
 import Contact from '@/components/home/Contact';
 import RegistrationPromptDialog from '@/components/auth/RegistrationPromptDialog';
 import { useTranslation } from 'react-i18next';
-import PastCeremoniesSection from '@/components/home/PastCeremoniesSection';
 import Hero from '@/components/home/Hero';
 import WelcomeTour from '@/components/auth/WelcomeTour';
 import ExploreMore from '@/components/home/ExploreMore';
@@ -18,8 +17,20 @@ export default function Home() {
       <WelcomeTour />
       <RegistrationPromptDialog />
       <Hero />
-      <PastCeremoniesSection />
-      <Ceremonies />
+      <Ceremonies 
+        status="finished" 
+        id="eventos-anteriores"
+        titleId="pastEventsTitle"
+        titleInitialValue={t('pastEventsTitle')}
+      />
+      <Ceremonies 
+        status="active" 
+        id="ceremonias"
+        titleId="upcomingCeremoniesTitle"
+        titleInitialValue={t('upcomingCeremoniesTitle')}
+        subtitleId="upcomingCeremoniesSubtitle"
+        subtitleInitialValue={t('upcomingCeremoniesSubtitle')}
+      />
       <PreparationCta />
       <ExploreMore />
       <Contact />

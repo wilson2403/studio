@@ -1,7 +1,6 @@
 
 'use client';
 
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -11,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Check, Edit, ExternalLink, PlusCircle } from 'lucide-react';
+import { CalendarIcon, Edit, Expand, ExternalLink, PlusCircle } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -23,15 +22,34 @@ import { useRouter } from 'next/navigation';
 import CeremonyDetailsDialog from './CeremonyDetailsDialog';
 import { VideoPlayer } from './VideoPlayer';
 import { cn } from '@/lib/utils';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
+import { Dialog, DialogContent } from '../ui/dialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
-export default function Ceremonies() {
+interface CeremoniesProps {
+  status: 'active' | 'finished';
+  id: string;
+  titleId: string;
+  titleInitialValue: string;
+  subtitleId?: string;
+  subtitleInitialValue?: string;
+}
+
+export default function Ceremonies({ 
+  status, 
+  id,
+  titleId,
+  titleInitialValue,
+  subtitleId,
+  subtitleInitialValue,
+}: CeremoniesProps) {
   const [user, setUser] = useState<User | null>(null);
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
+  const [viewingVideo, setViewingVideo] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
@@ -47,11 +65,15 @@ export default function Ceremonies() {
     const fetchCeremonies = async () => {
       setLoading(true);
       try {
-        let ceremoniesData = await getCeremonies();
-        if (ceremoniesData.length === 0) {
-          console.log('No ceremonies found, seeding database...');
-          await seedCeremonies();
-          ceremoniesData = await getCeremonies();
+        let ceremoniesData = await getCeremonies(status);
+        // Only seed if there are no ceremonies at all, and it's the active section
+        if (status === 'active' && ceremoniesData.length === 0) {
+            const allCeremonies = await getCeremonies();
+            if (allCeremonies.length === 0) {
+                 console.log('No ceremonies found, seeding database...');
+                 await seedCeremonies();
+                 ceremoniesData = await getCeremonies(status);
+            }
         }
         setCeremonies(ceremoniesData);
       } catch (error) {
@@ -61,15 +83,22 @@ export default function Ceremonies() {
       }
     };
     fetchCeremonies();
-  }, []);
+  }, [status]);
 
   const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
-    setCeremonies(ceremonies.map(c => c.id === updatedCeremony.id ? updatedCeremony : c));
+    // If status changed, remove from current list
+    if (updatedCeremony.status !== status) {
+        setCeremonies(ceremonies.filter(c => c.id !== updatedCeremony.id));
+    } else {
+        setCeremonies(ceremonies.map(c => c.id === updatedCeremony.id ? updatedCeremony : c));
+    }
     setEditingCeremony(null);
   };
   
   const handleCeremonyAdd = (newCeremony: Ceremony) => {
-    setCeremonies([...ceremonies, newCeremony]);
+    if (newCeremony.status === status) {
+        setCeremonies([...ceremonies, newCeremony]);
+    }
     setIsAdding(false);
   }
 
@@ -79,7 +108,9 @@ export default function Ceremonies() {
   }
   
   const handleCeremonyDuplicate = (newCeremony: Ceremony) => {
-     setCeremonies([...ceremonies, newCeremony]);
+     if(newCeremony.status === status) {
+        setCeremonies([...ceremonies, newCeremony]);
+     }
   }
 
   const handleViewPlans = (ceremony: Ceremony) => {
@@ -91,47 +122,9 @@ export default function Ceremonies() {
   };
 
   const isAdmin = user && user.email === ADMIN_EMAIL;
-
-  if (loading) {
-    return (
-      <section id="ceremonias" className="container py-8 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[...Array(3)].map((_, i) => (
-             <Card key={i} className="flex flex-col rounded-2xl border-2 border-card-foreground/10 h-[550px] animate-pulse bg-card/50"></Card>
-          ))}
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <>
-    <section
-      id="ceremonias"
-      className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500"
-    >
-      <div className="flex flex-col items-center text-center space-y-4 mb-12">
-        <EditableTitle
-          tag="h2"
-          id="upcomingCeremoniesTitle"
-          initialValue={t('upcomingCeremoniesTitle')}
-          className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
-        />
-        <EditableTitle
-          tag="p"
-          id="upcomingCeremoniesSubtitle"
-          initialValue={t('upcomingCeremoniesSubtitle')}
-          className="max-w-2xl text-lg text-foreground/80 font-body"
-         />
-         {isAdmin && (
-          <Button onClick={() => setIsAdding(true)}>
-            <PlusCircle className="mr-2" />
-            {t('addCeremony')}
-          </Button>
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-8 justify-center">
+  
+  const renderActiveCeremonies = () => (
+    <div className="flex flex-wrap gap-8 justify-center">
         {ceremonies.map((ceremony) => (
           <Card
             key={ceremony.id}
@@ -153,7 +146,7 @@ export default function Ceremonies() {
                     <Edit className="h-4 w-4" />
                   </Button>
                 )}
-                {ceremony.mediaUrl && (
+                {ceremony.mediaUrl && ceremony.mediaType === 'video' && (
                   <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                       <ExternalLink className="h-4 w-4" />
@@ -189,6 +182,113 @@ export default function Ceremonies() {
           </Card>
         ))}
       </div>
+  );
+
+  const renderFinishedCeremonies = () => (
+     <div className="w-full px-4 md:px-0">
+          <div className="relative w-full max-w-xl mx-auto">
+            <Carousel
+                opts={{
+                align: 'start',
+                loop: ceremonies.length > 2,
+                }}
+                className="w-full"
+            >
+                <CarouselContent>
+                {ceremonies.map((ceremony) => (
+                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3">
+                      <div className="p-1">
+                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer">
+                          {isAdmin && (
+                            <div className="absolute top-2 right-2 z-20 flex gap-2">
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                           <div className="absolute top-2 left-2 z-20 flex gap-2">
+                              <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                    <ExternalLink className="h-4 w-4" />
+                                </Button>
+                              </a>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white opacity-0 group-hover/item:opacity-100 transition-opacity" onClick={(e) => {e.stopPropagation(); setViewingVideo(ceremony);}}>
+                                  <Expand className="h-4 w-4" />
+                              </Button>
+                          </div>
+                          <VideoPlayer 
+                            videoUrl={ceremony.mediaUrl} 
+                            mediaType={ceremony.mediaType}
+                            title={ceremony.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover/item:from-black/40 transition-all duration-300"></div>
+                          <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover/item:translate-y-0 opacity-0 group-hover/item:opacity-100 text-left w-full">
+                              <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
+                              <p className="font-body text-sm opacity-90 mt-1">{ceremony.description}</p>
+                              {ceremony.date && (
+                                <p className="font-mono text-xs opacity-70 mt-2 flex items-center gap-1.5"><CalendarIcon className='w-3 h-3'/> {ceremony.date}</p>
+                              )}
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-[-1rem] md:left-4" />
+                <CarouselNext className="right-[-1rem] md:right-4"/>
+            </Carousel>
+        </div>
+     </div>
+  );
+
+  if (loading) {
+    return (
+      <section id={id} className="container py-8 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[...Array(3)].map((_, i) => (
+             <Card key={i} className="flex flex-col rounded-2xl border-2 border-card-foreground/10 h-[550px] animate-pulse bg-card/50"></Card>
+          ))}
+        </div>
+      </section>
+    );
+  }
+  
+  if (ceremonies.length === 0) {
+      return null;
+  }
+
+  return (
+    <>
+    <section
+      id={id}
+      className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500"
+    >
+      <div className="flex flex-col items-center text-center space-y-4 mb-12">
+        <EditableTitle
+          tag="h2"
+          id={titleId}
+          initialValue={titleInitialValue}
+          className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+        />
+        {subtitleId && subtitleInitialValue && (
+            <EditableTitle
+                tag="p"
+                id={subtitleId}
+                initialValue={subtitleInitialValue}
+                className="max-w-2xl text-lg text-foreground/80 font-body"
+            />
+        )}
+         {isAdmin && status === 'active' && (
+          <Button onClick={() => setIsAdding(true)}>
+            <PlusCircle className="mr-2" />
+            {t('addCeremony')}
+          </Button>
+        )}
+      </div>
+
+      {status === 'active' ? renderActiveCeremonies() : renderFinishedCeremonies()}
+
       {(editingCeremony || isAdding) && (
         <EditCeremonyDialog
           ceremony={editingCeremony}
@@ -209,6 +309,21 @@ export default function Ceremonies() {
           isOpen={!!viewingCeremony}
           onClose={() => setViewingCeremony(null)}
         />
+      )}
+      {viewingVideo && (
+        <Dialog open={!!viewingVideo} onOpenChange={(open) => !open && setViewingVideo(null)}>
+          <DialogContent className="max-w-4xl p-0 border-0">
+             <div className="aspect-video">
+                <VideoPlayer 
+                  videoUrl={viewingVideo.mediaUrl}
+                  title={viewingVideo.title}
+                  className="w-full h-full object-contain rounded-lg"
+                  controls
+                  mediaType={viewingVideo.mediaType}
+                />
+             </div>
+          </DialogContent>
+        </Dialog>
       )}
     </section>
     </>

@@ -12,6 +12,7 @@ export type Ceremony = {
   id: string;
   title: string;
   description: string;
+  date?: string;
   price: number;
   priceType: 'exact' | 'from';
   features: string[];
@@ -21,7 +22,7 @@ export type Ceremony = {
   mediaType?: 'image' | 'video';
   plans?: Plan[];
   contributionText?: string;
-  status?: 'active' | 'finished';
+  status: 'active' | 'finished';
 };
 
 export type PastCeremony = {

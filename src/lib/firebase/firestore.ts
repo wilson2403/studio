@@ -1,11 +1,10 @@
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
-const pastCeremoniesCollection = collection(db, 'pastCeremonies');
 const contentCollection = collection(db, 'content');
 const guidesCollection = collection(db, 'guides');
 const usersCollection = collection(db, 'users');
@@ -57,6 +56,7 @@ export const seedCeremonies = async () => {
       mediaType: 'image',
       contributionText: 'Puedes reservar con el 20%',
       status: 'active',
+      date: '2024-07-26',
     },
     {
       title: 'Sábado 2 de agosto – San Carlos',
@@ -74,39 +74,20 @@ export const seedCeremonies = async () => {
       ],
       contributionText: 'Puedes reservar con el 20%',
       status: 'active',
+      date: '2024-08-02',
     },
     {
-      title: 'Sábado 9 de agosto – Pérez Zeledón',
-      description: 'Horario: 5:00 p.m. a 8:00 a.m. del día siguiente',
-      price: 80000,
-      priceType: 'from',
-      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
-      link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%209%20de%20agosto%20en%20Pérez%20Zeledón',
+      title: 'Transformación Interior',
+      description: '“Una experiencia que cambió mi perspectiva por completo.”',
+      date: 'Junio 2024',
+      mediaType: 'video',
+      mediaUrl: 'https://videos.pexels.com/video-files/8086041/8086041-hd_1920_1080_25fps.mp4',
+      status: 'finished',
+      price: 0,
+      priceType: 'exact',
+      features: [],
+      link: '#',
       featured: false,
-      mediaUrl: 'https://placehold.co/600x400.png',
-      mediaType: 'image',
-      plans: [
-        { name: 'Individual', price: 80000, description: 'Acceso completo para una persona.' },
-        { name: 'Pareja', price: 150000, description: 'Acceso completo para dos personas.' }
-      ],
-      contributionText: 'Puedes reservar con el 20%',
-      status: 'active',
-    },
-    {
-      title: 'Sábado 23 de agosto – La Fortuna',
-      description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
-      price: 80000,
-      priceType: 'from',
-      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Círculo de sonido'],
-      link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2023%20de%20agosto%20en%20La%20Fortuna',
-      featured: false,
-       mediaUrl: 'https://placehold.co/600x400.png',
-      mediaType: 'image',
-      plans: [
-        { name: 'Plan Básico', price: 80000, description: 'Solo ceremonia.' }
-      ],
-      contributionText: 'Puedes reservar con el 20%',
-      status: 'active',
     },
   ];
 
@@ -117,9 +98,13 @@ export const seedCeremonies = async () => {
 };
 
 
-export const getCeremonies = async (): Promise<Ceremony[]> => {
+export const getCeremonies = async (status?: 'active' | 'finished'): Promise<Ceremony[]> => {
   try {
-    const snapshot = await getDocs(ceremoniesCollection);
+    let ceremoniesQuery = query(ceremoniesCollection);
+    if (status) {
+        ceremoniesQuery = query(ceremoniesCollection, where('status', '==', status));
+    }
+    const snapshot = await getDocs(ceremoniesQuery);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
   } catch (error) {
     console.error("Error fetching ceremonies: ", error);
@@ -160,92 +145,24 @@ export const deleteCeremony = async (id: string): Promise<void> => {
 
 export const finishCeremony = async (ceremony: Ceremony): Promise<void> => {
   try {
-    const batch = writeBatch(db);
-
-    // 1. Create a new past ceremony document
-    const newPastCeremonyRef = doc(collection(db, 'pastCeremonies'));
-    const pastCeremonyData: Omit<PastCeremony, 'id'> = {
-      title: ceremony.title,
-      description: ceremony.description,
-      videoUrl: ceremony.mediaUrl || '',
-      mediaType: ceremony.mediaType,
-      date: new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }),
-    };
-    batch.set(newPastCeremonyRef, pastCeremonyData);
-
-    // 2. Delete the upcoming ceremony document
-    const ceremonyToDeleteRef = doc(db, 'ceremonies', ceremony.id);
-    batch.delete(ceremonyToDeleteRef);
-
-    // 3. Commit the batch
-    await batch.commit();
-
+    const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
+    await updateDoc(ceremonyRef, { status: 'finished' });
   } catch (error) {
     console.error("Error finishing ceremony: ", error);
     throw error;
   }
 };
 
-
-// --- Past Ceremonies (Videos) ---
-
-export const seedPastCeremonies = async () => {
-    const initialData: Omit<PastCeremony, 'id'>[] = [
-        {
-            videoUrl: 'https://videos.pexels.com/video-files/8086041/8086041-hd_1920_1080_25fps.mp4',
-            title: 'Transformación Interior',
-            description: '“Una experiencia que cambió mi perspectiva por completo.”',
-            date: 'Junio 2024',
-            mediaType: 'video',
-        },
-        {
-            videoUrl: 'https://videos.pexels.com/video-files/4494493/4494493-hd_1920_1080_25fps.mp4',
-            title: 'Conexión Profunda',
-            description: '“Nunca me había sentido tan conectado con la naturaleza y conmigo mismo.”',
-            date: 'Mayo 2024',
-            mediaType: 'video',
-        },
-        {
-            videoUrl: 'https://videos.pexels.com/video-files/3840441/3840441-hd_1920_1080_30fps.mp4',
-            title: 'Sanación y Paz',
-            description: '“Encontré la paz que tanto buscaba. Un viaje de sanación inolvidable.”',
-            date: 'Abril 2024',
-            mediaType: 'video',
-        },
-    ];
-
-    for (const item of initialData) {
-        await addDoc(pastCeremoniesCollection, item);
-    }
-    console.log('Seeded past ceremonies data.');
+export const reactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
+  try {
+    const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
+    await updateDoc(ceremonyRef, { status: 'active' });
+  } catch (error) {
+    console.error("Error reactivating ceremony: ", error);
+    throw error;
+  }
 };
 
-
-export const getPastCeremonies = async (): Promise<PastCeremony[]> => {
-    try {
-        const snapshot = await getDocs(pastCeremoniesCollection);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PastCeremony));
-    } catch (error) {
-        console.error("Error fetching past ceremonies: ", error);
-        return [];
-    }
-}
-
-export const addPastCeremony = async (data: Omit<PastCeremony, 'id'>): Promise<string> => {
-    const docRef = await addDoc(pastCeremoniesCollection, data);
-    return docRef.id;
-}
-
-export const updatePastCeremony = async (data: PastCeremony): Promise<void> => {
-    const docRef = doc(db, 'pastCeremonies', data.id);
-    const { id, ...firestoreData } = data;
-    await updateDoc(docRef, firestoreData);
-}
-
-export const deletePastCeremony = async (id: string): Promise<void> => {
-    const docRef = doc(db, 'pastCeremonies', id);
-    await deleteDoc(docRef);
-}
 
 // --- Guides ---
 export const seedGuides = async () => {

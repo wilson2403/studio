@@ -19,9 +19,9 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Ceremony, Plan } from '@/types';
-import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, finishCeremony } from '@/lib/firebase/firestore';
+import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, finishCeremony, reactivateCeremony } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, PlusCircle, Trash, CheckCircle } from 'lucide-react';
+import { Copy, PlusCircle, Trash, CheckCircle, RotateCcw } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useState } from 'react';
@@ -40,14 +40,15 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   description: z.string().min(1, t('errorRequired', { field: t('formDescription') })),
   price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('formPrice') })),
   priceType: z.enum(['exact', 'from']),
-  link: z.string().url(t('errorInvalidUrl')),
+  link: z.string().url(t('errorInvalidUrl')).or(z.literal('')),
   featured: z.boolean(),
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
   mediaUrl: z.string().url(t('errorInvalidUrl')).optional().or(z.literal('')),
   mediaType: z.enum(['image', 'video']).default('image'),
   plans: z.array(planSchema(t)).optional(),
   contributionText: z.string().optional(),
-  status: z.enum(['active', 'finished']).optional(),
+  status: z.enum(['active', 'finished']),
+  date: z.string().optional(),
 });
 
 type EditCeremonyFormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -89,6 +90,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       plans: [{ name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
       contributionText: t('defaultContributionText'),
       status: 'active',
+      date: '',
     },
   });
   
@@ -234,7 +236,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     if (!ceremony) return;
     try {
       await finishCeremony(ceremony);
-      onDelete(ceremony.id); // This will remove it from the upcoming list
+      onUpdate({ ...ceremony, status: 'finished' });
       toast({
         title: t('ceremonyFinishedSuccess'),
         description: t('ceremonyMovedToPast'),
@@ -247,6 +249,24 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
         variant: 'destructive',
       });
     }
+  }
+
+  const handleReactivate = async () => {
+      if (!ceremony) return;
+      try {
+          await reactivateCeremony(ceremony);
+          onUpdate({ ...ceremony, status: 'active' });
+          toast({
+              title: t('ceremonyReactivatedSuccess'),
+          });
+          onClose();
+      } catch (error) {
+           toast({
+              title: t('error'),
+              description: t('errorReactivatingCeremony'),
+              variant: 'destructive'
+          });
+      }
   }
 
 
@@ -277,6 +297,10 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
             <Label htmlFor="description" className="text-right">{t('formDescription')}</Label>
             <Textarea id="description" {...form.register('description')} className="col-span-3" disabled={isUploading} />
             {form.formState.errors.description && <p className="col-span-4 text-red-500 text-xs text-right">{form.formState.errors.description.message}</p>}
+          </div>
+           <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="date" className="text-right">{t('formDate')}</Label>
+            <Input id="date" {...form.register('date')} className="col-span-3" disabled={isUploading} placeholder="Ej: 24 de Julio, 2024" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="price" className="text-right">{t('formPrice')}</Label>
@@ -398,7 +422,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
 
           <DialogFooter className="flex-col sm:flex-row justify-between pt-4">
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center flex-wrap">
               {isEditMode && (
                 <>
                   <AlertDialog>
@@ -425,26 +449,33 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                     <Copy className="mr-2 h-4 w-4" />
                     {t('duplicate')}
                   </Button>
-                   <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            {t('markAsFinished')}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            {t('finishCeremonyConfirmDescription')}
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                          <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                  </AlertDialog>
+                   {ceremony.status === 'active' ? (
+                       <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                {t('markAsFinished')}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t('finishCeremonyConfirmDescription')}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                      </AlertDialog>
+                   ) : (
+                      <Button type="button" variant="outline" size="sm" onClick={handleReactivate} disabled={isUploading}>
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        {t('reactivateCeremony')}
+                      </Button>
+                   )}
                 </>
               )}
             </div>
