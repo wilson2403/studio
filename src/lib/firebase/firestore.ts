@@ -190,29 +190,56 @@ export const seedGuides = async () => {
     const initialGuides: Omit<Guide, 'id'>[] = [
         {
             name: 'Wilson Alfaro',
-            description: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson Alfaro aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
             imageUrl: 'https://i.postimg.cc/k4Dvz2yq/wilson.jpg',
         },
         {
             name: 'Jacob',
-            description: 'Maestro espiritual formado en la Amazonía de perú, donde aprendió directamente de curanderos el uso sagrado de la medicina ancestral. Con una presencia serena y profunda, guía ceremonias en Casa Trinitos (Guanacaste), donde acompaña procesos de transformación.',
             imageUrl: 'https://i.postimg.cc/Qd9yYQ3N/jacob.jpg',
         },
         {
             name: 'Harley',
-            description: 'Especialista en atención médica y primeros auxilios, con experiencia en meditaciones guiadas y masajes terapéuticos. Su presencia tranquila y profesional garantiza un entorno seguro durante toda la ceremonia, brindando confianza y contención tanto al equipo como a las participantes.',
             imageUrl: 'https://i.postimg.cc/J0B0f2p9/johanna.jpg',
         },
         {
             name: 'Johanna',
-            description: 'Guardiana de la medicina formada en la Amazonía de perú. Brindando ceremonias en Colombia y Costa Rica, su presencia aporta seguridad, contención y equilibrio entre lo físico y espiritual, sosteniendo el espacio ceremonial con firmeza, cuidado y profunda conexión con la sanación femenina.',
             imageUrl: 'https://i.postimg.cc/mD3mXj50/harley.jpg',
         },
     ];
 
+    const guideDescriptions = {
+        'Wilson Alfaro': {
+            es: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson Alfaro aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
+            en: 'Spiritual guide with a deep connection to Amazonian traditions. Trained in the Peruvian Amazon, Wilson Alfaro brings an ancestral understanding of Ayahuasca and its healing power. His experience facilitates a safe and trustworthy space for personal exploration.'
+        },
+        'Jacob': {
+            es: 'Maestro espiritual formado en la Amazonía de perú, donde aprendió directamente de curanderos el uso sagrado de la medicina ancestral. Con una presencia serena y profunda, guía ceremonias en Casa Trinitos (Guanacaste), donde acompaña procesos de transformación.',
+            en: 'Spiritual master trained in the Peruvian Amazon, where he learned the sacred use of ancestral medicine directly from healers. With a serene and profound presence, he guides ceremonies at Casa Trinitos (Guanacaste), where he accompanies transformation processes.'
+        },
+        'Harley': {
+            es: 'Especialista en atención médica y primeros auxilios, con experiencia en meditaciones guiadas y masajes terapéuticos. Su presencia tranquila y profesional garantiza un entorno seguro durante toda la ceremonia, brindando confianza y contención tanto al equipo como a las participantes.',
+            en: 'Specialist in medical care and first aid, with experience in guided meditations and therapeutic massages. Her calm and professional presence ensures a safe environment throughout the ceremony, providing confidence and support to both the team and the participants.'
+        },
+        'Johanna': {
+            es: 'Guardiana de la medicina formada en la Amazonía de perú. Brindando ceremonias en Colombia y Costa Rica, su presencia aporta seguridad, contención y equilibrio entre lo físico y espiritual, sosteniendo el espacio ceremonial con firmeza, cuidado y profunda conexión con la sanación femenina.',
+            en: 'Guardian of the medicine trained in the Peruvian Amazon. Providing ceremonies in Colombia and Costa Rica, her presence brings security, support, and balance between the physical and spiritual, upholding the ceremonial space with firmness, care, and a deep connection to female healing.'
+        }
+    };
+    
+    const batch = writeBatch(db);
+
     for (const guide of initialGuides) {
-        await addDoc(guidesCollection, guide);
+        const docRef = doc(guidesCollection);
+        batch.set(docRef, guide);
+        
+        const descId = `guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`;
+        const descContent = (guideDescriptions as any)[guide.name];
+        if (descContent) {
+            const contentRef = doc(contentCollection, descId);
+            batch.set(contentRef, { value: descContent });
+        }
     }
+
+    await batch.commit();
     console.log('Seeded guides data.');
 }
 
@@ -484,4 +511,3 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
     
 
     
-

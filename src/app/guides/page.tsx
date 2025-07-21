@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getGuides, Guide, seedGuides } from '@/lib/firebase/firestore';
+import { getGuides, Guide, seedGuides, getContent } from '@/lib/firebase/firestore';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
@@ -124,7 +124,12 @@ export default function GuidesPage() {
                       <div className="flex flex-col">
                           <CardTitle className="text-2xl font-headline tracking-wide text-primary">{guide.name}</CardTitle>
                           <CardContent className="p-0 mt-2">
-                              <p className="font-body text-base text-foreground/80">{guide.description}</p>
+                              <EditableTitle 
+                                tag="p"
+                                id={`guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`}
+                                initialValue={t(`guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`)}
+                                className="font-body text-base text-foreground/80"
+                               />
                           </CardContent>
                       </div>
                   </Card>

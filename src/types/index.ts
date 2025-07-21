@@ -37,7 +37,6 @@ export type PastCeremony = {
 export type Guide = {
   id: string;
   name: string;
-  description: string;
   imageUrl: string;
 };
 
