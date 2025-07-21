@@ -117,7 +117,7 @@ export default function GuidesPage() {
                               alt={guide.name}
                               width={160}
                               height={160}
-                              className="rounded-full object-cover border-4 border-primary/50 shadow-lg group-hover:scale-105 transition-transform duration-300"
+                              className="rounded-full object-cover border-4 border-primary/50 shadow-lg group-hover:scale-105 transition-transform duration-300 absolute inset-0 w-full h-full"
                               data-ai-hint="spiritual guide portrait"
                           />
                       </div>
