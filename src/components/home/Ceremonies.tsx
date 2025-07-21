@@ -14,7 +14,7 @@ import { CalendarIcon, Edit, Expand, ExternalLink, PlusCircle } from 'lucide-rea
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -182,7 +182,7 @@ export default function Ceremonies({
             <Carousel
                 opts={{
                 align: 'start',
-                loop: ceremonies.length > 2,
+                loop: ceremonies.length > 1,
                 }}
                 className="w-full"
             >
@@ -246,7 +246,7 @@ export default function Ceremonies({
     );
   }
   
-  if (ceremonies.length === 0 && status === 'finished') {
+  if (ceremonies.length === 0) {
       return null;
   }
 
