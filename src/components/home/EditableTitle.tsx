@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEditable } from './EditableProvider';
@@ -67,7 +68,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
 
   return (
-    <div className={cn("relative group flex items-center gap-2 w-full", Tag !== 'p' && 'justify-center')}>
+    <div className={cn("relative group flex items-center justify-center gap-2 w-full")}>
       <Tag className={className}>{currentValue}</Tag>
       {isAdmin && (
         <Button
