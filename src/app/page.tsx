@@ -3,7 +3,6 @@
 
 import Ceremonies from '@/components/home/Ceremonies';
 import { EditableProvider } from '@/components/home/EditableProvider';
-import PreparationCta from '@/components/home/PreparationCta';
 import Contact from '@/components/home/Contact';
 import RegistrationPromptDialog from '@/components/auth/RegistrationPromptDialog';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +36,6 @@ export default function Home() {
         activeVideo={activeVideo}
         setActiveVideo={setActiveVideo}
       />
-      <PreparationCta />
       <ExploreMore />
       <Contact />
     </EditableProvider>

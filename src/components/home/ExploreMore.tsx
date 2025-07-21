@@ -27,11 +27,19 @@ export default function ExploreMore() {
             description: 'exploreGuidesDescription',
             link: '/guides',
             buttonText: 'exploreGuidesButton'
+        },
+        {
+            id: 'preparation',
+            icon: Sparkles,
+            title: 'preparationCtaTitle',
+            description: 'preparationCtaDescription',
+            link: '/preparation',
+            buttonText: 'preparationCtaButton'
         }
     ];
 
     return (
-        <section className="container py-12 md:py-24 pl-20">
+        <section className="container py-12 md:py-24">
             <div className="flex flex-col items-center text-center space-y-4 mb-12">
                 <EditableTitle
                     tag="h2"
@@ -40,9 +48,9 @@ export default function ExploreMore() {
                     className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                 />
             </div>
-            <div className="grid md:grid-cols-2 gap-8 justify-center">
+            <div className="grid md:grid-cols-3 gap-8 justify-center">
                 {sections.map(section => (
-                    <Card key={section.id} className="bg-card/50 backdrop-blur-sm flex flex-col text-center items-center p-6 max-w-sm">
+                    <Card key={section.id} className="bg-card/50 backdrop-blur-sm flex flex-col text-center items-center p-6 max-w-sm mx-auto">
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <section.icon className="h-8 w-8 text-primary" />
                         </div>
