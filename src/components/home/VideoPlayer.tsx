@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -57,6 +58,13 @@ const getStreamableEmbedUrl = (url: string): string | null => {
   });
   return `https://streamable.com/e/${match[1]}?${params.toString()}`;
 };
+
+const isDirectVideoUrl = (url: string): boolean => {
+    if (!url) return false;
+    // Common video file extensions
+    return /\.(mp4|webm|ogg)(\?.*)?$/.test(url);
+};
+
 
 const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
     <div className={cn("relative w-full h-full cursor-pointer", className)} onClick={onClick}>
@@ -167,6 +175,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       );
     }
     
+    // Use iframe for supported embeddable platforms
     if (embedUrl) {
       if (isActivated || inCarousel) {
         return (
@@ -183,11 +192,13 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
     }
 
-    if (mediaType === 'video') {
+    // Use direct video player for .mp4, .webm, etc. or if mediaType is video
+    if (mediaType === 'video' || isDirectVideoUrl(videoUrl)) {
       return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
 
-    return <div className="bg-black"></div>;
+    // Fallback for unsupported URLs
+    return <IframePlaceholder onClick={() => window.open(videoUrl, '_blank')} title={title} className={className} />;
   };
 
   return (
