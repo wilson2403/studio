@@ -24,10 +24,17 @@ export default function PreparationPage() {
         { title: "reflectionTitle", description: "reflectionDescription" },
     ];
 
-    const comfortItems = (t('comfortItemsList', { returnObjects: true }) as string[]) || [];
-    const essentialItems = (t('essentialsList', { returnObjects: true }) as string[]) || [];
-    const allowedFoods = (t('allowedFoodsList', { returnObjects: true }) as string[]) || [];
-    const prohibitedFoods = (t('prohibitedFoodsList', { returnObjects: true }) as string[]) || [];
+    const comfortItemsRaw = t('comfortItemsList', { returnObjects: true });
+    const comfortItems = Array.isArray(comfortItemsRaw) ? comfortItemsRaw : [];
+
+    const essentialItemsRaw = t('essentialsList', { returnObjects: true });
+    const essentialItems = Array.isArray(essentialItemsRaw) ? essentialItemsRaw : [];
+
+    const allowedFoodsRaw = t('allowedFoodsList', { returnObjects: true });
+    const allowedFoods = Array.isArray(allowedFoodsRaw) ? allowedFoodsRaw : [];
+    
+    const prohibitedFoodsRaw = t('prohibitedFoodsList', { returnObjects: true });
+    const prohibitedFoods = Array.isArray(prohibitedFoodsRaw) ? prohibitedFoodsRaw : [];
 
 
     return (
