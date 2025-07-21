@@ -1,4 +1,3 @@
-
 'use client';
 
 import { EditableTitle } from './EditableTitle';
