@@ -279,8 +279,8 @@ export default function PastCeremoniesSection() {
              <div className="flex flex-col items-center text-center space-y-4 mb-12">
                 <EditableTitle
                 tag="h2"
-                id="pastCeremoniesTitle"
-                initialValue={t('pastCeremoniesTitle')}
+                id="pastEventsTitle"
+                initialValue={t('pastEventsTitle')}
                 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                 />
             </div>
