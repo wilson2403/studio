@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Instagram } from "lucide-react";
@@ -29,7 +30,7 @@ export default function Contact() {
     ];
 
     return (
-        <section id="contact" className="container py-12 md:py-24">
+        <section id="contact" className="container py-8 md:py-16">
             <div className="flex flex-col items-center text-center space-y-4 mb-12">
                 <EditableTitle
                     tag="h2"

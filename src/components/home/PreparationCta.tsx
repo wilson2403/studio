@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useTranslation } from "react-i18next";
@@ -10,7 +11,7 @@ export default function PreparationCta() {
     const { t } = useTranslation();
 
     return (
-        <section className="bg-primary/5 border-y border-primary/20 py-12 md:py-20">
+        <section className="bg-primary/5 border-y border-primary/20 py-8 md:py-16">
             <div className="container text-center flex flex-col items-center">
                 <EditableTitle 
                     tag="h2"

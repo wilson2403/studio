@@ -94,7 +94,7 @@ export default function Ceremonies() {
 
   if (loading) {
     return (
-      <section id="ceremonias" className="container py-12 md:py-24">
+      <section id="ceremonias" className="container py-8 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(3)].map((_, i) => (
              <Card key={i} className="flex flex-col rounded-2xl border-2 border-card-foreground/10 h-[550px] animate-pulse bg-card/50"></Card>
@@ -108,7 +108,7 @@ export default function Ceremonies() {
     <>
     <section
       id="ceremonias"
-      className="container py-12 md:py-24 animate-in fade-in-0 duration-1000 delay-500"
+      className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500"
     >
       <div className="flex flex-col items-center text-center space-y-4 mb-12">
         <EditableTitle

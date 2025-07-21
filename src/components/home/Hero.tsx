@@ -8,7 +8,7 @@ export default function Hero() {
   const { t } = useTranslation();
 
   return (
-    <section className="relative w-full pt-12 md:pt-20 flex flex-col items-center justify-center text-center group">
+    <section className="relative w-full pt-8 md:pt-16 flex flex-col items-center justify-center text-center group">
       
       <div className="container relative animate-in fade-in-0 duration-1000 z-20 space-y-8">
         <div className="flex flex-col items-center space-y-2">
@@ -28,7 +28,7 @@ export default function Hero() {
         </div>
       </div>
       
-      <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700 mt-8 mb-8">
+      <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700 mt-6 mb-8">
         <EditableTitle 
             tag="p"
             id="heroSubtitle2"
