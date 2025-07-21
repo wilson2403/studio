@@ -27,7 +27,7 @@ function getYouTubeEmbedUrl(url: string, controls: boolean, autoplay: boolean): 
   
   const params = new URLSearchParams({
     autoplay: autoplay ? '1' : '0',
-    mute: '1',
+    mute: '0',
     loop: controls ? '0' : '1',
     controls: controls ? '1' : '0',
     playlist: videoId,
@@ -42,7 +42,7 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
   if (!videoIdMatch) {
     return (
       <a href={url} target="_blank" rel="noopener noreferrer" className={cn("w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center", className)}>
-         <Image src={'https://placehold.co/100x100/000000/ffffff.png?text=TikTok'} alt="TikTok Logo" width={50} height={50} />
+         <Image src={'https://placehold.co/100x100/000000/ffffff.png?text=TikTok'} alt="TikTok Logo" width={50} height={50} data-ai-hint="tiktok logo" />
          <p className="mt-4 font-semibold">{title}</p>
          <p className="text-sm text-gray-300 mt-2">Haz clic para ver en TikTok</p>
       </a>
@@ -52,7 +52,7 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
   if (!isActivated) {
     return (
       <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className)} onClick={() => setIsActivated(true)}>
-        <Image src={'https://p16-sign-va.tiktokcdn.com/obj/tos-useast2a-p-0037-euttp/98471a6296314f149b81b8f52281a711_1622323062?x-expires=1671566400&x-signature=2B7x7B4bZ9f5j3v9a5H3jD%2B5f%2B4%3D'} alt="TikTok thumbnail" layout="fill" objectFit="cover" />
+        <Image src={'https://p16-sign-va.tiktokcdn.com/obj/tos-useast2a-p-0037-euttp/98471a6296314f149b81b8f52281a711_1622323062?x-expires=1671566400&x-signature=2B7x7B4bZ9f5j3v9a5H3jD%2B5f%2B4%3D'} alt="TikTok thumbnail" layout="fill" objectFit="cover" data-ai-hint="tiktok video" />
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 flex flex-col items-center">
             <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
@@ -89,7 +89,7 @@ function getFacebookEmbedUrl(url: string, controls: boolean, autoplay: boolean):
             show_text: '0',
             width: '560',
             autoplay: autoplay ? '1' : '0',
-            mute: '1',
+            mute: '0',
             loop: controls ? '0' : '1',
             controls: controls ? '1' : '0'
         });
@@ -118,7 +118,7 @@ const FacebookPlayer = ({ url, title, className, controls }: { url: string; titl
     if (!isActivated) {
          return (
              <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className)} onClick={() => setIsActivated(true)}>
-                <Image src={'https://placehold.co/600x400.png?text=Facebook'} alt="Facebook video thumbnail" layout="fill" objectFit="cover" />
+                <Image src={'https://placehold.co/600x400.png?text=Facebook'} alt="Facebook video thumbnail" layout="fill" objectFit="cover" data-ai-hint="social media video" />
                 <div className="absolute inset-0 bg-black/50"></div>
                  <div className="relative z-10 flex flex-col items-center">
                     <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
@@ -151,7 +151,7 @@ const FacebookPlayer = ({ url, title, className, controls }: { url: string; titl
 function getStreamableEmbedUrl(url: string): string | null {
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (match && match[1]) {
-    return `https://streamable.com/e/${match[1]}?autoplay=1&muted=1&loop=1`;
+    return `https://streamable.com/e/${match[1]}?autoplay=1&muted=0&loop=1`;
   }
   return null;
 }
@@ -186,7 +186,6 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
                 src={src}
                 autoPlay={!controls}
                 loop={!controls}
-                muted
                 playsInline
                 controls={controls}
                 className={cn("w-full h-full object-cover", className)}
