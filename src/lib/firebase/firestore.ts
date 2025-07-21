@@ -91,26 +91,46 @@ export const seedCeremonies = async () => {
     },
   ];
 
-  for (const ceremony of initialCeremonies) {
-    await addDoc(collection(db, 'ceremonies'), ceremony);
-  }
+  const batch = writeBatch(db);
+  initialCeremonies.forEach((ceremony) => {
+    const docRef = doc(ceremoniesCollection); // Create a new doc with a random ID
+    batch.set(docRef, ceremony);
+  });
+  await batch.commit();
   console.log('Seeded ceremonies data.');
 };
 
 
 export const getCeremonies = async (status?: 'active' | 'finished'): Promise<Ceremony[]> => {
   try {
-    let ceremoniesQuery = query(ceremoniesCollection);
-    if (status) {
-        ceremoniesQuery = query(ceremoniesCollection, where('status', '==', status));
+    const fullSnapshot = await getDocs(ceremoniesCollection);
+    
+    // Seed data only if the entire collection is empty
+    if (fullSnapshot.empty) {
+        console.log('No ceremonies found, seeding database...');
+        await seedCeremonies();
+        // After seeding, fetch again to get the data
+        const newSnapshot = await getDocs(ceremoniesCollection);
+        const allCeremonies = newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
+        if (status) {
+            return allCeremonies.filter(c => c.status === status);
+        }
+        return allCeremonies;
     }
-    const snapshot = await getDocs(ceremoniesQuery);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
+
+    const ceremoniesData = fullSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
+
+    if (status) {
+      return ceremoniesData.filter(c => c.status === status);
+    }
+    
+    return ceremoniesData;
   } catch (error) {
     console.error("Error fetching ceremonies: ", error);
     return [];
   }
 };
+
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
