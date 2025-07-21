@@ -12,7 +12,7 @@ export default function PreparationCta() {
 
     return (
         <section className="bg-primary/5 border-y border-primary/20 py-8 md:py-16">
-            <div className="container text-center flex flex-col items-center">
+            <div className="container text-center flex flex-col items-center pl-20">
                 <EditableTitle 
                     tag="h2"
                     id="preparationCtaTitle"
