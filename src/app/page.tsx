@@ -2,7 +2,6 @@
 'use client';
 
 import Ceremonies from '@/components/home/Ceremonies';
-import { EditableProvider } from '@/components/home/EditableProvider';
 import Contact from '@/components/home/Contact';
 import RegistrationPromptDialog from '@/components/auth/RegistrationPromptDialog';
 import { useTranslation } from 'react-i18next';
@@ -16,20 +15,20 @@ export default function Home() {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
   return (
-    <EditableProvider>
+    <>
       <WelcomeTour />
       <RegistrationPromptDialog />
       <Hero />
-      <Ceremonies 
-        status="finished" 
+      <Ceremonies
+        status="finished"
         id="eventos-anteriores"
         titleId="pastEventsTitle"
         titleInitialValue={t('pastEventsTitle')}
         activeVideo={activeVideo}
         setActiveVideo={setActiveVideo}
       />
-      <Ceremonies 
-        status="active" 
+      <Ceremonies
+        status="active"
         id="ceremonias"
         titleId="upcomingCeremoniesTitle"
         titleInitialValue={t('upcomingCeremoniesTitle')}
@@ -38,6 +37,6 @@ export default function Home() {
       />
       <ExploreMore />
       <Contact />
-    </EditableProvider>
+    </>
   );
 }

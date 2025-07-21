@@ -8,6 +8,7 @@ import Script from 'next/script';
 import { I18nProvider } from '@/components/layout/I18nProvider';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import Chatbot from '@/components/chat/Chatbot';
+import { EditableProvider } from '@/components/home/EditableProvider';
 
 export const metadata: Metadata = {
   title: 'El Arte de Sanar',
@@ -38,29 +39,25 @@ export default function RootLayout({
         className={cn('min-h-screen bg-background font-body antialiased')}
       >
         <I18nProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem
-            >
+          <ThemeProvider attribute="class" defaultTheme="dark">
+            <EditableProvider>
               <div className="relative flex min-h-screen flex-col">
                 <Header />
                 <main className="flex-1">
-                  <div className="container">
-                    {children}
-                  </div>
+                  <div className="container">{children}</div>
                 </main>
                 <Footer />
                 <Chatbot />
               </div>
-              <Toaster />
-              
-              <div id="fb-root"></div>
-              <Script 
-                id="facebook-sdk"
-                strategy="lazyOnload" 
-                src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
-              />
+            </EditableProvider>
+            <Toaster />
+
+            <div id="fb-root"></div>
+            <Script
+              id="facebook-sdk"
+              strategy="lazyOnload"
+              src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
+            />
           </ThemeProvider>
         </I18nProvider>
       </body>

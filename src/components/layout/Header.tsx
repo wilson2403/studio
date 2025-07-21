@@ -33,6 +33,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { getUserProfile } from '@/lib/firebase/firestore';
+import { EditableTitle } from '../home/EditableTitle';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -172,7 +173,11 @@ export default function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Logo className="h-10 w-10" />
             <span className="font-bold font-headline text-lg">
-              {t('appName')}
+                <EditableTitle
+                    tag="p"
+                    id="appName"
+                    initialValue={t('appName')}
+                />
             </span>
           </Link>
         </div>
