@@ -198,7 +198,7 @@ export const deletePastCeremony = async (id: string): Promise<void> => {
 export const seedGuides = async () => {
     const initialGuides: Omit<Guide, 'id'>[] = [
         {
-            name: 'Wilson',
+            name: 'Wilson Alfaro',
             description: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
             imageUrl: '/images/wilson.jpg',
         },
