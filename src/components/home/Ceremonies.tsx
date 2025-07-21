@@ -254,7 +254,7 @@ export default function Ceremonies({
     );
   }
   
-  if (ceremonies.length === 0) {
+  if (ceremonies.length === 0 && status === 'finished') {
       return null;
   }
 
@@ -286,6 +286,10 @@ export default function Ceremonies({
           </Button>
         )}
       </div>
+      
+      {ceremonies.length === 0 && status === 'active' && !loading && (
+        <p className="text-center text-muted-foreground">{t('noUpcomingCeremonies')}</p>
+      )}
 
       {status === 'active' ? renderActiveCeremonies() : renderFinishedCeremonies()}
 
@@ -329,3 +333,4 @@ export default function Ceremonies({
     </>
   );
 }
+
