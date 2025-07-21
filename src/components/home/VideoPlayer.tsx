@@ -15,7 +15,7 @@ interface VideoPlayerProps {
   controls?: boolean;
 }
 
-function getYouTubeEmbedUrl(url: string, controls: boolean, autoplay: boolean): string | null {
+function getYouTubeEmbedUrl(url: string): string | null {
   if (!url) return null;
   let videoId = null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -26,10 +26,10 @@ function getYouTubeEmbedUrl(url: string, controls: boolean, autoplay: boolean): 
   if (!videoId) return null;
   
   const params = new URLSearchParams({
-    autoplay: autoplay ? '1' : '0',
-    mute: autoplay ? '1' : '0',
-    loop: controls ? '0' : '1',
-    controls: controls ? '1' : '0',
+    autoplay: '1',
+    mute: '1',
+    loop: '1',
+    controls: '0',
     playlist: videoId,
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
@@ -89,10 +89,8 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
         if (videoRef.current) {
             if (videoRef.current.paused) {
                 videoRef.current.play().catch(console.error);
-                setIsPlaying(true);
             } else {
                 videoRef.current.pause();
-                setIsPlaying(false);
             }
         }
     };
@@ -133,16 +131,18 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
 };
 
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false }: VideoPlayerProps) => {
-  const [isIframeActivated, setIsIframeActivated] = useState(controls);
+  const [isIframeActivated, setIsIframeActivated] = useState(false);
 
-  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls, isIframeActivated && !controls) : null;
+  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) : null;
   const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl, controls) : null;
   const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
   const isFacebook = videoUrl && videoUrl.includes('facebook.com');
 
   const activateIframe = (e: React.MouseEvent) => {
       e.stopPropagation();
-      setIsIframeActivated(true);
+      if (!isIframeActivated) {
+        setIsIframeActivated(true);
+      }
   }
 
   const renderPlayer = () => {
@@ -211,14 +211,14 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       }
     
       if (mediaType === 'video' && videoUrl && (videoUrl.startsWith('https') || videoUrl.startsWith('data:'))) {
-         return <DirectVideoPlayer src={videoUrl} className={className} controls={controls} />;
+         return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} controls={controls} />;
       }
     
       if (mediaType === 'image' || !videoUrl) {
-        return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={className} data-ai-hint="spiritual ceremony" />;
+        return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual ceremony" />;
       }
     
-      return <Image src={'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={className} data-ai-hint="spiritual event" />;
+      return <Image src={'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual event" />;
   }
 
   return (
