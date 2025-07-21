@@ -21,12 +21,17 @@ import * as z from 'zod';
 import { Ceremony } from '@/types';
 import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, Trash } from 'lucide-react';
+import { Copy, PlusCircle, Trash } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useState } from 'react';
 import { Progress } from '../ui/progress';
 import { useTranslation } from 'react-i18next';
+
+const planSchema = (t: (key: string) => string) => z.object({
+  name: z.string().min(1, t('errorRequired', { field: t('planName') })),
+  price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('planPrice') })),
+});
 
 const formSchema = (t: (key: string) => string) => z.object({
   title: z.string().min(1, t('errorRequired', { field: t('formTitle') })),
@@ -38,6 +43,7 @@ const formSchema = (t: (key: string) => string) => z.object({
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
   mediaUrl: z.string().url('Debe ser una URL válida').optional().or(z.literal('')),
   mediaType: z.enum(['image', 'video']).default('image'),
+  plans: z.array(planSchema(t)).optional(),
 });
 
 type EditCeremonyFormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -73,6 +79,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       features: ceremony.features.map(f => ({ value: f })),
       mediaUrl: ceremony.mediaUrl || '',
       mediaType: ceremony.mediaType || 'image',
+      plans: ceremony.plans || [],
     } : {
       title: '',
       description: '',
@@ -83,6 +90,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
       mediaUrl: '',
       mediaType: 'image',
+      plans: [{ name: 'Plan Básico', price: 80000 }, { name: 'Plan Completo', price: 100000 }],
     },
   });
   
@@ -96,11 +104,17 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     }
   };
 
-
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "features"
   });
+  
+  const { fields: planFields, append: appendPlan, remove: removePlan } = useFieldArray({
+    control: form.control,
+    name: "plans"
+  });
+
+  const priceType = form.watch('priceType');
 
   const onSubmit = async (data: EditCeremonyFormValues) => {
     if (!data.mediaUrl && !mediaFile) {
@@ -136,6 +150,9 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
     try {
       const ceremonyData = { ...data, mediaUrl: finalMediaUrl, features: data.features.map(f => f.value) };
+      if (ceremonyData.priceType === 'exact') {
+        delete ceremonyData.plans;
+      }
       
       if (isEditMode && ceremony) {
         const updatedData: Ceremony = {
@@ -290,8 +307,8 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
             </Select>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-             <Label htmlFor="features" className="text-right">{t('formFeatures')}</Label>
+          <div className="grid grid-cols-4 items-start gap-4">
+             <Label htmlFor="features" className="text-right pt-2">{t('formFeatures')}</Label>
              <div className="col-span-3 space-y-2">
                 {fields.map((field, index) => (
                     <div key={field.id} className="flex items-center gap-2">
@@ -304,6 +321,33 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                 </Button>
              </div>
           </div>
+
+          {priceType === 'from' && (
+             <div className="grid grid-cols-4 items-start gap-4">
+               <Label className="text-right pt-2">{t('plansTitle')}</Label>
+               <div className="col-span-3 space-y-4">
+                 {planFields.map((field, index) => (
+                   <div key={field.id} className="grid grid-cols-2 gap-2 items-start p-3 border rounded-md relative">
+                      <div className="col-span-2 absolute -top-2 -right-2">
+                        <Button type="button" variant="destructive" size="icon" className="h-6 w-6" onClick={() => removePlan(index)} disabled={isUploading}><Trash className="h-3 w-3"/></Button>
+                      </div>
+                     <div>
+                       <Label htmlFor={`plans.${index}.name`}>{t('planName')}</Label>
+                       <Input id={`plans.${index}.name`} {...form.register(`plans.${index}.name`)} disabled={isUploading} />
+                     </div>
+                     <div>
+                       <Label htmlFor={`plans.${index}.price`}>{t('planPrice')}</Label>
+                       <Input id={`plans.${index}.price`} type="number" {...form.register(`plans.${index}.price`)} disabled={isUploading} />
+                     </div>
+                   </div>
+                 ))}
+                 <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ name: '', price: 0 })} disabled={isUploading}>
+                   <PlusCircle className="mr-2 h-4 w-4" />
+                   {t('addPlan')}
+                 </Button>
+               </div>
+             </div>
+          )}
           
           <div className="grid grid-cols-4 items-center gap-4">
              <Label htmlFor="featured" className="text-right">{t('formFeatured')}</Label>
@@ -320,7 +364,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
            )}
 
 
-          <DialogFooter className="justify-between">
+          <DialogFooter className="justify-between pt-4">
             <div>
               {isEditMode && (
                 <div className="flex gap-2">

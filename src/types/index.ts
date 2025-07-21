@@ -1,6 +1,11 @@
 
 import { Timestamp } from "firebase/firestore";
 
+export type Plan = {
+  name: string;
+  price: number;
+};
+
 export type Ceremony = {
   id: string;
   title: string;
@@ -12,6 +17,7 @@ export type Ceremony = {
   featured: boolean;
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
+  plans?: Plan[];
 };
 
 export type PastCeremony = {

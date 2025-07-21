@@ -10,10 +10,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Ceremony } from '@/types';
+import { Ceremony, Plan } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { Check } from 'lucide-react';
+import { Check, Circle } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Label } from '../ui/label';
 
 interface CeremonyDetailsDialogProps {
   ceremony: Ceremony | null;
@@ -25,29 +28,44 @@ const USD_EXCHANGE_RATE = 500;
 
 export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: CeremonyDetailsDialogProps) {
   const { t, i18n } = useTranslation();
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
 
   if (!ceremony) return null;
 
-  const formatPrice = () => {
-    const { price, priceType } = ceremony;
-    const isEnglish = i18n.language === 'en';
-    
-    let formattedPrice: string;
+  const isEnglish = i18n.language === 'en';
+  const hasPlans = ceremony.priceType === 'from' && ceremony.plans && ceremony.plans.length > 0;
 
+  const formatPrice = (price: number) => {
     if (isEnglish) {
       const priceInUSD = Math.round(price / USD_EXCHANGE_RATE);
-      formattedPrice = `$${priceInUSD} USD`;
-    } else {
-      formattedPrice = new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
+      return `$${priceInUSD} USD`;
     }
-    
-    const prefix = priceType === 'from' ? (isEnglish ? 'From ' : 'Desde ') : '';
-
-    return `${prefix}${formattedPrice}`;
+    return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   };
 
+  const getBasePriceText = () => {
+    const prefix = ceremony.priceType === 'from' ? (isEnglish ? 'From ' : 'Desde ') : '';
+    return `${prefix}${formatPrice(ceremony.price)}`;
+  };
+  
+  const getWhatsappLink = () => {
+      if (!selectedPlan || !hasPlans) {
+          return ceremony.link;
+      }
+      
+      const textParam = new URLSearchParams(ceremony.link.split('?')[1]).get('text');
+      const baseText = textParam ? `${textParam} - Plan: ${selectedPlan.name}` : `Hola, me interesa la ceremonia ${ceremony.title} con el plan: ${selectedPlan.name}`;
+      
+      return `https://wa.me/?text=${encodeURIComponent(baseText)}`;
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+        if (!open) {
+            setSelectedPlan(null);
+        }
+        onClose();
+    }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
@@ -56,15 +74,34 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
-            <div className="text-center">
-                <span className="text-4xl font-bold text-foreground">
-                    {formatPrice()}
-                </span>
-                <p className="text-sm text-muted-foreground">
-                    {t('fullPlanUpTo')}
-                </p>
-            </div>
-            <ul className="space-y-3">
+            {!hasPlans ? (
+                <div className="text-center">
+                    <span className="text-4xl font-bold text-foreground">
+                        {getBasePriceText()}
+                    </span>
+                    <p className="text-sm text-muted-foreground">
+                        {t('fullPlanUpTo')}
+                    </p>
+                </div>
+            ) : (
+                <div className='space-y-4'>
+                    <h4 className='font-bold text-center'>{t('selectAPlan')}</h4>
+                    <RadioGroup onValueChange={(value) => setSelectedPlan(JSON.parse(value))} className='space-y-2'>
+                        {ceremony.plans?.map((plan, i) => (
+                             <Label key={i} htmlFor={`plan-${i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
+                                <div>
+                                    <p className="font-semibold">{plan.name}</p>
+                                </div>
+                                <div className='flex items-center gap-4'>
+                                    <span className="font-bold text-lg">{formatPrice(plan.price)}</span>
+                                    <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${i}`} />
+                                </div>
+                             </Label>
+                        ))}
+                    </RadioGroup>
+                </div>
+            )}
+            <ul className="space-y-3 pt-4">
                  <li className="flex items-center gap-3 font-bold">
                   <Check className="h-5 w-5 text-primary" />
                   <span>{t('includes')}</span>
@@ -78,10 +115,10 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
             </ul>
         </div>
         <DialogFooter>
-          <Button asChild className="w-full">
-            <Link href={ceremony.link} target="_blank" rel="noopener noreferrer">
+          <Button asChild className="w-full" disabled={hasPlans && !selectedPlan}>
+            <a href={getWhatsappLink()} target="_blank" rel="noopener noreferrer">
               {t('bookSpot')}
-            </Link>
+            </a>
           </Button>
         </DialogFooter>
       </DialogContent>

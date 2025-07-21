@@ -50,7 +50,7 @@ export const seedCeremonies = async () => {
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
       price: 100000,
       priceType: 'exact',
-      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo'],
+      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
       link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%2026%20de%20julio%20en%20Guanacaste',
       featured: false,
       mediaUrl: 'https://placehold.co/600x400.png',
@@ -61,11 +61,15 @@ export const seedCeremonies = async () => {
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
       price: 80000,
       priceType: 'from',
-      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa', 'Plan completo hasta 100.000'],
+      features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
       link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%202%20de%20agosto%20en%20San%20Carlos',
       featured: true,
       mediaUrl: 'https://placehold.co/600x400.png',
       mediaType: 'image',
+      plans: [
+        { name: 'Plan Básico', price: 80000 },
+        { name: 'Plan Completo', price: 100000 }
+      ]
     },
     {
       title: 'Sábado 9 de agosto – Pérez Zeledón',
@@ -77,6 +81,10 @@ export const seedCeremonies = async () => {
       featured: false,
       mediaUrl: 'https://placehold.co/600x400.png',
       mediaType: 'image',
+      plans: [
+        { name: 'Individual', price: 80000 },
+        { name: 'Pareja', price: 150000 }
+      ]
     },
     {
       title: 'Sábado 23 de agosto – La Fortuna',
@@ -88,6 +96,9 @@ export const seedCeremonies = async () => {
       featured: false,
        mediaUrl: 'https://placehold.co/600x400.png',
       mediaType: 'image',
+      plans: [
+        { name: 'Plan Básico', price: 80000 }
+      ]
     },
   ];
 
