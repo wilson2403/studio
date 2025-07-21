@@ -15,7 +15,8 @@ const questionnairesCollection = collection(db, 'questionnaires');
 
 // --- Page Content ---
 
-export const getContent = async (id: string): Promise<string | null> => {
+export const getContent = async (id: string): Promise<string | { [key: string]: string } | null> => {
+  if (!id) return null;
   try {
     const docRef = doc(db, 'content', id);
     const docSnap = await getDoc(docRef);
@@ -29,7 +30,7 @@ export const getContent = async (id: string): Promise<string | null> => {
   }
 }
 
-export const setContent = async (id: string, value: string): Promise<void> => {
+export const setContent = async (id: string, value: string | { [key: string]: string }): Promise<void> => {
    try {
     const docRef = doc(db, 'content', id);
     await setDoc(docRef, { value });
@@ -483,3 +484,4 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
     
 
     
+

@@ -21,24 +21,37 @@ interface EditableTitleProps {
 export const EditableTitle = ({ tag: Tag, id, initialValue, className }: EditableTitleProps) => {
   const { isAdmin, content, updateContent, fetchContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(initialValue);
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language;
+
+  const contentValue = content[id];
+  let displayValue: string;
   
-  const currentValue = content[id] ?? initialValue;
+  if(typeof contentValue === 'object' && contentValue !== null) {
+      displayValue = contentValue[lang] || contentValue['es'] || initialValue;
+  } else if (typeof contentValue === 'string') {
+      displayValue = contentValue;
+  } else {
+      displayValue = initialValue;
+  }
+
+  const [editValue, setEditValue] = useState(displayValue);
 
   useEffect(() => {
-    fetchContent(id, initialValue);
+    if (id) {
+        fetchContent(id, initialValue);
+    }
   }, [id, initialValue]);
 
   useEffect(() => {
-    setEditValue(currentValue);
-  }, [currentValue]);
+    setEditValue(displayValue);
+  }, [displayValue]);
 
 
   const handleSave = async () => {
     try {
-        await updateContent(id, editValue);
+        await updateContent(id, editValue, lang);
         toast({ title: t('editableSuccess'), description: '' });
         setIsEditing(false);
     } catch (error) {
@@ -47,9 +60,14 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   };
 
   const handleCancel = () => {
-    setEditValue(currentValue);
+    setEditValue(displayValue);
     setIsEditing(false);
   };
+  
+  const handleEditClick = () => {
+    setEditValue(displayValue); // Ensure we're editing the latest value for the current language
+    setIsEditing(true);
+  }
 
   if (isEditing) {
     return (
@@ -69,13 +87,13 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   return (
     <div className={cn("relative group flex items-center justify-center gap-2 w-full")}>
-      <Tag className={className}>{currentValue}</Tag>
+      <Tag className={className}>{displayValue}</Tag>
       {isAdmin && (
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-          onClick={() => setIsEditing(true)}
+          onClick={handleEditClick}
         >
           <Edit className="h-4 w-4" />
         </Button>
