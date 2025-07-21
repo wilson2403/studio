@@ -111,7 +111,7 @@ export default function GuidesPage() {
                               <Edit className="h-4 w-4" />
                           </Button>
                       )}
-                      <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 mt-4">
+                      <div className="relative w-40 h-40 flex-shrink-0 mt-4">
                         <Image
                               src={guide.imageUrl}
                               alt={guide.name}
