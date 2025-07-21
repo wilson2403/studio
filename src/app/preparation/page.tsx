@@ -24,10 +24,10 @@ export default function PreparationPage() {
         { title: "reflectionTitle", description: "reflectionDescription" },
     ];
 
-    const comfortItems = t('comfortItemsList', { returnObjects: true }) as string[];
-    const essentialItems = t('essentialsList', { returnObjects: true }) as string[];
-    const allowedFoods = t('allowedFoodsList', { returnObjects: true }) as string[];
-    const prohibitedFoods = t('prohibitedFoodsList', { returnObjects: true }) as string[];
+    const comfortItems = (t('comfortItemsList', { returnObjects: true }) as string[]) || [];
+    const essentialItems = (t('essentialsList', { returnObjects: true }) as string[]) || [];
+    const allowedFoods = (t('allowedFoodsList', { returnObjects: true }) as string[]) || [];
+    const prohibitedFoods = (t('prohibitedFoodsList', { returnObjects: true }) as string[]) || [];
 
 
     return (
