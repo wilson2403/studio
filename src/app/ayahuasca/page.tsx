@@ -117,12 +117,14 @@ export default function AyahuascaInfoPage() {
                                     </div>
                                     <AccordionTrigger className="w-auto p-0" />
                                 </div>
-                                 <AccordionContent className="text-base text-foreground/80 pl-10">
-                                     <EditableTitle
-                                          tag="p"
-                                          id={`${id}Description`}
-                                          initialValue={t(description)}
-                                     />
+                                 <AccordionContent className="text-base text-foreground/80">
+                                     <div className="pl-10">
+                                        <EditableTitle
+                                            tag="p"
+                                            id={`${id}Description`}
+                                            initialValue={t(description)}
+                                        />
+                                     </div>
                                  </AccordionContent>
                              </AccordionItem>
                          ))}
