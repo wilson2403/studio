@@ -45,21 +45,6 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   
   const [editValues, setEditValues] = useState({ es: '', en: '' });
 
-  useEffect(() => {
-      if (typeof contentValue === 'object' && contentValue !== null) {
-          setEditValues({ es: (contentValue as any).es || '', en: (contentValue as any).en || '' });
-      } else if (typeof contentValue === 'string') {
-          const defaultValues = { es: '', en: '' };
-          (defaultValues as any)[lang] = contentValue;
-          setEditValues(defaultValues);
-      } else {
-           const defaultValues = { es: '', en: '' };
-           (defaultValues as any)[lang] = initialValue;
-           setEditValues(defaultValues);
-      }
-  }, [contentValue]);
-
-
   const handleSave = async () => {
     try {
         await updateContent(id, editValues);
@@ -77,6 +62,14 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const handleEditClick = () => {
     if (typeof contentValue === 'object' && contentValue !== null) {
         setEditValues({ es: (contentValue as any).es || '', en: (contentValue as any).en || '' });
+    } else if (typeof contentValue === 'string') {
+        const defaultValues = { es: '', en: '' };
+        (defaultValues as any)[lang] = contentValue;
+        setEditValues(defaultValues);
+    } else {
+        const defaultValues = { es: '', en: '' };
+        (defaultValues as any)[lang] = initialValue;
+        setEditValues(defaultValues);
     }
     setIsEditing(true);
   }
