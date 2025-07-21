@@ -46,6 +46,29 @@ const defaultTheme: ThemeSettings = {
     darkAccent: '140 10% 15%',
 };
 
+function applyTheme(settings: ThemeSettings) {
+  const existingStyleTag = document.getElementById('dynamic-theme-styles');
+  if (existingStyleTag) {
+    existingStyleTag.remove();
+  }
+
+  const style = document.createElement('style');
+  style.id = 'dynamic-theme-styles';
+  style.innerHTML = `
+    :root {
+      --light-primary: ${settings.lightPrimary};
+      --light-background: ${settings.lightBackground};
+      --light-accent: ${settings.lightAccent};
+    }
+    .dark {
+      --dark-primary: ${settings.darkPrimary};
+      --dark-background: ${settings.darkBackground};
+      --dark-accent: ${settings.darkAccent};
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 export default function SettingsTabs({ user }: { user: User }) {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -54,10 +77,7 @@ export default function SettingsTabs({ user }: { user: User }) {
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema(t)),
-    defaultValues: {
-      phone: '',
-      address: '',
-    },
+    defaultValues: { phone: '', address: '' },
   });
 
   const themeForm = useForm<ThemeFormValues>({
@@ -85,11 +105,9 @@ export default function SettingsTabs({ user }: { user: User }) {
     async function loadTheme() {
         setLoadingTheme(true);
         const settings = await getThemeSettings();
-        if (settings) {
-            themeForm.reset(settings);
-        } else {
-            themeForm.reset(defaultTheme);
-        }
+        const initialTheme = settings || defaultTheme;
+        themeForm.reset(initialTheme);
+        applyTheme(initialTheme);
         setLoadingTheme(false);
     }
     loadTheme();
@@ -107,13 +125,26 @@ export default function SettingsTabs({ user }: { user: User }) {
   const onThemeSubmit = async (data: ThemeFormValues) => {
     try {
       await setThemeSettings(data);
+      applyTheme(data);
       toast({ title: t('themeUpdatedSuccess'), description: t('themeUpdateReload') });
-      // Reload to apply the new theme consistently
-      window.location.reload();
+      // We still reload to ensure all components pick up the new theme from the applied styles
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       toast({ title: t('themeUpdatedError'), variant: 'destructive' });
     }
   };
+
+  // Watch for form changes and apply them live
+  useEffect(() => {
+    const subscription = themeForm.watch((value) => {
+        // Zod check to ensure the data is valid before applying
+        const result = themeFormSchema.safeParse(value);
+        if (result.success) {
+            applyTheme(result.data as ThemeSettings);
+        }
+    });
+    return () => subscription.unsubscribe();
+  }, [themeForm]);
 
   const renderColorField = (name: keyof ThemeFormValues, label: string) => (
     <FormField
