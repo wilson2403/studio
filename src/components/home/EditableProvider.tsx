@@ -38,6 +38,7 @@ export const EditableProvider = ({ children }: { children: React.ReactNode }) =>
   }, []);
 
   const fetchContent = async (id: string, initialValue: string) => {
+    if (!id) return; // Guard clause to prevent error
     const existingValue = await getContent(id);
     setContentState((prev) => ({
       ...prev,
