@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, Users, MessageSquare } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -50,6 +50,10 @@ export default function Header() {
     { href: '/#ceremonias', label: t('navCeremonies') },
     { href: '/guides', label: t('navGuides') },
     { href: '/preparation', label: t('navPreparation') },
+  ];
+  
+  const userNavLinks = [
+     { href: '/questionnaire', label: t('navQuestionnaire') }
   ];
 
   useEffect(() => {
@@ -122,6 +126,7 @@ export default function Header() {
                   <MessageSquare className="mr-2 h-4 w-4" />
                   <span>{t('chatHistory')}</span>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
               </>
             )}
             <DropdownMenuItem onClick={handleSignOut}>
@@ -186,6 +191,20 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
+          {user && userNavLinks.map((link) => (
+             <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                'transition-colors hover:text-primary',
+                (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
+                  ? 'text-primary'
+                  : 'text-foreground/60'
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2">
           <ThemeSwitcher />
@@ -235,6 +254,17 @@ export default function Header() {
                         href={link.href}
                         className="transition-colors hover:text-primary"
                       >
+                        {link.label}
+                      </Link>
+                    </SheetClose>
+                  ))}
+                  {user && userNavLinks.map((link) => (
+                    <SheetClose asChild key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="transition-colors hover:text-primary flex items-center gap-2"
+                      >
+                        <FileText className="h-5 w-5" />
                         {link.label}
                       </Link>
                     </SheetClose>

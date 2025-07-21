@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, Mail, ShieldCheck, Users } from 'lucide-react';
+import { Bot, Mail, ShieldCheck, Users, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile } from '@/lib/firebase/firestore';
@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { sendEmailToAllUsers } from '@/ai/flows/email-flow';
+import QuestionnaireDialog from '@/components/admin/QuestionnaireDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -36,6 +37,7 @@ export default function AdminUsersPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserProfile[]>([]);
+    const [viewingUser, setViewingUser] = useState<UserProfile | null>(null);
     const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
@@ -141,6 +143,7 @@ export default function AdminUsersPage() {
                                         <TableHead>{t('userName')}</TableHead>
                                         <TableHead>{t('userEmail')}</TableHead>
                                         <TableHead>{t('userAdmin')}</TableHead>
+                                        <TableHead>{t('actions')}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -154,6 +157,12 @@ export default function AdminUsersPage() {
                                                     onCheckedChange={(checked) => handleRoleChange(u.uid, checked)}
                                                     disabled={u.email === ADMIN_EMAIL}
                                                 />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Button variant="outline" size="sm" onClick={() => setViewingUser(u)}>
+                                                    <FileText className="mr-2 h-4 w-4"/>
+                                                    {t('viewQuestionnaire')}
+                                                </Button>
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -207,6 +216,13 @@ export default function AdminUsersPage() {
                     </Card>
                 </TabsContent>
             </Tabs>
+            {viewingUser && (
+                <QuestionnaireDialog 
+                    user={viewingUser} 
+                    isOpen={!!viewingUser} 
+                    onClose={() => setViewingUser(null)} 
+                />
+            )}
         </div>
     );
 }

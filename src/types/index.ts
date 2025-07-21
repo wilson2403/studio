@@ -60,3 +60,15 @@ export type Chat = {
     createdAt: Timestamp;
     updatedAt: Timestamp;
 }
+
+export type QuestionnaireAnswers = {
+    hasMedicalConditions: 'yes' | 'no';
+    medicalConditionsDetails?: string;
+    isTakingMedication: 'yes' | 'no';
+    medicationDetails?: string;
+    hasMentalHealthHistory: 'yes' | 'no';
+    mentalHealthDetails?: string;
+    mainIntention: string;
+    hasPreviousExperience: 'yes' | 'no';
+    previousExperienceDetails?: string;
+};

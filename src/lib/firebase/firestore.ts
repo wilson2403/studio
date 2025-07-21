@@ -2,7 +2,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -12,6 +12,7 @@ const guidesCollection = collection(db, 'guides');
 const usersCollection = collection(db, 'users');
 const settingsCollection = collection(db, 'settings');
 const chatsCollection = collection(db, 'chats');
+const questionnairesCollection = collection(db, 'questionnaires');
 
 
 // --- Page Content ---
@@ -437,5 +438,35 @@ export const getAllChats = async (): Promise<Chat[]> => {
     } catch (error) {
         console.error("Error fetching chats: ", error);
         return [];
+    }
+};
+
+
+// --- Questionnaire ---
+
+export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswers): Promise<void> => {
+    try {
+        const questionnaireRef = doc(db, 'questionnaires', uid);
+        await setDoc(questionnaireRef, {
+            ...answers,
+            updatedAt: serverTimestamp(),
+        }, { merge: true });
+    } catch (error) {
+        console.error("Error saving questionnaire:", error);
+        throw error;
+    }
+};
+
+export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswers | null> => {
+    try {
+        const docRef = doc(db, 'questionnaires', uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data() as QuestionnaireAnswers;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error getting questionnaire:", error);
+        return null;
     }
 };
