@@ -93,7 +93,7 @@ export default function AyahuascaInfoPage() {
           <div className="space-y-8 animate-in fade-in-0 duration-1000 delay-400">
                <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
                   <CardHeader>
-                      <CardTitle className="font-headline text-2xl">
+                      <CardTitle className="font-headline text-2xl text-center">
                            <EditableTitle
                               tag="h3"
                               id="ceremonyBenefitsTitle"
@@ -117,7 +117,7 @@ export default function AyahuascaInfoPage() {
                                     </div>
                                     <AccordionTrigger className="w-auto p-0" />
                                 </div>
-                                 <AccordionContent className="text-base text-foreground/80 pl-14">
+                                 <AccordionContent className="text-base text-foreground/80 pl-10">
                                      <EditableTitle
                                           tag="p"
                                           id={`${id}Description`}
