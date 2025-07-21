@@ -158,7 +158,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
     return (
       <div className="absolute inset-0 flex items-center justify-center text-white bg-black/50">
-           <Image src={`https://placehold.co/600x400.png?text=${text[type]}`} alt={`${text[type]} video thumbnail`} layout="fill" objectFit="contain" data-ai-hint={hints[type]} />
+           <Image src={`https://placehold.co/600x400.png?text=${text[type]}`} alt={`${text[type]} video thumbnail`} layout="fill" objectFit="cover" data-ai-hint={hints[type]} />
            <div className="absolute inset-0 bg-black/50"></div>
             <div className="relative z-10 flex flex-col items-center">
                <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
@@ -172,7 +172,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
 
   const renderPlayer = () => {
     if (mediaType === 'image' && videoUrl) {
-      return <Image src={videoUrl} alt={title} width={600} height={400} className={cn(className, 'object-contain')} data-ai-hint="spiritual ceremony" />;
+      return <Image src={videoUrl} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual ceremony" />;
     }
 
     if (isEmbed) {
@@ -212,7 +212,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
   
     // Fallback for image type or if no videoUrl
-    return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-contain')} data-ai-hint="spiritual event" />;
+    return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual event" />;
   }
   
   return (

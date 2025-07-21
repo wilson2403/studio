@@ -65,8 +65,8 @@ export default function Ceremonies({
     const fetchCeremonies = async () => {
       setLoading(true);
       try {
-        const ceremoniesData = await getCeremonies();
-        setCeremonies(ceremoniesData.filter(c => c.status === status));
+        const ceremoniesData = await getCeremonies(status);
+        setCeremonies(ceremoniesData);
       } catch (error) {
         console.error("Failed to fetch ceremonies:", error);
       } finally {
@@ -236,8 +236,12 @@ export default function Ceremonies({
                     </CarouselItem>
                 ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-[-1rem] md:left-4" />
-                <CarouselNext className="right-[-1rem] md:right-4"/>
+                {ceremonies.length > 1 && (
+                    <>
+                        <CarouselPrevious className="left-[-1rem] md:left-4" />
+                        <CarouselNext className="right-[-1rem] md:right-4"/>
+                    </>
+                )}
             </Carousel>
         </div>
      </div>
@@ -255,6 +259,28 @@ export default function Ceremonies({
     );
   }
   
+  if (ceremonies.length === 0 && status === 'active') {
+      return (
+        <section id={id} className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500">
+            <div className="flex flex-col items-center text-center space-y-4 mb-12">
+                <EditableTitle
+                tag="h2"
+                id={titleId}
+                initialValue={titleInitialValue}
+                className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+                />
+                 {isAdmin && (
+                    <Button onClick={() => setIsAdding(true)}>
+                        <PlusCircle className="mr-2" />
+                        {t('addCeremony')}
+                    </Button>
+                )}
+            </div>
+            <p className="text-center text-muted-foreground">{t('noUpcomingCeremonies')}</p>
+        </section>
+      );
+  }
+
   if (ceremonies.length === 0) {
       return null;
   }
@@ -287,10 +313,6 @@ export default function Ceremonies({
           </Button>
         )}
       </div>
-      
-      {ceremonies.length === 0 && status === 'active' && !loading && (
-        <p className="text-center text-muted-foreground">{t('noUpcomingCeremonies')}</p>
-      )}
 
       {status === 'active' ? renderActiveCeremonies() : renderFinishedCeremonies()}
 
