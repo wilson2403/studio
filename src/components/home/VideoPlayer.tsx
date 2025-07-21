@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
 
@@ -21,7 +21,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
   if (match) {
     videoId = match[1];
   }
-  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0` : null;
+  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=0&playlist=${videoId}&controls=1` : null;
 }
 
 function getTikTokEmbedData(url: string): { embedUrl: string; videoId: string } | null {
@@ -43,7 +43,7 @@ function getFacebookEmbedUrl(url: string): string | null {
     const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\/?\?v=|video\.php\?v=|photo\.php\?v=|reel\/|.*\/videos\/|share\/(?:v|r)\/)([0-9a-zA-Z_.-]+)/;
     const match = url.match(facebookRegex);
     if (match && match[1]) {
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1&loop=1`;
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1&loop=0&controls=1`;
     }
     return null;
 }
@@ -51,13 +51,15 @@ function getFacebookEmbedUrl(url: string): string | null {
 function getStreamableEmbedUrl(url: string): string | null {
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (match && match[1]) {
-    return `https://streamable.com/e/${match[1]}?autoplay=1&muted=1&loop=1`;
+    return `https://streamable.com/e/${match[1]}?autoplay=1&muted=1&loop=0`;
   }
   return null;
 }
 
 export const VideoPlayer = ({ videoUrl, mediaType, title, className }: VideoPlayerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
   
   const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) : null;
   const tiktokData = videoUrl ? getTikTokEmbedData(videoUrl) : null;
@@ -140,14 +142,15 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className }: VideoPlay
                 data-autoplay="true"
                 data-mute="true"
                 data-allowfullscreen="true"
-                data-lazy="true">
+                data-lazy="true"
+                data-controls="true">
             </div>
         </div>
     );
   }
 
   if (mediaType === 'video' && videoUrl && videoUrl.match(/\.(mp4|webm)$/)) {
-     return <video src={videoUrl} autoPlay loop muted playsInline className={className} />;
+     return <video ref={videoRef} src={videoUrl} autoPlay loop muted playsInline controls className={className} />;
   }
 
   if (mediaType === 'image' || !videoUrl) {
