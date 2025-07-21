@@ -39,7 +39,7 @@ export default function PreparationPage() {
 
     return (
         <EditableProvider>
-            <div className="container py-12 md:py-24 space-y-16 md:space-y-24 pl-20">
+            <div className="container py-12 md:py-24 space-y-16 md:space-y-24">
                 {/* Header */}
                 <div className="flex flex-col items-center text-center space-y-4 mb-12 animate-in fade-in-0 duration-1000">
                     <EditableTitle

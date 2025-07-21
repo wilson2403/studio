@@ -32,7 +32,7 @@ export default function Home() {
         status="active" 
         id="ceremonias"
         titleId="upcomingCeremoniesTitle"
-        titleInitialValue="Próximas Ceremonias"
+        titleInitialValue={t('upcomingCeremoniesTitle')}
         activeVideo={activeVideo}
         setActiveVideo={setActiveVideo}
       />
