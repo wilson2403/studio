@@ -34,7 +34,7 @@ export default function AyahuascaInfoPage() {
 
   return (
     <EditableProvider>
-      <section id="ayahuasca-info" className="py-12 md:py-24">
+      <section id="ayahuasca-info" className="py-12 md:py-24 pl-20">
         <div className="flex flex-col items-center text-center space-y-4 mb-12 animate-in fade-in-0 duration-1000">
           <EditableTitle
               tag="h1"
