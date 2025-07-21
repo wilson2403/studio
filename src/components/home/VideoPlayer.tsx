@@ -35,20 +35,25 @@ function getYouTubeEmbedUrl(url: string): string | null {
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 }
 
-const TikTokPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
-    const embedUrl = `https://www.tiktok.com/embed/v2/${url.split('video/')[1]}?autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
+const TikTokPlayer = ({ url, title, controls }: { url: string; title: string; controls?: boolean }) => {
+  const videoId = url.split('video/')[1]?.split('?')[0];
+  if (!videoId) return null;
 
-    return (
-        <iframe
-            src={embedUrl}
-            title={title}
-            className={cn("w-full h-full", className)}
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowFullScreen
-        ></iframe>
-    );
+  const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&mute=1&loop=1&controls=${controls ? '1' : '0'}`;
+
+  return (
+    <div className="absolute inset-0 w-full h-full overflow-hidden flex items-center justify-center">
+      <iframe
+        src={embedUrl}
+        title={title}
+        className="w-[101%] h-[101%]"
+        allow="autoplay; encrypted-media; picture-in-picture"
+        allowFullScreen
+        scrolling="no"
+      ></iframe>
+    </div>
+  );
 };
-
 
 const FacebookPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
     const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
@@ -182,11 +187,14 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
             const type = youtubeEmbedUrl ? 'youtube' : streamableEmbedUrl ? 'streamable' : isTikTok ? 'tiktok' : 'facebook';
             return <IframePlaceholder type={type} />;
         }
+        
+        if (isTikTok && videoUrl) {
+            return <TikTokPlayer url={videoUrl} title={title} controls={controls} />;
+        }
 
         let src = '';
         if (youtubeEmbedUrl) src = youtubeEmbedUrl;
         else if (streamableEmbedUrl) src = streamableEmbedUrl;
-        else if (isTikTok) src = `https://www.tiktok.com/embed/v2/${videoUrl!.split('video/')[1]}?autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
         else if (isFacebook) src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(videoUrl!)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
 
         return (
@@ -213,18 +221,24 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   
   const isEmbed = youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook;
 
+  const parentClasses = cn(
+      "relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
+      className
+  );
+  
   if (isEmbed) {
-    const parentClasses = cn(
-      "relative w-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer",
-      className,
-      // Apply aspect ratio only when iframe is not activated to prevent layout shift
-      !isIframeActivated && 'aspect-video', 
+    const embedParentClasses = cn(
+      "relative w-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
+       className,
+       // Apply aspect ratio only when iframe is not activated to prevent layout shift
+      !isIframeActivated && 'aspect-video',
+      // This is the container that will have the 16:9 aspect ratio
       isIframeActivated && 'pt-[56.25%]'
     );
-
+    
     return (
       <div 
-          className={parentClasses}
+          className={embedParentClasses}
           onClick={activateIframe}
       >
         {renderPlayer()}
@@ -235,7 +249,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   return (
     <div 
         data-video-player
-        className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center", className)}
+        className={parentClasses}
     >
       {renderPlayer()}
     </div>
