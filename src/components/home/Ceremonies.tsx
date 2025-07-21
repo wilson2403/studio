@@ -131,11 +131,11 @@ export default function Ceremonies() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start justify-center">
+      <div className="flex flex-wrap gap-8 justify-center">
         {ceremonies.map((ceremony) => (
           <Card
             key={ceremony.id}
-            className={cn(`relative flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
+            className={cn(`w-full max-w-sm flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
               ceremony.featured
                 ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50 md:scale-105'
                 : 'border-card-foreground/10'
