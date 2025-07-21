@@ -241,7 +241,7 @@ export default function Hero() {
       </div>
       
        <div className="w-full px-4 md:px-0">
-          <div className="relative w-full max-w-5xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
+          <div className="relative w-full max-w-3xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
             {isAdmin && (
               <div className="absolute -top-12 right-0 z-30 flex gap-2">
                 <Dialog open={isFormOpen} onOpenChange={(open) => {
