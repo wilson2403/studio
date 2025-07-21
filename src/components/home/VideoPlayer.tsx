@@ -173,52 +173,63 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   }
 
   const renderPlayer = () => {
-      if (youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook) {
-          if (!isIframeActivated) {
-              const type = youtubeEmbedUrl ? 'youtube' : streamableEmbedUrl ? 'streamable' : isTikTok ? 'tiktok' : 'facebook';
-              return <IframePlaceholder type={type} />;
-          }
+    if (mediaType === 'image' && videoUrl) {
+      return <Image src={videoUrl} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual ceremony" />;
+    }
 
-          let src = '';
-          if (youtubeEmbedUrl) src = youtubeEmbedUrl;
-          else if (streamableEmbedUrl) src = streamableEmbedUrl;
-          else if (isTikTok) src = `https://www.tiktok.com/embed/v2/${videoUrl!.split('video/')[1]}?autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
-          else if (isFacebook) src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(videoUrl!)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
+    if (youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook) {
+        if (!isIframeActivated) {
+            const type = youtubeEmbedUrl ? 'youtube' : streamableEmbedUrl ? 'streamable' : isTikTok ? 'tiktok' : 'facebook';
+            return <IframePlaceholder type={type} />;
+        }
 
-          return (
-             <iframe
-                src={src}
-                title={title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="absolute top-0 left-0 w-full h-full"
-            ></iframe>
-          );
-      }
-    
-      if (mediaType === 'video' && videoUrl && (videoUrl.startsWith('https') || videoUrl.startsWith('data:'))) {
-         return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} controls={controls} />;
-      }
-    
-      if (mediaType === 'image' || !videoUrl) {
-        return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual ceremony" />;
-      }
-    
-      return <Image src={'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual event" />;
+        let src = '';
+        if (youtubeEmbedUrl) src = youtubeEmbedUrl;
+        else if (streamableEmbedUrl) src = streamableEmbedUrl;
+        else if (isTikTok) src = `https://www.tiktok.com/embed/v2/${videoUrl!.split('video/')[1]}?autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
+        else if (isFacebook) src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(videoUrl!)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=${controls ? '1':'0'}`;
+
+        return (
+            <div className="absolute inset-0 w-full h-full">
+                <iframe
+                    src={src}
+                    title={title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                ></iframe>
+            </div>
+        );
+    }
+  
+    if (mediaType === 'video' && videoUrl && (videoUrl.startsWith('https') || videoUrl.startsWith('data:'))) {
+       return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} controls={controls} />;
+    }
+  
+    // Fallback for image type or if no videoUrl
+    return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-cover')} data-ai-hint="spiritual event" />;
   }
   
   const isEmbed = youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook;
 
   if (isEmbed) {
-      return (
-        <div 
-            className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className, isIframeActivated && 'pt-[56.25%]')}
-            onClick={activateIframe}
-        >
-          {renderPlayer()}
-        </div>
-      );
+    const parentClasses = cn(
+      "relative w-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer",
+      className,
+      // Apply aspect ratio only when iframe is not activated to prevent layout shift
+      !isIframeActivated && 'aspect-video', 
+      isIframeActivated && 'pt-[56.25%]'
+    );
+
+    return (
+      <div 
+          className={parentClasses}
+          onClick={activateIframe}
+      >
+        {renderPlayer()}
+      </div>
+    );
   }
 
   return (

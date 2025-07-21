@@ -18,7 +18,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Ceremony } from '@/types';
+import { Ceremony, Plan } from '@/types';
 import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Copy, PlusCircle, Trash } from 'lucide-react';
@@ -28,22 +28,22 @@ import { useState } from 'react';
 import { Progress } from '../ui/progress';
 import { useTranslation } from 'react-i18next';
 
-const planSchema = (t: (key: string) => string) => z.object({
+const planSchema = (t: (key: string, options?: any) => string) => z.object({
   name: z.string().min(1, t('errorRequired', { field: t('planName') })),
   description: z.string().min(1, t('errorRequired', { field: t('planDescription') })),
   price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('planPrice') })),
   priceUntil: z.coerce.number().optional(),
 });
 
-const formSchema = (t: (key: string) => string) => z.object({
+const formSchema = (t: (key: string, options?: any) => string) => z.object({
   title: z.string().min(1, t('errorRequired', { field: t('formTitle') })),
   description: z.string().min(1, t('errorRequired', { field: t('formDescription') })),
   price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('formPrice') })),
   priceType: z.enum(['exact', 'from']),
-  link: z.string().url('Debe ser una URL válida'),
+  link: z.string().url(t('errorInvalidUrl')),
   featured: z.boolean(),
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
-  mediaUrl: z.string().url('Debe ser una URL válida').optional().or(z.literal('')),
+  mediaUrl: z.string().url(t('errorInvalidUrl')).optional().or(z.literal('')),
   mediaType: z.enum(['image', 'video']).default('image'),
   plans: z.array(planSchema(t)).optional(),
   contributionText: z.string().optional(),
@@ -133,11 +133,13 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
     setIsUploading(true);
     let finalMediaUrl = data.mediaUrl;
+    let finalMediaType = data.mediaType;
 
     if (mediaFile) {
+        finalMediaType = mediaFile.type.startsWith('video/') ? 'video' : 'image';
         try {
             const onProgress = (progress: number) => setUploadProgress(progress);
-            if(form.getValues('mediaType') === 'video') {
+            if(finalMediaType === 'video') {
                 finalMediaUrl = await uploadVideo(mediaFile, onProgress, 'ceremonies-videos');
             } else {
                 finalMediaUrl = await uploadImage(mediaFile, onProgress);
@@ -154,7 +156,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     }
 
     try {
-      const ceremonyData = { ...data, mediaUrl: finalMediaUrl, features: data.features.map(f => f.value) };
+      const ceremonyData = { ...data, mediaUrl: finalMediaUrl, mediaType: finalMediaType, features: data.features.map(f => f.value) };
       if (ceremonyData.priceType === 'exact') {
         delete ceremonyData.plans;
       }
@@ -292,7 +294,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
           </div>
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="mediaUrl" className="text-right">{t('formMediaUrl')}</Label>
-            <Input id="mediaUrl" {...form.register('mediaUrl')} className="col-span-3" placeholder="https://youtube.com/watch?v=..." disabled={isUploading || !!mediaFile}/>
+            <Input id="mediaUrl" {...form.register('mediaUrl')} className="col-span-3" placeholder="https://youtube.com/watch?v=... o https://.../image.png" disabled={isUploading || !!mediaFile}/>
             {form.formState.errors.mediaUrl && <p className="col-span-4 text-red-500 text-xs text-right">{form.formState.errors.mediaUrl.message}</p>}
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
@@ -305,7 +307,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
           
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="mediaType" className="text-right">{t('formMediaType')}</Label>
-            <Select onValueChange={(value) => form.setValue('mediaType', value as 'image' | 'video')} defaultValue={form.getValues('mediaType')} disabled={isUploading || !!mediaFile}>
+            <Select onValueChange={(value) => form.setValue('mediaType', value as 'image' | 'video')} value={form.getValues('mediaType')} disabled={isUploading || !!mediaFile}>
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder={t('formSelectType')} />
               </SelectTrigger>
