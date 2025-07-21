@@ -42,11 +42,11 @@ const TikTokPlayer = ({ url, title, controls }: { url: string; title: string; co
   const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&mute=1&loop=1&controls=${controls ? '1' : '0'}`;
 
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden flex items-center justify-center">
+    <div className="absolute inset-0 w-full h-full overflow-hidden">
       <iframe
         src={embedUrl}
         title={title}
-        className="w-[101%] h-[101%]"
+        className="absolute inset-0 w-full h-full"
         allow="autoplay; encrypted-media; picture-in-picture"
         allowFullScreen
         scrolling="no"

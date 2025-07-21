@@ -65,8 +65,8 @@ export const seedCeremonies = async () => {
       features: ['Alimentación', 'Estadía', 'Guía espiritual', 'Preparación previa'],
       link: 'https://wa.me/50687992560?text=Hola,%20quisiera%20más%20información%20sobre%20la%20ceremonia%20del%202%20de%20agosto%20en%20San%20Carlos',
       featured: true,
-      mediaUrl: 'https://placehold.co/600x400.png',
-      mediaType: 'image',
+      mediaUrl: 'https://www.tiktok.com/@elartedesanarcr/video/7391992796355153157',
+      mediaType: 'video',
       plans: [
         { name: 'Plan Básico', price: 80000, description: "Incluye ceremonia y guía." },
         { name: 'Plan Completo', price: 100000, priceUntil: 120000, description: "Incluye ceremonia, guía y hospedaje." }
