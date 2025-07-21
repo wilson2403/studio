@@ -71,8 +71,6 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [localVideos, setLocalVideos] = useState<string[]>([]);
-
 
   const form = useForm<EditCeremonyFormValues>({
     resolver: zodResolver(formSchema(t)),
@@ -97,30 +95,6 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     },
   });
 
-  useEffect(() => {
-    if (isOpen) {
-      // Fetch local videos when the dialog opens
-      const fetchLocalVideos = async () => {
-        try {
-          const response = await fetch('/api/videos');
-          if (!response.ok) {
-            throw new Error('Failed to fetch local videos');
-          }
-          const data = await response.json();
-          setLocalVideos(data.videos);
-        } catch (error) {
-          console.error(error);
-          toast({
-            title: t('error'),
-            description: t('errorFetchingLocalVideos'),
-            variant: 'destructive',
-          });
-        }
-      };
-      fetchLocalVideos();
-    }
-  }, [isOpen, t, toast]);
-  
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -315,12 +289,6 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       }
   }
 
-  const handleLocalVideoSelect = (videoPath: string) => {
-    form.setValue('mediaUrl', videoPath);
-    form.setValue('mediaType', 'video');
-    setMediaFile(null); // Clear file selection
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
         if (!open) {
@@ -389,21 +357,6 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
               <Input id="mediaUrl" {...form.register('mediaUrl')} placeholder="https://youtube.com/... o /videos/local.mp4" disabled={isUploading || !!mediaFile}/>
             </div>
             {form.formState.errors.mediaUrl && <p className="col-span-4 text-red-500 text-xs text-right">{form.formState.errors.mediaUrl.message}</p>}
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="localVideos" className="text-right">{t('formLocalVideo')}</Label>
-            <div className="col-span-3">
-              <Select onValueChange={handleLocalVideoSelect} disabled={isUploading || !!mediaFile || !!form.watch('mediaUrl')}>
-                <SelectTrigger>
-                    <SelectValue placeholder={t('selectLocalVideoPlaceholder')} />
-                </SelectTrigger>
-                <SelectContent>
-                    {localVideos.map(video => (
-                        <SelectItem key={video} value={`/videos/${video}`}>{video}</SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
              <Label htmlFor="media-upload" className="text-right">{t('formOrUpload')}</Label>
