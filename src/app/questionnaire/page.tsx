@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, updateUserProfile } from '@/lib/firebase/firestore';
 import { ArrowRight, Save, Sprout } from 'lucide-react';
 import Link from 'next/link';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const questionnaireSchema = (t: (key: string) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
