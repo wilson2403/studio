@@ -343,15 +343,10 @@ export default function PastCeremoniesSection() {
                                 className="absolute inset-0"
                                 onClick={(e) => {
                                     const target = e.target as HTMLElement;
-                                    // Prevent action if a button was clicked
-                                    if (target.closest('button') || target.closest('a')) {
-                                        return;
-                                    }
-                                    // Find the video player wrapper and click it to toggle play/pause
+                                    if (target.closest('button, a')) return;
+                                    
                                     const playerWrapper = (e.currentTarget.querySelector('[data-video-player]') as HTMLElement | null);
-                                    if(playerWrapper) {
-                                      playerWrapper.click();
-                                    }
+                                    playerWrapper?.click();
                                 }}
                             >
                             {isAdmin && (
