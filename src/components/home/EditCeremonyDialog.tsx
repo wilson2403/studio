@@ -49,6 +49,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   contributionText: z.string().optional(),
   status: z.enum(['active', 'finished']),
   date: z.string().optional(),
+  horario: z.string().optional(),
 });
 
 type EditCeremonyFormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -91,6 +92,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       contributionText: t('defaultContributionText'),
       status: 'active',
       date: '',
+      horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
     },
   });
   
@@ -301,6 +303,10 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="date" className="text-right">{t('formDate')}</Label>
             <Input id="date" {...form.register('date')} className="col-span-3" disabled={isUploading} placeholder="Ej: 24 de Julio, 2024" />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="horario" className="text-right">{t('formSchedule')}</Label>
+            <Input id="horario" {...form.register('horario')} className="col-span-3" disabled={isUploading} placeholder="Ej: 4:00 p.m. – 7:00 a.m." />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="price" className="text-right">{t('formPrice')}</Label>

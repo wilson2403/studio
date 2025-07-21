@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CalendarIcon, Edit, ExternalLink, PlusCircle } from 'lucide-react';
+import { CalendarIcon, Edit, ExternalLink, PlusCircle, Clock } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -178,11 +178,18 @@ export default function Ceremonies({
               <CardTitle className="text-2xl font-headline tracking-wide">
                 {ceremony.title}
               </CardTitle>
-               {ceremony.date && (
-                <p className="font-mono text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
-                  <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-                </p>
-              )}
+               <div className="font-mono text-xs text-muted-foreground mt-2 space-y-1">
+                {ceremony.date && (
+                  <p className="flex items-center gap-1.5">
+                    <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                  </p>
+                )}
+                {ceremony.horario && (
+                  <p className="flex items-center gap-1.5">
+                    <Clock className='w-3 h-3'/> {ceremony.horario}
+                  </p>
+                )}
+              </div>
               <CardDescription className="font-body text-base mt-2 flex-1">
                 {ceremony.description}
               </CardDescription>

@@ -58,6 +58,7 @@ export const seedCeremonies = async () => {
       contributionText: 'Puedes reservar con el 20%',
       status: 'active',
       date: '2024-07-26',
+      horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰'
     },
     {
       title: 'Sábado 2 de agosto – San Carlos',
@@ -76,6 +77,7 @@ export const seedCeremonies = async () => {
       contributionText: 'Puedes reservar con el 20%',
       status: 'active',
       date: '2024-08-02',
+      horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰'
     },
     {
       title: 'Transformación Interior',

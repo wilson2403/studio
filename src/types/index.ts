@@ -13,6 +13,7 @@ export type Ceremony = {
   title: string;
   description: string;
   date?: string;
+  horario?: string;
   price: number;
   priceType: 'exact' | 'from';
   features: string[];
