@@ -66,11 +66,6 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)(\?.*)?$/.test(url);
 };
 
-const isGitHubRawUrl = (url: string): boolean => {
-    if (!url) return false;
-    return url.includes('raw.githubusercontent.com');
-}
-
 
 const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
     <div className={cn("relative w-full h-full cursor-pointer", className)} onClick={onClick}>
@@ -177,20 +172,11 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
 
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
 
-  const embedUrl = 
-      getYoutubeEmbedUrl(videoUrl || '') ||
-      getTikTokEmbedUrl(videoUrl || '') ||
-      getFacebookEmbedUrl(videoUrl || '') ||
-      getStreamableEmbedUrl(videoUrl || '');
-
-  const isVideoUrlFromPlatform = !!embedUrl || isDirectVideoUrl(videoUrl || '') || isGitHubRawUrl(videoUrl || '');
-
   const renderContent = () => {
-    // Render as an image only if mediaType is explicitly 'image' AND it's not a known video URL.
-    if (mediaType === 'image' && !isVideoUrlFromPlatform) {
+    if (!videoUrl) {
       return (
         <Image
-          src={videoUrl || 'https://placehold.co/600x400.png'}
+          src={'https://placehold.co/600x400.png'}
           alt={title}
           layout="fill"
           objectFit="cover"
@@ -200,44 +186,47 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       );
     }
     
-    // Use iframe for supported embeddable platforms
+    if (mediaType === 'image') {
+       return (
+        <Image
+          src={videoUrl}
+          alt={title}
+          layout="fill"
+          objectFit="cover"
+          className={cn('object-cover', className)}
+          data-ai-hint="spiritual event"
+        />
+      );
+    }
+
+    const embedUrl = 
+        getYoutubeEmbedUrl(videoUrl) ||
+        getTikTokEmbedUrl(videoUrl) ||
+        getFacebookEmbedUrl(videoUrl) ||
+        getStreamableEmbedUrl(videoUrl);
+
     if (embedUrl) {
-      if (isActivated || inCarousel) {
-        return (
-          <iframe
-            src={embedUrl}
-            title={title}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full"
-          ></iframe>
-        );
-      }
-      return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
+        if (isActivated || inCarousel) {
+            return (
+              <iframe
+                src={embedUrl}
+                title={title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+            );
+        }
+        return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
     }
 
-    // Use direct video player for local paths, .mp4, .webm, etc. or if mediaType is video
-    if (isDirectVideoUrl(videoUrl || '')) {
-      return <DirectVideoPlayer src={videoUrl!} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
-    }
-    
-    // For GitHub raw URLs or other unsupported embeddable links, use the placeholder that opens in a new tab.
-    if (isGitHubRawUrl(videoUrl || '') || videoUrl) {
-        return <IframePlaceholder onClick={() => window.open(videoUrl, '_blank')} title={title} className={className} />;
+    if (isDirectVideoUrl(videoUrl)) {
+      return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
 
-    // Fallback for empty videoUrl
-    return (
-    <Image
-        src={'https://placehold.co/600x400.png'}
-        alt={title}
-        layout="fill"
-        objectFit="cover"
-        className={cn('object-cover', className)}
-        data-ai-hint="spiritual event"
-    />
-    );
+    // Fallback for any other URL (like GitHub raw links, etc.)
+    return <IframePlaceholder onClick={() => window.open(videoUrl, '_blank')} title={title} className={className} />;
   };
 
   return (
