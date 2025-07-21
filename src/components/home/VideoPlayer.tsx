@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -13,9 +12,10 @@ interface VideoPlayerProps {
   title: string;
   className?: string;
   controls?: boolean;
+  isActivated?: boolean;
 }
 
-function getYouTubeEmbedUrl(url: string): string | null {
+function getYouTubeEmbedUrl(url: string, controls: boolean): string | null {
   if (!url) return null;
   let videoId = null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -29,7 +29,7 @@ function getYouTubeEmbedUrl(url: string): string | null {
     autoplay: '1',
     mute: '1',
     loop: '1',
-    controls: '0',
+    controls: controls ? '1' : '0',
     playlist: videoId,
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
@@ -135,22 +135,13 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
     );
 };
 
-export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false }: VideoPlayerProps) => {
-  const [isIframeActivated, setIsIframeActivated] = useState(false);
+export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false }: VideoPlayerProps) => {
 
-  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl) : null;
+  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls) : null;
   const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl, controls) : null;
   const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
   const isFacebook = videoUrl && (videoUrl.includes('facebook.com') || videoUrl.includes('fb.watch'));
   const isEmbed = youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook;
-
-
-  const activateIframe = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (!isIframeActivated) {
-        setIsIframeActivated(true);
-      }
-  }
   
   const IframePlaceholder = ({ type }: {type: 'youtube' | 'tiktok' | 'facebook' | 'streamable'}) => {
     const hints = {
@@ -185,7 +176,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
 
     if (isEmbed) {
-        if (!isIframeActivated && !controls) {
+        if (!isActivated && !controls) {
              const type = youtubeEmbedUrl ? 'youtube' : streamableEmbedUrl ? 'streamable' : isTikTok ? 'tiktok' : 'facebook';
              return <IframePlaceholder type={type} />;
         }
@@ -224,31 +215,13 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-contain')} data-ai-hint="spiritual event" />;
   }
   
-  const parentClasses = cn(
-      "relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
-      className
-  );
-  
-  if (isEmbed) {
-    const embedParentClasses = cn(
-      "relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
-       className
-    );
-    
-    return (
-      <div 
-          className={embedParentClasses}
-          onClick={activateIframe}
-      >
-        {renderPlayer()}
-      </div>
-    );
-  }
-
   return (
     <div 
         data-video-player
-        className={parentClasses}
+        className={cn(
+            "relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
+            className
+        )}
     >
       {renderPlayer()}
     </div>
