@@ -104,29 +104,29 @@ export default function AyahuascaInfoPage() {
                   <CardContent>
                       <Accordion type="single" collapsible defaultValue="benefitClarity" className="w-full">
                          {benefits.map(({ id, title, description, Icon }) => (
-                             <AccordionItem key={id} value={id}>
-                                <div className="flex items-center justify-between w-full py-4 font-medium hover:no-underline">
-                                    <div className="flex items-center gap-4 text-left">
-                                      <Icon className="h-6 w-6 text-primary flex-shrink-0" />
-                                      <EditableTitle
-                                        tag="p"
-                                        id={`${id}Title`}
-                                        initialValue={t(title)}
-                                        className="flex-1 font-bold text-lg"
-                                      />
-                                    </div>
-                                    <AccordionTrigger className="w-auto p-0" />
+                            <AccordionItem key={id} value={id}>
+                              <AccordionTrigger>
+                                <div className="flex items-center gap-4 text-left">
+                                  <Icon className="h-6 w-6 text-primary flex-shrink-0" />
+                                  <EditableTitle
+                                    tag="p"
+                                    id={`${id}Title`}
+                                    initialValue={t(title)}
+                                    className="flex-1 font-bold text-lg"
+                                  />
                                 </div>
-                                 <AccordionContent className="text-base text-foreground/80">
-                                     <div className="pl-10">
-                                        <EditableTitle
-                                            tag="p"
-                                            id={`${id}Description`}
-                                            initialValue={t(description)}
-                                        />
-                                     </div>
-                                 </AccordionContent>
-                             </AccordionItem>
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                <div className="pl-10">
+                                  <EditableTitle
+                                      tag="p"
+                                      id={`${id}Description`}
+                                      initialValue={t(description)}
+                                      className="text-base text-foreground/80"
+                                  />
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
                          ))}
                       </Accordion>
                   </CardContent>
