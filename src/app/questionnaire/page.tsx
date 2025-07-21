@@ -22,7 +22,7 @@ import { ArrowRight, Save, Sprout } from 'lucide-react';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-const questionnaireSchema = (t: (key: string) => string) => z.object({
+const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
   medicalConditionsDetails: z.string().optional(),
   isTakingMedication: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -80,10 +80,6 @@ export default function QuestionnairePage() {
         if (answers) {
           form.reset(answers);
         }
-        
-        if (completed) {
-            form.disable();
-        }
 
         setLoading(false);
       }
@@ -102,7 +98,6 @@ export default function QuestionnairePage() {
       });
       setIsSuccessDialogOpen(true);
       setIsCompleted(true);
-      form.disable();
     } catch (error) {
       toast({
         title: t('questionnaireErrorTitle'),
