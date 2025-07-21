@@ -17,7 +17,7 @@ import {
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '../ui/button';
-import { Copy, Edit, ExternalLink, PlusCircle, Trash, CalendarIcon } from 'lucide-react';
+import { Copy, Edit, ExternalLink, PlusCircle, Trash, CalendarIcon, Expand } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -166,6 +166,7 @@ export default function Hero() {
   const [user, setUser] = React.useState<User | null>(null);
   const [isFormOpen, setFormOpen] = React.useState(false);
   const [editingItem, setEditingItem] = React.useState<PastCeremony | undefined>(undefined);
+  const [viewingVideo, setViewingVideo] = React.useState<PastCeremony | null>(null);
 
   const { toast } = useToast();
 
@@ -287,18 +288,18 @@ export default function Hero() {
                   {videos.map((video) => (
                       <CarouselItem key={video.id} className="md:basis-1/2 lg:basis-1/3">
                         <div className="p-1">
-                          <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group shadow-2xl shadow-primary/20 border-2 border-primary/30">
+                          <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer" onClick={() => setViewingVideo(video)}>
                             {isAdmin && (
                               <div className="absolute top-2 right-2 z-20 flex gap-2">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingItem(video); setFormOpen(true); }}>
                                   <Edit className="h-4 w-4" />
                                 </Button>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => handleDuplicate(video)}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleDuplicate(video); }}>
                                   <Copy className="h-4 w-4" />
                                 </Button>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" size="icon" className="h-8 w-8 rounded-full">
+                                    <Button variant="destructive" size="icon" className="h-8 w-8 rounded-full" onClick={(e) => e.stopPropagation()}>
                                       <Trash className="h-4 w-4" />
                                     </Button>
                                   </AlertDialogTrigger>
@@ -317,18 +318,23 @@ export default function Hero() {
                                 </AlertDialog>
                               </div>
                             )}
-                             <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                    <ExternalLink className="h-4 w-4" />
+                             <div className="absolute top-2 left-2 z-20 flex gap-2">
+                                <a href={video.videoUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                      <ExternalLink className="h-4 w-4" />
+                                  </Button>
+                                </a>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                    <Expand className="h-4 w-4" />
                                 </Button>
-                            </a>
+                            </div>
                             <VideoPlayer 
                               videoUrl={video.videoUrl} 
                               title={video.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
-                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left w-full">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover/item:from-black/40 transition-all duration-300"></div>
+                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover/item:translate-y-0 opacity-0 group-hover/item:opacity-100 text-left w-full">
                                 <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>
                                 <p className="font-body text-sm opacity-90 mt-1">{video.description}</p>
                                 {video.date && (
@@ -355,6 +361,22 @@ export default function Hero() {
         />
       </div>
 
+       {viewingVideo && (
+        <Dialog open={!!viewingVideo} onOpenChange={(open) => !open && setViewingVideo(null)}>
+          <DialogContent className="max-w-4xl p-0 border-0">
+             <div className="aspect-video">
+                <VideoPlayer 
+                  videoUrl={viewingVideo.videoUrl}
+                  title={viewingVideo.title}
+                  className="w-full h-full object-contain rounded-lg"
+                  controls
+                />
+             </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
     </section>
   );
 }
+
