@@ -168,6 +168,10 @@ const predefinedThemes: { name: string; colors: ThemeSettings }[] = [
 ];
 
 function applyTheme(settings: ThemeSettings) {
+  // Add a guard clause to prevent error if settings or its properties are null/undefined
+  if (!settings || !settings.light || !settings.dark) {
+    return;
+  }
   const styleId = 'dynamic-theme-styles';
   let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
   if (!styleTag) {
