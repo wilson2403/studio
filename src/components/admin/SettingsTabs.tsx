@@ -25,49 +25,101 @@ const profileFormSchema = (t: (key: string) => string) => z.object({
   address: z.string().optional(),
 });
 
+const colorThemeSchema = z.object({
+    background: z.string(),
+    foreground: z.string(),
+    card: z.string(),
+    cardForeground: z.string(),
+    popover: z.string(),
+    popoverForeground: z.string(),
+    primary: z.string(),
+    primaryForeground: z.string(),
+    secondary: z.string(),
+    secondaryForeground: z.string(),
+    muted: z.string(),
+    mutedForeground: z.string(),
+    accent: z.string(),
+    accentForeground: z.string(),
+    destructive: z.string(),
+    destructiveForeground: z.string(),
+    border: z.string(),
+    input: z.string(),
+    ring: z.string(),
+});
+
 const themeFormSchema = z.object({
-  lightPrimary: z.string(),
-  lightBackground: z.string(),
-  lightAccent: z.string(),
-  darkPrimary: z.string(),
-  darkBackground: z.string(),
-  darkAccent: z.string(),
+  light: colorThemeSchema,
+  dark: colorThemeSchema,
 });
 
 type ProfileFormValues = z.infer<ReturnType<typeof profileFormSchema>>;
 type ThemeFormValues = z.infer<typeof themeFormSchema>;
 
 const defaultTheme: ThemeSettings = {
-    lightPrimary: '125 33% 74%',
-    lightBackground: '40 33% 98%',
-    lightAccent: '47 62% 52%',
-    darkPrimary: '150 40% 45%',
-    darkBackground: '20 14.3% 4.1%',
-    darkAccent: '140 10% 15%',
+    light: {
+        background: '40 33% 98%',
+        foreground: '20 14.3% 4.1%',
+        card: '40 33% 98%',
+        cardForeground: '20 14.3% 4.1%',
+        popover: '40 33% 98%',
+        popoverForeground: '20 14.3% 4.1%',
+        primary: '125 33% 74%',
+        primaryForeground: '125 33% 10%',
+        secondary: '210 40% 96.1%',
+        secondaryForeground: '222.2 47.4% 11.2%',
+        muted: '210 40% 96.1%',
+        mutedForeground: '215.4 16.3% 46.9%',
+        accent: '47 62% 52%',
+        accentForeground: '47 62% 5%',
+        destructive: '0 84.2% 60.2%',
+        destructiveForeground: '210 40% 98%',
+        border: '214.3 31.8% 91.4%',
+        input: '214.3 31.8% 91.4%',
+        ring: '125 33% 74%',
+    },
+    dark: {
+        background: '20 14.3% 4.1%',
+        foreground: '210 20% 98%',
+        card: '140 10% 8%',
+        cardForeground: '210 20% 98%',
+        popover: '20 14.3% 4.1%',
+        popoverForeground: '210 20% 98%',
+        primary: '150 40% 45%',
+        primaryForeground: '210 20% 98%',
+        secondary: '140 10% 12%',
+        secondaryForeground: '210 20% 98%',
+        muted: '140 10% 12%',
+        mutedForeground: '140 5% 64.9%',
+        accent: '140 10% 15%',
+        accentForeground: '210 20% 98%',
+        destructive: '0 62.8% 30.6%',
+        destructiveForeground: '210 20% 98%',
+        border: '140 10% 15%',
+        input: '140 10% 15%',
+        ring: '150 40% 45%',
+    }
 };
 
 function applyTheme(settings: ThemeSettings) {
-  const existingStyleTag = document.getElementById('dynamic-theme-styles');
-  if (existingStyleTag) {
-    existingStyleTag.remove();
+  const styleId = 'dynamic-theme-styles';
+  let styleTag = document.getElementById(styleId);
+  if (!styleTag) {
+    styleTag = document.createElement('style');
+    styleTag.id = styleId;
+    document.head.appendChild(styleTag);
   }
+  
+  const lightStyles = Object.entries(settings.light)
+    .map(([key, value]) => `--light-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
+    .join('\n');
 
-  const style = document.createElement('style');
-  style.id = 'dynamic-theme-styles';
-  style.innerHTML = `
-    .light {
-      --light-primary: ${settings.lightPrimary};
-      --light-background: ${settings.lightBackground};
-      --light-accent: ${settings.lightAccent};
-    }
-    .dark {
-      --dark-primary: ${settings.darkPrimary};
-      --dark-background: ${settings.darkBackground};
-      --dark-accent: ${settings.darkAccent};
-    }
-  `;
-  document.head.appendChild(style);
+  const darkStyles = Object.entries(settings.dark)
+    .map(([key, value]) => `--dark-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
+    .join('\n');
+
+  styleTag.innerHTML = `:root { ${lightStyles} ${darkStyles} }`;
 }
+
 
 export default function SettingsTabs({ user }: { user: User }) {
   const { t } = useTranslation();
@@ -132,21 +184,19 @@ export default function SettingsTabs({ user }: { user: User }) {
       toast({ title: t('themeUpdatedError'), variant: 'destructive' });
     }
   };
-
+  
+  const watchedValues = themeForm.watch();
   useEffect(() => {
-    const subscription = themeForm.watch((value) => {
-        const result = themeFormSchema.safeParse(value);
-        if (result.success) {
-            applyTheme(result.data as ThemeSettings);
-        }
-    });
-    return () => subscription.unsubscribe();
-  }, [themeForm]);
+    const result = themeFormSchema.safeParse(watchedValues);
+    if (result.success && !loadingTheme) {
+        applyTheme(result.data);
+    }
+  }, [watchedValues, loadingTheme]);
 
-  const renderColorField = (name: keyof ThemeFormValues, label: string) => (
+  const renderColorField = (name: keyof ThemeFormValues['light'] | keyof ThemeFormValues['dark'], label: string, theme: 'light' | 'dark') => (
     <FormField
       control={themeForm.control}
-      name={name}
+      name={`${theme}.${name}` as any}
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
@@ -161,7 +211,23 @@ export default function SettingsTabs({ user }: { user: User }) {
       )}
     />
   );
-
+  
+  const colorFields: { name: keyof ThemeFormValues['light'], label: string }[] = [
+    { name: 'primary', label: t('themePrimaryLabel') },
+    { name: 'primaryForeground', label: t('themePrimaryForegroundLabel') },
+    { name: 'background', label: t('themeBackgroundLabel') },
+    { name: 'foreground', label: t('themeForegroundLabel') },
+    { name: 'card', label: t('themeCardLabel') },
+    { name: 'cardForeground', label: t('themeCardForegroundLabel') },
+    { name: 'accent', label: t('themeAccentLabel') },
+    { name: 'accentForeground', label: t('themeAccentForegroundLabel') },
+    { name: 'secondary', label: t('themeSecondaryLabel') },
+    { name: 'muted', label: t('themeMutedLabel') },
+    { name: 'destructive', label: t('themeDestructiveLabel') },
+    { name: 'border', label: t('themeBorderLabel') },
+    { name: 'input', label: t('themeInputLabel') },
+    { name: 'ring', label: t('themeRingLabel') },
+  ];
 
   return (
     <Tabs defaultValue="profile" className="w-full">
@@ -222,55 +288,47 @@ export default function SettingsTabs({ user }: { user: User }) {
         </Card>
       </TabsContent>
       <TabsContent value="theme">
-        <Card className="bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>{t('themeTabTitle')}</CardTitle>
-            <CardDescription>{t('themeTabDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loadingTheme ? (
-                 <div className="space-y-4">
-                     <Skeleton className="h-10 w-full" />
-                     <Skeleton className="h-10 w-full" />
-                     <Skeleton className="h-10 w-full" />
-                     <Skeleton className="h-10 w-1/4" />
-                 </div>
-            ) : (
-                <Form {...themeForm}>
-                    <form 
-                        onSubmit={themeForm.handleSubmit(onThemeSubmit)} 
-                        className="space-y-6"
-                    >
-                        {/* Light Theme */}
+        <Form {...themeForm}>
+            <form 
+                onSubmit={themeForm.handleSubmit(onThemeSubmit)} 
+                className="space-y-6"
+            >
+            <Card className="bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+                <CardTitle>{t('themeTabTitle')}</CardTitle>
+                <CardDescription>{t('themeTabDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {loadingTheme ? (
+                    <div className="space-y-4">
+                        {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+                        <Skeleton className="h-10 w-1/4" />
+                    </div>
+                ) : (
+                    <div className='space-y-8'>
                         <div>
                             <h3 className="text-lg font-medium mb-4">{t('themeLight')}</h3>
-                            <div className="space-y-4">
-                                {renderColorField('lightPrimary', t('themePrimaryLabel'))}
-                                {renderColorField('lightBackground', t('themeBackgroundLabel'))}
-                                {renderColorField('lightAccent', t('themeAccentLabel'))}
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {colorFields.map(cf => renderColorField(cf.name, cf.label, 'light'))}
                             </div>
                         </div>
-
                         <Separator />
-
-                        {/* Dark Theme */}
                         <div>
                             <h3 className="text-lg font-medium mb-4">{t('themeDark')}</h3>
-                             <div className="space-y-4">
-                                {renderColorField('darkPrimary', t('themePrimaryLabel'))}
-                                {renderColorField('darkBackground', t('themeBackgroundLabel'))}
-                                {renderColorField('darkAccent', t('themeAccentLabel'))}
+                            <div className="grid md:grid-cols-2 gap-4">
+                                {colorFields.map(cf => renderColorField(cf.name, cf.label, 'dark'))}
                             </div>
                         </div>
-                        <Button type="submit" disabled={themeForm.formState.isSubmitting}>
-                            <Save className="mr-2 h-4 w-4"/>
-                            {themeForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                        </Button>
-                    </form>
-                </Form>
-            )}
-          </CardContent>
-        </Card>
+                    </div>
+                )}
+            </CardContent>
+            </Card>
+            <Button type="submit" disabled={themeForm.formState.isSubmitting}>
+                <Save className="mr-2 h-4 w-4"/>
+                {themeForm.formState.isSubmitting ? t('saving') : t('saveAndReload')}
+            </Button>
+            </form>
+        </Form>
       </TabsContent>
     </Tabs>
   );

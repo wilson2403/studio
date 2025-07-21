@@ -57,13 +57,49 @@ export type UserProfile = {
 }
 
 export type ThemeSettings = {
-    lightPrimary: string;
-    lightBackground: string;
-    lightAccent: string;
-    darkPrimary: string;
-    darkBackground: string;
-    darkAccent: string;
-}
+    light: {
+        background: string;
+        foreground: string;
+        card: string;
+        cardForeground: string;
+        popover: string;
+        popoverForeground: string;
+        primary: string;
+        primaryForeground: string;
+        secondary: string;
+        secondaryForeground: string;
+        muted: string;
+        mutedForeground: string;
+        accent: string;
+        accentForeground: string;
+        destructive: string;
+        destructiveForeground: string;
+        border: string;
+        input: string;
+        ring: string;
+    };
+    dark: {
+        background: string;
+        foreground: string;
+        card: string;
+        cardForeground: string;
+        popover: string;
+        popoverForeground: string;
+        primary: string;
+        primaryForeground: string;
+        secondary: string;
+        secondaryForeground: string;
+        muted: string;
+        mutedForeground: string;
+        accent: string;
+        accentForeground: string;
+        destructive: string;
+        destructiveForeground: string;
+        border: string;
+        input: string;
+        ring: string;
+    };
+};
 
 export type ChatMessage = {
     role: 'user' | 'model';

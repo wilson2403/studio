@@ -6,11 +6,13 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Code, FileType, Bot } from 'lucide-react';
+import { Bot, Copy, FileType } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import SettingsTabs from '@/components/admin/SettingsTabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -26,25 +28,34 @@ const projectStructure = [
   'src/ai/genkit.ts',
   'src/app/(auth)/login/page.tsx',
   'src/app/(auth)/register/page.tsx',
+  'src/app/admin/chat/page.tsx',
   'src/app/admin/page.tsx',
+  'src/app/admin/users/page.tsx',
   'src/app/ayahuasca/page.tsx',
+  'src/app/ceremonies/page.tsx',
   'src/app/globals.css',
   'src/app/guides/page.tsx',
   'src/app/layout.tsx',
   'src/app/page.tsx',
   'src/app/preparation/page.tsx',
+  'src/app/questionnaire/page.tsx',
+  'src/components/admin/ColorPicker.tsx',
+  'src/components/admin/QuestionnaireDialog.tsx',
   'src/components/admin/SettingsTabs.tsx',
   'src/components/auth/RegistrationPromptDialog.tsx',
+  'src/components/auth/WelcomeTour.tsx',
+  'src/components/chat/Chatbot.tsx',
   'src/components/guides/EditGuideDialog.tsx',
-  'src/components/home/AyahuascaInfo.tsx',
   'src/components/home/Ceremonies.tsx',
   'src/components/home/CeremonyDetailsDialog.tsx',
   'src/components/home/Contact.tsx',
   'src/components/home/EditCeremonyDialog.tsx',
   'src/components/home/EditableProvider.tsx',
   'src/components/home/EditableTitle.tsx',
-  'src/components/home/PastCeremonies.tsx',
-  'src/components/home/PreparationCta.tsx',
+  'src/components/home/ExploreMore.tsx',
+  'src/components/home/Hero.tsx',
+  'src/components/home/VideoPlayer.tsx',
+  'src/components/icons/FacebookIcon.tsx',
   'src/components/icons/GoogleIcon.tsx',
   'src/components/icons/Logo.tsx',
   'src/components/icons/WhatsappIcon.tsx',
@@ -54,41 +65,6 @@ const projectStructure = [
   'src/components/layout/LanguageSwitcher.tsx',
   'src/components/layout/ThemeProvider.tsx',
   'src/components/layout/ThemeSwitcher.tsx',
-  'src/components/ui/accordion.tsx',
-  'src/components/ui/alert-dialog.tsx',
-  'src/components/ui/alert.tsx',
-  'src/components/ui/avatar.tsx',
-  'src/components/ui/badge.tsx',
-  'src/components/ui/button.tsx',
-  'src/components/ui/calendar.tsx',
-  'src/components/ui/card.tsx',
-  'src/components/ui/carousel.tsx',
-  'src/components/ui/chart.tsx',
-  'src/components/ui/checkbox.tsx',
-  'src/components/ui/collapsible.tsx',
-  'src/components/ui/dialog.tsx',
-  'src/components/ui/dropdown-menu.tsx',
-  'src/components/ui/form.tsx',
-  'src/components/ui/input.tsx',
-  'src/components/ui/label.tsx',
-  'src/components/ui/menubar.tsx',
-  'src/components/ui/popover.tsx',
-  'src/components/ui/progress.tsx',
-  'src/components/ui/radio-group.tsx',
-  'src/components/ui/scroll-area.tsx',
-  'src/components/ui/select.tsx',
-  'src/components/ui/separator.tsx',
-  'src/components/ui/sheet.tsx',
-  'src/components/ui/sidebar.tsx',
-  'src/components/ui/skeleton.tsx',
-  'src/components/ui/slider.tsx',
-  'src/components/ui/switch.tsx',
-  'src/components/ui/table.tsx',
-  'src/components/ui/tabs.tsx',
-  'src/components/ui/textarea.tsx',
-  'src/components/ui/toast.tsx',
-  'src/components/ui/toaster.tsx',
-  'src/components/ui/tooltip.tsx',
   'src/hooks/use-mobile.tsx',
   'src/hooks/use-toast.ts',
   'src/lib/firebase/auth.ts',
@@ -101,67 +77,66 @@ const projectStructure = [
   'tsconfig.json',
 ];
 
-const systemPrompt = `
-Eres un experto desarrollador de aplicaciones web full-stack especializado en el ecosistema de Next.js, Firebase y Tailwind CSS (con ShadCN). Estás creando una aplicación web para "El Arte de Sanar", un centro de sanación espiritual que ofrece ceremonias de Ayahuasca.
+const systemPrompt = `Eres un experto desarrollador de aplicaciones web full-stack especializado en el ecosistema de Next.js, Firebase y Tailwind CSS (con ShadCN). Estás creando una aplicación web para "El Arte de Sanar", un centro de sanación espiritual que ofrece ceremonias de Ayahuasca.
 
 **Objetivo Principal:** Crear un sitio web visualmente atractivo, profesional y completamente editable para promocionar las ceremonias, guías y filosofía del centro, permitiendo a los administradores gestionar el contenido dinámico directamente desde la interfaz.
 
 **Stack Tecnológico:**
-- **Framework:** Next.js con App Router.
+- **Framework:** Next.js 15+ con App Router.
 - **Lenguaje:** TypeScript.
-- **UI:** Componentes de ShadCN.
-- **Estilos:** Tailwind CSS con un tema oscuro y místico (verdes, tonos tierra, etc.).
-- **Backend y Base de Datos:** Firebase (Firestore para la base de datos, Authentication para usuarios, Storage para archivos).
+- **UI:** Componentes de ShadCN (copiados en \`src/components/ui\`).
+- **Estilos:** Tailwind CSS con un sistema de temas dinámico gestionado desde Firebase.
+- **Backend y Base de Datos:** Firebase (Firestore, Authentication, Storage).
+- **IA:** Genkit para flujos de chatbot y envío de correos.
 - **Internacionalización:** i18next para soportar español e inglés.
 
-**Estructura de Páginas y Componentes:**
-- **Página de Inicio (\`/\`):** La página principal. Contiene un carrusel de videos de "películas" que muestra 3 videos a la vez. También incluye secciones para ceremonias, una llamada a la acción para la página de preparación y una sección de contacto.
-- **Página de Ayahuasca (\`/ayahuasca\`):** Página informativa que detalla qué es la Ayahuasca, sus beneficios y cómo funcionan las ceremonias.
-- **Página de Guías (\`/guides\`):** Muestra los perfiles de los guías espirituales del centro.
-- **Página de Preparación (\`/preparation\`):** Una guía detallada sobre cómo prepararse para una ceremonia, incluyendo dieta, preparación mental y qué llevar.
-- **Páginas de Autenticación (\`/login\`, \`/register\`):** Formularios para que los usuarios y administradores inicien sesión o se registren.
-- **Página de Administración (\`/admin\`):** Una página protegida visible solo para administradores. Muestra la estructura de archivos del proyecto, el prompt del sistema y permite editar el perfil del usuario y los colores del tema.
+---
 
-**Funcionalidades Clave:**
-1.  **Contenido Editable en Vivo:**
-    -   Los administradores (identificados por \`wilson2403@gmail.com\`) ven botones de "Editar" junto a casi todo el contenido textual.
-    -   Al hacer clic, el texto se convierte en un campo de entrada (\`input\` o \`textarea\`).
-    -   Los cambios se guardan en tiempo real en una colección de 'content' en Firestore.
-    -   El componente \`EditableProvider\` gestiona el estado de edición y la lógica de guardado.
+### **Estructura de Datos y Tipos (src/types/index.ts)**
 
-2.  **Gestión de Ceremonias:**
-    -   Las ceremonias se muestran en tarjetas.
-    -   Los administradores pueden añadir, editar, duplicar y eliminar ceremonias a través de un diálogo modal.
-    -   Cada ceremonia puede tener un título, descripción, precio ("desde ₡80.000"), lista de características, un enlace de reserva (WhatsApp) y un medio asociado (imagen o video desde una URL de YouTube, TikTok, Facebook o un archivo subido).
-    -   Una ceremonia puede ser marcada como "Destacada" para resaltar visualmente.
+- **Ceremony**: Representa un evento.
+  - \`id: string\`, \`title: string\`, \`description: string\`, \`date?: string\`, \`horario?: string\`, \`price: number\`, \`priceType: 'exact' | 'from'\`, \`link: string\`, \`featured: boolean\`, \`mediaUrl?: string\`, \`mediaType?: 'image' | 'video'\`, \`status: 'active' | 'finished' | 'inactive'\`, \`plans?: Plan[]\`.
+- **Plan**: Define un plan de precios para una ceremonia.
+  - \`name: string\`, \`price: number\`, \`description: string\`.
+- **Guide**: Perfil de un guía espiritual.
+  - \`id: string\`, \`name: string\`, \`description: string\`, \`imageUrl: string\`.
+- **UserProfile**: Datos del usuario en Firestore.
+  - \`uid: string\`, \`email: string\`, \`displayName?: string\`, \`isAdmin?: boolean\`, \`status?: 'Interesado' | 'Cliente' | 'Pendiente'\`.
+- **ThemeSettings**: Objeto para almacenar los colores del tema. Contiene dos objetos, \`light\` y \`dark\`, cada uno con claves para los colores HSL (ej: \`primary\`, \`background\`, \`card\`, etc.).
 
-3.  **Gestión de Guías:**
-    -   Similar a las ceremonias, los administradores pueden editar los perfiles de los guías, incluyendo su nombre, descripción y foto de perfil (que se puede subir).
+---
 
-4.  **Carrusel de Videos Editable:**
-    -   La sección de inicio muestra un carrusel de videos de "recuerdos de ceremonias".
-    -   Los administradores pueden añadir, editar, duplicar o eliminar videos del carrusel.
-    -   Los videos se pueden añadir subiendo un archivo o pegando una URL (YouTube, Streamable, etc.).
+### **Controles y Funcionalidades Clave**
 
-5.  **Autenticación y Roles:**
-    -   Soporte para registro e inicio de sesión con correo/contraseña y Google.
-    -   Un rol de "administrador" definido por un email específico, que desbloquea todas las capacidades de edición.
+1.  **Contenido Editable en Vivo (\`EditableTitle\` y \`EditableProvider\`):**
+    -   El \`EditableProvider\` gestiona el estado de edición y la comunicación con Firestore.
+    -   El componente \`EditableTitle\` envuelve el texto. Si el usuario es administrador, muestra un botón de edición.
+    -   Al hacer clic en "Editar", el texto se convierte en campos de entrada para español e inglés. Los cambios se guardan en la colección \`content\` de Firestore como un objeto \`{ es: '...', en: '...' }\`.
+    -   El contenido se recupera usando la clave \`id\` proporcionada a \`EditableTitle\`.
 
-6.  **Internacionalización:**
-    -   Toda la UI de texto (títulos, botones, etiquetas) está traducida usando \`i18next\`.
-    -   Los usuarios pueden cambiar entre inglés y español con un selector de idioma en el encabezado.
+2.  **Gestión de Ceremonias (Páginas \`/\`, \`/ceremonies\` y diálogos):**
+    -   Las ceremonias se obtienen de la colección \`ceremonies\` en Firestore.
+    -   Los administradores ven botones de "Editar" en cada tarjeta de ceremonia, que abren el diálogo \`EditCeremonyDialog\`.
+    -   Este diálogo permite modificar todos los campos de la ceremonia, incluyendo título, descripción, precio, estado (\`active\`, \`finished\`, \`inactive\`), y gestionar una lista de características (\`features\`).
+    -   Los medios (imagen/video) se pueden añadir subiendo un archivo (a Firebase Storage) o pegando una URL.
+    -   Se pueden añadir, duplicar y eliminar ceremonias.
 
-7. **Personalización del Tema y Perfil**
-   - La página de administración tiene pestañas para gestionar el perfil y el tema.
-   - El administrador puede actualizar su número de teléfono y dirección.
-   - Se pueden cambiar los colores primario, de fondo y de acento de la aplicación.
-   - Un conmutador en el encabezado permite cambiar entre temas claro, oscuro y de sistema.
+3.  **Gestión de Guías (Página \`/guides\`):**
+    -   Similar a las ceremonias, los administradores pueden editar los perfiles de los guías (nombre, descripción y foto de perfil) a través del diálogo \`EditGuideDialog\`.
 
-**Estilo y Diseño:**
--   **Tema:** Oscuro, elegante y espiritual. La paleta de colores se define en \`globals.css\` usando variables HSL para primario, fondo, tarjeta, etc.
--   **Tipografía:** Se usan fuentes específicas (Alegreya para el cuerpo, Belleza para los titulares) importadas desde Google Fonts.
--   **Layout:** Moderno y responsivo, con un encabezado fijo y un pie de página simple.
--   **Íconos:** Se utiliza Lucide-React para la mayoría de los íconos.
+4.  **Autenticación y Roles:**
+    -   La autenticación se gestiona con Firebase Authentication (Google y correo/contraseña).
+    -   El rol de "administrador" se asigna a un correo específico (\`wilson2403@gmail.com\`) o a través de un booleano \`isAdmin\` en el perfil de usuario en Firestore.
+
+5.  **Personalización del Tema (Página \`/admin\`):**
+    -   La pestaña "Tema" en el panel de administración permite cambiar la paleta de colores completa de la aplicación para los modos claro y oscuro.
+    -   Se utiliza un selector de color (\`ColorPicker\`) para facilitar la elección.
+    -   Los cambios se guardan en el documento \`theme\` dentro de la colección \`settings\` en Firestore.
+    -   El componente \`ThemeProvider\` carga estos ajustes y los inyecta como variables CSS en el documento.
+
+6.  **Chatbot con IA (\`Chatbot.tsx\`):**
+    -   Un chatbot flotante (visible solo para administradores) utiliza un flujo de Genkit (\`chat-flow.ts\`) para actuar como guía espiritual.
+    -   Mantiene el historial de la conversación en la colección \`chats\` de Firestore.
 
 Tu tarea es mantener y extender esta aplicación, asegurando que el código sea limpio, mantenible y siga las mejores prácticas del stack definido.
 `;
@@ -171,6 +146,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const { t } = useTranslation();
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -182,6 +158,17 @@ export default function AdminPage() {
     });
     return () => unsubscribe();
   }, [router]);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(systemPrompt)
+      .then(() => {
+        toast({ title: t('promptCopied') });
+      })
+      .catch(err => {
+        console.error('Failed to copy text: ', err);
+        toast({ title: t('promptCopyError'), variant: 'destructive' });
+      });
+  };
 
   if (loading || !user || user.email !== ADMIN_EMAIL) {
     return (
@@ -225,9 +212,14 @@ export default function AdminPage() {
 
         <Card className="bg-card/50 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <Bot />
-              {t('systemPrompt')}
+            <CardTitle className="flex items-center justify-between">
+              <div className='flex items-center gap-3'>
+                <Bot />
+                {t('systemPrompt')}
+              </div>
+              <Button variant="ghost" size="icon" onClick={copyToClipboard}>
+                <Copy className="h-4 w-4" />
+              </Button>
             </CardTitle>
           </CardHeader>
           <CardContent>
