@@ -289,12 +289,6 @@ export default function PastCeremoniesSection() {
                   initialValue={'Guanacaste y San Carlos'}
                   className="text-lg text-primary font-body"
                 />
-                <EditableTitle
-                tag="p"
-                id="pastCeremoniesSubtitle"
-                initialValue={t('pastCeremoniesSubtitle')}
-                className="max-w-2xl text-lg text-foreground/80 font-body"
-                />
             </div>
              <div className="w-full px-4 md:px-0">
           <div className="relative w-full max-w-xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
