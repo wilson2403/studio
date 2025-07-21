@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import Script from 'next/script';
+import { useTranslation } from 'react-i18next';
 
 interface VideoPlayerProps {
   videoUrl?: string;
@@ -34,19 +35,36 @@ function getYouTubeEmbedUrl(url: string, controls: boolean): string | null {
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 }
 
-function getTikTokEmbedData(url: string): { embedUrl: string; videoId: string } | null {
-  if (!url) return null;
-  const tiktokRegex = /tiktok\.com\/.*\/video\/(\d+)/;
-  const match = url.match(tiktokRegex);
-  if (match && match[1]) {
-    const videoId = match[1];
-    return {
-      embedUrl: `https://www.tiktok.com/embed/v2/${videoId}`,
-      videoId: videoId
-    };
+const TikTokPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
+  const { t } = useTranslation();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const videoIdMatch = url.match(/video\/(\d+)/);
+  if (!videoIdMatch) {
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className={cn("w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center", className)}>
+         <Image src={'https://placehold.co/100x100/000000/ffffff.png?text=TikTok'} alt="TikTok Logo" width={50} height={50} />
+         <p className="mt-4 font-semibold">{title}</p>
+         <p className="text-sm text-gray-300 mt-2">{t('videoPlayerClickToPlay')}</p>
+      </a>
+    );
   }
-  return null;
-}
+  const videoId = videoIdMatch[1];
+  const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&mute=0&controls=${controls ? '1' : '0'}`;
+
+  return (
+    <iframe
+      ref={iframeRef}
+      src={embedUrl}
+      title={title}
+      className={cn("w-full h-full", className)}
+      allow="autoplay; encrypted-media; picture-in-picture"
+      allowFullScreen
+    ></iframe>
+  );
+};
+
 
 function getFacebookEmbedUrl(url: string, controls: boolean): string | null {
     if (!url) return null;
@@ -79,7 +97,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   const containerRef = useRef<HTMLDivElement>(null);
   
   const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls) : null;
-  const tiktokData = videoUrl ? getTikTokEmbedData(videoUrl) : null;
+  const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
   const facebookEmbedUrl = videoUrl ? getFacebookEmbedUrl(videoUrl, controls) : null;
   const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl) : null;
 
@@ -104,14 +122,8 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     );
   }
 
-  if (tiktokData) {
-    return (
-      <a href={videoUrl} target="_blank" rel="noopener noreferrer" className={cn("w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center", className)}>
-         <Image src={'https://placehold.co/100x100/000000/ffffff.png?text=TikTok'} alt="TikTok Logo" width={50} height={50} />
-         <p className="mt-4 font-semibold">{title}</p>
-         <p className="text-sm text-gray-300 mt-2">Haz clic para ver en TikTok</p>
-      </a>
-    );
+  if (isTikTok) {
+    return <TikTokPlayer url={videoUrl!} title={title} className={className} controls={controls} />;
   }
   
   if (facebookEmbedUrl) {
