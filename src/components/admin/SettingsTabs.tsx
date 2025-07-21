@@ -269,8 +269,9 @@ export default function SettingsTabs({ user }: { user: User }) {
     }
   }, [watchedValues, loadingTheme]);
 
-  const renderColorField = (name: keyof ThemeFormValues['light'] | keyof ThemeFormValues['dark'], label: string, theme: 'light' | 'dark') => (
+  const renderColorField = (key: string, name: keyof ThemeFormValues['light'] | keyof ThemeFormValues['dark'], label: string, theme: 'light' | 'dark') => (
     <FormField
+      key={key}
       control={themeForm.control}
       name={`${theme}.${name}` as any}
       render={({ field }) => (
@@ -414,14 +415,14 @@ export default function SettingsTabs({ user }: { user: User }) {
                         <div>
                             <h3 className="text-lg font-medium mb-4">{t('themeLight')}</h3>
                             <div className="grid md:grid-cols-2 gap-4">
-                                {colorFields.map(cf => renderColorField(cf.name, cf.label, 'light'))}
+                                {colorFields.map(cf => renderColorField(`light-${cf.name}`, cf.name, cf.label, 'light'))}
                             </div>
                         </div>
                         <Separator />
                         <div>
                             <h3 className="text-lg font-medium mb-4">{t('themeDark')}</h3>
                             <div className="grid md:grid-cols-2 gap-4">
-                                {colorFields.map(cf => renderColorField(cf.name, cf.label, 'dark'))}
+                                {colorFields.map(cf => renderColorField(`dark-${cf.name}`, cf.name, cf.label, 'dark'))}
                             </div>
                         </div>
                     </div>
