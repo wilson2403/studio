@@ -15,6 +15,9 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { v4 as uuidv4 } from 'uuid';
+import { getUserProfile } from '@/lib/firebase/firestore';
+
+const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,12 +25,21 @@ export default function Chatbot() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<FirebaseUser | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [chatId, setChatId] = useState<string | null>(null);
     const { t } = useTranslation();
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
      useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, setUser);
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            setUser(currentUser);
+             if (currentUser) {
+                const profile = await getUserProfile(currentUser.uid);
+                setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+            } else {
+                setIsAdmin(false);
+            }
+        });
         return () => unsubscribe();
     }, []);
 
@@ -85,6 +97,9 @@ export default function Chatbot() {
         }
     };
 
+    if (!isAdmin) {
+        return null;
+    }
 
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
