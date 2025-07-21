@@ -200,12 +200,12 @@ export const seedGuides = async () => {
         {
             name: 'Harley',
             description: 'Especialista en atención médica y primeros auxilios, con experiencia en meditaciones guiadas y masajes terapéuticos. Su presencia tranquila y profesional garantiza un entorno seguro durante toda la ceremonia, brindando confianza y contención tanto al equipo como a las participantes.',
-            imageUrl: 'https://i.postimg.cc/mD3mXj50/harley.jpg',
+            imageUrl: 'https://i.postimg.cc/J0B0f2p9/johanna.jpg',
         },
         {
             name: 'Johanna',
             description: 'Guardiana de la medicina formada en la Amazonía de perú. Brindando ceremonias en Colombia y Costa Rica, su presencia aporta seguridad, contención y equilibrio entre lo físico y espiritual, sosteniendo el espacio ceremonial con firmeza, cuidado y profunda conexión con la sanación femenina.',
-            imageUrl: 'https://i.postimg.cc/J0B0f2p9/johanna.jpg',
+            imageUrl: 'https://i.postimg.cc/mD3mXj50/harley.jpg',
         },
     ];
 
@@ -445,15 +445,21 @@ export const getAllChats = async (): Promise<Chat[]> => {
 // --- Questionnaire ---
 
 export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswers): Promise<void> => {
+    const batch = writeBatch(db);
+    
+    const questionnaireRef = doc(db, 'questionnaires', uid);
+    batch.set(questionnaireRef, {
+        ...answers,
+        updatedAt: serverTimestamp(),
+    }, { merge: true });
+
+    const userRef = doc(db, 'users', uid);
+    batch.update(userRef, { questionnaireCompleted: true });
+
     try {
-        const questionnaireRef = doc(db, 'questionnaires', uid);
-        await setDoc(questionnaireRef, {
-            ...answers,
-            updatedAt: serverTimestamp(),
-        }, { merge: true });
-        await updateUserProfile(uid, { questionnaireCompleted: true });
+        await batch.commit();
     } catch (error) {
-        console.error("Error saving questionnaire:", error);
+        console.error("Error saving questionnaire and updating user profile:", error);
         throw error;
     }
 };

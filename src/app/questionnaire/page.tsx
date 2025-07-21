@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, updateUserProfile } from '@/lib/firebase/firestore';
+import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile } from '@/lib/firebase/firestore';
 import { ArrowRight, Save, Sprout } from 'lucide-react';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -50,6 +50,7 @@ export default function QuestionnairePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const router = useRouter();
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -71,9 +72,14 @@ export default function QuestionnairePage() {
         router.push('/login?redirect=/questionnaire');
       } else {
         setUser(currentUser);
-        const answers = await getQuestionnaire(currentUser.uid);
-        if (answers) {
-          form.reset(answers);
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile?.questionnaireCompleted) {
+            setIsCompleted(true);
+        } else {
+            const answers = await getQuestionnaire(currentUser.uid);
+            if (answers) {
+              form.reset(answers);
+            }
         }
         setLoading(false);
       }
@@ -86,12 +92,12 @@ export default function QuestionnairePage() {
     if (!user) return;
     try {
       await saveQuestionnaire(user.uid, values);
-      await updateUserProfile(user.uid, { questionnaireCompleted: true });
       toast({
         title: t('questionnaireSuccessTitle'),
         description: t('questionnaireSuccessDescription'),
       });
-      setIsSuccessDialogOpen(true); // Open the dialog on success
+      setIsSuccessDialogOpen(true);
+      setIsCompleted(true);
     } catch (error) {
       toast({
         title: t('questionnaireErrorTitle'),
@@ -200,6 +206,30 @@ export default function QuestionnairePage() {
             </Card>
         </div>
     )
+  }
+
+  if (isCompleted) {
+    return (
+      <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
+        <Card className="w-full max-w-md text-center p-6">
+            <div className="p-3 bg-primary/10 rounded-full mb-4 inline-block">
+                <Sprout className="h-8 w-8 text-primary" />
+            </div>
+            <CardHeader className="p-0">
+                <CardTitle className="text-2xl font-headline">{t('questionnaireCompletedTitle')}</CardTitle>
+                <CardDescription className="pt-2">
+                    {t('questionnaireCompletedDescription')}
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="p-0 mt-6">
+                <Button onClick={() => router.push('/preparation')}>
+                    {t('dialogSuccessButton')}
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
