@@ -137,7 +137,7 @@ export const seedCeremonies = async () => {
 };
 
 
-export const getCeremonies = async (status?: 'active' | 'finished'): Promise<Ceremony[]> => {
+export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive'): Promise<Ceremony[]> => {
   try {
     const fullSnapshot = await getDocs(ceremoniesCollection);
     

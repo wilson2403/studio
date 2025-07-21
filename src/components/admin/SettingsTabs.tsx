@@ -6,12 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { User } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getUserProfile, updateUserProfile, getThemeSettings, setThemeSettings, ThemeSettings } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { User as UserIcon, Palette, Save } from 'lucide-react';
@@ -37,6 +37,14 @@ const themeFormSchema = z.object({
 type ProfileFormValues = z.infer<ReturnType<typeof profileFormSchema>>;
 type ThemeFormValues = z.infer<typeof themeFormSchema>;
 
+const defaultTheme: ThemeSettings = {
+    lightPrimary: '125 33% 74%',
+    lightBackground: '40 33% 98%',
+    lightAccent: '47 62% 52%',
+    darkPrimary: '150 40% 45%',
+    darkBackground: '20 14.3% 4.1%',
+    darkAccent: '140 10% 15%',
+};
 
 export default function SettingsTabs({ user }: { user: User }) {
   const { t } = useTranslation();
@@ -54,15 +62,22 @@ export default function SettingsTabs({ user }: { user: User }) {
 
   const themeForm = useForm<ThemeFormValues>({
     resolver: zodResolver(themeFormSchema),
-    defaultValues: {
-      lightPrimary: '125 33% 74%',
-      lightBackground: '40 33% 98%',
-      lightAccent: '47 62% 52%',
-      darkPrimary: '150 40% 45%',
-      darkBackground: '20 14.3% 4.1%',
-      darkAccent: '140 10% 15%',
-    },
+    defaultValues: defaultTheme,
   });
+
+  const applyTheme = useCallback((settings: ThemeSettings | null) => {
+    const themeToApply = settings || defaultTheme;
+    const root = document.documentElement;
+    if (root) {
+      root.style.setProperty('--primary', themeToApply.lightPrimary);
+      root.style.setProperty('--background', themeToApply.lightBackground);
+      root.style.setProperty('--accent', themeToApply.lightAccent);
+      
+      root.style.setProperty('--dark-primary', themeToApply.darkPrimary);
+      root.style.setProperty('--dark-background', themeToApply.darkBackground);
+      root.style.setProperty('--dark-accent', themeToApply.darkAccent);
+    }
+  }, []);
 
   useEffect(() => {
     async function loadProfile() {
@@ -79,18 +94,6 @@ export default function SettingsTabs({ user }: { user: User }) {
     loadProfile();
   }, [user.uid, profileForm]);
   
-  const applyTheme = (settings: ThemeSettings) => {
-      const root = document.documentElement;
-      if (root) {
-        root.style.setProperty('--primary', settings.lightPrimary);
-        root.style.setProperty('--background', settings.lightBackground);
-        root.style.setProperty('--accent', settings.lightAccent);
-        
-        root.style.setProperty('--dark-primary', settings.darkPrimary);
-        root.style.setProperty('--dark-background', settings.darkBackground);
-        root.style.setProperty('--dark-accent', settings.darkAccent);
-      }
-  };
 
   useEffect(() => {
     async function loadTheme() {
@@ -100,18 +103,12 @@ export default function SettingsTabs({ user }: { user: User }) {
             themeForm.reset(settings);
             applyTheme(settings);
         } else {
-             const defaultSettings = themeForm.getValues();
-             applyTheme(defaultSettings);
+             applyTheme(defaultTheme);
         }
         setLoadingTheme(false);
     }
     loadTheme();
-  }, [themeForm]);
-
-
-  const handleThemeChange = (values: ThemeFormValues) => {
-    applyTheme(values);
-  };
+  }, [themeForm, applyTheme]);
 
   const onProfileSubmit = async (data: ProfileFormValues) => {
     try {
@@ -140,9 +137,15 @@ export default function SettingsTabs({ user }: { user: User }) {
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <div className="flex items-center gap-2">
-            <ColorPicker value={field.value} onChange={(color) => field.onChange(color)} />
+            <ColorPicker value={field.value} onChange={(color) => {
+                field.onChange(color);
+                applyTheme(themeForm.getValues());
+            }} />
             <FormControl>
-              <Input placeholder="125 33% 74%" {...field} />
+              <Input placeholder="125 33% 74%" {...field} onChange={(e) => {
+                  field.onChange(e);
+                  applyTheme(themeForm.getValues());
+              }} />
             </FormControl>
           </div>
           <FormMessage />
@@ -228,7 +231,6 @@ export default function SettingsTabs({ user }: { user: User }) {
                 <Form {...themeForm}>
                     <form 
                         onSubmit={themeForm.handleSubmit(onThemeSubmit)} 
-                        onChange={() => handleThemeChange(themeForm.getValues())}
                         className="space-y-6"
                     >
                         {/* Light Theme */}
