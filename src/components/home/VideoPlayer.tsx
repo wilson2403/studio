@@ -27,8 +27,8 @@ function getYouTubeEmbedUrl(url: string, controls: boolean, autoplay: boolean): 
   
   const params = new URLSearchParams({
     autoplay: autoplay ? '1' : '0',
-    mute: '1', // Muted by default to allow autoplay
-    loop: '1',
+    mute: '1',
+    loop: controls ? '0' : '1',
     controls: controls ? '1' : '0',
     playlist: videoId,
   });
@@ -47,6 +47,7 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
         );
     }
     const videoId = videoIdMatch[1];
+    // TikTok embed has very limited control. Mute is often forced. Best effort here.
     const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&mute=1&controls=${controls ? '1' : '0'}`;
 
     return (
@@ -61,41 +62,11 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
 };
 
 
-function getFacebookEmbedUrl(url: string, controls: boolean, autoplay: boolean): string | null {
-    if (!url) return null;
-    const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\/?\?v=|video\.php\?v=|reel\/|.*\/videos\/|share\/(?:v|r)\/)([0-9a-zA-Z_.-]+)/;
-    const match = url.match(facebookRegex);
-    if (match && match[1]) {
-        const params = new URLSearchParams({
-            href: url,
-            show_text: '0',
-            width: '560',
-            autoplay: autoplay ? '1' : '0',
-            mute: '1', // Muted by default
-            loop: '1',
-            controls: controls ? '1' : '0'
-        });
-        return `https://www.facebook.com/plugins/video.php?${params.toString()}`;
-    }
-    return null;
-}
-
 const FacebookPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
     const [isActivated, setIsActivated] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const embedUrl = getFacebookEmbedUrl(url, controls, isActivated);
 
-    useEffect(() => {
-        if (isActivated && embedUrl && containerRef.current) {
-            if (typeof (window as any).FB !== 'undefined') {
-                (window as any).FB.XFBML.parse(containerRef.current.parentElement);
-            }
-        }
-    }, [isActivated, embedUrl]);
-
-    if (!embedUrl) {
-         return <Image src={'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={className} data-ai-hint="social media video" />;
-    }
+    // This URL will be used in the iframe after user interaction
+    const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=${controls ? '0':'1'}&controls=${controls ? '1':'0'}`;
 
     if (!isActivated) {
          return (
@@ -113,27 +84,28 @@ const FacebookPlayer = ({ url, title, className, controls }: { url: string; titl
     }
 
     return (
-        <div ref={containerRef} className={cn('w-full h-full bg-black', className)} data-href={url} data-lazy="true">
-            <div className="fb-video"
-                data-href={url}
-                data-width="auto"
-                data-height="auto"
-                data-show-text="false"
-                data-autoplay="true"
-                data-mute="0" // Unmute after interaction
-                data-loop={controls ? "false" : "true"}
-                data-allowfullscreen="true"
-                data-controls={controls ? "true" : "false"}>
-            </div>
-        </div>
+        <iframe
+            src={embedUrl}
+            title={title}
+            className={cn('w-full h-full bg-black', className)}
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowFullScreen
+        >
+        </iframe>
     );
 };
 
 
-function getStreamableEmbedUrl(url: string): string | null {
+function getStreamableEmbedUrl(url: string, controls: boolean): string | null {
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (match && match[1]) {
-    return `https://streamable.com/e/${match[1]}?autoplay=1&muted=1&loop=1`;
+    const params = new URLSearchParams({
+        autoplay: '1',
+        mute: controls ? '0' : '1',
+        loop: controls ? '0' : '1',
+        controls: controls ? '1' : '0'
+    })
+    return `https://streamable.com/e/${match[1]}?${params.toString()}`;
   }
   return null;
 }
@@ -142,7 +114,8 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(!controls); // Autoplay if no controls
 
-    const togglePlay = () => {
+    const togglePlay = (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent modal from opening
         if (videoRef.current) {
             if (videoRef.current.paused) {
                 videoRef.current.play();
@@ -162,7 +135,7 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
     }, [])
 
     return (
-        <div className={cn("relative w-full h-full group/video", className)}>
+        <div className={cn("relative w-full h-full group/video", className)} onClick={togglePlay}>
             <video
                 ref={videoRef}
                 src={src}
@@ -171,16 +144,14 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
                 playsInline
                 controls={controls}
                 className={cn("w-full h-full object-cover", className)}
-                onClick={!controls ? togglePlay : undefined}
             />
             {!controls && (
                  <div 
                     className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 cursor-pointer"
-                    onClick={togglePlay}
                 >
-                    <Button variant="ghost" size="icon" className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full">
+                    <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
                         {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
-                    </Button>
+                    </div>
                 </div>
             )}
         </div>
@@ -188,12 +159,33 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
 };
 
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false }: VideoPlayerProps) => {
-  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls, !controls) : null;
+  const [isIframeActivated, setIsIframeActivated] = useState(false);
+
+  const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls, isIframeActivated && !controls) : null;
+  const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl, controls) : null;
   const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
   const isFacebook = videoUrl && videoUrl.includes('facebook.com');
-  const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl) : null;
+
+  const activateIframe = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setIsIframeActivated(true);
+  }
 
   if (youtubeEmbedUrl || streamableEmbedUrl) {
+    if (!isIframeActivated && !controls) {
+       return (
+            <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className)} onClick={activateIframe}>
+               <Image src={'https://placehold.co/600x400.png?text=YouTube'} alt="Video thumbnail" layout="fill" objectFit="cover" data-ai-hint="video social media" />
+               <div className="absolute inset-0 bg-black/50"></div>
+                <div className="relative z-10 flex flex-col items-center">
+                   <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
+                       <Play className="h-8 w-8 fill-white" />
+                   </Button>
+                    <p className="mt-4 font-semibold">{title}</p>
+                </div>
+            </div>
+        );
+    }
     return (
       <iframe
         src={youtubeEmbedUrl || streamableEmbedUrl || ''}
