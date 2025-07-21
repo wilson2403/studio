@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useTranslation } from 'react-i18next';
@@ -20,14 +21,6 @@ export default function ExploreMore() {
             buttonText: 'exploreMedicineButton'
         },
         {
-            id: 'ceremonies',
-            icon: Sparkles,
-            title: 'exploreCeremoniesTitle',
-            description: 'exploreCeremoniesDescription',
-            link: '/#ceremonias',
-            buttonText: 'exploreCeremoniesButton'
-        },
-        {
             id: 'guides',
             icon: Users,
             title: 'exploreGuidesTitle',
@@ -47,9 +40,9 @@ export default function ExploreMore() {
                     className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                 />
             </div>
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 gap-8 justify-center">
                 {sections.map(section => (
-                    <Card key={section.id} className="bg-card/50 backdrop-blur-sm flex flex-col text-center items-center p-6">
+                    <Card key={section.id} className="bg-card/50 backdrop-blur-sm flex flex-col text-center items-center p-6 max-w-sm">
                         <div className="p-4 bg-primary/10 rounded-full mb-4">
                             <section.icon className="h-8 w-8 text-primary" />
                         </div>
