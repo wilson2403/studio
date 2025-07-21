@@ -70,13 +70,7 @@ user: {{{question}}}
 Tu respuesta como Guía Espiritual (role: model):`,
 });
 
-export const continueChat = ai.defineFlow(
-  {
-    name: 'continueChatFlow',
-    inputSchema: ChatInputSchema,
-    outputSchema: ChatOutputSchema,
-  },
-  async (input) => {
+async function runContinueChatFlow(input: ChatInput): Promise<ChatOutput> {
     const { question, chatId, user } = input;
     
     // Retrieve existing chat history from Firestore
@@ -85,7 +79,7 @@ export const continueChat = ai.defineFlow(
 
     // Generate AI response
     const { output } = await spiritualGuidePrompt({ history, question });
-    const answer = output?.answer || "No he podido procesar tu pregunta. Por favor, intenta de nuevo.";
+    const answer = output?.answer || "Lo siento, estoy teniendo problemas para conectarme en este momento. Por favor, inténtalo de nuevo en un momento.";
 
     // Save the full conversation history to Firestore
     const updatedHistory: ChatMessage[] = [
@@ -102,5 +96,13 @@ export const continueChat = ai.defineFlow(
     }
 
     return { answer };
-  }
+}
+
+export const continueChat = ai.defineFlow(
+  {
+    name: 'continueChatFlow',
+    inputSchema: ChatInputSchema,
+    outputSchema: ChatOutputSchema,
+  },
+  runContinueChatFlow
 );
