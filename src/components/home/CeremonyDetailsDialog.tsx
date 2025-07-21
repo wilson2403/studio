@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -11,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Ceremony, Plan } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { Check } from 'lucide-react';
+import { CalendarIcon, Check } from 'lucide-react';
 import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
@@ -75,7 +76,12 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
-          <DialogDescription>
+           {ceremony.date && (
+                <p className="font-mono text-xs text-muted-foreground pt-1 flex items-center gap-1.5">
+                  <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                </p>
+            )}
+          <DialogDescription className='pt-2'>
             {ceremony.description}
           </DialogDescription>
         </DialogHeader>

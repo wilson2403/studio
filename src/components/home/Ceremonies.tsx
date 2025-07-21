@@ -178,6 +178,11 @@ export default function Ceremonies({
               <CardTitle className="text-2xl font-headline tracking-wide">
                 {ceremony.title}
               </CardTitle>
+               {ceremony.date && (
+                <p className="font-mono text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
+                  <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                </p>
+              )}
               <CardDescription className="font-body text-base mt-2 flex-1">
                 {ceremony.description}
               </CardDescription>
