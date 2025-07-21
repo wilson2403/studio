@@ -70,6 +70,15 @@ export default function SettingsTabs({ user }: { user: User }) {
     }
     loadProfile();
   }, [user.uid, profileForm]);
+  
+  const applyTheme = (settings: ThemeSettings) => {
+      const root = document.querySelector('.dark') as HTMLElement;
+      if (root) {
+        root.style.setProperty('--primary', settings.primary);
+        root.style.setProperty('--background', settings.background);
+        root.style.setProperty('--accent', settings.accent);
+      }
+  };
 
   useEffect(() => {
     async function loadTheme() {
@@ -78,17 +87,16 @@ export default function SettingsTabs({ user }: { user: User }) {
         if (settings) {
             themeForm.reset(settings);
             applyTheme(settings);
+        } else {
+            // Apply default if no settings found
+             const defaultSettings = themeForm.getValues();
+             applyTheme(defaultSettings);
         }
         setLoadingTheme(false);
     }
     loadTheme();
   }, [themeForm]);
-  
-  const applyTheme = (settings: ThemeSettings) => {
-    document.documentElement.style.setProperty('--primary', settings.primary);
-    document.documentElement.style.setProperty('--background', settings.background);
-    document.documentElement.style.setProperty('--accent', settings.accent);
-  };
+
 
   const handleThemeChange = (values: ThemeFormValues) => {
     applyTheme(values);
