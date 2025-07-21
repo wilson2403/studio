@@ -62,8 +62,8 @@ const getStreamableEmbedUrl = (url: string): string | null => {
 
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    // Handle local paths and common video file extensions
-    return url.startsWith('/') || /\.(mp4|webm|ogg)(\?.*)?$/.test(url);
+    // Strict check: URL must start with '/' OR end with a video extension, optionally with a query string.
+    return url.startsWith('/') || /\.(mp4|webm|ogg)$/i.test(url.split('?')[0]);
 };
 
 
@@ -173,10 +173,11 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
 
   const renderContent = () => {
-    if (!videoUrl) {
+    // 1. Handle missing URL or mediaType 'image'
+    if (mediaType === 'image' || !videoUrl) {
       return (
         <Image
-          src={'https://placehold.co/600x400.png'}
+          src={videoUrl || 'https://placehold.co/600x400.png'}
           alt={title}
           layout="fill"
           objectFit="cover"
@@ -186,19 +187,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       );
     }
     
-    if (mediaType === 'image') {
-       return (
-        <Image
-          src={videoUrl}
-          alt={title}
-          layout="fill"
-          objectFit="cover"
-          className={cn('object-cover', className)}
-          data-ai-hint="spiritual event"
-        />
-      );
-    }
-
+    // 2. Handle known embeddable video platforms
     const embedUrl = 
         getYoutubeEmbedUrl(videoUrl) ||
         getTikTokEmbedUrl(videoUrl) ||
@@ -218,14 +207,18 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
               ></iframe>
             );
         }
+        // For embeds that are not yet activated, show a placeholder that will activate on click if needed.
+        // For simplicity, we can just use the generic placeholder.
         return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
     }
 
+    // 3. Handle direct video file URLs (local or remote)
     if (isDirectVideoUrl(videoUrl)) {
       return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
 
-    // Fallback for any other URL (like GitHub raw links, etc.)
+    // 4. Fallback for any other URL (like GitHub raw links, etc.) that is not embeddable.
+    // This will prevent the "no supported sources" error.
     return <IframePlaceholder onClick={() => window.open(videoUrl, '_blank')} title={title} className={className} />;
   };
 
