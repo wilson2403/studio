@@ -55,7 +55,7 @@ function applyTheme(settings: ThemeSettings) {
   const style = document.createElement('style');
   style.id = 'dynamic-theme-styles';
   style.innerHTML = `
-    :root {
+    .light {
       --light-primary: ${settings.lightPrimary};
       --light-background: ${settings.lightBackground};
       --light-accent: ${settings.lightAccent};
@@ -127,17 +127,14 @@ export default function SettingsTabs({ user }: { user: User }) {
       await setThemeSettings(data);
       applyTheme(data);
       toast({ title: t('themeUpdatedSuccess'), description: t('themeUpdateReload') });
-      // We still reload to ensure all components pick up the new theme from the applied styles
       setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       toast({ title: t('themeUpdatedError'), variant: 'destructive' });
     }
   };
 
-  // Watch for form changes and apply them live
   useEffect(() => {
     const subscription = themeForm.watch((value) => {
-        // Zod check to ensure the data is valid before applying
         const result = themeFormSchema.safeParse(value);
         if (result.success) {
             applyTheme(result.data as ThemeSettings);

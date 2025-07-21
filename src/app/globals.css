@@ -44,7 +44,7 @@ body {
     --dark-accent: 140 10% 15%;
   }
 
-  :root {
+  .light {
       --background: var(--light-background);
       --primary: var(--light-primary);
       --accent: var(--light-accent);
