@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import CeremonyDetailsDialog from './CeremonyDetailsDialog';
 import { VideoPlayer } from './VideoPlayer';
+import { cn } from '@/lib/utils';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -130,15 +131,15 @@ export default function Ceremonies() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-center">
         {ceremonies.map((ceremony) => (
           <Card
             key={ceremony.id}
-            className={`relative flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden ${
+            className={cn(`relative flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
               ceremony.featured
-                ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50'
+                ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50 md:scale-105'
                 : 'border-card-foreground/10'
-            }`}
+            )}
           >
             <CardHeader className="p-0">
               <div className="relative aspect-video overflow-hidden">
@@ -174,16 +175,8 @@ export default function Ceremonies() {
               <CardDescription className="font-body text-base mt-2">
                 {ceremony.description}
               </CardDescription>
-            <CardContent className="flex-1 space-y-6 mt-6 p-0">
-              <div className="text-center">
-                <span className="text-4xl font-bold text-foreground">
-                  {ceremony.price}
-                </span>
-                <p className="text-sm text-muted-foreground">
-                  {t('fullPlanUpTo')}
-                </p>
-              </div>
-              <ul className="space-y-4">
+            <CardContent className="flex-1 space-y-4 mt-6 p-0">
+              <ul className="space-y-2">
                 <li className="flex items-center gap-3 font-bold">
                   <Check className="h-5 w-5 text-primary" />
                   <span>{t('includes')}</span>
@@ -199,11 +192,11 @@ export default function Ceremonies() {
             <CardFooter className="p-0 pt-6 flex flex-col gap-2">
               <Button
                 onClick={() => handleViewPlans(ceremony)}
-                className={`w-full text-lg font-bold rounded-xl h-12 ${
+                className={cn(`w-full text-lg font-bold rounded-xl h-12`,
                   ceremony.featured
                     ? 'bg-gradient-to-r from-primary via-fuchsia-500 to-purple-500 text-primary-foreground hover:opacity-90'
                     : ''
-                }`}
+                )}
                 variant={ceremony.featured ? 'default' : 'outline'}
               >
                 {t('viewPlans')}
