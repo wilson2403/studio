@@ -59,18 +59,15 @@ Reglas importantes:
 3.  Sé conciso pero profundo. Evita respuestas de una sola palabra.
 4.  Si una pregunta se sale completamente de los temas espirituales o de sanación (ej: política, deportes, etc.), redirige amablemente la conversación: "Mi propósito es guiarte en tu camino espiritual. ¿Hay algo relacionado con tu bienestar o crecimiento personal en lo que pueda ayudarte?"
 
-Historial de la conversación:
+Historial de la conversación (role 'user' es el usuario, 'model' eres tu, el guía):
 {{#each history}}
-  {{#if (eq role 'user')}}
-    Usuario: {{{content}}}
-  {{else}}
-    Guía: {{{content}}}
-  {{/if}}
+{{role}}: {{{content}}}
 {{/each}}
 
-Nueva pregunta del usuario: {{{question}}}
+Nueva pregunta del usuario:
+user: {{{question}}}
 
-Tu respuesta como Guía Espiritual:`,
+Tu respuesta como Guía Espiritual (role: model):`,
 });
 
 export const continueChat = ai.defineFlow(
@@ -85,20 +82,15 @@ export const continueChat = ai.defineFlow(
     // Retrieve existing chat history from Firestore
     const existingChat = await getChat(chatId);
     const history = existingChat?.messages || [];
-    
-    // Add the new user question to the history for the prompt
-    const currentHistory: ChatMessage[] = [
-        ...history,
-        { role: 'user', content: question }
-    ];
 
     // Generate AI response
-    const { output } = await spiritualGuidePrompt({ history: currentHistory, question });
+    const { output } = await spiritualGuidePrompt({ history, question });
     const answer = output?.answer || "No he podido procesar tu pregunta. Por favor, intenta de nuevo.";
 
     // Save the full conversation history to Firestore
     const updatedHistory: ChatMessage[] = [
-        ...currentHistory,
+        ...history,
+        { role: 'user', content: question },
         { role: 'model', content: answer }
     ];
     
