@@ -9,7 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { saveChatMessage } from '@/lib/firebase/firestore';
+import { getChat, saveChatMessage } from '@/lib/firebase/firestore';
 
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -19,7 +19,6 @@ export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 
 const ChatInputSchema = z.object({
   chatId: z.string().describe("The unique ID for the conversation."),
-  history: z.array(ChatMessageSchema).describe('The conversation history.'),
   question: z.string().describe('The latest question from the user.'),
   user: z.object({
       uid: z.string(),
@@ -81,15 +80,25 @@ export const continueChat = ai.defineFlow(
     outputSchema: ChatOutputSchema,
   },
   async (input) => {
-    const { history, question, chatId, user } = input;
+    const { question, chatId, user } = input;
     
+    // Retrieve existing chat history from Firestore
+    const existingChat = await getChat(chatId);
+    const history = existingChat?.messages || [];
+    
+    // Add the new user question to the history for the prompt
+    const currentHistory: ChatMessage[] = [
+        ...history,
+        { role: 'user', content: question }
+    ];
+
     // Generate AI response
-    const { output } = await spiritualGuidePrompt({ history, question });
+    const { output } = await spiritualGuidePrompt({ history: currentHistory, question });
     const answer = output?.answer || "No he podido procesar tu pregunta. Por favor, intenta de nuevo.";
 
     // Save the full conversation history to Firestore
     const updatedHistory: ChatMessage[] = [
-        ...history,
+        ...currentHistory,
         { role: 'model', content: answer }
     ];
     

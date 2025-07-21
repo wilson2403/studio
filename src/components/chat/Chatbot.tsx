@@ -62,14 +62,13 @@ export default function Chatbot() {
         setLoading(true);
 
         try {
-            const currentHistory = [...messages, userMessage];
             if (!chatId) {
                 console.error("Chat ID is not set!");
+                setLoading(false);
                 return;
             }
             const response = await continueChat({
                 chatId,
-                history: currentHistory,
                 question: input,
                 user: user ? { uid: user.uid, email: user.email, displayName: user.displayName } : null
             });

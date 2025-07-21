@@ -410,6 +410,22 @@ export const saveChatMessage = async (chatId: string, messages: ChatMessage[], u
     }
 }
 
+export const getChat = async (chatId: string): Promise<Chat | null> => {
+    if (!chatId) return null;
+    try {
+        const docRef = doc(db, 'chats', chatId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data() as Chat;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error getting chat:", error);
+        return null;
+    }
+};
+
+
 export const getAllChats = async (): Promise<Chat[]> => {
     try {
         const snapshot = await getDocs(chatsCollection);
