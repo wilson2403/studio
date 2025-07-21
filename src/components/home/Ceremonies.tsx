@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
+import { useEditableContent } from '@/hooks/use-editable-content';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -57,6 +58,7 @@ export default function Ceremonies({
   const [isAdding, setIsAdding] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
+  const reserveButtonText = useEditableContent('reserveButtonText', t('reserve'));
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -201,7 +203,7 @@ export default function Ceremonies({
                 onClick={() => handleViewPlans(ceremony)}
                 className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
               >
-                {t('reserve')}
+                {reserveButtonText}
               </Button>
             </CardFooter>
             </div>
