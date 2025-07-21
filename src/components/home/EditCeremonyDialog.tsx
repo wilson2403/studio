@@ -19,9 +19,9 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Ceremony, Plan } from '@/types';
-import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo } from '@/lib/firebase/firestore';
+import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, finishCeremony } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, PlusCircle, Trash } from 'lucide-react';
+import { Copy, PlusCircle, Trash, CheckCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useState } from 'react';
@@ -47,6 +47,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   mediaType: z.enum(['image', 'video']).default('image'),
   plans: z.array(planSchema(t)).optional(),
   contributionText: z.string().optional(),
+  status: z.enum(['active', 'finished']).optional(),
 });
 
 type EditCeremonyFormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -73,17 +74,8 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
   const form = useForm<EditCeremonyFormValues>({
     resolver: zodResolver(formSchema(t)),
     defaultValues: isEditMode ? {
-      title: ceremony.title,
-      description: ceremony.description,
-      price: ceremony.price,
-      priceType: ceremony.priceType,
-      link: ceremony.link,
-      featured: ceremony.featured,
+      ...ceremony,
       features: ceremony.features.map(f => ({ value: f })),
-      mediaUrl: ceremony.mediaUrl || '',
-      mediaType: ceremony.mediaType || 'image',
-      plans: ceremony.plans || [],
-      contributionText: ceremony.contributionText || '',
     } : {
       title: '',
       description: '',
@@ -96,6 +88,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       mediaType: 'image',
       plans: [{ name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
       contributionText: t('defaultContributionText'),
+      status: 'active',
     },
   });
   
@@ -232,6 +225,25 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
        toast({
         title: 'Error',
         description: t('errorDuplicatingCeremony'),
+        variant: 'destructive',
+      });
+    }
+  }
+
+  const handleFinish = async () => {
+    if (!ceremony) return;
+    try {
+      await finishCeremony(ceremony);
+      onDelete(ceremony.id); // This will remove it from the upcoming list
+      toast({
+        title: t('ceremonyFinishedSuccess'),
+        description: t('ceremonyMovedToPast'),
+      });
+      onClose();
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: t('errorFinishingCeremony'),
         variant: 'destructive',
       });
     }
@@ -385,13 +397,13 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
            )}
 
 
-          <DialogFooter className="justify-between pt-4">
-            <div>
+          <DialogFooter className="flex-col sm:flex-row justify-between pt-4">
+            <div className="flex gap-2 items-center">
               {isEditMode && (
-                <div className="flex gap-2">
+                <>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button type="button" variant="destructive" disabled={isUploading}>
+                      <Button type="button" variant="destructive" size="sm" disabled={isUploading}>
                         <Trash className="mr-2 h-4 w-4" />
                         {t('delete')}
                       </Button>
@@ -409,11 +421,31 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                  <Button type="button" variant="outline" onClick={handleDuplicate} disabled={isUploading}>
+                  <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
                     <Copy className="mr-2 h-4 w-4" />
                     {t('duplicate')}
                   </Button>
-                </div>
+                   <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            {t('markAsFinished')}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t('finishCeremonyConfirmDescription')}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                  </AlertDialog>
+                </>
               )}
             </div>
             <div className="flex gap-2">

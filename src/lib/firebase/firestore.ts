@@ -1,5 +1,5 @@
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -56,6 +56,7 @@ export const seedCeremonies = async () => {
       mediaUrl: 'https://placehold.co/600x400.png',
       mediaType: 'image',
       contributionText: 'Puedes reservar con el 20%',
+      status: 'active',
     },
     {
       title: 'Sábado 2 de agosto – San Carlos',
@@ -72,6 +73,7 @@ export const seedCeremonies = async () => {
         { name: 'Plan Completo', price: 100000, priceUntil: 120000, description: "Incluye ceremonia, guía y hospedaje." }
       ],
       contributionText: 'Puedes reservar con el 20%',
+      status: 'active',
     },
     {
       title: 'Sábado 9 de agosto – Pérez Zeledón',
@@ -88,6 +90,7 @@ export const seedCeremonies = async () => {
         { name: 'Pareja', price: 150000, description: 'Acceso completo para dos personas.' }
       ],
       contributionText: 'Puedes reservar con el 20%',
+      status: 'active',
     },
     {
       title: 'Sábado 23 de agosto – La Fortuna',
@@ -103,6 +106,7 @@ export const seedCeremonies = async () => {
         { name: 'Plan Básico', price: 80000, description: 'Solo ceremonia.' }
       ],
       contributionText: 'Puedes reservar con el 20%',
+      status: 'active',
     },
   ];
 
@@ -153,6 +157,34 @@ export const deleteCeremony = async (id: string): Promise<void> => {
         throw error;
     }
 }
+
+export const finishCeremony = async (ceremony: Ceremony): Promise<void> => {
+  try {
+    const batch = writeBatch(db);
+
+    // 1. Create a new past ceremony document
+    const newPastCeremonyRef = doc(collection(db, 'pastCeremonies'));
+    const pastCeremonyData: Omit<PastCeremony, 'id'> = {
+      title: ceremony.title,
+      description: ceremony.description,
+      videoUrl: ceremony.mediaUrl || '',
+      mediaType: ceremony.mediaType,
+      date: new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }),
+    };
+    batch.set(newPastCeremonyRef, pastCeremonyData);
+
+    // 2. Delete the upcoming ceremony document
+    const ceremonyToDeleteRef = doc(db, 'ceremonies', ceremony.id);
+    batch.delete(ceremonyToDeleteRef);
+
+    // 3. Commit the batch
+    await batch.commit();
+
+  } catch (error) {
+    console.error("Error finishing ceremony: ", error);
+    throw error;
+  }
+};
 
 
 // --- Past Ceremonies (Videos) ---

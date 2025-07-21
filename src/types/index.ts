@@ -21,6 +21,7 @@ export type Ceremony = {
   mediaType?: 'image' | 'video';
   plans?: Plan[];
   contributionText?: string;
+  status?: 'active' | 'finished';
 };
 
 export type PastCeremony = {
