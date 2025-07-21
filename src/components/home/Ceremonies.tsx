@@ -52,11 +52,9 @@ function getTikTokEmbedData(url: string): { embedUrl: string; videoId: string } 
 
 function getFacebookEmbedUrl(url: string): string | null {
     if (!url) return null;
-    // This regex now supports posts and reels URLs
     const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\/?\?v=|video\.php\?v=|photo\.php\?v=|reel\/|.*\/videos\/|share\/(?:v|r)\/)([0-9a-zA-Z_.-]+)/;
     const match = url.match(facebookRegex);
     if (match && match[1]) {
-        // Construct the embed URL using the original URL for consistency
         return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=true&mute=1`;
     }
     return null;
@@ -73,7 +71,6 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
   const facebookEmbedUrl = getFacebookEmbedUrl(mediaUrl);
   
   useEffect(() => {
-    // This will re-parse the DOM for any new Facebook video embeds
     if (facebookEmbedUrl && typeof (window as any).FB !== 'undefined') {
         (window as any).FB.XFBML.parse();
     }
@@ -99,9 +96,9 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
         className="tiktok-embed w-full h-full"
         cite={mediaUrl}
         data-video-id={tiktokData.videoId}
-        style={{maxWidth: '100%', minHeight: '100%'}}
+        style={{ width: '100%', height: '100%' }}
       >
-        <section className='w-full h-full'>
+        <section className='w-full h-full flex items-center justify-center'>
           <a target="_blank" title={title} href={mediaUrl}>
             {title}
           </a>
@@ -170,7 +167,31 @@ export default function Ceremonies() {
   }, []);
 
   useEffect(() => {
-    // Re-initialize Facebook SDK when ceremonies data changes
+    const hasTikTok = ceremonies.some(c => c.mediaUrl && getTikTokEmbedData(c.mediaUrl));
+    
+    if (hasTikTok) {
+      const scriptId = 'tiktok-embed-script';
+      const existingScript = document.getElementById(scriptId);
+      if (existingScript) {
+        existingScript.remove();
+      }
+
+      const script = document.createElement('script');
+      script.id = scriptId;
+      script.src = "https://www.tiktok.com/embed.js";
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        const scriptToRemove = document.getElementById(scriptId);
+        if (scriptToRemove) {
+          document.body.removeChild(scriptToRemove);
+        }
+      };
+    }
+  }, [ceremonies]);
+
+  useEffect(() => {
     if (typeof (window as any).FB !== 'undefined') {
       (window as any).FB.XFBML.parse();
     }
@@ -219,8 +240,6 @@ export default function Ceremonies() {
 
   return (
     <>
-    <Script async defer crossOrigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v12.0&appId=YOUR_APP_ID&autoLogAppEvents=1" nonce="aAbBcCdD"></Script>
-    <Script async src="https://www.tiktok.com/embed.js"></Script>
     <section
       id="ceremonias"
       className="container py-12 md:py-24 animate-in fade-in-0 duration-1000 delay-500"
