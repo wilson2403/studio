@@ -7,12 +7,13 @@ import { auth } from '@/lib/firebase/config';
 import { getGuides, Guide, seedGuides } from '@/lib/firebase/firestore';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Edit, PlusCircle } from 'lucide-react';
+import { Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import EditGuideDialog from '@/components/guides/EditGuideDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
+import { useToast } from '@/hooks/use-toast';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
