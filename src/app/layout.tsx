@@ -44,20 +44,19 @@ export default function RootLayout({
               <div className="relative flex min-h-screen flex-col">
                 <Header />
                 <main className="flex-1">
-                  <div className="container">{children}</div>
+                  {children}
                 </main>
                 <Footer />
                 <Chatbot />
               </div>
+              <Toaster />
+              <div id="fb-root"></div>
+              <Script
+                id="facebook-sdk"
+                strategy="lazyOnload"
+                src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
+              />
             </EditableProvider>
-            <Toaster />
-
-            <div id="fb-root"></div>
-            <Script
-              id="facebook-sdk"
-              strategy="lazyOnload"
-              src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
-            />
           </ThemeProvider>
         </I18nProvider>
       </body>

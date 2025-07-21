@@ -15,7 +15,7 @@ export default function Home() {
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
 
   return (
-    <>
+    <div className="container">
       <WelcomeTour />
       <RegistrationPromptDialog />
       <Hero />
@@ -37,6 +37,6 @@ export default function Home() {
       />
       <ExploreMore />
       <Contact />
-    </>
+    </div>
   );
 }
