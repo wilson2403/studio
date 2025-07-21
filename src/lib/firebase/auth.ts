@@ -36,6 +36,7 @@ export const signInWithGoogle = async () => {
             providerId: result.providerId,
             isAdmin: user.email === ADMIN_EMAIL,
             questionnaireCompleted: false,
+            status: 'Interesado',
         }, { merge: true });
         sessionStorage.setItem('tour_status', 'pending');
     } else {
@@ -69,6 +70,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
       providerId: 'password',
       isAdmin: user.email === ADMIN_EMAIL,
       questionnaireCompleted: false,
+      status: 'Interesado',
     });
     
     sessionStorage.setItem('tour_status', 'pending');

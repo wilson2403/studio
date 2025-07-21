@@ -38,6 +38,8 @@ export type Guide = {
   imageUrl: string;
 };
 
+export type UserStatus = 'Interesado' | 'Cliente' | 'Pendiente';
+
 export type UserProfile = {
     uid: string;
     email: string;
@@ -47,6 +49,7 @@ export type UserProfile = {
     address?: string;
     isAdmin?: boolean;
     questionnaireCompleted?: boolean;
+    status?: UserStatus;
 }
 
 export type ThemeSettings = {

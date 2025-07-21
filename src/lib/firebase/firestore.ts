@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -380,6 +380,16 @@ export const updateUserRole = async (uid: string, isAdmin: boolean): Promise<voi
         await updateDoc(userRef, { isAdmin });
     } catch (error) {
         console.error("Error updating user role:", error);
+        throw error;
+    }
+};
+
+export const updateUserStatus = async (uid: string, status: UserStatus): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, { status });
+    } catch (error) {
+        console.error("Error updating user status:", error);
         throw error;
     }
 };
