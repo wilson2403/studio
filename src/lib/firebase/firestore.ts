@@ -206,7 +206,7 @@ export const seedGuides = async () => {
         },
     ];
 
-    const guideDescriptions = {
+    const guideDescriptions: Record<string, { es: string, en: string }> = {
         'Wilson Alfaro': {
             es: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson Alfaro aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
             en: 'Spiritual guide with a deep connection to Amazonian traditions. Trained in the Peruvian Amazon, Wilson Alfaro brings an ancestral understanding of Ayahuasca and its healing power. His experience facilitates a safe and trustworthy space for personal exploration.'
@@ -228,14 +228,15 @@ export const seedGuides = async () => {
     const batch = writeBatch(db);
 
     for (const guide of initialGuides) {
-        const docRef = doc(guidesCollection);
-        batch.set(docRef, guide);
+        const guideDocRef = doc(guidesCollection); // Create a new doc for the guide
+        batch.set(guideDocRef, guide);
         
         const descId = `guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`;
-        const descContent = (guideDescriptions as any)[guide.name];
+        const descContent = guideDescriptions[guide.name];
+        
         if (descContent) {
-            const contentRef = doc(contentCollection, descId);
-            batch.set(contentRef, { value: descContent });
+            const contentDocRef = doc(contentCollection, descId);
+            batch.set(contentDocRef, { value: descContent });
         }
     }
 
@@ -253,16 +254,17 @@ export const getGuides = async (): Promise<Guide[]> => {
 
             let description = '';
             if (typeof descriptionContent === 'object' && descriptionContent !== null) {
-                // Assuming you have a way to get the current language, e.g., 'es' or 'en'
-                // This part might need adjustment based on how you handle i18n on the server
-                description = (descriptionContent as any)['es'] || ''; // Default to Spanish or empty
+                // Here, you just pass the key. The component will handle the language.
+                description = `guide_desc_${guideData.name.toLowerCase().replace(/ /g, '_')}`;
             } else if (typeof descriptionContent === 'string') {
+                // Fallback for older string-based content
                 description = descriptionContent;
             }
 
             return { 
                 id: docSnapshot.id, 
-                ...guideData,
+                name: guideData.name,
+                imageUrl: guideData.imageUrl,
                 description: description 
             } as Guide;
         }));
