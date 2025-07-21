@@ -97,6 +97,14 @@ export const seedCeremonies = async () => {
     const docRef = doc(ceremoniesCollection); // Create a new doc with a random ID
     batch.set(docRef, ceremony);
   });
+  
+  const heroTitleContent = {
+    es: 'Un Encuentro Sagrado con Medicinas Ancestrales',
+    en: 'A Sacred Encounter with Ancestral Medicines'
+  };
+  batch.set(doc(contentCollection, 'heroTitle'), { value: heroTitleContent });
+
+
   await batch.commit();
   console.log('Seeded ceremonies data.');
 };
@@ -187,39 +195,43 @@ export const reactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
 
 // --- Guides ---
 export const seedGuides = async () => {
-    const initialGuides: Omit<Guide, 'id' | 'description'>[] = [
+    const initialGuides: Omit<Guide, 'id'>[] = [
         {
             name: 'Wilson Alfaro',
             imageUrl: 'https://i.postimg.cc/k4Dvz2yq/wilson.jpg',
+            description: 'guide_desc_wilson_alfaro'
         },
         {
             name: 'Jacob',
             imageUrl: 'https://i.postimg.cc/Qd9yYQ3N/jacob.jpg',
+            description: 'guide_desc_jacob'
         },
         {
             name: 'Harley',
             imageUrl: 'https://i.postimg.cc/J0B0f2p9/johanna.jpg',
+            description: 'guide_desc_harley'
         },
         {
             name: 'Johanna',
             imageUrl: 'https://i.postimg.cc/mD3mXj50/harley.jpg',
+            description: 'guide_desc_johanna'
         },
     ];
 
     const guideDescriptions: Record<string, { es: string, en: string }> = {
-        'Wilson Alfaro': {
+        'guide_desc_wilson_alfaro': {
             es: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson Alfaro aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
             en: 'Spiritual guide with a deep connection to Amazonian traditions. Trained in the Peruvian Amazon, Wilson Alfaro brings an ancestral understanding of Ayahuasca and its healing power. His experience facilitates a safe and trustworthy space for personal exploration.'
         },
-        'Jacob': {
+        'guide_desc_jacob': {
             es: 'Maestro espiritual formado en la Amazonía de perú, donde aprendió directamente de curanderos el uso sagrado de la medicina ancestral. Con una presencia serena y profunda, guía ceremonias en Casa Trinitos (Guanacaste), donde acompaña procesos de transformación.',
             en: 'Spiritual master trained in the Peruvian Amazon, where he learned the sacred use of ancestral medicine directly from healers. With a serene and profound presence, he guides ceremonies at Casa Trinitos (Guanacaste), where he accompanies transformation processes.'
         },
-        'Harley': {
+        'guide_desc_harley': {
             es: 'Especialista en atención médica y primeros auxilios, con experiencia en meditaciones guiadas y masajes terapéuticos. Su presencia tranquila y profesional garantiza un entorno seguro durante toda la ceremonia, brindando confianza y contención tanto al equipo como a las participantes.',
             en: 'Specialist in medical care and first aid, with experience in guided meditations and therapeutic massages. Her calm and professional presence ensures a safe environment throughout the ceremony, providing confidence and support to both the team and the participants.'
         },
-        'Johanna': {
+        'guide_desc_johanna': {
             es: 'Guardiana de la medicina formada en la Amazonía de perú. Brindando ceremonias en Colombia y Costa Rica, su presencia aporta seguridad, contención y equilibrio entre lo físico y espiritual, sosteniendo el espacio ceremonial con firmeza, cuidado y profunda conexión con la sanación femenina.',
             en: 'Guardian of the medicine trained in the Peruvian Amazon. Providing ceremonies in Colombia and Costa Rica, her presence brings security, support, and balance between the physical and spiritual, upholding the ceremonial space with firmness, care, and a deep connection to female healing.'
         }
@@ -231,8 +243,8 @@ export const seedGuides = async () => {
         const guideDocRef = doc(guidesCollection); // Create a new doc for the guide
         batch.set(guideDocRef, guide);
         
-        const descId = `guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`;
-        const descContent = guideDescriptions[guide.name];
+        const descId = guide.description;
+        const descContent = guideDescriptions[descId];
         
         if (descContent) {
             const contentDocRef = doc(contentCollection, descId);
@@ -249,13 +261,15 @@ export const getGuides = async (): Promise<Guide[]> => {
         const snapshot = await getDocs(guidesCollection);
         const guides: Guide[] = await Promise.all(snapshot.docs.map(async (docSnapshot) => {
             const guideData = docSnapshot.data();
-            const descId = `guide_desc_${guideData.name.toLowerCase().replace(/ /g, '_')}`;
-            const descriptionContent = await getContent(descId);
+            
+            // The description field in the guide document now holds the ID for the content document.
+            const descriptionContentId = guideData.description;
+            const descriptionContent = await getContent(descriptionContentId);
 
             let description = '';
             if (typeof descriptionContent === 'object' && descriptionContent !== null) {
-                // Here, you just pass the key. The component will handle the language.
-                description = `guide_desc_${guideData.name.toLowerCase().replace(/ /g, '_')}`;
+                // Now we pass the content ID itself, which the component will use.
+                 description = descriptionContentId;
             } else if (typeof descriptionContent === 'string') {
                 // Fallback for older string-based content
                 description = descriptionContent;
@@ -279,16 +293,8 @@ export const getGuides = async (): Promise<Guide[]> => {
 export const updateGuide = async (guide: Guide): Promise<void> => {
     try {
         const guideRef = doc(db, 'guides', guide.id);
-        const { id, description, ...data } = guide; // Exclude description from the main guide document
+        const { id, ...data } = guide; // Exclude description from the main guide document
         await updateDoc(guideRef, data);
-
-        // Update the description in the 'content' collection
-        const descId = `guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`;
-        if (description) {
-            // This assumes `updateContent` handles translation and saving
-            // For simplicity, we just save it here. You might need to call your translation flow.
-            await setContent(descId, description);
-        }
 
     } catch (error) {
         console.error("Error updating guide: ", error);
@@ -539,6 +545,8 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
 };
 
 
+
+    
 
     
 
