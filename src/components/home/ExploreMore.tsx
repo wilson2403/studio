@@ -31,7 +31,7 @@ export default function ExploreMore() {
     ];
 
     return (
-        <section className="container py-12 md:py-24">
+        <section className="container py-12 md:py-24 pl-20">
             <div className="flex flex-col items-center text-center space-y-4 mb-12">
                 <EditableTitle
                     tag="h2"
