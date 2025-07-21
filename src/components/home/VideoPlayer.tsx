@@ -37,6 +37,24 @@ function getYouTubeEmbedUrl(url: string, controls: boolean, autoplay: boolean): 
 
 const TikTokPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
     const videoIdMatch = url.match(/video\/(\d+)/);
+    const [isActivated, setIsActivated] = useState(false);
+
+    if (!isActivated && !controls) {
+         return (
+             <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className)} onClick={() => setIsActivated(true)}>
+                <Image src={'https://placehold.co/100x100/000000/ffffff.png?text=TikTok'} alt="TikTok Logo" width={50} height={50} data-ai-hint="tiktok logo" />
+                <div className="absolute inset-0 bg-black/50"></div>
+                 <div className="relative z-10 flex flex-col items-center">
+                    <Button variant="ghost" size="icon" className="h-16 w-16 bg-white/20 hover:bg-white/30 text-white rounded-full">
+                        <Play className="h-8 w-8 fill-white" />
+                    </Button>
+                     <p className="mt-4 font-semibold">{title}</p>
+                     <p className="text-sm text-gray-300 mt-2">Haz clic para reproducir</p>
+                 </div>
+             </div>
+         );
+    }
+    
     if (!videoIdMatch) {
         return (
             <a href={url} target="_blank" rel="noopener noreferrer" className={cn("w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center", className)}>
@@ -47,8 +65,8 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
         );
     }
     const videoId = videoIdMatch[1];
-    // TikTok embed has very limited control. Mute is often forced. Best effort here.
-    const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&mute=1&controls=${controls ? '1' : '0'}`;
+    
+    const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${controls ? '0':'1'}&loop=${controls ? '0' : '1'}&mute=${controls ? '0':'1'}&controls=${controls ? '1' : '1'}`;
 
     return (
         <iframe
@@ -65,10 +83,9 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
 const FacebookPlayer = ({ url, title, className, controls }: { url: string; title: string; className?: string, controls?: boolean }) => {
     const [isActivated, setIsActivated] = useState(false);
 
-    // This URL will be used in the iframe after user interaction
-    const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=${controls ? '0':'1'}&controls=${controls ? '1':'0'}`;
+    const embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${isActivated ? '1':'0'}&mute=${isActivated && !controls ? '1':'0'}&loop=${controls ? '0':'1'}&controls=${controls ? '1':'0'}`;
 
-    if (!isActivated) {
+    if (!isActivated && !controls) {
          return (
              <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className)} onClick={() => setIsActivated(true)}>
                 <Image src={'https://placehold.co/600x400.png?text=Facebook'} alt="Facebook video thumbnail" layout="fill" objectFit="cover" data-ai-hint="social media video" />
@@ -135,7 +152,7 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
     }, [])
 
     return (
-        <div className={cn("relative w-full h-full group/video", className)} onClick={togglePlay}>
+        <div className={cn("relative w-full h-full group/video", className)} onClick={controls ? undefined : togglePlay}>
             <video
                 ref={videoRef}
                 src={src}

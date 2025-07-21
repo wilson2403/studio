@@ -288,7 +288,7 @@ export default function Hero() {
                   {videos.map((video) => (
                       <CarouselItem key={video.id} className="md:basis-full lg:basis-full">
                         <div className="p-1">
-                          <div className="relative rounded-2xl overflow-hidden aspect-video group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer">
+                          <div className="relative rounded-2xl overflow-hidden aspect-video group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer" onClick={() => setViewingVideo(video)}>
                             {isAdmin && (
                               <div className="absolute top-2 right-2 z-20 flex gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingItem(video); setFormOpen(true); }}>
@@ -324,7 +324,7 @@ export default function Hero() {
                                       <ExternalLink className="h-4 w-4" />
                                   </Button>
                                 </a>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white opacity-0 group-hover/item:opacity-100 transition-opacity" onClick={() => setViewingVideo(video)}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white opacity-0 group-hover/item:opacity-100 transition-opacity" onClick={(e) => {e.stopPropagation(); setViewingVideo(video);}}>
                                     <Expand className="h-4 w-4" />
                                 </Button>
                             </div>
@@ -379,5 +379,6 @@ export default function Hero() {
     </section>
   );
 }
+
 
 
