@@ -34,27 +34,32 @@ body {
     --chart-4: 130 65% 60%;
     --chart-5: 120 75% 55%;
     --radius: 0.75rem;
+
+    /* These will be dynamically updated from admin settings */
+    --dark-primary: 150 40% 45%;
+    --dark-background: 20 14.3% 4.1%;
+    --dark-accent: 140 10% 15%;
   }
   .dark {
-    --background: 20 14.3% 4.1%;
+    --background: var(--dark-background);
     --foreground: 210 20% 98%;
     --card: 140 10% 8%;
     --card-foreground: 210 20% 98%;
     --popover: 20 14.3% 4.1%;
     --popover-foreground: 210 20% 98%;
-    --primary: 150 40% 45%;
+    --primary: var(--dark-primary);
     --primary-foreground: 210 20% 98%;
     --secondary: 140 10% 12%;
     --secondary-foreground: 210 20% 98%;
     --muted: 140 10% 12%;
     --muted-foreground: 140 5% 64.9%;
-    --accent: 140 10% 15%;
+    --accent: var(--dark-accent);
     --accent-foreground: 210 20% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 20% 98%;
     --border: 140 10% 15%;
     --input: 140 10% 15%;
-    --ring: 150 40% 45%;
+    --ring: var(--dark-primary);
     --chart-1: 150 70% 50%;
     --chart-2: 140 60% 45%;
     --chart-3: 160 80% 55%;
