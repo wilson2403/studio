@@ -12,8 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Ceremony, Plan } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { Check, Circle } from 'lucide-react';
-import Link from 'next/link';
+import { Check } from 'lucide-react';
 import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
@@ -35,10 +34,17 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
   const isEnglish = i18n.language === 'en';
   const hasPlans = ceremony.priceType === 'from' && ceremony.plans && ceremony.plans.length > 0;
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number, priceUntil?: number) => {
     if (isEnglish) {
       const priceInUSD = Math.round(price / USD_EXCHANGE_RATE);
+      if (priceUntil && priceUntil > price) {
+        const priceUntilInUSD = Math.round(priceUntil / USD_EXCHANGE_RATE);
+        return `$${priceInUSD} - $${priceUntilInUSD} USD`;
+      }
       return `$${priceInUSD} USD`;
+    }
+    if (priceUntil && priceUntil > price) {
+        return `${new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price)} - ${new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(priceUntil)}`;
     }
     return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC', minimumFractionDigits: 0 }).format(price);
   };
@@ -91,9 +97,10 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                              <Label key={i} htmlFor={`plan-${i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
                                 <div>
                                     <p className="font-semibold">{plan.name}</p>
+                                    <p className="text-sm text-muted-foreground">{plan.description}</p>
                                 </div>
                                 <div className='flex items-center gap-4'>
-                                    <span className="font-bold text-lg">{formatPrice(plan.price)}</span>
+                                    <span className="font-bold text-lg">{formatPrice(plan.price, plan.priceUntil)}</span>
                                     <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${i}`} />
                                 </div>
                              </Label>

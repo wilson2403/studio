@@ -30,7 +30,9 @@ import { useTranslation } from 'react-i18next';
 
 const planSchema = (t: (key: string) => string) => z.object({
   name: z.string().min(1, t('errorRequired', { field: t('planName') })),
+  description: z.string().min(1, t('errorRequired', { field: t('planDescription') })),
   price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('planPrice') })),
+  priceUntil: z.coerce.number().optional(),
 });
 
 const formSchema = (t: (key: string) => string) => z.object({
@@ -92,7 +94,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
       mediaUrl: '',
       mediaType: 'image',
-      plans: [{ name: 'Plan Básico', price: 80000 }, { name: 'Plan Completo', price: 100000 }],
+      plans: [{ name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
       contributionText: t('defaultContributionText'),
     },
   });
@@ -334,8 +336,8 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                <Label className="text-right pt-2">{t('plansTitle')}</Label>
                <div className="col-span-3 space-y-4">
                  {planFields.map((field, index) => (
-                   <div key={field.id} className="grid grid-cols-2 gap-2 items-start p-3 border rounded-md relative">
-                      <div className="col-span-2 absolute -top-2 -right-2">
+                   <div key={field.id} className="space-y-2 p-3 border rounded-md relative">
+                      <div className="absolute top-2 right-2">
                         <Button type="button" variant="destructive" size="icon" className="h-6 w-6" onClick={() => removePlan(index)} disabled={isUploading}><Trash className="h-3 w-3"/></Button>
                       </div>
                      <div>
@@ -343,12 +345,22 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                        <Input id={`plans.${index}.name`} {...form.register(`plans.${index}.name`)} disabled={isUploading} />
                      </div>
                      <div>
-                       <Label htmlFor={`plans.${index}.price`}>{t('planPrice')}</Label>
-                       <Input id={`plans.${index}.price`} type="number" {...form.register(`plans.${index}.price`)} disabled={isUploading} />
+                       <Label htmlFor={`plans.${index}.description`}>{t('planDescription')}</Label>
+                       <Textarea id={`plans.${index}.description`} {...form.register(`plans.${index}.description`)} disabled={isUploading} />
+                     </div>
+                     <div className="grid grid-cols-2 gap-2">
+                       <div>
+                         <Label htmlFor={`plans.${index}.price`}>{t('planPriceFrom')}</Label>
+                         <Input id={`plans.${index}.price`} type="number" {...form.register(`plans.${index}.price`)} disabled={isUploading} />
+                       </div>
+                       <div>
+                         <Label htmlFor={`plans.${index}.priceUntil`}>{t('planPriceUntil')}</Label>
+                         <Input id={`plans.${index}.priceUntil`} type="number" {...form.register(`plans.${index}.priceUntil`)} disabled={isUploading} />
+                       </div>
                      </div>
                    </div>
                  ))}
-                 <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ name: '', price: 0 })} disabled={isUploading}>
+                 <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ name: '', description: '', price: 0 })} disabled={isUploading}>
                    <PlusCircle className="mr-2 h-4 w-4" />
                    {t('addPlan')}
                  </Button>

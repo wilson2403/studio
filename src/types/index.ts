@@ -4,6 +4,8 @@ import { Timestamp } from "firebase/firestore";
 export type Plan = {
   name: string;
   price: number;
+  priceUntil?: number;
+  description: string;
 };
 
 export type Ceremony = {

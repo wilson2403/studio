@@ -68,8 +68,8 @@ export const seedCeremonies = async () => {
       mediaUrl: 'https://placehold.co/600x400.png',
       mediaType: 'image',
       plans: [
-        { name: 'Plan Básico', price: 80000 },
-        { name: 'Plan Completo', price: 100000 }
+        { name: 'Plan Básico', price: 80000, description: "Incluye ceremonia y guía." },
+        { name: 'Plan Completo', price: 100000, priceUntil: 120000, description: "Incluye ceremonia, guía y hospedaje." }
       ],
       contributionText: 'Puedes reservar con el 20%',
     },
@@ -84,8 +84,8 @@ export const seedCeremonies = async () => {
       mediaUrl: 'https://placehold.co/600x400.png',
       mediaType: 'image',
       plans: [
-        { name: 'Individual', price: 80000 },
-        { name: 'Pareja', price: 150000 }
+        { name: 'Individual', price: 80000, description: 'Acceso completo para una persona.' },
+        { name: 'Pareja', price: 150000, description: 'Acceso completo para dos personas.' }
       ],
       contributionText: 'Puedes reservar con el 20%',
     },
@@ -100,7 +100,7 @@ export const seedCeremonies = async () => {
        mediaUrl: 'https://placehold.co/600x400.png',
       mediaType: 'image',
       plans: [
-        { name: 'Plan Básico', price: 80000 }
+        { name: 'Plan Básico', price: 80000, description: 'Solo ceremonia.' }
       ],
       contributionText: 'Puedes reservar con el 20%',
     },
