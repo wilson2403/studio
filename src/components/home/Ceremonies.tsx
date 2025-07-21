@@ -70,8 +70,18 @@ export default function Ceremonies({
     const fetchCeremonies = async () => {
       setLoading(true);
       try {
-        const ceremoniesData = await getCeremonies(status);
-        setCeremonies(ceremoniesData);
+        let ceremoniesData = await getCeremonies();
+        if(ceremoniesData.length === 0) {
+            await seedCeremonies();
+            ceremoniesData = await getCeremonies();
+        }
+        
+        if (status) {
+            setCeremonies(ceremoniesData.filter(c => c.status === status));
+        } else {
+            setCeremonies(ceremoniesData);
+        }
+
       } catch (error) {
         console.error("Failed to fetch ceremonies:", error);
       } finally {
@@ -205,7 +215,7 @@ export default function Ceremonies({
                       <div className="p-1">
                         <div 
                           className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer"
-                          onClick={() => setActiveVideo(ceremony.id)}
+                          onClick={() => setViewingVideo(ceremony)}
                         >
                           {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
@@ -220,16 +230,13 @@ export default function Ceremonies({
                                     <ExternalLink className="h-4 w-4" />
                                 </Button>
                               </a>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white opacity-0 group-hover/item:opacity-100 transition-opacity" onClick={(e) => {e.stopPropagation(); setViewingVideo(ceremony);}}>
-                                  <Expand className="h-4 w-4" />
-                              </Button>
                           </div>
                           <VideoPlayer 
                             videoUrl={ceremony.mediaUrl} 
                             mediaType={ceremony.mediaType}
                             title={ceremony.title}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                            isActivated={activeVideo === ceremony.id}
+                            isActivated={false} // Always show placeholder in carousel
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover/item:from-black/40 transition-all duration-300"></div>
                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover/item:translate-y-0 opacity-0 group-hover/item:opacity-100 text-left w-full">
@@ -347,7 +354,7 @@ export default function Ceremonies({
       )}
       {viewingVideo && (
         <Dialog open={!!viewingVideo} onOpenChange={(open) => !open && setViewingVideo(null)}>
-          <DialogContent className="max-w-4xl p-0 border-0">
+          <DialogContent className="max-w-4xl p-0 border-0 bg-transparent">
              <div className="aspect-video">
                 <VideoPlayer 
                   videoUrl={viewingVideo.mediaUrl}

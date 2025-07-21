@@ -25,7 +25,7 @@ const getYoutubeEmbedUrl = (url: string, controls: boolean): string | null => {
 
   const params = new URLSearchParams({
     autoplay: '1',
-    mute: '1',
+    mute: controls ? '0' : '1', // Mute only if controls are hidden
     loop: '1',
     controls: controls ? '1' : '0',
     playlist: videoId,
@@ -105,7 +105,7 @@ const DirectVideoPlayer = ({ src, className, controls, isActivated }: { src: str
         if (videoRef.current) {
             if (isActivated && !controls) {
                 videoRef.current.play().catch(console.error);
-            } else {
+            } else if (!isActivated) {
                 videoRef.current.pause();
             }
         }
@@ -190,7 +190,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     <div
       data-video-player
       className={cn(
-        "absolute inset-0 w-full h-full bg-black flex items-center justify-center text-white cursor-pointer overflow-hidden",
+        "relative w-full h-full bg-black flex items-center justify-center text-white cursor-pointer overflow-hidden",
         className
       )}
     >
