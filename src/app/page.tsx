@@ -1,4 +1,3 @@
-
 'use client';
 
 import Ceremonies from '@/components/home/Ceremonies';
@@ -10,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import PastCeremoniesSection from '@/components/home/PastCeremoniesSection';
 import Hero from '@/components/home/Hero';
 import WelcomeTour from '@/components/auth/WelcomeTour';
+import ExploreMore from '@/components/home/ExploreMore';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -21,6 +21,7 @@ export default function Home() {
       <PastCeremoniesSection />
       <Ceremonies />
       <PreparationCta />
+      <ExploreMore />
       <Contact />
     </EditableProvider>
   );
