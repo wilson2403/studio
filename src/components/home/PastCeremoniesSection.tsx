@@ -89,7 +89,7 @@ const PastCeremonyForm = ({
           return;
       }
       
-      const ceremonyData = { title, description, date, videoUrl: finalVideoUrl };
+      const ceremonyData = { title, description, date, videoUrl: finalVideoUrl, mediaType: 'video' as const };
 
       if (item) { // Edit
         const updatedItem = { ...item, ...ceremonyData };
@@ -142,7 +142,7 @@ const PastCeremonyForm = ({
       
       <div className="space-y-2">
         <Label htmlFor="videoUrl">{t('videoFormUrl')}</Label>
-        <Input id="videoUrl" value={videoUrl} onChange={(e) => {setVideoUrl(e.target.value); setVideoFile(null)}} type="url" placeholder="https://youtube.com/watch?v=..." />
+        <Input id="videoUrl" value={videoUrl} onChange={(e) => {setVideoUrl(e.target.value); setVideoFile(null)}} type="url" placeholder="https://youtube.com/watch?v=... o https://tiktok.com/..." />
       </div>
 
       <div className="relative flex items-center justify-center w-full">
@@ -352,6 +352,7 @@ export default function PastCeremoniesSection() {
                             </div>
                             <VideoPlayer 
                               videoUrl={video.videoUrl} 
+                              mediaType={video.mediaType}
                               title={video.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
                             />
@@ -384,6 +385,7 @@ export default function PastCeremoniesSection() {
                   title={viewingVideo.title}
                   className="w-full h-full object-contain rounded-lg"
                   controls
+                  mediaType={viewingVideo.mediaType}
                 />
              </div>
           </DialogContent>

@@ -29,6 +29,7 @@ export type PastCeremony = {
   description: string;
   videoUrl: string;
   date?: string;
+  mediaType?: 'image' | 'video';
 };
 
 export type Guide = {
