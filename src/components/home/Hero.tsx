@@ -17,7 +17,7 @@ import {
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '../ui/button';
-import { Copy, Edit, ExternalLink, PlusCircle, Trash } from 'lucide-react';
+import { Copy, Edit, ExternalLink, PlusCircle, Trash, CalendarIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -46,6 +46,7 @@ const PastCeremonyForm = ({
 }) => {
   const [title, setTitle] = React.useState(item?.title || '');
   const [description, setDescription] = React.useState(item?.description || '');
+  const [date, setDate] = React.useState(item?.date || '');
   const [videoUrl, setVideoUrl] = React.useState(item?.videoUrl || '');
   const [videoFile, setVideoFile] = React.useState<File | null>(null);
   const [uploading, setUploading] = React.useState(false);
@@ -84,7 +85,7 @@ const PastCeremonyForm = ({
           return;
       }
       
-      const ceremonyData = { title, description, videoUrl: finalVideoUrl };
+      const ceremonyData = { title, description, date, videoUrl: finalVideoUrl };
 
       if (item) { // Edit
         const updatedItem = { ...item, ...ceremonyData };
@@ -113,8 +114,12 @@ const PastCeremonyForm = ({
         <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
       </div>
       <div>
-        <Label htmlFor="description">{t('videoFormDescription')}</Label>
+        <Label htmlFor="description">{t('formDescription')}</Label>
         <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} required />
+      </div>
+      <div>
+        <Label htmlFor="date">{t('videoFormDate')}</Label>
+        <Input id="date" value={date} onChange={(e) => setDate(e.target.value)} placeholder="Ej: Junio 2024" />
       </div>
       
       <div className="space-y-2">
@@ -323,9 +328,12 @@ export default function Hero() {
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
-                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left">
+                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left w-full">
                                 <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>
                                 <p className="font-body text-sm opacity-90 mt-1">{video.description}</p>
+                                {video.date && (
+                                  <p className="font-mono text-xs opacity-70 mt-2 flex items-center gap-1.5"><CalendarIcon className='w-3 h-3'/> {video.date}</p>
+                                )}
                             </div>
                           </div>
                       </div>

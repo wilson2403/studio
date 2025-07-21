@@ -1,4 +1,5 @@
 
+
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage } from '@/types';
@@ -143,16 +144,19 @@ export const seedPastCeremonies = async () => {
             videoUrl: 'https://videos.pexels.com/video-files/8086041/8086041-hd_1920_1080_25fps.mp4',
             title: 'Transformación Interior',
             description: '“Una experiencia que cambió mi perspectiva por completo.”',
+            date: 'Junio 2024',
         },
         {
             videoUrl: 'https://videos.pexels.com/video-files/4494493/4494493-hd_1920_1080_25fps.mp4',
             title: 'Conexión Profunda',
             description: '“Nunca me había sentido tan conectado con la naturaleza y conmigo mismo.”',
+            date: 'Mayo 2024',
         },
         {
             videoUrl: 'https://videos.pexels.com/video-files/3840441/3840441-hd_1920_1080_30fps.mp4',
             title: 'Sanación y Paz',
             description: '“Encontré la paz que tanto buscaba. Un viaje de sanación inolvidable.”',
+            date: 'Abril 2024',
         },
     ];
 

@@ -274,7 +274,7 @@ export default function PastCeremoniesSection() {
                     {videos.map((video) => (
                         <CarouselItem key={video.id} className="md:basis-1/2 lg:basis-1/3">
                         <div className="p-1 md:p-2">
-                            <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group shadow-2xl shadow-primary/20 border-2 border-primary/30">
+                            <div className="relative rounded-2xl overflow-hidden aspect-video group shadow-2xl shadow-primary/20 border-2 border-primary/30">
                             {isAdmin && (
                                 <div className="absolute top-2 right-2 z-20 flex gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => {setEditingItem(video); setFormOpen(true)}}>

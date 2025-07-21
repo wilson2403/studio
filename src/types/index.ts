@@ -18,6 +18,7 @@ export type PastCeremony = {
   title: string;
   description: string;
   videoUrl: string;
+  date?: string;
 };
 
 export type Guide = {
