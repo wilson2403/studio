@@ -65,19 +65,10 @@ export default function Ceremonies({
     const fetchCeremonies = async () => {
       setLoading(true);
       try {
-        let ceremoniesData = await getCeremonies(status);
-        // Only seed if there are no ceremonies at all, and it's the active section
-        if (status === 'active' && ceremoniesData.length === 0) {
-            const allCeremonies = await getCeremonies();
-            if (allCeremonies.length === 0) {
-                 console.log('No ceremonies found, seeding database...');
-                 await seedCeremonies();
-                 ceremoniesData = await getCeremonies(status);
-            }
-        }
+        const ceremoniesData = await getCeremonies(status);
         setCeremonies(ceremoniesData);
       } catch (error) {
-        console.error("Failed to fetch or seed ceremonies:", error);
+        console.error("Failed to fetch ceremonies:", error);
       } finally {
         setLoading(false);
       }
