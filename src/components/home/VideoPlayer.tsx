@@ -89,6 +89,22 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     
+    // Safety check: if src is not provided, render a placeholder to avoid crashes.
+    if (!src) {
+        return (
+            <div className={cn("relative w-full h-full", className)}>
+                <Image
+                    src="https://placehold.co/600x400.png"
+                    alt="Invalid video source"
+                    layout="fill"
+                    objectFit="cover"
+                    data-ai-hint="error"
+                    className='object-cover'
+                />
+            </div>
+        );
+    }
+    
     const togglePlay = (e?: React.MouseEvent) => {
         e?.stopPropagation(); 
         if (videoRef.current) {

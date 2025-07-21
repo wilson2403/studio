@@ -132,7 +132,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                     <Check className="h-5 w-5 text-primary" />
                     <span>{t('includes')}</span>
                     </li>
-                    {ceremony.features.map((feature, i) => (
+                    {ceremony.features?.map((feature, i) => (
                     <li key={i} className="flex items-center gap-3 ml-4">
                         <Check className="h-5 w-5 text-primary/70" />
                         <span className="text-muted-foreground">{feature}</span>
