@@ -80,34 +80,41 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
   }, [facebookEmbedUrl, mediaUrl]);
 
   useEffect(() => {
-    if (tiktokData && tiktokRef.current) {
-        if (typeof (window as any).tiktok !== 'undefined') {
-            (window as any).tiktok.load();
-        } else {
-            const script = document.createElement('script');
-            script.src = "https://www.tiktok.com/embed.js";
-            script.async = true;
-            document.body.appendChild(script);
-        }
+    if (tiktokData) {
+      if (typeof (window as any).tiktok !== 'undefined') {
+        (window as any).tiktok.load();
+      } else {
+        const script = document.createElement('script');
+        script.id = 'tiktok-embed-script';
+        script.src = "https://www.tiktok.com/embed.js";
+        script.async = true;
+        document.head.appendChild(script);
+      }
     }
   }, [tiktokData]);
 
   useEffect(() => {
-    if (tiktokData) {
-        const interval = setInterval(() => {
-            const iframe = tiktokRef.current?.querySelector('iframe');
-            if (iframe) {
-                const videoElement = iframe.contentWindow?.document.querySelector('video');
-                if (videoElement) {
-                    videoElement.muted = true;
-                    videoElement.play().catch(e => console.error("Autoplay failed", e));
-                    clearInterval(interval);
-                }
-            }
-        }, 500);
-        return () => clearInterval(interval);
-    }
-}, [tiktokData]);
+      if (!tiktokData) return;
+
+      const interval = setInterval(() => {
+          if (!tiktokRef.current) return;
+          const iframe = tiktokRef.current.querySelector('iframe');
+          if (iframe && iframe.contentWindow) {
+              const video = iframe.contentWindow.document.querySelector('video');
+              if (video) {
+                  video.muted = true;
+                  video.setAttribute('playsinline', ''); // Important for iOS
+                  const promise = video.play();
+                  if (promise !== undefined) {
+                    promise.catch(error => console.error("Autoplay failed", error));
+                  }
+                  clearInterval(interval);
+              }
+          }
+      }, 500);
+
+      return () => clearInterval(interval);
+  }, [tiktokData]);
 
 
   if (youtubeEmbedUrl) {
