@@ -259,30 +259,7 @@ export const seedGuides = async () => {
 export const getGuides = async (): Promise<Guide[]> => {
     try {
         const snapshot = await getDocs(guidesCollection);
-        const guides: Guide[] = await Promise.all(snapshot.docs.map(async (docSnapshot) => {
-            const guideData = docSnapshot.data();
-            
-            // The description field in the guide document now holds the ID for the content document.
-            const descriptionContentId = guideData.description;
-            const descriptionContent = await getContent(descriptionContentId);
-
-            let description = '';
-            if (typeof descriptionContent === 'object' && descriptionContent !== null) {
-                // Now we pass the content ID itself, which the component will use.
-                 description = descriptionContentId;
-            } else if (typeof descriptionContent === 'string') {
-                // Fallback for older string-based content
-                description = descriptionContent;
-            }
-
-            return { 
-                id: docSnapshot.id, 
-                name: guideData.name,
-                imageUrl: guideData.imageUrl,
-                description: description 
-            } as Guide;
-        }));
-        return guides;
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Guide));
     } catch (error) {
         console.error("Error fetching guides: ", error);
         return [];
