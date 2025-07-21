@@ -22,7 +22,7 @@ export default function GuidesPage() {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingGuide, setEditingGuide] = useState<Guide | null>(null);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -127,7 +127,7 @@ export default function GuidesPage() {
                               <EditableTitle 
                                 tag="p"
                                 id={`guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`}
-                                initialValue={t(`guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`)}
+                                initialValue={guide.description || ''}
                                 className="font-body text-base text-foreground/80"
                                />
                           </CardContent>

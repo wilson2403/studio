@@ -187,7 +187,7 @@ export const reactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
 
 // --- Guides ---
 export const seedGuides = async () => {
-    const initialGuides: Omit<Guide, 'id'>[] = [
+    const initialGuides: Omit<Guide, 'id' | 'description'>[] = [
         {
             name: 'Wilson Alfaro',
             imageUrl: 'https://i.postimg.cc/k4Dvz2yq/wilson.jpg',
@@ -246,18 +246,48 @@ export const seedGuides = async () => {
 export const getGuides = async (): Promise<Guide[]> => {
     try {
         const snapshot = await getDocs(guidesCollection);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Guide));
+        const guides: Guide[] = await Promise.all(snapshot.docs.map(async (docSnapshot) => {
+            const guideData = docSnapshot.data();
+            const descId = `guide_desc_${guideData.name.toLowerCase().replace(/ /g, '_')}`;
+            const descriptionContent = await getContent(descId);
+
+            let description = '';
+            if (typeof descriptionContent === 'object' && descriptionContent !== null) {
+                // Assuming you have a way to get the current language, e.g., 'es' or 'en'
+                // This part might need adjustment based on how you handle i18n on the server
+                description = (descriptionContent as any)['es'] || ''; // Default to Spanish or empty
+            } else if (typeof descriptionContent === 'string') {
+                description = descriptionContent;
+            }
+
+            return { 
+                id: docSnapshot.id, 
+                ...guideData,
+                description: description 
+            } as Guide;
+        }));
+        return guides;
     } catch (error) {
         console.error("Error fetching guides: ", error);
         return [];
     }
 }
 
+
 export const updateGuide = async (guide: Guide): Promise<void> => {
     try {
         const guideRef = doc(db, 'guides', guide.id);
-        const { id, ...data } = guide;
+        const { id, description, ...data } = guide; // Exclude description from the main guide document
         await updateDoc(guideRef, data);
+
+        // Update the description in the 'content' collection
+        const descId = `guide_desc_${guide.name.toLowerCase().replace(/ /g, '_')}`;
+        if (description) {
+            // This assumes `updateContent` handles translation and saving
+            // For simplicity, we just save it here. You might need to call your translation flow.
+            await setContent(descId, description);
+        }
+
     } catch (error) {
         console.error("Error updating guide: ", error);
         throw error;
