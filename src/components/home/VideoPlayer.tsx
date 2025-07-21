@@ -84,8 +84,8 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(!controls); // Autoplay if no controls
 
-    const togglePlay = (e: React.MouseEvent) => {
-        e.stopPropagation(); 
+    const togglePlay = (e?: React.MouseEvent) => {
+        e?.stopPropagation(); 
         if (videoRef.current) {
             if (videoRef.current.paused) {
                 videoRef.current.play();
@@ -220,6 +220,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
 
   return (
     <div 
+        data-video-player
         className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className)}
         onClick={activateIframe}
     >

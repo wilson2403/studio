@@ -343,12 +343,12 @@ export default function PastCeremoniesSection() {
                                 className="absolute inset-0"
                                 onClick={(e) => {
                                     const target = e.target as HTMLElement;
-                                    // Prevent modal from opening if an action button was clicked
+                                    // Prevent action if a button was clicked
                                     if (target.closest('button') || target.closest('a')) {
-                                    return;
+                                        return;
                                     }
-                                    const videoPlayer = (e.currentTarget.querySelector('video, iframe') as (HTMLVideoElement | HTMLIFrameElement | null));
-                                    const playerWrapper = (e.currentTarget.querySelector('[data-video-wrapper]') as HTMLElement | null);
+                                    // Find the video player wrapper and click it to toggle play/pause
+                                    const playerWrapper = (e.currentTarget.querySelector('[data-video-player]') as HTMLElement | null);
                                     if(playerWrapper) {
                                       playerWrapper.click();
                                     }
