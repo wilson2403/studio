@@ -181,18 +181,8 @@ export default function Ceremonies() {
               <Button
                 onClick={() => handleViewPlans(ceremony)}
                 className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
-                variant={'outline'}
               >
                 {t('viewPlans')}
-              </Button>
-              <Button asChild className="w-full" variant="link">
-                <Link
-                  href={ceremony.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t('bookSpot')}
-                </Link>
               </Button>
             </CardFooter>
             </div>
