@@ -310,16 +310,16 @@ export default function PastCeremonies() {
            ) : (
             <Carousel
                 opts={{
-                align: 'start',
-                loop: true,
+                    align: 'start',
+                    loop: true,
                 }}
                 className="w-full"
             >
                 <CarouselContent>
                 {videos.map((video) => (
-                    <CarouselItem key={video.id} className="md:basis-1/2 lg:basis-1/3">
-                      <div className="p-1">
-                        <div className="relative rounded-2xl overflow-hidden aspect-video group shadow-2xl shadow-primary/20 border-2 border-primary/30">
+                    <CarouselItem key={video.id} className="basis-[80%] md:basis-1/2 lg:basis-1/3">
+                      <div className="p-1 md:p-2">
+                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group shadow-2xl shadow-primary/20 border-2 border-primary/30">
                            {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80" onClick={() => {setEditingItem(video); setFormOpen(true)}}>
@@ -360,8 +360,8 @@ export default function PastCeremonies() {
                     </CarouselItem>
                 ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-4" />
-                <CarouselNext className="right-4"/>
+                <CarouselPrevious className="left-[-1rem] md:left-4" />
+                <CarouselNext className="right-[-1rem] md:right-4"/>
             </Carousel>
            )}
       </div>

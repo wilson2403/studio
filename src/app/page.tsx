@@ -1,3 +1,4 @@
+
 'use client';
 
 import Ceremonies from '@/components/home/Ceremonies';
@@ -32,7 +33,9 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <PastCeremonies />
+        <div className="w-full px-4 md:px-0">
+            <PastCeremonies />
+        </div>
         <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700">
           <EditableTitle
             tag="p"
