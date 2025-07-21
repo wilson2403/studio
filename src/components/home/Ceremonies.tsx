@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ import { CalendarIcon, Edit, Expand, ExternalLink, PlusCircle } from 'lucide-rea
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +35,8 @@ interface CeremoniesProps {
   titleInitialValue: string;
   subtitleId?: string;
   subtitleInitialValue?: string;
+  activeVideo: string | null;
+  setActiveVideo: (id: string | null) => void;
 }
 
 export default function Ceremonies({ 
@@ -43,6 +46,8 @@ export default function Ceremonies({
   titleInitialValue,
   subtitleId,
   subtitleInitialValue,
+  activeVideo,
+  setActiveVideo,
 }: CeremoniesProps) {
   const [user, setUser] = useState<User | null>(null);
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
@@ -113,8 +118,6 @@ export default function Ceremonies({
   };
 
   const isAdmin = user && user.email === ADMIN_EMAIL;
-
-  const [activeVideo, setActiveVideo] = useState<string | null>(null);
   
   const renderActiveCeremonies = () => (
     <div className="flex flex-wrap gap-8 justify-center">
@@ -344,7 +347,7 @@ export default function Ceremonies({
                 <VideoPlayer 
                   videoUrl={viewingVideo.mediaUrl}
                   title={viewingVideo.title}
-                  className="w-full h-full object-contain rounded-lg"
+                  className="w-full h-full object-cover rounded-lg"
                   controls
                   mediaType={viewingVideo.mediaType}
                   isActivated={true}

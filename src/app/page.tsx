@@ -1,3 +1,4 @@
+
 'use client';
 
 import Ceremonies from '@/components/home/Ceremonies';
@@ -9,9 +10,12 @@ import { useTranslation } from 'react-i18next';
 import Hero from '@/components/home/Hero';
 import WelcomeTour from '@/components/auth/WelcomeTour';
 import ExploreMore from '@/components/home/ExploreMore';
+import { useState } from 'react';
 
 export default function Home() {
   const { t } = useTranslation();
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
+
   return (
     <EditableProvider>
       <WelcomeTour />
@@ -22,6 +26,8 @@ export default function Home() {
         id="eventos-anteriores"
         titleId="pastEventsTitle"
         titleInitialValue={t('pastEventsTitle')}
+        activeVideo={activeVideo}
+        setActiveVideo={setActiveVideo}
       />
       <Ceremonies 
         status="active" 
@@ -30,6 +36,8 @@ export default function Home() {
         titleInitialValue={t('upcomingCeremoniesTitle')}
         subtitleId="upcomingCeremoniesSubtitle"
         subtitleInitialValue={t('upcomingCeremoniesSubtitle')}
+        activeVideo={activeVideo}
+        setActiveVideo={setActiveVideo}
       />
       <PreparationCta />
       <ExploreMore />

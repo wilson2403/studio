@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -75,9 +76,9 @@ const IframePlaceholder = ({ title }: { title: string }) => (
   </div>
 );
 
-const DirectVideoPlayer = ({ src, className, controls }: { src: string, className?: string, controls?: boolean }) => {
+const DirectVideoPlayer = ({ src, className, controls, isActivated }: { src: string, className?: string, controls?: boolean, isActivated?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
-    const [isPlaying, setIsPlaying] = useState(!controls); // Autoplay if no controls
+    const [isPlaying, setIsPlaying] = useState(isActivated && !controls);
 
     const togglePlay = (e?: React.MouseEvent) => {
         e?.stopPropagation(); 
@@ -100,12 +101,23 @@ const DirectVideoPlayer = ({ src, className, controls }: { src: string, classNam
         }
     }, [controls]);
 
+    useEffect(() => {
+        if (videoRef.current) {
+            if (isActivated && !controls) {
+                videoRef.current.play().catch(console.error);
+            } else {
+                videoRef.current.pause();
+            }
+        }
+    }, [isActivated, controls]);
+
+
     return (
         <div className={cn("relative w-full h-full group/video", className)} onClick={togglePlay}>
             <video
                 ref={videoRef}
                 src={src}
-                autoPlay={!controls}
+                autoPlay={isActivated && !controls}
                 loop={!controls}
                 playsInline
                 controls={controls}
@@ -167,7 +179,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
 
     // Fallback to direct video player
     if (mediaType === 'video') {
-      return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} controls={controls} />;
+      return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} controls={controls} isActivated={isActivated}/>;
     }
 
     // Final fallback
