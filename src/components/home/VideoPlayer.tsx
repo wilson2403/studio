@@ -61,8 +61,8 @@ const getStreamableEmbedUrl = (url: string): string | null => {
 
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    // Common video file extensions
-    return /\.(mp4|webm|ogg)(\?.*)?$/.test(url);
+    // Handle local paths and common video file extensions
+    return url.startsWith('/') || /\.(mp4|webm|ogg)(\?.*)?$/.test(url);
 };
 
 
@@ -208,7 +208,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
     }
 
-    // Use direct video player for .mp4, .webm, etc. or if mediaType is video
+    // Use direct video player for local paths, .mp4, .webm, etc. or if mediaType is video
     if (mediaType === 'video' || isDirectVideoUrl(videoUrl)) {
       return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }

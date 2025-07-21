@@ -43,7 +43,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   link: z.string().url(t('errorInvalidUrl')).or(z.literal('')),
   featured: z.boolean(),
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
-  mediaUrl: z.string().url(t('errorInvalidUrl')).optional().or(z.literal('')),
+  mediaUrl: z.string().optional(),
   mediaType: z.enum(['image', 'video']).default('image'),
   plans: z.array(planSchema(t)).optional(),
   contributionText: z.string().optional(),
@@ -355,14 +355,18 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
           </div>
            <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="mediaUrl" className="text-right">{t('formMediaUrl')}</Label>
-            <Input id="mediaUrl" {...form.register('mediaUrl')} className="col-span-3" placeholder="https://youtube.com/watch?v=... o https://.../image.png" disabled={isUploading || !!mediaFile}/>
+            <div className="col-span-3">
+              <Input id="mediaUrl" {...form.register('mediaUrl')} placeholder="https://youtube.com/... o /videos/local.mp4" disabled={isUploading || !!mediaFile}/>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('localVideoNote')}
+              </p>
+            </div>
             {form.formState.errors.mediaUrl && <p className="col-span-4 text-red-500 text-xs text-right">{form.formState.errors.mediaUrl.message}</p>}
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
              <Label htmlFor="media-upload" className="text-right">{t('formOrUpload')}</Label>
              <div className="col-span-3">
                 <Input id="media-upload" type="file" accept="image/*,video/*" onChange={handleFileChange} disabled={isUploading || !!form.watch('mediaUrl')}/>
-                {mediaFile && <p className="text-sm text-muted-foreground mt-1">{t('videoFormSelected', { fileName: mediaFile.name })}</p>}
              </div>
           </div>
           
