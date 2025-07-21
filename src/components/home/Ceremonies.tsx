@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -12,7 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Check, Edit, PlusCircle } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
@@ -62,6 +63,8 @@ function getFacebookEmbedUrl(url: string): string | null {
 
 
 const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, mediaType?: 'image' | 'video', title: string }) => {
+  const tiktokRef = useRef<HTMLQuoteElement>(null);
+  
   if (!mediaUrl) {
     return <Image src='https://placehold.co/600x400.png' alt={title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-ai-hint="spiritual ceremony" />;
   }
@@ -75,6 +78,36 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
         (window as any).FB.XFBML.parse();
     }
   }, [facebookEmbedUrl, mediaUrl]);
+
+  useEffect(() => {
+    if (tiktokData && tiktokRef.current) {
+        if (typeof (window as any).tiktok !== 'undefined') {
+            (window as any).tiktok.load();
+        } else {
+            const script = document.createElement('script');
+            script.src = "https://www.tiktok.com/embed.js";
+            script.async = true;
+            document.body.appendChild(script);
+        }
+    }
+  }, [tiktokData]);
+
+  useEffect(() => {
+    if (tiktokData) {
+        const interval = setInterval(() => {
+            const iframe = tiktokRef.current?.querySelector('iframe');
+            if (iframe) {
+                const videoElement = iframe.contentWindow?.document.querySelector('video');
+                if (videoElement) {
+                    videoElement.muted = true;
+                    videoElement.play().catch(e => console.error("Autoplay failed", e));
+                    clearInterval(interval);
+                }
+            }
+        }, 500);
+        return () => clearInterval(interval);
+    }
+}, [tiktokData]);
 
 
   if (youtubeEmbedUrl) {
@@ -93,6 +126,7 @@ const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, media
   if (tiktokData) {
     return (
       <blockquote
+        ref={tiktokRef}
         className="tiktok-embed w-full h-full"
         cite={mediaUrl}
         data-video-id={tiktokData.videoId}
@@ -165,31 +199,6 @@ export default function Ceremonies() {
     };
     fetchCeremonies();
   }, []);
-
-  useEffect(() => {
-    const hasTikTok = ceremonies.some(c => c.mediaUrl && getTikTokEmbedData(c.mediaUrl));
-    
-    if (hasTikTok) {
-      const scriptId = 'tiktok-embed-script';
-      const existingScript = document.getElementById(scriptId);
-      if (existingScript) {
-        existingScript.remove();
-      }
-
-      const script = document.createElement('script');
-      script.id = scriptId;
-      script.src = "https://www.tiktok.com/embed.js";
-      script.async = true;
-      document.body.appendChild(script);
-
-      return () => {
-        const scriptToRemove = document.getElementById(scriptId);
-        if (scriptToRemove) {
-          document.body.removeChild(scriptToRemove);
-        }
-      };
-    }
-  }, [ceremonies]);
 
   useEffect(() => {
     if (typeof (window as any).FB !== 'undefined') {
