@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CalendarIcon, Edit, Expand, ExternalLink, PlusCircle } from 'lucide-react';
+import { CalendarIcon, Edit, ExternalLink, PlusCircle } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -23,7 +23,6 @@ import CeremonyDetailsDialog from './CeremonyDetailsDialog';
 import { VideoPlayer } from './VideoPlayer';
 import { cn } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
-import { Dialog, DialogContent } from '../ui/dialog';
 import { Skeleton } from '../ui/skeleton';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
@@ -54,7 +53,6 @@ export default function Ceremonies({
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
-  const [viewingVideo, setViewingVideo] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
@@ -70,17 +68,17 @@ export default function Ceremonies({
     const fetchCeremonies = async () => {
       setLoading(true);
       try {
-        let ceremoniesData = await getCeremonies();
-        if(ceremoniesData.length === 0) {
-            await seedCeremonies();
-            ceremoniesData = await getCeremonies();
+        let ceremoniesData = await getCeremonies(status);
+        
+        if (ceremoniesData.length === 0 && status === 'active') {
+            const allCeremonies = await getCeremonies();
+            if (allCeremonies.length === 0) {
+                 await seedCeremonies();
+                 ceremoniesData = await getCeremonies(status);
+            }
         }
         
-        if (status) {
-            setCeremonies(ceremoniesData.filter(c => c.status === status));
-        } else {
-            setCeremonies(ceremoniesData);
-        }
+        setCeremonies(ceremoniesData);
 
       } catch (error) {
         console.error("Failed to fetch ceremonies:", error);
@@ -213,10 +211,7 @@ export default function Ceremonies({
                 {ceremonies.map((ceremony) => (
                     <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3">
                       <div className="p-1">
-                        <div 
-                          className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 cursor-pointer"
-                          onClick={() => setViewingVideo(ceremony)}
-                        >
+                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30">
                           {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
@@ -231,15 +226,16 @@ export default function Ceremonies({
                                 </Button>
                               </a>
                           </div>
-                          <VideoPlayer 
-                            videoUrl={ceremony.mediaUrl} 
-                            mediaType={ceremony.mediaType}
-                            title={ceremony.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                            isActivated={false} // Always show placeholder in carousel
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover/item:from-black/40 transition-all duration-300"></div>
-                          <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover/item:translate-y-0 opacity-0 group-hover/item:opacity-100 text-left w-full">
+                           <VideoPlayer 
+                              videoUrl={ceremony.mediaUrl} 
+                              mediaType={ceremony.mediaType}
+                              title={ceremony.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
+                              isActivated={false} // Let the player handle its state
+                              inCarousel
+                           />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                          <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
                               <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
                               <p className="font-body text-sm opacity-90 mt-1">{ceremony.description}</p>
                               {ceremony.date && (
@@ -351,22 +347,6 @@ export default function Ceremonies({
           isOpen={!!viewingCeremony}
           onClose={() => setViewingCeremony(null)}
         />
-      )}
-      {viewingVideo && (
-        <Dialog open={!!viewingVideo} onOpenChange={(open) => !open && setViewingVideo(null)}>
-          <DialogContent className="max-w-4xl p-0 border-0 bg-transparent">
-             <div className="aspect-video">
-                <VideoPlayer 
-                  videoUrl={viewingVideo.mediaUrl}
-                  title={viewingVideo.title}
-                  className="w-full h-full object-cover rounded-lg"
-                  controls
-                  mediaType={viewingVideo.mediaType}
-                  isActivated={true}
-                />
-             </div>
-          </DialogContent>
-        </Dialog>
       )}
     </section>
     </>
