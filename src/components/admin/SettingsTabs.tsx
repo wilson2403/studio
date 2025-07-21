@@ -6,12 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { User } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getUserProfile, updateUserProfile, getThemeSettings, setThemeSettings, ThemeSettings } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { User as UserIcon, Palette, Save } from 'lucide-react';
@@ -127,8 +127,10 @@ export default function SettingsTabs({ user }: { user: User }) {
 
   const currentThemeValues = themeForm.watch();
   useEffect(() => {
-    applyTheme(currentThemeValues);
-  }, [currentThemeValues, applyTheme]);
+    if (!loadingTheme) {
+      applyTheme(currentThemeValues);
+    }
+  }, [currentThemeValues, applyTheme, loadingTheme]);
 
 
   const renderColorField = (name: keyof ThemeFormValues, label: string) => (
