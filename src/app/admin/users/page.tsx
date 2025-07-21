@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, Mail, ShieldCheck, Users, FileText } from 'lucide-react';
+import { Bot, Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile } from '@/lib/firebase/firestore';
@@ -23,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { sendEmailToAllUsers } from '@/ai/flows/email-flow';
 import QuestionnaireDialog from '@/components/admin/QuestionnaireDialog';
+import { WhatsappIcon } from '@/components/icons/WhatsappIcon';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -94,13 +95,37 @@ export default function AdminUsersPage() {
         }
     };
 
+    const handleInvite = (phone?: string) => {
+        const message = t('whatsappInviteMessage');
+        const encodedMessage = encodeURIComponent(message);
+        let url = `https://wa.me/`
+
+        if(phone) {
+            url += `${phone.replace(/\D/g, '')}?text=${encodedMessage}`
+        } else {
+            url += `?text=${encodedMessage}`
+        }
+        
+        window.open(url, '_blank');
+        toast({
+            title: t('invitationSent')
+        });
+    }
+
     const onEmailSubmit = async (data: EmailFormValues) => {
+        emailForm.control.disabled = true;
         try {
-            await sendEmailToAllUsers({ subject: data.subject, body: data.body });
-            toast({ title: t('emailsSentSuccess') });
-            emailForm.reset();
+            const result = await sendEmailToAllUsers({ subject: data.subject, body: data.body });
+            if (result.success) {
+                toast({ title: t('emailsSentSuccess'), description: result.message });
+                emailForm.reset();
+            } else {
+                 toast({ title: t('emailsSentError'), description: result.message, variant: 'destructive' });
+            }
         } catch (error: any) {
             toast({ title: t('emailsSentError'), description: error.message, variant: 'destructive' });
+        } finally {
+             emailForm.control.disabled = false;
         }
     };
 
@@ -142,6 +167,8 @@ export default function AdminUsersPage() {
                                     <TableRow>
                                         <TableHead>{t('userName')}</TableHead>
                                         <TableHead>{t('userEmail')}</TableHead>
+                                        <TableHead>{t('userPhone')}</TableHead>
+                                        <TableHead>{t('userQuestionnaire')}</TableHead>
                                         <TableHead>{t('userAdmin')}</TableHead>
                                         <TableHead>{t('actions')}</TableHead>
                                     </TableRow>
@@ -151,6 +178,14 @@ export default function AdminUsersPage() {
                                         <TableRow key={u.uid}>
                                             <TableCell>{u.displayName || 'N/A'}</TableCell>
                                             <TableCell>{u.email}</TableCell>
+                                            <TableCell>{u.phone || 'N/A'}</TableCell>
+                                            <TableCell className="text-center">
+                                                {u.questionnaireCompleted ? (
+                                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                                ) : (
+                                                    <XCircle className="h-5 w-5 text-red-500" />
+                                                )}
+                                            </TableCell>
                                             <TableCell>
                                                 <Switch
                                                     checked={u.isAdmin || u.email === ADMIN_EMAIL}
@@ -158,11 +193,17 @@ export default function AdminUsersPage() {
                                                     disabled={u.email === ADMIN_EMAIL}
                                                 />
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className='flex gap-2'>
                                                 <Button variant="outline" size="sm" onClick={() => setViewingUser(u)}>
                                                     <FileText className="mr-2 h-4 w-4"/>
                                                     {t('viewQuestionnaire')}
                                                 </Button>
+                                                {!u.questionnaireCompleted && (
+                                                    <Button variant="outline" size="sm" onClick={() => handleInvite(u.phone)}>
+                                                        <WhatsappIcon className="mr-2 h-4 w-4"/>
+                                                        {t('invite')}
+                                                    </Button>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -207,7 +248,7 @@ export default function AdminUsersPage() {
                                         )}
                                     />
                                     <Button type="submit" disabled={emailForm.formState.isSubmitting}>
-                                        <Mail className="mr-2 h-4 w-4" />
+                                        <Send className="mr-2 h-4 w-4" />
                                         {emailForm.formState.isSubmitting ? t('sending') : t('sendEmailButton')}
                                     </Button>
                                 </form>

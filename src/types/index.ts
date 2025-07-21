@@ -36,6 +36,7 @@ export type UserProfile = {
     phone?: string;
     address?: string;
     isAdmin?: boolean;
+    questionnaireCompleted?: boolean;
 }
 
 export type ThemeSettings = {

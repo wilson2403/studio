@@ -12,7 +12,7 @@ import {
   User,
 } from 'firebase/auth';
 import { auth, db } from './config';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -22,16 +22,27 @@ export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-    // Create user document in Firestore
+    // Check if user document already exists
     const userRef = doc(db, 'users', user.uid);
-    await setDoc(userRef, {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      providerId: result.providerId,
-      isAdmin: user.email === ADMIN_EMAIL,
-    }, { merge: true });
+    const docSnap = await getDoc(userRef);
+
+    if (!docSnap.exists()) {
+        // New user
+        await setDoc(userRef, {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            providerId: result.providerId,
+            isAdmin: user.email === ADMIN_EMAIL,
+            questionnaireCompleted: false,
+        }, { merge: true });
+        sessionStorage.setItem('tour_status', 'pending');
+    } else {
+        // Returning user, but ensure tour status is cleared
+        sessionStorage.removeItem('tour_status');
+    }
+    
     return user;
   } catch (error) {
     console.error("Error signing in with Google: ", error);
@@ -57,7 +68,10 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
       photoURL: user.photoURL,
       providerId: 'password',
       isAdmin: user.email === ADMIN_EMAIL,
+      questionnaireCompleted: false,
     });
+    
+    sessionStorage.setItem('tour_status', 'pending');
 
     return user;
   } catch (error) {
@@ -70,6 +84,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
 export const signInWithEmail = async (email: string, password: string) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        sessionStorage.removeItem('tour_status');
         return userCredential.user;
     } catch (error) {
         console.error("Error signing in with email: ", error);
@@ -80,6 +95,7 @@ export const signInWithEmail = async (email: string, password: string) => {
 export const signOut = async () => {
   try {
     await firebaseSignOut(auth);
+    sessionStorage.clear();
   } catch (error) {
     console.error("Error signing out: ", error);
     throw error;

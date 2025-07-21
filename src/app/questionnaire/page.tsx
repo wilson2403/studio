@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -16,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers } from '@/lib/firebase/firestore';
+import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, updateUserProfile } from '@/lib/firebase/firestore';
 import { Save } from 'lucide-react';
 import Link from 'next/link';
 
@@ -83,6 +84,7 @@ export default function QuestionnairePage() {
     if (!user) return;
     try {
       await saveQuestionnaire(user.uid, values);
+      await updateUserProfile(user.uid, { questionnaireCompleted: true });
       toast({
         title: t('questionnaireSuccessTitle'),
         description: t('questionnaireSuccessDescription'),

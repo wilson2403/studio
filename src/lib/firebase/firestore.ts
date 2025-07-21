@@ -1,5 +1,4 @@
 
-
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers } from '@/types';
@@ -349,7 +348,7 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 export const updateUserProfile = async (uid: string, data: Partial<UserProfile>): Promise<void> => {
     try {
         const userRef = doc(db, 'users', uid);
-        await updateDoc(userRef, data);
+        await setDoc(userRef, data, { merge: true });
     } catch (error) {
         console.error("Error updating user profile:", error);
         throw error;
