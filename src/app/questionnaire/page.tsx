@@ -18,8 +18,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, updateUserProfile } from '@/lib/firebase/firestore';
-import { Save } from 'lucide-react';
+import { ArrowRight, Save, Sprout } from 'lucide-react';
 import Link from 'next/link';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 
 const questionnaireSchema = (t: (key: string) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -48,6 +49,7 @@ const questionnaireSchema = (t: (key: string) => string) => z.object({
 export default function QuestionnairePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const router = useRouter();
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -89,6 +91,7 @@ export default function QuestionnairePage() {
         title: t('questionnaireSuccessTitle'),
         description: t('questionnaireSuccessDescription'),
       });
+      setIsSuccessDialogOpen(true); // Open the dialog on success
     } catch (error) {
       toast({
         title: t('questionnaireErrorTitle'),
@@ -98,6 +101,11 @@ export default function QuestionnairePage() {
     }
   };
   
+  const handleGoToPreparation = () => {
+    setIsSuccessDialogOpen(false);
+    router.push('/preparation');
+  }
+
   const renderDetailsField = (name: keyof QuestionnaireAnswers, conditionName: keyof QuestionnaireAnswers, label: string) => {
       const detailsFieldName = name as "medicalConditionsDetails" | "medicationDetails" | "mentalHealthDetails" | "previousExperienceDetails";
       const conditionFieldName = conditionName as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
@@ -195,6 +203,7 @@ export default function QuestionnairePage() {
   }
 
   return (
+    <>
     <div className="container py-12 md:py-16">
       <Card className="mx-auto max-w-3xl">
         <CardHeader>
@@ -243,6 +252,26 @@ export default function QuestionnairePage() {
         </CardContent>
       </Card>
     </div>
+    <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
+        <DialogContent>
+          <DialogHeader className="items-center text-center">
+            <div className="p-3 bg-primary/10 rounded-full mb-4">
+              <Sprout className="h-8 w-8 text-primary" />
+            </div>
+            <DialogTitle className="text-2xl font-headline">{t('dialogSuccessTitle')}</DialogTitle>
+            <DialogDescription>
+              {t('dialogSuccessDescription')}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-col sm:space-x-0 gap-2">
+            <Button onClick={handleGoToPreparation}>
+              {t('dialogSuccessButton')}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            <Button variant="ghost" onClick={() => setIsSuccessDialogOpen(false)}>{t('close')}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
-
