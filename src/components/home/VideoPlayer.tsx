@@ -4,10 +4,8 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import Script from 'next/script';
-import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
-import { Play } from 'lucide-react';
+import { Pause, Play } from 'lucide-react';
 
 interface VideoPlayerProps {
   videoUrl?: string;
@@ -53,7 +51,7 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
   
   if (!isActivated) {
     return (
-      <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center", className)} onClick={() => setIsActivated(true)}>
+      <div className={cn("relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer", className)} onClick={() => setIsActivated(true)}>
         <Image src={'https://p16-sign-va.tiktokcdn.com/obj/tos-useast2a-p-0037-euttp/98471a6296314f149b81b8f52281a711_1622323062?x-expires=1671566400&x-signature=2B7x7B4bZ9f5j3v9a5H3jD%2B5f%2B4%3D'} alt="TikTok thumbnail" layout="fill" objectFit="cover" />
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="relative z-10 flex flex-col items-center">
@@ -67,7 +65,7 @@ const TikTokPlayer = ({ url, title, className, controls }: { url: string; title:
   }
 
   const videoId = videoIdMatch[1];
-  const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&mute=0&controls=${controls ? '1' : '0'}`;
+  const embedUrl = `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=${controls ? '0' : '1'}&mute=0&controls=${controls ? '1' : '0'}`;
 
   return (
     <iframe
@@ -158,9 +156,57 @@ function getStreamableEmbedUrl(url: string): string | null {
   return null;
 }
 
+const DirectVideoPlayer = ({ src, className, controls }: { src: string, className?: string, controls?: boolean }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [isPlaying, setIsPlaying] = useState(!controls); // Autoplay if no controls
+
+    const togglePlay = () => {
+        if (videoRef.current) {
+            if (videoRef.current.paused) {
+                videoRef.current.play();
+                setIsPlaying(true);
+            } else {
+                videoRef.current.pause();
+                setIsPlaying(false);
+            }
+        }
+    };
+    
+    useEffect(() => {
+        if(videoRef.current) {
+            videoRef.current.onplay = () => setIsPlaying(true);
+            videoRef.current.onpause = () => setIsPlaying(false);
+        }
+    }, [])
+
+    return (
+        <div className={cn("relative w-full h-full group/video", className)}>
+            <video
+                ref={videoRef}
+                src={src}
+                autoPlay={!controls}
+                loop={!controls}
+                muted
+                playsInline
+                controls={controls}
+                className={cn("w-full h-full object-cover", className)}
+                onClick={togglePlay}
+            />
+            {!controls && (
+                 <div 
+                    className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 cursor-pointer"
+                    onClick={togglePlay}
+                >
+                    <Button variant="ghost" size="icon" className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full">
+                        {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+                    </Button>
+                </div>
+            )}
+        </div>
+    );
+};
+
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false }: VideoPlayerProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
   const youtubeEmbedUrl = videoUrl ? getYouTubeEmbedUrl(videoUrl, controls, !controls) : null;
   const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
   const isFacebook = videoUrl && videoUrl.includes('facebook.com');
@@ -187,8 +233,8 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     return <FacebookPlayer url={videoUrl!} title={title} className={className} controls={controls} />;
   }
 
-  if (mediaType === 'video' && videoUrl && videoUrl.match(/\.(mp4|webm)$/)) {
-     return <video src={videoUrl} autoPlay={!controls} loop={!controls} muted playsInline controls={controls} className={className} />;
+  if (mediaType === 'video' && videoUrl && (videoUrl.startsWith('https') || videoUrl.startsWith('data:'))) {
+     return <DirectVideoPlayer src={videoUrl} className={className} controls={controls} />;
   }
 
   if (mediaType === 'image' || !videoUrl) {
