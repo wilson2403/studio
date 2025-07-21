@@ -19,9 +19,9 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Ceremony, Plan } from '@/types';
-import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, finishCeremony, reactivateCeremony } from '@/lib/firebase/firestore';
+import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, finishCeremony, reactivateCeremony, inactivateCeremony } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, PlusCircle, Trash, CheckCircle, RotateCcw } from 'lucide-react';
+import { Copy, PlusCircle, Trash, CheckCircle, RotateCcw, Archive } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useState } from 'react';
@@ -47,7 +47,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   mediaType: z.enum(['image', 'video']).default('image'),
   plans: z.array(planSchema(t)).optional(),
   contributionText: z.string().optional(),
-  status: z.enum(['active', 'finished']),
+  status: z.enum(['active', 'finished', 'inactive']),
   date: z.string().optional(),
   horario: z.string().optional(),
 });
@@ -252,6 +252,25 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       });
     }
   }
+  
+  const handleInactivate = async () => {
+    if (!ceremony) return;
+    try {
+      await inactivateCeremony(ceremony);
+      onUpdate({ ...ceremony, status: 'inactive' });
+      toast({
+        title: t('ceremonyInactivatedSuccess'),
+      });
+      onClose();
+    } catch (error) {
+      toast({
+        title: t('error'),
+        description: t('errorInactivatingCeremony'),
+        variant: 'destructive',
+      });
+    }
+  }
+
 
   const handleReactivate = async () => {
       if (!ceremony) return;
@@ -456,26 +475,48 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                     {t('duplicate')}
                   </Button>
                    {ceremony.status === 'active' ? (
-                       <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                {t('markAsFinished')}
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                {t('finishCeremonyConfirmDescription')}
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                              <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                      </AlertDialog>
+                       <div className="flex gap-2">
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  {t('markAsFinished')}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {t('finishCeremonyConfirmDescription')}
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                  <Archive className="mr-2 h-4 w-4" />
+                                  {t('markAsInactive')}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>{t('inactivateCeremonyConfirmTitle')}</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {t('inactivateCeremonyConfirmDescription')}
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleInactivate}>{t('continue')}</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                       </div>
                    ) : (
                       <Button type="button" variant="outline" size="sm" onClick={handleReactivate} disabled={isUploading}>
                         <RotateCcw className="mr-2 h-4 w-4" />

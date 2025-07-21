@@ -92,6 +92,19 @@ export const seedCeremonies = async () => {
       link: '#',
       featured: false,
     },
+     {
+      title: 'Ceremonia Inactiva de Prueba',
+      description: 'Este es un ejemplo de una ceremonia inactiva.',
+      date: 'Enero 2024',
+      mediaType: 'image',
+      mediaUrl: 'https://placehold.co/600x400.png',
+      status: 'inactive',
+      price: 0,
+      priceType: 'exact',
+      features: [],
+      link: '#',
+      featured: false,
+    },
   ];
 
   const batch = writeBatch(db);
@@ -100,11 +113,23 @@ export const seedCeremonies = async () => {
     batch.set(docRef, ceremony);
   });
   
- const heroTitleContent = {
+  const heroTitleContent = {
     es: 'Un Encuentro Sagrado con Medicinas Ancestrales',
     en: 'A Sacred Encounter with Ancestral Medicines'
   };
   batch.set(doc(contentCollection, 'heroTitle'), { value: heroTitleContent });
+
+  const heroSubtitleContent = {
+    es: 'Descubre cómo la Ayahuasca puede transformar tu vida, brindándote claridad, sanación emocional y una renovada conexión con el universo. Únete a nosotros en esta experiencia transformadora, donde la tradición se encuentra con la guía experta para un viaje inolvidable.',
+    en: 'Discover how Ayahuasca can transform your life, bringing you clarity, emotional healing, and a renewed connection with the universe. Join us in this transformative experience, where tradition meets expert guidance for an unforgettable journey.'
+  };
+  batch.set(doc(contentCollection, 'heroSubtitle'), { value: heroSubtitleContent });
+  
+  const appNameContent = {
+    es: 'El Arte de Sanar',
+    en: 'The Art of Healing'
+  };
+  batch.set(doc(contentCollection, 'appName'), { value: appNameContent });
 
 
   await batch.commit();
@@ -135,7 +160,10 @@ export const getCeremonies = async (status?: 'active' | 'finished'): Promise<Cer
       return ceremoniesData.filter(c => c.status === status);
     }
     
-    return ceremoniesData;
+    return ceremoniesData.sort((a, b) => {
+        const statusOrder = { active: 1, inactive: 2, finished: 3 };
+        return (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
+    });
   } catch (error) {
     console.error("Error fetching ceremonies: ", error);
     return [];
@@ -183,6 +211,17 @@ export const finishCeremony = async (ceremony: Ceremony): Promise<void> => {
     throw error;
   }
 };
+
+export const inactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
+  try {
+    const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
+    await updateDoc(ceremonyRef, { status: 'inactive' });
+  } catch (error) {
+    console.error("Error inactivating ceremony: ", error);
+    throw error;
+  }
+};
+
 
 export const reactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
   try {
@@ -262,23 +301,17 @@ export const getGuides = async (): Promise<Guide[]> => {
     const guides: Guide[] = [];
     try {
         const snapshot = await getDocs(guidesCollection);
-        for (const guideDoc of snapshot.docs) {
-            const guideData = guideDoc.data() as Omit<Guide, 'id'>;
-            const descriptionContent = await getContent(guideData.description);
-            
-            let description = '';
-            if (typeof descriptionContent === 'object' && descriptionContent !== null) {
-                // Assuming you want to return a specific language or a default
-                description = (descriptionContent as any).es || (descriptionContent as any).en || '';
-            } else if (typeof descriptionContent === 'string') {
-                description = descriptionContent;
+        if (snapshot.empty) {
+            await seedGuides();
+            const newSnapshot = await getDocs(guidesCollection);
+             for (const guideDoc of newSnapshot.docs) {
+                guides.push({ id: guideDoc.id, ...guideDoc.data() } as Guide);
             }
+            return guides;
+        }
 
-            guides.push({
-                id: guideDoc.id,
-                ...guideData,
-                description: description // This will be language-specific based on your logic
-            });
+        for (const guideDoc of snapshot.docs) {
+            guides.push({ id: guideDoc.id, ...guideDoc.data() } as Guide);
         }
         return guides;
     } catch (error) {

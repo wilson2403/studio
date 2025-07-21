@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CalendarIcon, Edit, ExternalLink, PlusCircle, Clock } from 'lucide-react';
+import { CalendarIcon, Edit, ExternalLink, PlusCircle, Clock, ArrowRight } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -24,6 +24,7 @@ import { VideoPlayer } from './VideoPlayer';
 import { cn } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { Skeleton } from '../ui/skeleton';
+import Link from 'next/link';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -266,6 +267,14 @@ export default function Ceremonies({
                     </>
                 )}
             </Carousel>
+             <div className="mt-8 text-center">
+                <Button asChild variant="outline">
+                    <Link href="/ceremonies">
+                        {t('viewAllEvents')}
+                        <ArrowRight className="ml-2 h-4 w-4"/>
+                    </Link>
+                </Button>
+            </div>
         </div>
      </div>
   );
