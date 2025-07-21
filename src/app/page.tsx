@@ -9,6 +9,7 @@ import RegistrationPromptDialog from '@/components/auth/RegistrationPromptDialog
 import PastCeremonies from '@/components/home/PastCeremonies';
 import { useTranslation } from 'react-i18next';
 import { EditableTitle } from '@/components/home/EditableTitle';
+import PastCeremoniesSection from '@/components/home/PastCeremoniesSection';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -45,6 +46,7 @@ export default function Home() {
         </div>
       </section>
       <Ceremonies />
+      <PastCeremoniesSection />
       <PreparationCta />
       <Contact />
     </EditableProvider>
