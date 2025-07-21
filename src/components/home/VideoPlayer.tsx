@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -29,6 +28,7 @@ const getYoutubeEmbedUrl = (url: string): string | null => {
     loop: '1',
     controls: '1',
     playlist: videoId,
+    mute: '1',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
@@ -37,13 +37,13 @@ const getTikTokEmbedUrl = (url: string): string | null => {
     if (!url) return null;
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&controls=1`;
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&controls=1&mute=1`;
 };
 
 const getFacebookEmbedUrl = (url: string): string | null => {
     if (!url) return null;
     if (!url.includes('facebook.com') && !url.includes('fb.watch')) return null;
-    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
+    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=1`;
 };
 
 const getStreamableEmbedUrl = (url: string): string | null => {
@@ -51,46 +51,43 @@ const getStreamableEmbedUrl = (url: string): string | null => {
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
     autoplay: '1',
-    mute: '0',
+    mute: '1',
     loop: '1',
     controls: '1',
   });
   return `https://streamable.com/e/${match[1]}?${params.toString()}`;
 };
 
-const IframePlaceholder = ({ onClick, title }: { onClick: () => void, title: string }) => (
-  <div className="absolute inset-0 flex items-center justify-center text-white bg-black/50 cursor-pointer" onClick={onClick}>
-    <Image
-      src="https://placehold.co/600x400.png"
-      alt={`${title} video thumbnail`}
-      layout="fill"
-      objectFit="cover"
-      data-ai-hint="video social media"
-    />
-    <div className="absolute inset-0 bg-black/50"></div>
-    <div className="relative z-10 flex flex-col items-center">
-      <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
-        <Play className="h-8 w-8 fill-white" />
-      </div>
+const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
+    <div className={cn("relative w-full h-full cursor-pointer", className)} onClick={onClick}>
+        <Image
+            src="https://placehold.co/600x400.png"
+            alt={`${title} video thumbnail`}
+            layout="fill"
+            objectFit="cover"
+            data-ai-hint="video social media"
+            className='object-cover'
+        />
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 flex items-center justify-center text-white z-10">
+            <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
+                <Play className="h-8 w-8 fill-white" />
+            </div>
+        </div>
     </div>
-  </div>
 );
 
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isInteracted, setIsInteracted] = useState(false);
-
+    
     const togglePlay = (e?: React.MouseEvent) => {
         e?.stopPropagation(); 
-        setIsInteracted(true);
         if (videoRef.current) {
             if (videoRef.current.paused) {
                 videoRef.current.play().catch(console.error);
-                setIsPlaying(true);
             } else {
                 videoRef.current.pause();
-                setIsPlaying(false);
             }
         }
     };
@@ -99,17 +96,20 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
         if(videoRef.current) {
             videoRef.current.onplay = () => setIsPlaying(true);
             videoRef.current.onpause = () => setIsPlaying(false);
-            if (!inCarousel) {
+            if (inCarousel) {
                 videoRef.current.muted = true;
+                videoRef.current.play().catch(e => console.log("Autoplay blocked"));
+            } else {
+                 videoRef.current.muted = true;
             }
         }
     }, [inCarousel]);
 
     useEffect(() => {
-        if (videoRef.current) {
-            if (isActivated && !inCarousel) {
+        if (videoRef.current && !inCarousel) {
+            if (isActivated) {
                 videoRef.current.play().catch(console.error);
-            } else if (!isActivated && !inCarousel) {
+            } else {
                 videoRef.current.pause();
             }
         }
@@ -120,39 +120,32 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
             <video
                 ref={videoRef}
                 src={src}
-                autoPlay={isActivated && !inCarousel}
-                loop={!inCarousel}
+                autoPlay={inCarousel}
+                loop={true}
                 playsInline
-                muted={!inCarousel}
+                muted={true}
                 className={cn("w-full h-full object-cover", className)}
             />
-            {!isPlaying && (
-                 <div 
-                    className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 cursor-pointer"
-                    onClick={togglePlay}
-                >
+             <div 
+                className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 cursor-pointer"
+                onClick={togglePlay}
+            >
+                {isPlaying ? (
                     <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
-                        <Play className="h-8 w-8" />
+                        <Pause className="h-8 w-8 fill-white" />
                     </div>
-                </div>
-            )}
-             {isPlaying && inCarousel && (
-                 <div 
-                    className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 cursor-pointer"
-                    onClick={togglePlay}
-                >
+                ) : (
                     <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
-                        <Pause className="h-8 w-8" />
+                        <Play className="h-8 w-8 fill-white" />
                     </div>
-                </div>
-             )}
+                )}
+            </div>
         </div>
     );
 };
 
 
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
-  const [showIframe, setShowIframe] = useState(false);
 
   const embedUrl = 
       getYoutubeEmbedUrl(videoUrl || '') ||
@@ -175,8 +168,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
     
     if (embedUrl) {
-      const shouldShow = (isActivated && !inCarousel) || (inCarousel && showIframe);
-      if (shouldShow) {
+      if (isActivated || inCarousel) {
         return (
           <iframe
             src={embedUrl}
@@ -188,15 +180,13 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
           ></iframe>
         );
       }
-      return <IframePlaceholder onClick={() => setShowIframe(true)} title={title} />;
+      return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
     }
 
-    // Fallback to direct video player
     if (mediaType === 'video') {
       return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
 
-    // Final fallback, should be unreachable
     return <div className="bg-black"></div>;
   };
 
@@ -205,7 +195,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       data-video-player
       className={cn(
         "relative w-full h-full bg-black flex items-center justify-center text-white overflow-hidden",
-        !inCarousel && 'cursor-pointer',
+        isActivated && 'cursor-default',
         className
       )}
     >
