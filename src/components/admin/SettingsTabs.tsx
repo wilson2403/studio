@@ -65,19 +65,6 @@ export default function SettingsTabs({ user }: { user: User }) {
     defaultValues: defaultTheme,
   });
 
-  const applyTheme = useCallback((settings: ThemeSettings) => {
-    const root = document.documentElement;
-    if (root) {
-      root.style.setProperty('--primary', settings.lightPrimary);
-      root.style.setProperty('--background', settings.lightBackground);
-      root.style.setProperty('--accent', settings.lightAccent);
-      
-      root.style.setProperty('--dark-primary', settings.darkPrimary);
-      root.style.setProperty('--dark-background', settings.darkBackground);
-      root.style.setProperty('--dark-accent', settings.darkAccent);
-    }
-  }, []);
-
   useEffect(() => {
     async function loadProfile() {
       setLoadingProfile(true);
@@ -98,13 +85,13 @@ export default function SettingsTabs({ user }: { user: User }) {
     async function loadTheme() {
         setLoadingTheme(true);
         const settings = await getThemeSettings();
-        const initialTheme = settings || defaultTheme;
-        themeForm.reset(initialTheme);
-        applyTheme(initialTheme);
+        if (settings) {
+            themeForm.reset(settings);
+        }
         setLoadingTheme(false);
     }
     loadTheme();
-  }, [themeForm, applyTheme]);
+  }, [themeForm]);
 
   const onProfileSubmit = async (data: ProfileFormValues) => {
     try {
@@ -118,20 +105,13 @@ export default function SettingsTabs({ user }: { user: User }) {
   const onThemeSubmit = async (data: ThemeFormValues) => {
     try {
       await setThemeSettings(data);
-      applyTheme(data);
-      toast({ title: t('themeUpdatedSuccess') });
+      toast({ title: t('themeUpdatedSuccess'), description: t('themeUpdateReload') });
+      // Reload to apply the new theme consistently
+      window.location.reload();
     } catch (error) {
       toast({ title: t('themeUpdatedError'), variant: 'destructive' });
     }
   };
-
-  const currentThemeValues = themeForm.watch();
-  useEffect(() => {
-    if (!loadingTheme) {
-      applyTheme(currentThemeValues);
-    }
-  }, [currentThemeValues, applyTheme, loadingTheme]);
-
 
   const renderColorField = (name: keyof ThemeFormValues, label: string) => (
     <FormField
