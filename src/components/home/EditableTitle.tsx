@@ -34,39 +34,30 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   const contentValue = content[id];
   let displayValue: string;
-  let esValue: string;
-  let enValue: string;
-
+  
   if (typeof contentValue === 'object' && contentValue !== null) {
-      displayValue = contentValue[lang] || contentValue['es'] || initialValue;
-      esValue = contentValue['es'] || (lang === 'es' ? initialValue : '');
-      enValue = contentValue['en'] || (lang === 'en' ? initialValue : '');
+      displayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
+  } else if (typeof contentValue === 'string') {
+      displayValue = contentValue;
   } else {
-      // Use initialValue if content is not an object or not yet loaded
       displayValue = initialValue;
-      esValue = (typeof contentValue === 'string' && lang === 'es') ? contentValue : initialValue;
-      enValue = (typeof contentValue === 'string' && lang === 'en') ? contentValue : '';
   }
   
-  // Use a state for edit values to ensure they are set correctly on mount
   const [editValues, setEditValues] = useState({ es: '', en: '' });
 
   useEffect(() => {
-      // This effect runs when contentValue changes (i.e., data is loaded from Firestore)
       if (typeof contentValue === 'object' && contentValue !== null) {
-          setEditValues({ es: contentValue.es || '', en: contentValue.en || '' });
+          setEditValues({ es: (contentValue as any).es || '', en: (contentValue as any).en || '' });
       } else if (typeof contentValue === 'string') {
-          // If for some reason we still get a string, populate based on current language
           const defaultValues = { es: '', en: '' };
-          defaultValues[lang] = contentValue;
+          (defaultValues as any)[lang] = contentValue;
           setEditValues(defaultValues);
       } else {
-           // Fallback for initial load
            const defaultValues = { es: '', en: '' };
-           defaultValues[lang] = initialValue;
+           (defaultValues as any)[lang] = initialValue;
            setEditValues(defaultValues);
       }
-  }, [contentValue, initialValue, lang]);
+  }, [contentValue]);
 
 
   const handleSave = async () => {
@@ -84,9 +75,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   };
   
   const handleEditClick = () => {
-    // Ensure editValues are up-to-date before showing the form
     if (typeof contentValue === 'object' && contentValue !== null) {
-        setEditValues({ es: contentValue.es || '', en: contentValue.en || '' });
+        setEditValues({ es: (contentValue as any).es || '', en: (contentValue as any).en || '' });
     }
     setIsEditing(true);
   }
