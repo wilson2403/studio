@@ -105,17 +105,18 @@ export default function AyahuascaInfoPage() {
                       <Accordion type="single" collapsible defaultValue="benefitClarity" className="w-full">
                          {benefits.map(({ id, title, description, Icon }) => (
                              <AccordionItem key={id} value={id}>
-                                <div className="flex items-center gap-4 pr-6">
-                                     <Icon className="h-6 w-6 text-primary ml-4" />
-                                     <EditableTitle
-                                          tag="p"
-                                          id={`${id}Title`}
-                                          initialValue={t(title)}
-                                          className="text-lg font-bold flex-1 py-4"
-                                     />
-                                     <AccordionTrigger className="hover:no-underline py-4"></AccordionTrigger>
-                                </div>
-                                 <AccordionContent className="text-base text-foreground/80 pl-10">
+                                <AccordionTrigger className="text-lg font-bold hover:no-underline w-full">
+                                    <div className="flex items-center gap-4 text-left">
+                                        <Icon className="h-6 w-6 text-primary flex-shrink-0" />
+                                        <EditableTitle
+                                            tag="p"
+                                            id={`${id}Title`}
+                                            initialValue={t(title)}
+                                            className="flex-1"
+                                        />
+                                    </div>
+                                </AccordionTrigger>
+                                 <AccordionContent className="text-base text-foreground/80 pl-14">
                                      <EditableTitle
                                           tag="p"
                                           id={`${id}Description`}

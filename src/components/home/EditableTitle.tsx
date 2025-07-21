@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 
 interface EditableTitleProps {
-  tag: 'h1' | 'h2' | 'p';
+  tag: 'h1' | 'h2' | 'p' | 'h3';
   id: string;
   initialValue: string;
   className?: string;
@@ -67,7 +67,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
 
   return (
-    <div className={cn("relative group flex items-center gap-2", Tag !== 'p' && 'justify-center')}>
+    <div className={cn("relative group flex items-center gap-2 w-full", Tag !== 'p' && 'justify-center')}>
       <Tag className={className}>{currentValue}</Tag>
       {isAdmin && (
         <Button
