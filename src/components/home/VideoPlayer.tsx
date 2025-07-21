@@ -142,6 +142,8 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   const streamableEmbedUrl = videoUrl ? getStreamableEmbedUrl(videoUrl, controls) : null;
   const isTikTok = videoUrl && videoUrl.includes('tiktok.com');
   const isFacebook = videoUrl && (videoUrl.includes('facebook.com') || videoUrl.includes('fb.watch'));
+  const isEmbed = youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook;
+
 
   const activateIframe = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -164,7 +166,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
         streamable: 'Streamable'
     }
     return (
-        <>
+      <div className="absolute inset-0 flex items-center justify-center text-white bg-black/50">
            <Image src={`https://placehold.co/600x400.png?text=${text[type]}`} alt={`${text[type]} video thumbnail`} layout="fill" objectFit="contain" data-ai-hint={hints[type]} />
            <div className="absolute inset-0 bg-black/50"></div>
             <div className="relative z-10 flex flex-col items-center">
@@ -173,7 +175,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
                </Button>
                 <p className="mt-4 font-semibold">{title}</p>
             </div>
-        </>
+      </div>
     );
   }
 
@@ -182,10 +184,10 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       return <Image src={videoUrl} alt={title} width={600} height={400} className={cn(className, 'object-contain')} data-ai-hint="spiritual ceremony" />;
     }
 
-    if (youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook) {
-        if (!isIframeActivated) {
-            const type = youtubeEmbedUrl ? 'youtube' : streamableEmbedUrl ? 'streamable' : isTikTok ? 'tiktok' : 'facebook';
-            return <IframePlaceholder type={type} />;
+    if (isEmbed) {
+        if (!isIframeActivated && !controls) {
+             const type = youtubeEmbedUrl ? 'youtube' : streamableEmbedUrl ? 'streamable' : isTikTok ? 'tiktok' : 'facebook';
+             return <IframePlaceholder type={type} />;
         }
         
         if (isTikTok && videoUrl) {
@@ -222,8 +224,6 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     return <Image src={videoUrl || 'https://placehold.co/600x400.png'} alt={title} width={600} height={400} className={cn(className, 'object-contain')} data-ai-hint="spiritual event" />;
   }
   
-  const isEmbed = youtubeEmbedUrl || streamableEmbedUrl || isTikTok || isFacebook;
-
   const parentClasses = cn(
       "relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
       className
@@ -231,12 +231,8 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   
   if (isEmbed) {
     const embedParentClasses = cn(
-      "relative w-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
-       className,
-       // Apply aspect ratio only when iframe is not activated to prevent layout shift
-      !isIframeActivated && 'aspect-video',
-      // This is the container that will have the 16:9 aspect ratio
-      isIframeActivated && 'pt-[56.25%]'
+      "relative w-full h-full bg-black flex flex-col items-center justify-center text-white p-4 text-center cursor-pointer overflow-hidden",
+       className
     );
     
     return (
