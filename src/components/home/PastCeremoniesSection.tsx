@@ -31,27 +31,9 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Progress } from '../ui/progress';
 import { EditableTitle } from './EditableTitle';
+import { VideoPlayer } from './VideoPlayer';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-
-function getYouTubeEmbedUrl(url: string): string | null {
-  if (!url) return null;
-  let videoId = null;
-  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  const match = url.match(youtubeRegex);
-  if (match) {
-    videoId = match[1];
-  }
-  return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0` : null;
-}
-
-function getStreamableEmbedUrl(url: string): string | null {
-  const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
-  if (match && match[1]) {
-    return `https://streamable.com/e/${match[1]}?autoplay=1&muted=1&loop=1`;
-  }
-  return null;
-}
 
 const PastCeremonyForm = ({
   item,
@@ -169,49 +151,6 @@ const PastCeremonyForm = ({
     </form>
   );
 };
-
-const VideoPlayer = ({ video }: { video: PastCeremony }) => {
-    const streamableEmbedUrl = getStreamableEmbedUrl(video.videoUrl);
-    const youtubeEmbedUrl = getYouTubeEmbedUrl(video.videoUrl);
-
-    if (streamableEmbedUrl) {
-    return (
-        <iframe
-        src={streamableEmbedUrl}
-        frameBorder="0"
-        allow="autoplay; muted; loop"
-        allowFullScreen
-        className="w-full h-full object-cover"
-        ></iframe>
-    );
-    }
-    
-    if (youtubeEmbedUrl) {
-        return (
-           <iframe
-            src={youtubeEmbedUrl}
-            title={video.title}
-            frameBorder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          ></iframe>
-        )
-      }
-
-
-    return (
-        <video
-            key={video.videoUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            src={video.videoUrl}
-        ></video>
-    );
-}
 
 export default function PastCeremoniesSection() {
     const { t } = useTranslation();
@@ -365,7 +304,11 @@ export default function PastCeremoniesSection() {
                                 </AlertDialog>
                                 </div>
                             )}
-                            <VideoPlayer video={video} />
+                            <VideoPlayer 
+                                videoUrl={video.videoUrl} 
+                                title={video.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-hover:from-black/40 transition-all duration-300"></div>
                             <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white transition-all duration-300 transform-gpu translate-y-1/4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 text-left">
                                 <h3 className="text-lg md:text-xl font-headline">{video.title}</h3>

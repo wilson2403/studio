@@ -3,7 +3,6 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 import {
   Card,
   CardContent,
@@ -19,156 +18,12 @@ import { auth } from '@/lib/firebase/config';
 import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
-import Script from 'next/script';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import CeremonyDetailsDialog from './CeremonyDetailsDialog';
+import { VideoPlayer } from './VideoPlayer';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-
-function getYouTubeEmbedUrl(url: string): string | null {
-  if (!url) return null;
-  let videoId = null;
-  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  const match = url.match(youtubeRegex);
-  if (match) {
-    videoId = match[1];
-  }
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-}
-
-function getTikTokEmbedData(url: string): { embedUrl: string; videoId: string } | null {
-  if (!url) return null;
-  const tiktokRegex = /tiktok\.com\/.*\/video\/(\d+)/;
-  const match = url.match(tiktokRegex);
-  if (match && match[1]) {
-    const videoId = match[1];
-    return {
-      embedUrl: `https://www.tiktok.com/embed/v2/${videoId}`,
-      videoId: videoId
-    };
-  }
-  return null;
-}
-
-function getFacebookEmbedUrl(url: string): string | null {
-    if (!url) return null;
-    const facebookRegex = /^(?:https?:\/\/)?(?:www\.|m\.)?facebook\.com\/(?:watch\/?\?v=|video\.php\?v=|photo\.php\?v=|reel\/|.*\/videos\/|share\/(?:v|r)\/)([0-9a-zA-Z_.-]+)/;
-    const match = url.match(facebookRegex);
-    if (match && match[1]) {
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=true&mute=1`;
-    }
-    return null;
-}
-
-
-const MediaPreview = ({ mediaUrl, mediaType, title }: { mediaUrl?: string, mediaType?: 'image' | 'video', title: string }) => {
-  const tiktokRef = useRef<HTMLQuoteElement>(null);
-  
-  if (!mediaUrl) {
-    return <Image src='https://placehold.co/600x400.png' alt={title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-ai-hint="spiritual ceremony" />;
-  }
-  
-  const youtubeEmbedUrl = getYouTubeEmbedUrl(mediaUrl);
-  const tiktokData = getTikTokEmbedData(mediaUrl);
-  const facebookEmbedUrl = getFacebookEmbedUrl(mediaUrl);
-  
-  useEffect(() => {
-    if (facebookEmbedUrl && typeof (window as any).FB !== 'undefined') {
-        (window as any).FB.XFBML.parse();
-    }
-  }, [facebookEmbedUrl, mediaUrl]);
-
-  useEffect(() => {
-    if (tiktokData) {
-      if (typeof (window as any).tiktok !== 'undefined') {
-        (window as any).tiktok.load();
-      } else {
-        const script = document.createElement('script');
-        script.id = 'tiktok-embed-script';
-        script.src = "https://www.tiktok.com/embed.js";
-        script.async = true;
-        document.head.appendChild(script);
-      }
-    }
-  }, [tiktokData]);
-
-  useEffect(() => {
-      if (!tiktokData) return;
-
-      const interval = setInterval(() => {
-          if (!tiktokRef.current) return;
-          const iframe = tiktokRef.current.querySelector('iframe');
-          if (iframe && iframe.contentWindow) {
-              const video = iframe.contentWindow.document.querySelector('video');
-              if (video) {
-                  video.muted = true;
-                  video.setAttribute('playsinline', ''); // Important for iOS
-                  const promise = video.play();
-                  if (promise !== undefined) {
-                    promise.catch(error => console.error("Autoplay failed", error));
-                  }
-                  clearInterval(interval);
-              }
-          }
-      }, 500);
-
-      return () => clearInterval(interval);
-  }, [tiktokData]);
-
-
-  if (youtubeEmbedUrl) {
-    return (
-      <iframe
-        src={youtubeEmbedUrl}
-        title={title}
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-        className="w-full h-full object-cover"
-      ></iframe>
-    );
-  }
-  
-  if (tiktokData) {
-    return (
-      <blockquote
-        ref={tiktokRef}
-        className="tiktok-embed w-full h-full"
-        cite={mediaUrl}
-        data-video-id={tiktokData.videoId}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <section className='w-full h-full flex items-center justify-center'>
-          <a target="_blank" title={title} href={mediaUrl}>
-            {title}
-          </a>
-        </section>
-      </blockquote>
-    );
-  }
-  
-  if (facebookEmbedUrl) {
-    return (
-        <div className="fb-video w-full h-full flex items-center justify-center"
-             data-href={mediaUrl}
-             data-width="auto"
-             data-show-text="false"
-             data-autoplay="true"
-             data-allowfullscreen="true"
-             data-lazy="true">
-        </div>
-    );
-  }
-
-
-  if (mediaType === 'video' && mediaUrl.match(/\.(mp4|webm)$/)) {
-     return <video src={mediaUrl} autoPlay loop muted playsInline className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
-  }
-
-  return <Image src={mediaUrl} alt={title} width={600} height={400} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-ai-hint="spiritual event" />;
-};
-
 
 export default function Ceremonies() {
   const [user, setUser] = useState<User | null>(null);
@@ -206,12 +61,6 @@ export default function Ceremonies() {
     };
     fetchCeremonies();
   }, []);
-
-  useEffect(() => {
-    if (typeof (window as any).FB !== 'undefined') {
-      (window as any).FB.XFBML.parse();
-    }
-  }, [ceremonies]);
 
   const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
     setCeremonies(ceremonies.map(c => c.id === updatedCeremony.id ? updatedCeremony : c));
@@ -303,7 +152,12 @@ export default function Ceremonies() {
             )}
              <CardHeader className="p-0">
                <div className="aspect-video overflow-hidden">
-                <MediaPreview mediaUrl={ceremony.mediaUrl} mediaType={ceremony.mediaType} title={ceremony.title} />
+                <VideoPlayer 
+                  videoUrl={ceremony.mediaUrl} 
+                  mediaType={ceremony.mediaType}
+                  title={ceremony.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
                </div>
             </CardHeader>
             <div className="p-6 flex flex-col flex-1">
