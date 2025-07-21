@@ -87,6 +87,8 @@ export default function SettingsTabs({ user }: { user: User }) {
         const settings = await getThemeSettings();
         if (settings) {
             themeForm.reset(settings);
+        } else {
+            themeForm.reset(defaultTheme);
         }
         setLoadingTheme(false);
     }
