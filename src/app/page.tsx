@@ -32,6 +32,8 @@ export default function Home() {
       <Ceremonies 
         status="active" 
         id="ceremonias"
+        titleId="upcomingCeremoniesTitle"
+        titleInitialValue="Próximas Ceremonias"
         activeVideo={activeVideo}
         setActiveVideo={setActiveVideo}
       />
