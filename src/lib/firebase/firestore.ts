@@ -195,17 +195,17 @@ export const seedGuides = async () => {
         {
             name: 'Jacob',
             description: 'Maestro espiritual formado en la Amazonía de perú, donde aprendió directamente de curanderos el uso sagrado de la medicina ancestral. Con una presencia serena y profunda, guía ceremonias en Casa Trinitos (Guanacaste), donde acompaña procesos de transformación.',
-            imageUrl: 'https://placehold.co/160x160.png',
+            imageUrl: 'https://i.postimg.cc/Qd9yYQ3N/jacob.jpg',
         },
         {
             name: 'Harley',
             description: 'Especialista en atención médica y primeros auxilios, con experiencia en meditaciones guiadas y masajes terapéuticos. Su presencia tranquila y profesional garantiza un entorno seguro durante toda la ceremonia, brindando confianza y contención tanto al equipo como a las participantes.',
-            imageUrl: 'https://placehold.co/160x160.png',
+            imageUrl: 'https://i.postimg.cc/mD3mXj50/harley.jpg',
         },
         {
             name: 'Johanna',
             description: 'Guardiana de la medicina formada en la Amazonía de perú. Brindando ceremonias en Colombia y Costa Rica, su presencia aporta seguridad, contención y equilibrio entre lo físico y espiritual, sosteniendo el espacio ceremonial con firmeza, cuidado y profunda conexión con la sanación femenina.',
-            imageUrl: 'https://placehold.co/160x160.png',
+            imageUrl: 'https://i.postimg.cc/J0B0f2p9/johanna.jpg',
         },
     ];
 
