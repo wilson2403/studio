@@ -190,7 +190,7 @@ export const seedGuides = async () => {
         {
             name: 'Wilson Alfaro',
             description: 'Guía espiritual con profunda conexión con las tradiciones amazónicas. Formado en la Amazonía de perú, Wilson Alfaro aporta un entendimiento ancestral de la Ayahuasca y su poder curativo. Su experiencia facilita un espacio seguro y de confianza para la exploración personal.',
-            imageUrl: 'https://i.postimg.cc/mD3mXj50/harley.jpg', // Using a placeholder that works
+            imageUrl: 'https://i.postimg.cc/k4Dvz2yq/wilson.jpg',
         },
         {
             name: 'Jacob',
@@ -473,5 +473,7 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
 };
 
 
+
+    
 
     
