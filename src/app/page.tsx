@@ -32,10 +32,6 @@ export default function Home() {
       <Ceremonies 
         status="active" 
         id="ceremonias"
-        titleId="upcomingCeremoniesTitle"
-        titleInitialValue={t('upcomingCeremoniesTitle')}
-        subtitleId="upcomingCeremoniesSubtitle"
-        subtitleInitialValue={t('upcomingCeremoniesSubtitle')}
         activeVideo={activeVideo}
         setActiveVideo={setActiveVideo}
       />
