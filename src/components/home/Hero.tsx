@@ -246,7 +246,7 @@ export default function Hero() {
       </div>
       
        <div className="w-full px-4 md:px-0">
-          <div className="relative w-full max-w-4xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
+          <div className="relative w-full max-w-2xl mx-auto animate-in fade-in-0 zoom-in-95 duration-1000 delay-500">
             {isAdmin && (
               <div className="absolute -top-12 right-0 z-30 flex gap-2">
                 <Dialog open={isFormOpen} onOpenChange={(open) => {
@@ -274,7 +274,7 @@ export default function Hero() {
               </div>
             )}
             {loading ? (
-              <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card animate-pulse"></div>
+              <div className="aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card animate-pulse"></div>
             ) : (
               <Carousel
                   opts={{
