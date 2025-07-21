@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, Users } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, Users, MessageSquare } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -117,6 +117,10 @@ export default function Header() {
                 <DropdownMenuItem onClick={() => router.push('/admin/users')}>
                   <Users className="mr-2 h-4 w-4" />
                   <span>{t('userManagement')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/admin/chat')}>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <span>{t('chatHistory')}</span>
                 </DropdownMenuItem>
               </>
             )}
@@ -215,6 +219,12 @@ export default function Header() {
                         <Link href="/admin/users" className="transition-colors hover:text-primary flex items-center gap-2">
                           <Users className="h-5 w-5" />
                           {t('userManagement')}
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Link href="/admin/chat" className="transition-colors hover:text-primary flex items-center gap-2">
+                          <MessageSquare className="h-5 w-5" />
+                          {t('chatHistory')}
                         </Link>
                       </SheetClose>
                     </>

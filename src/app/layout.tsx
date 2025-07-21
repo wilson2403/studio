@@ -7,6 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Script from 'next/script';
 import { I18nProvider } from '@/components/layout/I18nProvider';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
+import Chatbot from '@/components/chat/Chatbot';
 
 export const metadata: Metadata = {
   title: 'El Arte de Sanar',
@@ -46,6 +47,7 @@ export default function RootLayout({
                 <Header />
                 <main className="flex-1">{children}</main>
                 <Footer />
+                <Chatbot />
               </div>
               <Toaster />
               

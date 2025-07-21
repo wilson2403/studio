@@ -1,7 +1,7 @@
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -10,6 +10,7 @@ const contentCollection = collection(db, 'content');
 const guidesCollection = collection(db, 'guides');
 const usersCollection = collection(db, 'users');
 const settingsCollection = collection(db, 'settings');
+const chatsCollection = collection(db, 'chats');
 
 
 // --- Page Content ---
@@ -385,3 +386,36 @@ export const setThemeSettings = async (settings: ThemeSettings): Promise<void> =
         throw error;
     }
 }
+
+
+// --- Chat ---
+
+export const saveChatMessage = async (chatId: string, messages: ChatMessage[], user: { uid: string, email: string | null, displayName: string | null } | null) => {
+    const chatRef = doc(db, 'chats', chatId);
+    const chatSnap = await getDoc(chatRef);
+
+    if (chatSnap.exists()) {
+        await updateDoc(chatRef, {
+            messages: messages,
+            updatedAt: serverTimestamp(),
+        });
+    } else {
+        await setDoc(chatRef, {
+            id: chatId,
+            messages: messages,
+            user: user,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+        });
+    }
+}
+
+export const getAllChats = async (): Promise<Chat[]> => {
+    try {
+        const snapshot = await getDocs(chatsCollection);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
+    } catch (error) {
+        console.error("Error fetching chats: ", error);
+        return [];
+    }
+};
