@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers } from '@/lib/firebase/firestore';
-import { Save } from 'lucide-radix';
+import { Save } from 'lucide-react';
 import Link from 'next/link';
 
 const questionnaireSchema = (t: (key: string) => string) => z.object({
