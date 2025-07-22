@@ -7,9 +7,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { cn } from '@/lib/utils';
 import { Check, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '@/lib/firebase/config';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function PreparationPage() {
     const { t } = useTranslation();
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
 
     const processSteps = [
         { id: "preparation", title: "preparationProcessTitle", description: "preparationProcessDescription", Icon: Sprout },
@@ -35,6 +51,36 @@ export default function PreparationPage() {
     
     const prohibitedFoodsRaw = t('prohibitedFoodsList', { returnObjects: true });
     const prohibitedFoods = Array.isArray(prohibitedFoodsRaw) ? prohibitedFoodsRaw : [];
+
+    if (loading) {
+        return (
+          <div className="container py-12 md:py-16 space-y-16">
+            <Skeleton className="h-12 w-3/4 mx-auto" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
+            </div>
+            <Skeleton className="h-64 w-full" />
+          </div>
+        );
+    }
+    
+    if (!user) {
+        return (
+            <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
+                <Card className="w-full max-w-md text-center">
+                    <CardHeader>
+                        <CardTitle>{t('accessDenied')}</CardTitle>
+                        <CardDescription>{t('mustBeLoggedInToView')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                            <Link href="/login?redirect=/preparation">{t('signIn')}</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
 
     return (
