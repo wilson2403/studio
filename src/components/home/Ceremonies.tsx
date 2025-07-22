@@ -148,7 +148,7 @@ export default function Ceremonies({
           >
             <CardHeader className="p-0">
               <div 
-                className="relative aspect-[4/3] overflow-hidden"
+                className="relative aspect-video overflow-hidden"
                 onClick={() => setActiveVideo(ceremony.id)}
               >
                 {isAdmin && (
