@@ -18,7 +18,7 @@ interface VideoPlayerProps {
   inCarousel?: boolean;
 }
 
-const getYoutubeEmbedUrl = (url: string): string | null => {
+const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null => {
   if (!url) return null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = url.match(youtubeRegex);
@@ -26,11 +26,11 @@ const getYoutubeEmbedUrl = (url: string): string | null => {
   if (!videoId) return null;
 
   const params = new URLSearchParams({
-    autoplay: '0', 
+    autoplay: isActivated ? '1' : '0', 
     loop: '1',
     controls: '1',
     playlist: videoId,
-    mute: '0',
+    mute: isActivated ? '1' : '0',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
@@ -40,24 +40,27 @@ const getTikTokEmbedUrl = (url: string, isActivated: boolean): string | null => 
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
     const autoplay = isActivated ? '1' : '0';
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=1&mute=0`;
+    const mute = isActivated ? '1' : '0';
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=1&mute=${mute}`;
 };
 
-const getFacebookEmbedUrl = (url: string): string | null => {
+const getFacebookEmbedUrl = (url: string, isActivated: boolean): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
     if (url.includes('/videos/') || url.includes('/share/v/')) {
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=0&mute=0&loop=1&controls=1`;
+        const mute = isActivated ? '1' : '0';
+        const autoplay = isActivated ? '1' : '0';
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplay}&mute=${mute}&loop=1&controls=1`;
     }
     return null;
 };
 
-const getStreamableEmbedUrl = (url: string): string | null => {
+const getStreamableEmbedUrl = (url: string, isActivated: boolean): string | null => {
   if (!url) return null;
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
-    autoplay: '0',
-    mute: '0',
+    autoplay: isActivated ? '1' : '0',
+    mute: isActivated ? '1' : '0',
     loop: '1',
     controls: '1',
   });
@@ -99,7 +102,7 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover' }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain' }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(true);
+    const [isMuted, setIsMuted] = useState(!isActivated);
     
     if (!src) {
         return (
@@ -170,7 +173,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
              <div 
-                className="absolute inset-x-0 bottom-0 flex items-center justify-center p-2 bg-gradient-to-t from-black/50 to-transparent transition-opacity duration-300 cursor-pointer"
+                className="absolute inset-x-0 bottom-0 flex items-center justify-center p-2 bg-gradient-to-t from-black/50 to-transparent transition-opacity duration-300 opacity-100"
             >
                  <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
                     {isMuted ? <VolumeX className="h-4 w-4 fill-white" /> : <Volume2 className="h-4 w-4 fill-white" />}
@@ -208,10 +211,10 @@ export const VideoPlayer = ({ videoUrl, mediaType, videoFit, title, className, c
     const url = videoUrl || '';
 
     const embedUrl = 
-        getYoutubeEmbedUrl(url) ||
+        getYoutubeEmbedUrl(url, isActivated) ||
         getTikTokEmbedUrl(url, isActivated) ||
-        getFacebookEmbedUrl(url) ||
-        getStreamableEmbedUrl(url);
+        getFacebookEmbedUrl(url, isActivated) ||
+        getStreamableEmbedUrl(url, isActivated);
 
     if (embedUrl) {
        return <IframePlayer src={embedUrl} title={title} className={className} inCarousel={inCarousel} />;
