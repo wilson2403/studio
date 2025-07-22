@@ -128,7 +128,6 @@ export default function Ceremonies({
     <div className="w-full justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
             {ceremonies.map((ceremony) => {
-              const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
               return (
                 <div key={ceremony.id} className="px-5">
                   <Card 
@@ -231,6 +230,7 @@ export default function Ceremonies({
                             <p className="font-mono text-xs opacity-70 mt-1">{ceremony.date}</p>
                           )}
                       </div>
+                      <div className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing group-active/item:pointer-events-none"></div>
                     </div>
                   </div>
                 </CarouselItem>
