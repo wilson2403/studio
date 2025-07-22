@@ -205,11 +205,9 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
 
   useEffect(() => {
       if (isActivated || inCarousel) {
-          setIsIframeLoading(true);
-          setIframeKey(Date.now()); // Reset iframe on activation
-      } else {
-          setIsIframeLoading(false);
+          setIframeKey(Date.now()); // Reset iframe on activation to force reload
       }
+      setIsIframeLoading(isActivated || inCarousel);
   }, [isActivated, inCarousel]);
   
   const handleIframeLoad = () => {

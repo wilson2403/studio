@@ -147,9 +147,7 @@ export default function Ceremonies({
   titleId,
   titleInitialValue,
   subtitleId,
-  subtitleInitialValue,
-  activeVideo,
-  setActiveVideo,
+  subtitleInitialValue
 }: CeremoniesProps) {
   const [user, setUser] = useState<User | null>(null);
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
@@ -157,6 +155,7 @@ export default function Ceremonies({
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const { t } = useTranslation();
   const router = useRouter();
   
@@ -422,6 +421,4 @@ interface CeremoniesProps {
     titleInitialValue: string;
     subtitleId?: string;
     subtitleInitialValue?: string;
-    activeVideo: string | null;
-    setActiveVideo: (id: string | null) => void;
 }
