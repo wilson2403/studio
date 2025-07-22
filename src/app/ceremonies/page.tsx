@@ -12,13 +12,13 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import VideoPopupDialog from '@/components/home/VideoPopupDialog';
 import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { EditableTitle } from '../home/EditableTitle';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -45,7 +45,7 @@ export default function AllCeremoniesPage() {
         const fetchCeremonies = async () => {
             setPageLoading(true);
             try {
-                const data = await getCeremonies(); // Get all ceremonies
+                const data = await getCeremonies(); // Get all ceremonies, they will be sorted
                 setCeremonies(data);
             } catch (error) {
                 console.error("Failed to fetch ceremonies:", error);
@@ -119,10 +119,18 @@ export default function AllCeremoniesPage() {
         <EditableProvider>
             <div className="container py-12 md:py-16 space-y-12">
                 <div className="text-center">
-                    <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
-                        {t('allCeremoniesTitle')}
-                    </h1>
-                    <p className="mt-2 text-lg text-foreground/80 font-body">{t('allCeremoniesSubtitle')}</p>
+                    <EditableTitle
+                        tag="h1"
+                        id="allCeremoniesTitle"
+                        initialValue={t('allCeremoniesTitle')}
+                        className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+                    />
+                     <EditableTitle
+                        tag="p"
+                        id="allCeremoniesSubtitle"
+                        initialValue={t('allCeremoniesSubtitle')}
+                        className="mt-2 text-lg text-foreground/80 font-body"
+                    />
                     {isAdmin && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
@@ -171,7 +179,6 @@ export default function AllCeremoniesPage() {
                                             mediaType={ceremony.mediaType}
                                             videoFit={ceremony.videoFit}
                                             title={ceremony.title}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
                                             isActivated={activeVideo === ceremony.id && !expandedVideo}
                                             inCarousel={false}
                                         />
