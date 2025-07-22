@@ -30,7 +30,7 @@ import { signInWithGoogle, signInWithEmail } from '@/lib/firebase/auth';
 import { Separator } from '@/components/ui/separator';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 
-const formSchema = (t: (key: string) => string) => z.object({
+const formSchema = (t: (key: string, options?: any) => string) => z.object({
   email: z.string().email({
     message: t('errorInvalidEmail'),
   }),
