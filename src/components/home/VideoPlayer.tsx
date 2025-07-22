@@ -38,7 +38,7 @@ const getTikTokEmbedUrl = (url: string): string | null => {
     if (!url) return null;
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=0&loop=1&controls=1&mute=0`;
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=0&loop=1&controls=1&mute=0&refer=carousel`;
 };
 
 const getFacebookEmbedUrl = (url: string): string | null => {
