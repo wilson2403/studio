@@ -39,28 +39,28 @@ export default function RootLayout({
       <body
         className={cn('min-h-screen bg-background font-body antialiased')}
       >
-        <LoadingScreen />
-        <I18nProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark">
-            <EditableProvider>
-              <div className="relative flex min-h-screen flex-col">
-                <Header />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-                <Chatbot />
-              </div>
-              <Toaster />
-              <div id="fb-root"></div>
-              <Script
-                id="facebook-sdk"
-                strategy="lazyOnload"
-                src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
-              />
-            </EditableProvider>
-          </ThemeProvider>
-        </I18nProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark">
+            <LoadingScreen />
+            <I18nProvider>
+                <EditableProvider>
+                  <div className="relative flex min-h-screen flex-col">
+                    <Header />
+                    <main className="flex-1">
+                      {children}
+                    </main>
+                    <Footer />
+                    <Chatbot />
+                  </div>
+                  <Toaster />
+                  <div id="fb-root"></div>
+                  <Script
+                    id="facebook-sdk"
+                    strategy="lazyOnload"
+                    src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0&appId=YOUR_APP_ID"
+                  />
+                </EditableProvider>
+            </I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
