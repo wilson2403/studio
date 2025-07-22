@@ -70,7 +70,7 @@ export default function GuidesPage() {
             <div className="h-12 w-1/2 bg-card/50 animate-pulse rounded-md"></div>
             <div className="h-8 w-2/3 bg-card/50 animate-pulse rounded-md"></div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 pl-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
           {[...Array(4)].map((_, i) => (
              <Card key={i} className="flex flex-col items-center justify-center gap-8 p-6 rounded-2xl border-2 border-card-foreground/10 h-[350px] animate-pulse bg-card/50"></Card>
           ))}
@@ -98,7 +98,7 @@ export default function GuidesPage() {
               />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 animate-in fade-in-0 duration-1000 delay-300 pl-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 animate-in fade-in-0 duration-1000 delay-300">
               {guides.map((guide) => (
                   <Card key={guide.id} className="relative flex flex-col items-center justify-start text-center gap-6 p-6 rounded-2xl border-2 border-card-foreground/10 bg-card/80 backdrop-blur-sm shadow-lg group">
                       {isAdmin && (
