@@ -205,6 +205,8 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   useEffect(() => {
       if (isActivated || inCarousel) {
           setIsIframeLoading(true);
+      } else {
+          setIsIframeLoading(false);
       }
   }, [isActivated, inCarousel]);
   
@@ -236,23 +238,23 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
         getStreamableEmbedUrl(url);
 
     if (embedUrl) {
-        if (isActivated || inCarousel) {
-             return (
-                <>
-                    {isIframeLoading && <IframePlaceholder onClick={() => {}} title={title} className={className} isLoading={true} />}
-                    <iframe
-                        src={embedUrl}
-                        title={title}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        className={cn("w-full h-full", isIframeLoading && "hidden")}
-                        onLoad={handleIframeLoad}
-                    ></iframe>
-                </>
-             )
+        if (!isActivated && !inCarousel) {
+             return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
         }
-        return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
+        return (
+            <>
+                {isIframeLoading && <IframePlaceholder onClick={() => {}} title={title} className={className} isLoading={true} />}
+                <iframe
+                    src={embedUrl}
+                    title={title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className={cn("w-full h-full", isIframeLoading && "hidden")}
+                    onLoad={handleIframeLoad}
+                ></iframe>
+            </>
+        )
     }
 
     if (isDirectVideoUrl(url)) {
