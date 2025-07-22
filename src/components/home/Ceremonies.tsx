@@ -86,7 +86,7 @@ const CeremonyCard = ({
           >
             <CardHeader className="p-0">
               <div 
-                className="relative aspect-[16/10.8] overflow-hidden"
+                className="relative aspect-[16/13] overflow-hidden"
               >
                  {isAdmin && (
                     <div className="absolute top-2 right-2 z-20 flex items-center gap-1">
@@ -275,8 +275,8 @@ export default function Ceremonies({
   );
 
   const renderFinishedCeremonies = () => (
-     <div className="w-full">
-          <div className="relative w-full max-w-6xl pl-10">
+     <div className="w-full pl-10">
+          <div className="relative w-full max-w-6xl">
             <Carousel
                 opts={{
                 align: 'center',
@@ -288,7 +288,7 @@ export default function Ceremonies({
                 {ceremonies.map((ceremony) => (
                     <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
                       <div className="p-1 h-full">
-                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
+                        <div className="relative rounded-2xl overflow-hidden aspect-[9/19.2] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
                           {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
@@ -460,6 +460,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
