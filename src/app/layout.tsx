@@ -9,6 +9,7 @@ import { I18nProvider } from '@/components/layout/I18nProvider';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import Chatbot from '@/components/chat/Chatbot';
 import { EditableProvider } from '@/components/home/EditableProvider';
+import LoadingScreen from '@/components/layout/LoadingScreen';
 
 export const metadata: Metadata = {
   title: 'El Arte de Sanar',
@@ -41,6 +42,7 @@ export default function RootLayout({
         <I18nProvider>
           <ThemeProvider attribute="class" defaultTheme="dark">
             <EditableProvider>
+              <LoadingScreen />
               <div className="relative flex min-h-screen flex-col">
                 <Header />
                 <main className="flex-1">
