@@ -10,6 +10,10 @@ import {
   updateProfile,
   sendEmailVerification,
   User,
+  updateEmail,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import { auth, db } from './config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -114,4 +118,53 @@ export const onAuthStateChanged = (callback: (user: User | null) => void) => {
   return firebaseOnAuthStateChanged(auth, callback);
 };
 
+// This is a simplified re-authentication function. 
+// In a real app, you would prompt the user for their current password.
+const reauthenticate = async () => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No user is signed in to re-authenticate.");
+
+    // This is where you would typically show a dialog to get the password
+    const password = prompt("Please re-enter your password for security:");
+    if (!password) throw new Error("Password is required for this action.");
+
+    if (user.email) {
+        const credential = EmailAuthProvider.credential(user.email, password);
+        return reauthenticateWithCredential(user, credential);
+    }
     
+    throw new Error("Cannot re-authenticate user without an email.");
+};
+
+
+export const updateUserEmail = async (newEmail: string) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No user is signed in.");
+
+    try {
+        // Re-authentication is required for sensitive operations like changing an email.
+        await reauthenticate();
+        await updateEmail(user, newEmail);
+        // Also update the email in your Firestore database
+        const userRef = doc(db, 'users', user.uid);
+        await setDoc(userRef, { email: newEmail }, { merge: true });
+
+    } catch (error) {
+        console.error("Error updating email:", error);
+        throw error;
+    }
+};
+
+export const updateUserPassword = async (newPassword: string) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("No user is signed in.");
+    
+    try {
+        // Re-authentication is also required for changing the password.
+        await reauthenticate();
+        await updatePassword(user, newPassword);
+    } catch (error) {
+        console.error("Error updating password:", error);
+        throw error;
+    }
+};

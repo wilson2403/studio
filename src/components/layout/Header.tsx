@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, Calendar } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, User as UserIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -34,6 +34,7 @@ import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
 import { getUserProfile } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
+import EditProfileDialog from '../auth/EditProfileDialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -43,6 +44,7 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { t } = useTranslation();
 
   const navLinks = [
@@ -113,8 +115,13 @@ export default function Header() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setIsProfileDialogOpen(true)}>
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>{t('editProfile')}</span>
+            </DropdownMenuItem>
             {isAdmin && (
               <>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push('/admin')}>
                   <ShieldCheck className="mr-2 h-4 w-4" />
                   <span>{t('admin')}</span>
@@ -127,9 +134,9 @@ export default function Header() {
                   <MessageSquare className="mr-2 h-4 w-4" />
                   <span>{t('chatHistory')}</span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
               </>
             )}
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>{t('signOut')}</span>
@@ -167,122 +174,137 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur">
-      <div className="container flex h-16 items-center">
-        <div className="mr-4 flex items-center">
-          <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Logo className="h-10 w-10" />
-            <span className="font-bold font-headline text-lg">
-                <EditableTitle
-                    tag="p"
-                    id="appName"
-                    initialValue={t('appName')}
-                />
-            </span>
-          </Link>
-        </div>
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'transition-colors hover:text-primary',
-                (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
-                  ? 'text-primary'
-                  : 'text-foreground/60'
-              )}
-            >
-              {link.label}
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur">
+        <div className="container flex h-16 items-center">
+          <div className="mr-4 flex items-center">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <Logo className="h-10 w-10" />
+              <span className="font-bold font-headline text-lg">
+                  <EditableTitle
+                      tag="p"
+                      id="appName"
+                      initialValue={t('appName')}
+                  />
+              </span>
             </Link>
-          ))}
-          {user && userNavLinks.map((link) => (
-             <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'transition-colors hover:text-primary',
-                (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
-                  ? 'text-primary'
-                  : 'text-foreground/60'
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="flex flex-1 items-center justify-end space-x-2">
-          <ThemeSwitcher />
-          <LanguageSwitcher />
-          <div className="hidden md:flex items-center">
-            <AuthContent />
           </div>
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'transition-colors hover:text-primary',
+                  (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
+                    ? 'text-primary'
+                    : 'text-foreground/60'
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+            {user && userNavLinks.map((link) => (
+               <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'transition-colors hover:text-primary',
+                  (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
+                    ? 'text-primary'
+                    : 'text-foreground/60'
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            <ThemeSwitcher />
+            <LanguageSwitcher />
+            <div className="hidden md:flex items-center">
+              <AuthContent />
+            </div>
 
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-6 w-6" />
-                <span className="sr-only">Toggle Navigation</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right">
-              <SheetHeader>
-                <SheetTitle className="sr-only">{t('headerMenuTitle')}</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col h-full">
-                <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
-                  {isAdmin && (
-                    <>
-                      <SheetClose asChild>
-                          <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2">
-                              <ShieldCheck className="h-5 w-5" />
-                              {t('admin')}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle Navigation</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">{t('headerMenuTitle')}</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col h-full">
+                  <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
+                    {user && (
+                        <SheetClose asChild>
+                            <button onClick={() => setIsProfileDialogOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
+                                <UserIcon className="h-5 w-5" />
+                                {t('editProfile')}
+                            </button>
+                        </SheetClose>
+                    )}
+                    {isAdmin && (
+                      <>
+                        <SheetClose asChild>
+                            <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2">
+                                <ShieldCheck className="h-5 w-5" />
+                                {t('admin')}
+                            </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link href="/admin/users" className="transition-colors hover:text-primary flex items-center gap-2">
+                            <Users className="h-5 w-5" />
+                            {t('userManagement')}
                           </Link>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <Link href="/admin/users" className="transition-colors hover:text-primary flex items-center gap-2">
-                          <Users className="h-5 w-5" />
-                          {t('userManagement')}
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link href="/admin/chat" className="transition-colors hover:text-primary flex items-center gap-2">
+                            <MessageSquare className="h-5 w-5" />
+                            {t('chatHistory')}
+                          </Link>
+                        </SheetClose>
+                      </>
+                    )}
+                    {navLinks.map((link) => (
+                      <SheetClose asChild key={link.href}>
+                        <Link
+                          href={link.href}
+                          className="transition-colors hover:text-primary"
+                        >
+                          {link.label}
                         </Link>
                       </SheetClose>
-                      <SheetClose asChild>
-                        <Link href="/admin/chat" className="transition-colors hover:text-primary flex items-center gap-2">
-                          <MessageSquare className="h-5 w-5" />
-                          {t('chatHistory')}
+                    ))}
+                    {user && userNavLinks.map((link) => (
+                      <SheetClose asChild key={link.href}>
+                        <Link
+                          href={link.href}
+                          className="transition-colors hover:text-primary flex items-center gap-2"
+                        >
+                          <FileText className="h-5 w-5" />
+                          {link.label}
                         </Link>
                       </SheetClose>
-                    </>
-                  )}
-                  {navLinks.map((link) => (
-                    <SheetClose asChild key={link.href}>
-                      <Link
-                        href={link.href}
-                        className="transition-colors hover:text-primary"
-                      >
-                        {link.label}
-                      </Link>
-                    </SheetClose>
-                  ))}
-                  {user && userNavLinks.map((link) => (
-                    <SheetClose asChild key={link.href}>
-                      <Link
-                        href={link.href}
-                        className="transition-colors hover:text-primary flex items-center gap-2"
-                      >
-                        <FileText className="h-5 w-5" />
-                        {link.label}
-                      </Link>
-                    </SheetClose>
-                  ))}
-                </nav>
-                <div className="mt-auto pb-4">
-                  <MobileAuthContent />
+                    ))}
+                  </nav>
+                  <div className="mt-auto pb-4">
+                    <MobileAuthContent />
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+      <EditProfileDialog
+          user={user}
+          isOpen={isProfileDialogOpen}
+          onClose={() => setIsProfileDialogOpen(false)}
+      />
+    </>
   );
 }
