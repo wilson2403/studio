@@ -222,7 +222,7 @@ export default function Ceremonies({
                               isActivated={true}
                               inCarousel
                            />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-active/item:bg-black/20 transition-colors duration-300"></div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none group-active/item:pointer-events-auto transition-colors duration-300"></div>
                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
                               <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
                                {ceremony.date && (

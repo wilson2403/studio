@@ -79,8 +79,7 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
                     <Loader className="h-8 w-8 animate-spin" />
                 </div>
             )}
-             {/* The pointer-events-none is crucial for TikTok to allow carousel swipe */}
-            <div className='w-full h-full pointer-events-none'>
+            <div className='w-full h-full'>
               <iframe
                   src={src}
                   title={title}
