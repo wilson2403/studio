@@ -130,7 +130,7 @@ export default function Ceremonies({
                    <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
                      <div className="h-full">
                        <div className={cn("rounded-2xl overflow-hidden group/item shadow-2xl h-full flex flex-col", ceremony.featured ? 'border-2 border-primary shadow-primary/20' : 'border-2 border-primary/30' )}>
-                         <div className="relative flex-1 flex flex-col">
+                         <div className="relative flex-1">
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
                                 {isAdmin &&
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
@@ -180,7 +180,7 @@ export default function Ceremonies({
                             </div>
                             <Button
                                 onClick={() => handleViewPlans(ceremony)}
-                                variant="default"
+                                variant="secondary"
                                 className="w-full text-lg font-bold rounded-xl h-12"
                             >
                                 {t('reserveSpot')}
@@ -408,3 +408,4 @@ interface CeremoniesProps {
     
 
     
+
