@@ -17,7 +17,7 @@ import { VideoPlayer } from '@/components/home/VideoPlayer';
 import VideoPopupDialog from '@/components/home/VideoPopupDialog';
 import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
 import { EditableTitle } from '@/components/home/EditableTitle';
-import { EditableProvider } from '../home/EditableProvider';
+import { EditableProvider } from '@/components/home/EditableProvider';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
