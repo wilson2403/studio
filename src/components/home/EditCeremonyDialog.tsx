@@ -661,94 +661,87 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                     </div>
                 )}
 
-
                 <DialogFooter className="flex-col sm:flex-row justify-between pt-4">
                     <div className="flex gap-2 items-center flex-wrap">
-                    {isEditMode && (
+                      {isEditMode && ceremony && (
                         <>
-                        <AlertDialog>
+                          <AlertDialog>
                             <AlertDialogTrigger asChild>
-                            <Button type="button" variant="destructive" size="sm" disabled={isUploading}>
+                              <Button type="button" variant="destructive" size="sm" disabled={isUploading}>
                                 <Trash className="mr-2 h-4 w-4" />
                                 {t('delete')}
-                            </Button>
+                              </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
-                            <AlertDialogHeader>
+                              <AlertDialogHeader>
                                 <AlertDialogTitle>{t('deleteCeremonyConfirmTitle')}</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                {t('deleteCeremonyConfirmDescription')}
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
+                                <AlertDialogDescription>{t('deleteCeremonyConfirmDescription')}</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
                                 <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                                 <AlertDialogAction onClick={handleDelete}>{t('delete')}</AlertDialogAction>
-                            </AlertDialogFooter>
+                              </AlertDialogFooter>
                             </AlertDialogContent>
-                        </AlertDialog>
-                        <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
+                          </AlertDialog>
+                          <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
                             <Copy className="mr-2 h-4 w-4" />
                             {t('duplicate')}
-                        </Button>
-                        {ceremony.status === 'active' ? (
+                          </Button>
+                          {ceremony.status === 'active' ? (
                             <div className="flex gap-2">
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                    <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                        <CheckCircle className="mr-2 h-4 w-4" />
-                                        {t('markAsFinished')}
-                                    </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                        {t('finishCeremonyConfirmDescription')}
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                    <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                        <Archive className="mr-2 h-4 w-4" />
-                                        {t('markAsInactive')}
-                                    </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{t('inactivateCeremonyConfirmTitle')}</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                        {t('inactivateCeremonyConfirmDescription')}
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleInactivate}>{t('continue')}</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                    <CheckCircle className="mr-2 h-4 w-4" />
+                                    {t('markAsFinished')}
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
+                                    <AlertDialogDescription>{t('finishCeremonyConfirmDescription')}</AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                    <Archive className="mr-2 h-4 w-4" />
+                                    {t('markAsInactive')}
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>{t('inactivateCeremonyConfirmTitle')}</AlertDialogTitle>
+                                    <AlertDialogDescription>{t('inactivateCeremonyConfirmDescription')}</AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleInactivate}>{t('continue')}</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
-                        ) : (
+                          ) : (
                             <Button type="button" variant="outline" size="sm" onClick={handleReactivate} disabled={isUploading}>
-                                <RotateCcw className="mr-2 h-4 w-4" />
-                                {t('reactivateCeremony')}
+                              <RotateCcw className="mr-2 h-4 w-4" />
+                              {t('reactivateCeremony')}
                             </Button>
-                        )}
+                          )}
                         </>
-                    )}
+                      )}
                     </div>
                     <div className="flex gap-2">
-                    <DialogClose asChild>
+                      <DialogClose asChild>
                         <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
-                    </DialogClose>
-                    <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
+                      </DialogClose>
+                      <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
                         {isUploading ? t('saving') : t('saveChanges')}
-                    </Button>
+                      </Button>
                     </div>
                 </DialogFooter>
             </form>
