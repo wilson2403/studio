@@ -151,11 +151,11 @@ export default function Ceremonies({
                     inCarousel
                  />
               </div>
-              <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center">
-                  <p className="font-mono text-lg text-primary-foreground bg-primary p-3 rounded-md">
+              <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
+                  <p className="font-mono text-xl font-bold text-primary mb-4">
                       {ceremony.date}
                   </p>
-                  <Button variant="default" className='w-full mt-4' onClick={() => handleViewPlans(ceremony)}>
+                  <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                     Reservar
                   </Button>
               </CardContent>
@@ -239,7 +239,7 @@ export default function Ceremonies({
       <section id={id} className="container py-8 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(3)].map((_, i) => (
-             <Skeleton key={i} className="flex flex-col rounded-2xl border-2 border-card-foreground/10 h-[550px] bg-card/50"></Skeleton>
+             <Skeleton key={i} className="flex flex-col rounded-2xl border-2 border-card-foreground/10 bg-card/50"></Skeleton>
           ))}
         </div>
       </section>
