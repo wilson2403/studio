@@ -169,14 +169,14 @@ export default function Ceremonies({
           <div className="relative w-full max-w-6xl">
             <Carousel
                 opts={{
-                align: 'center',
+                align: 'start',
                 loop: false,
                 }}
                 className="w-full"
             >
                 <CarouselContent className="-ml-2">
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full sm:basis-1/2 lg:basis-1/3 p-0 pl-2">
+                    <CarouselItem key={ceremony.id} className="basis-full sm:basis-1/2 lg:basis-[30%] p-0 pl-2">
                       <div className="p-1 h-full">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
                           {isAdmin && (
