@@ -85,7 +85,7 @@ const CeremonyCard = ({
           >
             <CardHeader className="p-0">
               <div 
-                className="relative aspect-[16/13.5] overflow-hidden"
+                className="relative aspect-[16/10.8] overflow-hidden"
               >
                  {isAdmin && (
                     <div className="absolute top-2 right-2 z-20 flex items-center gap-1">
