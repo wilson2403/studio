@@ -139,7 +139,14 @@ export const seedCeremonies = async () => {
 
 export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive'): Promise<Ceremony[]> => {
   try {
-    const q = status ? query(ceremoniesCollection, where('status', '==', status)) : collection(db, 'ceremonies');
+    let q;
+    if (status) {
+      const dateOrder = status === 'finished' ? 'desc' : 'asc';
+      q = query(ceremoniesCollection, where('status', '==', status), orderBy('date', dateOrder));
+    } else {
+      q = collection(db, 'ceremonies');
+    }
+    
     const fullSnapshot = await getDocs(q);
     
     // Seed data only if the entire collection is empty
@@ -156,7 +163,14 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
     if (!status) {
       return ceremoniesData.sort((a, b) => {
         const statusOrder = { active: 1, inactive: 2, finished: 3 };
-        return (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
+        const statusComparison = (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
+        if (statusComparison !== 0) return statusComparison;
+        
+        // If statuses are the same, sort by date
+        const dateA = a.date || '';
+        const dateB = b.date || '';
+        if (a.status === 'finished') return dateB.localeCompare(dateA); // Desc for finished
+        return dateA.localeCompare(dateB); // Asc for active/inactive
       });
     }
 
@@ -579,4 +593,5 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
     
 
     
+
 

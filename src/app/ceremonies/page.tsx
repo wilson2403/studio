@@ -6,8 +6,7 @@ import { getCeremonies, Ceremony } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarIcon, Clock, Edit } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { CalendarIcon, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
@@ -98,11 +97,11 @@ export default function AllCeremoniesPage() {
                 <p className="mt-2 text-lg text-foreground/80 font-body">{t('allCeremoniesSubtitle')}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                 {ceremonies.map(ceremony => {
                     const status = ceremony.status || 'inactive';
                     return (
-                        <Card key={ceremony.id} className="relative group overflow-hidden rounded-lg shadow-lg bg-card/50">
+                        <Card key={ceremony.id} className="relative group overflow-hidden rounded-lg shadow-lg bg-card/50 flex flex-col">
                             {isAdmin && (
                                 <Button
                                     variant="ghost"
@@ -123,7 +122,7 @@ export default function AllCeremoniesPage() {
                                     />
                                 </div>
                             </CardHeader>
-                            <CardContent className="p-4">
+                            <CardContent className="p-4 flex flex-col flex-1">
                                 <div className="flex justify-between items-start">
                                     <CardTitle className="text-xl font-headline mb-2 pr-4">{ceremony.title}</CardTitle>
                                     <Badge variant={getStatusVariant(status)} className="capitalize flex-shrink-0">
@@ -137,7 +136,7 @@ export default function AllCeremoniesPage() {
                                     </p>
                                     )}
                                 </div>
-                                <CardDescription className="mt-2 text-sm text-foreground/80 line-clamp-3">
+                                <CardDescription className="mt-2 text-sm text-foreground/80 line-clamp-3 flex-grow">
                                     {ceremony.description}
                                 </CardDescription>
                             </CardContent>
