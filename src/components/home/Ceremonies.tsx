@@ -140,23 +140,25 @@ export default function Ceremonies({
                   <Expand className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="aspect-[9/16] h-[440px] overflow-hidden rounded-t-2xl relative group/video px-5">
-                 <VideoPlayer 
-                    videoUrl={ceremony.mediaUrl} 
-                    mediaType={ceremony.mediaType}
-                    videoFit={ceremony.videoFit}
-                    title={ceremony.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                    isActivated={false}
-                    inCarousel
-                 />
+              <div className="aspect-[9/16] h-[440px] overflow-hidden rounded-t-2xl relative group/video">
+                 <div className="px-5">
+                    <VideoPlayer 
+                      videoUrl={ceremony.mediaUrl} 
+                      mediaType={ceremony.mediaType}
+                      videoFit={ceremony.videoFit}
+                      title={ceremony.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
+                      isActivated={false}
+                      inCarousel
+                   />
+                 </div>
               </div>
               <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
                    <p className="font-mono text-xl font-bold text-white mb-4">
                       {ceremony.title}
                   </p>
                   <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                    Reservar
+                    {t('reserveNow')}
                   </Button>
               </CardContent>
           </Card>
@@ -350,6 +352,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
