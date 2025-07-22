@@ -167,8 +167,8 @@ export default function Ceremonies({
                                 </div>
                             </div>
                          </div>
-                         <div className='bg-primary p-4 text-center flex flex-col items-center justify-center gap-4'>
-                            <div className='font-mono text-xs space-y-1 text-primary-foreground'>
+                         <div className='bg-background p-4 text-center flex flex-col items-center justify-center gap-4'>
+                            <div className='font-mono text-xs space-y-1 text-muted-foreground'>
                                 {ceremony.date && (
                                     <p className="flex items-center gap-1.5 justify-center">
                                         <CalendarIcon className='w-3 h-3'/> {ceremony.date}
@@ -180,7 +180,7 @@ export default function Ceremonies({
                             </div>
                             <Button
                                 onClick={() => handleViewPlans(ceremony)}
-                                variant="secondary"
+                                variant="default"
                                 className="w-full text-lg font-bold rounded-xl h-12"
                             >
                                 {t('reserveSpot')}
@@ -408,4 +408,5 @@ interface CeremoniesProps {
     
 
     
+
 
