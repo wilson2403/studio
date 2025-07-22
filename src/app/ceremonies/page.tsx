@@ -13,37 +13,46 @@ import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
 export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [pageLoading, setPageLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
     const { t } = useTranslation();
+    const router = useRouter();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
+            if (!currentUser) {
+                router.push('/login?redirect=/ceremonies');
+            } else {
+                setUser(currentUser);
+                setPageLoading(false);
+            }
         });
         return () => unsubscribe();
-    }, []);
+    }, [router]);
 
     useEffect(() => {
+        if (!user) return;
         const fetchCeremonies = async () => {
-            setLoading(true);
+            setPageLoading(true);
             try {
                 const data = await getCeremonies(); // Get all ceremonies
                 setCeremonies(data);
             } catch (error) {
                 console.error("Failed to fetch ceremonies:", error);
             } finally {
-                setLoading(false);
+                setPageLoading(false);
             }
         };
         fetchCeremonies();
-    }, []);
+    }, [user]);
 
     const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
         setCeremonies(prev => prev.map(c => c.id === updatedCeremony.id ? updatedCeremony : c));
@@ -74,7 +83,7 @@ export default function AllCeremoniesPage() {
         }
     };
 
-    if (loading) {
+    if (pageLoading) {
         return (
             <div className="container py-12 md:py-16 space-y-8">
                 <Skeleton className="h-10 w-1/3 mx-auto" />
@@ -86,6 +95,24 @@ export default function AllCeremoniesPage() {
                 </div>
             </div>
         );
+    }
+    
+    if (!user) {
+        return (
+            <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
+                <Card className="w-full max-w-md text-center">
+                    <CardHeader>
+                        <CardTitle>{t('accessDenied')}</CardTitle>
+                        <CardDescription>{t('mustBeLoggedInToView')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                            <Link href="/login?redirect=/ceremonies">{t('signIn')}</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
     }
 
     return (
