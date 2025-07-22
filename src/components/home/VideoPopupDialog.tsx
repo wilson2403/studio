@@ -24,15 +24,16 @@ export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType,
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
         "p-0 border-0 bg-transparent shadow-none",
-        isTikTok ? "max-w-md w-auto" : "max-w-4xl w-full"
+        isTikTok ? "max-w-md w-auto" : "w-[80vw] h-auto max-w-[90vw] max-h-[80vh]"
       )}>
         <DialogTitle className="sr-only">{title}</DialogTitle>
-        <div className={cn(isTikTok ? "aspect-[9/16]" : "aspect-video")}>
+        <div className={cn("aspect-video w-full h-full", isTikTok && "aspect-[9/16]")}>
           <VideoPlayer
             videoUrl={videoUrl}
             mediaType={mediaType}
             title={title}
             isActivated={true} 
+            inCarousel={true}
           />
         </div>
       </DialogContent>
