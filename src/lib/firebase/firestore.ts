@@ -44,7 +44,7 @@ export const setContent = async (id: string, value: string | { [key: string]: st
 // --- Ceremonies ---
 
 export const seedCeremonies = async () => {
-  const initialCeremonies: Omit<Ceremony, 'id' | 'order'>[] = [
+  const initialCeremonies: Omit<Ceremony, 'id'>[] = [
     {
       title: 'Sábado 26 de julio – Guanacaste',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
@@ -108,9 +108,9 @@ export const seedCeremonies = async () => {
   ];
 
   const batch = writeBatch(db);
-  initialCeremonies.forEach((ceremony, index) => {
+  initialCeremonies.forEach(ceremony => {
     const docRef = doc(ceremoniesCollection); // Create a new doc with a random ID
-    batch.set(docRef, { ...ceremony, order: index });
+    batch.set(docRef, ceremony);
   });
   
   const heroTitleContent = {
@@ -139,32 +139,28 @@ export const seedCeremonies = async () => {
 
 export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive'): Promise<Ceremony[]> => {
   try {
-    const q = query(ceremoniesCollection, orderBy('order', 'asc'));
+    const q = status ? query(ceremoniesCollection, where('status', '==', status)) : collection(db, 'ceremonies');
     const fullSnapshot = await getDocs(q);
     
     // Seed data only if the entire collection is empty
-    if (fullSnapshot.empty) {
+    if (fullSnapshot.empty && !status) {
         console.log('No ceremonies found, seeding database...');
         await seedCeremonies();
         // After seeding, fetch again to get the data
         const newSnapshot = await getDocs(q);
-        const allCeremonies = newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
-        if (status) {
-            return allCeremonies.filter(c => c.status === status);
-        }
-        return allCeremonies;
+        return newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
     }
 
     const ceremoniesData = fullSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
 
-    if (status) {
-      return ceremoniesData.filter(c => c.status === status);
-    }
-    
-    return ceremoniesData.sort((a, b) => {
+    if (!status) {
+      return ceremoniesData.sort((a, b) => {
         const statusOrder = { active: 1, inactive: 2, finished: 3 };
         return (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
-    });
+      });
+    }
+
+    return ceremoniesData;
   } catch (error) {
     console.error("Error fetching ceremonies: ", error);
     return [];
@@ -174,13 +170,7 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
-        const q = query(ceremoniesCollection, orderBy('order', 'desc'), where('status', '==', 'active'));
-        const snapshot = await getDocs(q);
-        const lastOrder = snapshot.empty ? -1 : (snapshot.docs[0].data().order ?? -1);
-        
-        const ceremonyWithOrder = { ...ceremony, order: lastOrder + 1 };
-        
-        const docRef = await addDoc(ceremoniesCollection, ceremonyWithOrder);
+        const docRef = await addDoc(ceremoniesCollection, ceremony);
         return docRef.id;
     } catch(error) {
         console.error("Error adding ceremony: ", error);
@@ -198,20 +188,6 @@ export const updateCeremony = async (ceremony: Ceremony): Promise<void> => {
         throw error;
     }
 }
-
-export const updateCeremoniesOrder = async (ceremonies: Ceremony[]): Promise<void> => {
-    const batch = writeBatch(db);
-    ceremonies.forEach((ceremony, index) => {
-        const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
-        batch.update(ceremonyRef, { order: index });
-    });
-    try {
-        await batch.commit();
-    } catch (error) {
-        console.error("Error updating ceremonies order: ", error);
-        throw error;
-    }
-};
 
 export const deleteCeremony = async (id: string): Promise<void> => {
     try {
@@ -603,3 +579,4 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
     
 
     
+

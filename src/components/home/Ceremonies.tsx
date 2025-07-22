@@ -10,11 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CalendarIcon, Edit, ExternalLink, PlusCircle, Clock, ArrowRight, GripVertical } from 'lucide-react';
+import { CalendarIcon, Edit, ExternalLink, PlusCircle, ArrowRight } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies, updateCeremoniesOrder } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -26,29 +26,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
 import { useEditableContent } from '@/hooks/use-editable-content';
-import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { useToast } from '@/hooks/use-toast';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-
-const SortableCeremonyCard = ({ ceremony, ...props }: { ceremony: Ceremony } & Omit<React.ComponentProps<typeof CeremonyCard>, 'ceremony'>) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: ceremony.id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-        zIndex: isDragging ? 10 : undefined,
-    };
-
-    return (
-        <div ref={setNodeRef} style={style} className="touch-none">
-            <CeremonyCard ceremony={ceremony} dragHandleListeners={listeners} dragHandleAttributes={attributes} {...props} />
-        </div>
-    );
-};
-
 
 const CeremonyCard = ({
     ceremony,
@@ -56,9 +35,7 @@ const CeremonyCard = ({
     onEdit,
     onViewPlans,
     activeVideo,
-    setActiveVideo,
-    dragHandleListeners,
-    dragHandleAttributes
+    setActiveVideo
 }: {
     ceremony: Ceremony;
     isAdmin: boolean;
@@ -66,8 +43,6 @@ const CeremonyCard = ({
     onViewPlans: (ceremony: Ceremony) => void;
     activeVideo: string | null;
     setActiveVideo: (id: string | null) => void;
-    dragHandleListeners?: any;
-    dragHandleAttributes?: any;
 }) => {
     const cardRef = useRef<HTMLDivElement>(null);
     const reserveButtonText = useEditableContent('reserveButtonText', 'Reservar Cupo');
@@ -114,15 +89,6 @@ const CeremonyCard = ({
               >
                  {isAdmin && (
                     <div className="absolute top-2 right-2 z-20 flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white cursor-grab"
-                        {...dragHandleListeners}
-                        {...dragHandleAttributes}
-                      >
-                        <GripVertical className="h-4 w-4" />
-                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -195,7 +161,6 @@ export default function Ceremonies({
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { t } = useTranslation();
-  const { toast } = useToast();
   const router = useRouter();
   
   useEffect(() => {
@@ -271,64 +236,22 @@ export default function Ceremonies({
     }
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-        const oldIndex = ceremonies.findIndex((c) => c.id === active.id);
-        const newIndex = ceremonies.findIndex((c) => c.id === over.id);
-        const newOrder = arrayMove(ceremonies, oldIndex, newIndex);
-        setCeremonies(newOrder);
-
-        // Update order in Firestore
-        try {
-            await updateCeremoniesOrder(newOrder);
-            toast({
-                title: 'Orden de las ceremonias actualizado.'
-            });
-        } catch (error) {
-             toast({
-                title: 'Error al actualizar el orden.',
-                variant: 'destructive',
-            });
-            // Optionally revert state
-            const oldOrder = await getCeremonies(status);
-            setCeremonies(oldOrder);
-        }
-    }
-  };
-
   const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
-     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={ceremonies} strategy={verticalListSortingStrategy}>
-            <div className="flex flex-wrap gap-8 justify-center">
-                {ceremonies.map((ceremony) => (
-                    isAdmin ? (
-                        <SortableCeremonyCard
-                            key={ceremony.id}
-                            ceremony={ceremony}
-                            isAdmin={!!isAdmin}
-                            onEdit={setEditingCeremony}
-                            onViewPlans={handleViewPlans}
-                            activeVideo={activeVideo}
-                            setActiveVideo={setActiveVideo}
-                        />
-                    ) : (
-                        <CeremonyCard
-                            key={ceremony.id}
-                            ceremony={ceremony}
-                            isAdmin={!!isAdmin}
-                            onEdit={setEditingCeremony}
-                            onViewPlans={handleViewPlans}
-                            activeVideo={activeVideo}
-                            setActiveVideo={setActiveVideo}
-                        />
-                    )
-                ))}
-            </div>
-        </SortableContext>
-     </DndContext>
+     <div className="flex flex-wrap gap-8 justify-center">
+        {ceremonies.map((ceremony) => (
+            <CeremonyCard
+                key={ceremony.id}
+                ceremony={ceremony}
+                isAdmin={!!isAdmin}
+                onEdit={setEditingCeremony}
+                onViewPlans={handleViewPlans}
+                activeVideo={activeVideo}
+                setActiveVideo={setActiveVideo}
+            />
+        ))}
+    </div>
   );
 
   const renderFinishedCeremonies = () => (
