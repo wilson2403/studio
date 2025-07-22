@@ -130,14 +130,14 @@ export default function Ceremonies({
                    <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
                      <div className="h-full">
                        <div className={cn("rounded-2xl overflow-hidden group/item shadow-2xl h-full flex flex-col", ceremony.featured ? 'border-2 border-primary shadow-primary/20' : 'border-2 border-primary/30' )}>
-                         <div className="relative aspect-[16/10.8] w-full">
-                            {isAdmin && (
+                         <div className="relative flex-1 flex flex-col">
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
+                                {isAdmin &&
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
                                 <Edit className="h-4 w-4" />
                                 </Button>
+                                }
                             </div>
-                            )}
                             <div className="absolute top-2 left-2 z-20 flex gap-2">
                                 {ceremony.mediaUrl && (
                                 <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -150,22 +150,24 @@ export default function Ceremonies({
                                     <Expand className="h-4 w-4" />
                                 </Button>
                             </div>
-                            <VideoPlayer 
-                                videoUrl={ceremony.mediaUrl} 
-                                mediaType={ceremony.mediaType}
-                                videoFit={ceremony.videoFit}
-                                title={ceremony.title}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                                isActivated={false} // Autoplay handled differently for carousels
-                                inCarousel
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
-                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">
-                                <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
-                                <p className="font-body text-sm opacity-90 mt-1 line-clamp-3 flex-1">{ceremony.description}</p>
+                            <div className="relative aspect-[9/16] w-full h-full">
+                                <VideoPlayer 
+                                    videoUrl={ceremony.mediaUrl} 
+                                    mediaType={ceremony.mediaType}
+                                    videoFit={ceremony.videoFit}
+                                    title={ceremony.title}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
+                                    isActivated={false} // Autoplay handled differently for carousels
+                                    inCarousel
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
+                                <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">
+                                    <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
+                                    <p className="font-body text-sm opacity-90 mt-1 line-clamp-3 flex-1">{ceremony.description}</p>
+                                </div>
                             </div>
                          </div>
-                         <div className='bg-primary text-primary-foreground p-4 text-center flex flex-col items-center justify-center gap-4 flex-1'>
+                         <div className='bg-primary text-primary-foreground p-4 text-center flex flex-col items-center justify-center gap-4'>
                             <div className='font-mono text-xs space-y-1 text-secondary-foreground'>
                                 {ceremony.date && (
                                     <p className="flex items-center gap-1.5 justify-center">
@@ -209,7 +211,7 @@ export default function Ceremonies({
                 {ceremonies.map((ceremony) => (
                     <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
                       <div className="p-1 h-full">
-                        <div className="relative rounded-2xl overflow-hidden aspect-[9/19.2] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
+                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
                           {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
