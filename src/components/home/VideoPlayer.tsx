@@ -35,11 +35,12 @@ const getYoutubeEmbedUrl = (url: string): string | null => {
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
 
-const getTikTokEmbedUrl = (url: string): string | null => {
+const getTikTokEmbedUrl = (url: string, isActivated: boolean): string | null => {
     if (!url) return null;
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=0&loop=0&controls=0&mute=0&refer=embed`;
+    const autoplay = isActivated ? '1' : '0';
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=0&mute=0&refer=embed`;
 };
 
 const getFacebookEmbedUrl = (url: string): string | null => {
@@ -212,7 +213,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, videoFit, title, className, c
 
     const embedUrl = 
         getYoutubeEmbedUrl(url) ||
-        getTikTokEmbedUrl(url) ||
+        getTikTokEmbedUrl(url, isActivated) ||
         getFacebookEmbedUrl(url) ||
         getStreamableEmbedUrl(url);
 
