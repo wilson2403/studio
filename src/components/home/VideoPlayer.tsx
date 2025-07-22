@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX, Maximize } from 'lucide-react';
 
 interface VideoPlayerProps {
   videoUrl?: string;
@@ -122,6 +122,16 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
         setIsMuted(prev => !prev);
     };
 
+    const handleFullscreen = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (videoRef.current) {
+            if (videoRef.current.requestFullscreen) {
+                videoRef.current.requestFullscreen();
+            }
+        }
+    };
+
+
     useEffect(() => {
         if(videoRef.current) {
             videoRef.current.onplay = () => setIsPlaying(true);
@@ -173,9 +183,12 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
                     </div>
                 )}
             </div>
-            <div className="absolute bottom-2 right-2 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
-                <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full">
-                    {isMuted ? <VolumeX className="h-5 w-5 fill-white" /> : <Volume2 className="h-5 w-5 fill-white" />}
+            <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
+                <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
+                    {isMuted ? <VolumeX className="h-4 w-4 fill-white" /> : <Volume2 className="h-4 w-4 fill-white" />}
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleFullscreen} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
+                    <Maximize className="h-4 w-4" />
                 </Button>
             </div>
         </div>
