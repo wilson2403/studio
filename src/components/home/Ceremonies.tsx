@@ -266,7 +266,7 @@ export default function Ceremonies({
 
   const renderFinishedCeremonies = () => (
      <div className="w-full">
-          <div className="relative w-full max-w-6xl">
+          <div className="relative w-full max-w-6xl pl-10">
             <Carousel
                 opts={{
                 align: 'center',
@@ -436,6 +436,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
