@@ -47,6 +47,8 @@ const CeremonyCard = ({
     const { t } = useTranslation();
 
      useEffect(() => {
+        if (ceremony.status !== 'active') return;
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
@@ -66,7 +68,7 @@ const CeremonyCard = ({
                 observer.unobserve(currentCardRef);
             }
         };
-    }, [ceremony.id, setActiveVideo]);
+    }, [ceremony.id, setActiveVideo, ceremony.status]);
 
 
     return (
@@ -250,7 +252,7 @@ export default function Ceremonies({
   );
 
   const renderFinishedCeremonies = () => (
-     <div className="w-full pl-10">
+     <div className="w-full">
           <div className="relative w-full max-w-6xl mx-auto">
             <Carousel
                 opts={{
@@ -259,9 +261,9 @@ export default function Ceremonies({
                 }}
                 className="w-full"
             >
-                <CarouselContent>
+                <CarouselContent className="-ml-2">
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="md:basis-1/2 lg:basis-1/3">
+                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 pl-2">
                       <div className="p-1">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30">
                           {isAdmin && (
