@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +30,9 @@ import { useToast } from '@/hooks/use-toast';
 import { signUpWithEmail, signInWithGoogle } from '@/lib/firebase/auth';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { countryCodes } from '@/lib/country-codes';
 
 const formSchema = (t: (key: string, options?: any) => string) => z
   .object({
@@ -42,10 +46,16 @@ const formSchema = (t: (key: string, options?: any) => string) => z
       message: t('errorMinLength', { field: t('loginPasswordLabel'), count: 6 }),
     }),
     confirmPassword: z.string(),
+    countryCode: z.string().optional(),
+    phone: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: t('errorPasswordsDontMatch'),
     path: ['confirmPassword'],
+  })
+  .refine(data => !data.phone || (data.phone && data.countryCode), {
+      message: "Por favor, selecciona un código de país.",
+      path: ['countryCode'],
   });
 
 export default function RegisterPage() {
@@ -60,12 +70,18 @@ export default function RegisterPage() {
       email: '',
       password: '',
       confirmPassword: '',
+      countryCode: '+506',
+      phone: '',
     },
   });
 
   async function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     try {
-      await signUpWithEmail(values.email, values.password, values.name);
+      const fullPhoneNumber = values.phone && values.countryCode 
+        ? `${values.countryCode}${values.phone.replace(/\D/g, '')}` 
+        : undefined;
+
+      await signUpWithEmail(values.email, values.password, values.name, fullPhoneNumber);
       toast({
         title: t('registerSuccessTitle'),
         description: t('registerSuccessDescription'),
@@ -148,6 +164,43 @@ export default function RegisterPage() {
                   </FormItem>
                 )}
               />
+               <FormItem>
+                <FormLabel>{t('registerPhoneLabel')}</FormLabel>
+                <div className="flex gap-2">
+                    <FormField
+                        control={form.control}
+                        name="countryCode"
+                        render={({ field }) => (
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                    <SelectTrigger className="w-32">
+                                        <SelectValue placeholder="Code" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <ScrollArea className="h-72">
+                                        {countryCodes.map(country => (
+                                            <SelectItem key={country.code} value={country.dial_code}>
+                                                {country.code} ({country.dial_code})
+                                            </SelectItem>
+                                        ))}
+                                    </ScrollArea>
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                            <FormControl>
+                                <Input type="tel" placeholder={t('registerPhonePlaceholder')} {...field} />
+                            </FormControl>
+                        )}
+                    />
+                </div>
+                <FormMessage>{form.formState.errors.countryCode?.message}</FormMessage>
+              </FormItem>
               <FormField
                 control={form.control}
                 name="password"
@@ -192,3 +245,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+    

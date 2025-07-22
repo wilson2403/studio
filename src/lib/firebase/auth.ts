@@ -51,7 +51,7 @@ export const signInWithGoogle = async () => {
   }
 };
 
-export const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+export const signUpWithEmail = async (email: string, password: string, displayName: string, phone?: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -66,6 +66,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
       uid: user.uid,
       email: user.email,
       displayName: displayName,
+      phone: phone || null,
       photoURL: user.photoURL,
       providerId: 'password',
       isAdmin: user.email === ADMIN_EMAIL,
@@ -107,3 +108,5 @@ export const signOut = async () => {
 export const onAuthStateChanged = (callback: (user: User | null) => void) => {
   return firebaseOnAuthStateChanged(auth, callback);
 };
+
+    
