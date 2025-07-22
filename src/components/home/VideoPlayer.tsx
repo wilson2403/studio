@@ -89,7 +89,7 @@ const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void,
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(true);
+    const [isMuted, setIsMuted] = useState(false);
     
     if (!src) {
         return (
@@ -136,10 +136,8 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
         if (videoRef.current && !inCarousel) {
             if (isActivated) {
                 videoRef.current.play().catch(console.error);
-                setIsMuted(false);
             } else {
                 videoRef.current.pause();
-                 setIsMuted(true);
             }
         }
     }, [isActivated, inCarousel]);
