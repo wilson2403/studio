@@ -25,7 +25,7 @@ const getYoutubeEmbedUrl = (url: string): string | null => {
   if (!videoId) return null;
 
   const params = new URLSearchParams({
-    autoplay: '1',
+    autoplay: '0', // Changed to 0
     loop: '1',
     controls: '1',
     playlist: videoId,
@@ -38,13 +38,15 @@ const getTikTokEmbedUrl = (url: string): string | null => {
     if (!url) return null;
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&controls=1&mute=0`;
+    // Set autoplay to 0 to give user control over sound
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=0&loop=1&controls=1&mute=0`;
 };
 
 const getFacebookEmbedUrl = (url: string): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
     if (url.includes('/videos/') || url.includes('/share/v/')) {
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
+        // Set autoplay to 0
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=0&mute=0&loop=1&controls=1`;
     }
     return null;
 };
@@ -54,7 +56,7 @@ const getStreamableEmbedUrl = (url: string): string | null => {
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
-    autoplay: '1',
+    autoplay: '0', // Changed to 0
     mute: '0',
     loop: '1',
     controls: '1',
@@ -78,7 +80,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
                 </div>
             )}
             <iframe
-                key={src} // Re-mounts iframe when src changes
+                key={src} 
                 src={src}
                 title={title}
                 frameBorder="0"
@@ -87,6 +89,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
                 className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
                 onLoad={() => setIsLoading(false)}
             ></iframe>
+             {/* This overlay allows the parent carousel to scroll on mobile */}
              <div className="absolute inset-0 z-20 cursor-pointer"></div>
         </div>
     );
@@ -96,7 +99,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(false);
+    const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay
     
     if (!src) {
         return (
