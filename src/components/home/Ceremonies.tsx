@@ -168,15 +168,12 @@ export default function Ceremonies({
                             </div>
                          </div>
                          <div className='bg-background p-4 text-center flex flex-col items-center justify-center gap-4'>
-                            <div className='font-mono text-xs space-y-1 text-muted-foreground'>
-                                {ceremony.date && (
-                                    <p className="flex items-center gap-1.5 justify-center">
-                                        <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-                                    </p>
-                                )}
-                                {ceremony.horario && (
-                                    <p>{ceremony.horario}</p>
-                                )}
+                            <div className='font-mono text-sm space-y-1 text-muted-foreground'>
+                               {ceremony.date && (
+                                  <p className="flex items-center gap-1.5 justify-center font-bold text-lg">
+                                      {ceremony.date}
+                                  </p>
+                              )}
                             </div>
                             <Button
                                 onClick={() => handleViewPlans(ceremony)}
@@ -408,5 +405,6 @@ interface CeremoniesProps {
     
 
     
+
 
 
