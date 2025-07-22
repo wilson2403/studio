@@ -180,7 +180,7 @@ export default function RegisterPage() {
                                 <SelectContent>
                                     <ScrollArea className="h-72">
                                         {countryCodes.map(country => (
-                                            <SelectItem key={country.code} value={country.dial_code}>
+                                            <SelectItem key={`${country.code}-${country.dial_code}`} value={country.dial_code}>
                                                 {country.code} ({country.dial_code})
                                             </SelectItem>
                                         ))}
@@ -245,5 +245,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-    
