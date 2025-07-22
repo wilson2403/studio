@@ -121,51 +121,52 @@ export default function Ceremonies({
     <div className="w-full pl-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
             {ceremonies.map((ceremony) => (
-              <Card 
-                  key={ceremony.id} 
-                  onMouseEnter={() => setActiveVideo(ceremony.id)}
-                  onMouseLeave={() => setActiveVideo(null)}
-                  className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50"
-              >
-                  {isAdmin && (
-                    <div className="absolute top-2 right-2 z-20 flex gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
-                        <Edit className="h-4 w-4" />
+              <div key={ceremony.id} className="px-5">
+                <Card 
+                    onMouseEnter={() => setActiveVideo(ceremony.id)}
+                    onMouseLeave={() => setActiveVideo(null)}
+                    className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50"
+                >
+                    {isAdmin && (
+                      <div className="absolute top-2 right-2 z-20 flex gap-2">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                    <div className="absolute top-2 left-2 z-20 flex gap-2">
+                      {ceremony.mediaUrl && (
+                        <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </a>
+                      )}
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setExpandedVideo(ceremony); }}>
+                        <Expand className="h-4 w-4" />
                       </Button>
                     </div>
-                  )}
-                  <div className="absolute top-2 left-2 z-20 flex gap-2">
-                    {ceremony.mediaUrl && (
-                      <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                          <ExternalLink className="h-4 w-4" />
+                    <div className="aspect-[9/16] h-[422px] overflow-hidden rounded-t-2xl relative group/video">
+                         <VideoPlayer 
+                            videoUrl={ceremony.mediaUrl} 
+                            mediaType={ceremony.mediaType}
+                            videoFit={ceremony.videoFit}
+                            title={ceremony.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
+                            isActivated={activeVideo === ceremony.id}
+                            inCarousel={false}
+                         />
+                    </div>
+                    <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
+                         <p className="font-mono text-xl font-bold text-white mb-4">
+                            {ceremony.title}
+                        </p>
+                        <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
+                          {t('reserveNow')}
                         </Button>
-                      </a>
-                    )}
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setExpandedVideo(ceremony); }}>
-                      <Expand className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="aspect-[9/16] h-[422px] overflow-hidden rounded-t-2xl relative group/video">
-                       <VideoPlayer 
-                          videoUrl={ceremony.mediaUrl} 
-                          mediaType={ceremony.mediaType}
-                          videoFit={ceremony.videoFit}
-                          title={ceremony.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                          isActivated={activeVideo === ceremony.id}
-                          inCarousel={false}
-                       />
-                  </div>
-                  <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
-                       <p className="font-mono text-xl font-bold text-white mb-4">
-                          {ceremony.title}
-                      </p>
-                      <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                        {t('reserveNow')}
-                      </Button>
-                  </CardContent>
-              </Card>
+                    </CardContent>
+                </Card>
+              </div>
             ))}
         </div>
     </div>
@@ -173,6 +174,7 @@ export default function Ceremonies({
 
   const renderFinishedCeremonies = () => (
      <div className="w-full pl-10">
+      <div className='w-full flex justify-center'>
           <div className="relative w-full max-w-6xl">
             <Carousel
                 opts={{
@@ -238,6 +240,7 @@ export default function Ceremonies({
                 </Button>
             </div>
         </div>
+      </div>
      </div>
   );
 
