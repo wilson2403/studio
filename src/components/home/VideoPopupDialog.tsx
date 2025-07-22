@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -18,15 +17,13 @@ interface VideoPopupDialogProps {
 }
 
 export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType, title }: VideoPopupDialogProps) {
-  const isTikTok = videoUrl?.includes('tiktok.com');
-
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="p-0 border-0 bg-transparent shadow-none w-auto max-w-[90vw] max-h-[90vh]">
+      <DialogContent className="p-0 border-0 bg-transparent shadow-none w-auto max-w-7xl h-auto max-h-[90vh] flex items-center justify-center">
         <DialogTitle className="sr-only">{title}</DialogTitle>
          <div className={cn(
-            "h-auto",
-            isTikTok ? "aspect-[9/16] max-h-[90vh]" : "aspect-video w-full"
+            "w-full h-full",
          )}>
           <VideoPlayer
             videoUrl={videoUrl}
