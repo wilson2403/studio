@@ -31,7 +31,7 @@ const profileSchema = (t: (key: string, options?: any) => string) => z.object({
     countryCode: z.string().optional(),
     phone: z.string().optional(),
 }).refine(data => !data.phone || (data.phone && data.countryCode), {
-    message: "Por favor, selecciona un código de país.",
+    message: t('errorCountryCodeRequired'),
     path: ['countryCode'],
 });
 
@@ -173,7 +173,7 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
                                         <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className="w-32">
-                                                    <SelectValue placeholder="Code" />
+                                                    <SelectValue placeholder={t('formCodePlaceholder')} />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
