@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Pause, Play, Volume2, VolumeX, Maximize } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX, Maximize, Loader } from 'lucide-react';
 
 interface VideoPlayerProps {
   videoUrl?: string;
@@ -67,12 +67,12 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
 };
 
-const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
+const IframePlaceholder = ({ onClick, title, className, isLoading }: { onClick: () => void, title: string, className?: string, isLoading?: boolean }) => (
     <div className={cn("relative w-full h-full cursor-pointer", className)} onClick={onClick}>
         <Image
             src="https://placehold.co/600x400.png"
             alt={`${title} video thumbnail`}
-            layout="fill"
+            fill
             objectFit="cover"
             data-ai-hint="video social media"
             className='object-cover'
@@ -80,7 +80,11 @@ const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void,
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="absolute inset-0 flex items-center justify-center text-white z-10">
             <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
-                <Play className="h-8 w-8 fill-white" />
+                {isLoading ? (
+                    <Loader className="h-8 w-8 animate-spin" />
+                ) : (
+                    <Play className="h-8 w-8 fill-white" />
+                )}
             </div>
         </div>
     </div>
@@ -97,7 +101,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
                 <Image
                     src="https://placehold.co/600x400.png"
                     alt="Invalid video source"
-                    layout="fill"
+                    fill
                     objectFit="cover"
                     data-ai-hint="error"
                     className='object-cover'
@@ -196,6 +200,18 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
 };
 
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
+  const [isIframeLoading, setIsIframeLoading] = useState(false);
+
+  useEffect(() => {
+      if (isActivated || inCarousel) {
+          setIsIframeLoading(true);
+      }
+  }, [isActivated, inCarousel]);
+  
+  const handleIframeLoad = () => {
+    setIsIframeLoading(false);
+  };
+
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -203,7 +219,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
         <Image
           src={videoUrl || 'https://placehold.co/600x400.png'}
           alt={title}
-          layout="fill"
+          fill
           objectFit="cover"
           className={cn('object-cover', className)}
           data-ai-hint="spiritual event"
@@ -221,16 +237,20 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
 
     if (embedUrl) {
         if (isActivated || inCarousel) {
-            return (
-              <iframe
-                src={embedUrl}
-                title={title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                className="w-full h-full"
-              ></iframe>
-            );
+             return (
+                <>
+                    {isIframeLoading && <IframePlaceholder onClick={() => {}} title={title} className={className} isLoading={true} />}
+                    <iframe
+                        src={embedUrl}
+                        title={title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        className={cn("w-full h-full", isIframeLoading && "hidden")}
+                        onLoad={handleIframeLoad}
+                    ></iframe>
+                </>
+             )
         }
         return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
     }
