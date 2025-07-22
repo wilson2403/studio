@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -22,15 +21,12 @@ export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={cn(
-        "p-0 border-0 bg-transparent shadow-none w-auto max-w-[90vw] max-h-[90vh]",
-        isTikTok ? "max-w-md" : ""
-      )}>
+      <DialogContent className="p-0 border-0 bg-transparent shadow-none w-full max-w-7xl max-h-[90vh]">
         <DialogTitle className="sr-only">{title}</DialogTitle>
-        <div className={cn(
-            "aspect-video w-full h-full", 
-            isTikTok && "aspect-[9/16] h-[90vh]"
-        )}>
+         <div className={cn(
+            "w-full h-auto",
+            isTikTok ? "aspect-[9/16] max-h-[90vh]" : "aspect-video"
+         )}>
           <VideoPlayer
             videoUrl={videoUrl}
             mediaType={mediaType}
