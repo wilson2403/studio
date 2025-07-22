@@ -144,9 +144,6 @@ export default function Ceremonies({
                         </div>
                       )}
                       <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
-                          <Badge variant={statusVariant} className="capitalize">
-                              {t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`)}
-                          </Badge>
                           <div className="flex gap-2">
                             {ceremony.mediaUrl && (
                               <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
