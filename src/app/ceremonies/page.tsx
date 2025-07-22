@@ -19,6 +19,8 @@ import { EditableProvider } from '@/components/home/EditableProvider';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { EditableTitle } from '@/components/home/EditableTitle';
+import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -33,6 +35,7 @@ export default function AllCeremoniesPage() {
     const [isAdding, setIsAdding] = useState(false);
     const { t } = useTranslation();
     const router = useRouter();
+    const { toast } = useToast();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -85,7 +88,13 @@ export default function AllCeremoniesPage() {
 
     const handleViewPlans = (ceremony: Ceremony) => {
         if (ceremony.registerRequired && !user) {
-            router.push('/login');
+            toast({
+                title: t('authRequiredTitle'),
+                description: t('authRequiredDescription'),
+                action: (
+                    <Button asChild><Link href="/login">{t('signIn')}</Link></Button>
+                )
+            })
         } else {
             setViewingCeremony(ceremony);
         }

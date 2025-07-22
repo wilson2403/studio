@@ -21,6 +21,7 @@ import VideoPopupDialog from './VideoPopupDialog';
 import { CalendarIcon } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 import { Badge } from '../ui/badge';
+import { useToast } from '@/hooks/use-toast';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -42,6 +43,7 @@ export default function Ceremonies({
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const { t } = useTranslation();
   const router = useRouter();
+  const { toast } = useToast();
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -110,7 +112,13 @@ export default function Ceremonies({
 
   const handleViewPlans = (ceremony: Ceremony) => {
     if (ceremony.registerRequired && !user) {
-      router.push('/login');
+       toast({
+          title: t('authRequiredTitle'),
+          description: t('authRequiredDescription'),
+          action: (
+              <Button asChild><Link href="/login">{t('signIn')}</Link></Button>
+          )
+      })
     } else {
       setViewingCeremony(ceremony);
     }
