@@ -2,10 +2,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCeremonies, Ceremony } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, getUserProfile } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, Calendar } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -28,6 +28,7 @@ export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
     const [pageLoading, setPageLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
     const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
     const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
@@ -38,26 +39,34 @@ export default function AllCeremoniesPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
+             if (currentUser) {
+                const profile = await getUserProfile(currentUser.uid);
+                setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+            } else {
+                setIsAdmin(false);
+            }
+            // Fetch ceremonies only after user state is determined.
+            fetchCeremonies(!!currentUser?.email && currentUser.email === ADMIN_EMAIL);
         });
         return () => unsubscribe();
     }, [router]);
+    
+    const fetchCeremonies = async (isAdminUser: boolean) => {
+        setPageLoading(true);
+        try {
+            const data = await getCeremonies(); // Get all ceremonies
+            // Filter inactive ones only if user is not admin
+            const visibleCeremonies = isAdminUser ? data : data.filter(c => c.status !== 'inactive');
+            setCeremonies(visibleCeremonies);
+        } catch (error) {
+            console.error("Failed to fetch ceremonies:", error);
+        } finally {
+            setPageLoading(false);
+        }
+    };
 
-    useEffect(() => {
-        const fetchCeremonies = async () => {
-            setPageLoading(true);
-            try {
-                const data = await getCeremonies(); // Get all ceremonies, they will be sorted
-                setCeremonies(data);
-            } catch (error) {
-                console.error("Failed to fetch ceremonies:", error);
-            } finally {
-                setPageLoading(false);
-            }
-        };
-        fetchCeremonies();
-    }, []);
 
     const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
         const ceremonyExists = ceremonies.some(c => c.id === updatedCeremony.id);
@@ -105,8 +114,6 @@ export default function AllCeremoniesPage() {
         setActiveVideo(null); // Stop the background video
         setExpandedVideo(ceremony);
     };
-
-    const isAdmin = user && user.email === ADMIN_EMAIL;
     
     if (pageLoading) {
         return (
@@ -122,7 +129,23 @@ export default function AllCeremoniesPage() {
         );
     }
     
-    const visibleCeremonies = isAdmin ? ceremonies : ceremonies.filter(c => c.status !== 'inactive');
+    if (!user) {
+        return (
+            <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
+                <Card className="w-full max-w-md text-center">
+                    <CardHeader>
+                        <CardTitle>{t('accessDenied')}</CardTitle>
+                        <CardDescription>{t('mustBeLoggedInToViewCeremonies')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                            <Link href="/login?redirect=/ceremonies">{t('signIn')}</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+    }
 
     return (
         <EditableProvider>
@@ -149,7 +172,7 @@ export default function AllCeremoniesPage() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
-                    {visibleCeremonies.map((ceremony) => {
+                    {ceremonies.map((ceremony) => {
                         const statusText = `status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
                         return (
