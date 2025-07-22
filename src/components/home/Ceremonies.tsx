@@ -140,7 +140,7 @@ export default function Ceremonies({
                   <Expand className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="aspect-[9/16]">
+              <div className="aspect-[9/16] h-[440px] overflow-hidden rounded-t-2xl relative group/video">
                  <VideoPlayer 
                     videoUrl={ceremony.mediaUrl} 
                     mediaType={ceremony.mediaType}
