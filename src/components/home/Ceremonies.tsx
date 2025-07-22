@@ -236,7 +236,7 @@ export default function Ceremonies({
   const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
-     <div className="relative w-full max-w-6xl mx-auto">
+     <div className="relative w-full max-w-6xl">
         <Carousel
             opts={{
             align: 'center',
@@ -266,7 +266,7 @@ export default function Ceremonies({
 
   const renderFinishedCeremonies = () => (
      <div className="w-full">
-          <div className="relative w-full max-w-6xl mx-auto">
+          <div className="relative w-full max-w-6xl">
             <Carousel
                 opts={{
                 align: 'center',
@@ -371,7 +371,7 @@ export default function Ceremonies({
     <>
     <section
       id={id}
-      className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500"
+      className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500 flex flex-col items-center"
     >
       <div className="flex flex-col items-center text-center space-y-4 mb-12">
         <EditableTitle
@@ -436,6 +436,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
