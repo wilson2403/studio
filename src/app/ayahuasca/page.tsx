@@ -44,7 +44,7 @@ export default function AyahuascaInfoPage() {
           />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12 items-start">
+        <div className="grid md:grid-cols-2 gap-12 items-start pl-10">
           <div className="space-y-8 animate-in fade-in-0 duration-1000 delay-200">
               <div className='space-y-2'>
                    <EditableTitle
