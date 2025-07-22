@@ -42,8 +42,7 @@ const getTikTokEmbedUrl = (url: string): string | null => {
 };
 
 const getFacebookEmbedUrl = (url: string): string | null => {
-    if (!url) return null;
-    if (!url.includes('facebook.com') && !url.includes('fb.watch')) return null;
+    if (!url || !url.includes('facebook.com')) return null;
     return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
 };
 
