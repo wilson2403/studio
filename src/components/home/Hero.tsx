@@ -10,7 +10,7 @@ export default function Hero() {
     <section className="relative w-full pt-8 md:pt-16 flex flex-col items-center justify-center text-center group">
       
       <div className="container relative animate-in fade-in-0 duration-1000 z-20 space-y-8">
-        <div className="flex flex-col items-center space-y-2">
+        <div className="flex flex-col items-center space-y-2 px-5">
           <EditableTitle 
             tag="h1"
             id="heroTitle"
@@ -20,7 +20,7 @@ export default function Hero() {
         </div>
       </div>
       
-      <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700 mt-6 mb-8">
+      <div className="max-w-3xl space-y-4 text-lg text-foreground/80 font-body animate-in fade-in-0 duration-1000 delay-700 mt-6 mb-8 px-5">
         <EditableTitle 
             tag="p"
             id="heroSubtitle"
