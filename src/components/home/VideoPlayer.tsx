@@ -99,7 +99,7 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover' }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain' }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(false); // Start with audio on
+    const [isMuted, setIsMuted] = useState(true);
     
     if (!src) {
         return (
@@ -170,23 +170,18 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
              <div 
-                className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 cursor-pointer"
-                onClick={togglePlay}
+                className="absolute inset-x-0 bottom-0 flex items-center justify-center p-2 bg-gradient-to-t from-black/50 to-transparent transition-opacity duration-300 cursor-pointer"
             >
-                {isPlaying ? (
-                    <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
-                        <Pause className="h-8 w-8 fill-white" />
-                    </div>
-                ) : (
-                    <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
-                        <Play className="h-8 w-8 fill-white" />
-                    </div>
-                )}
-            </div>
-            <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
-                <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
+                 <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
                     {isMuted ? <VolumeX className="h-4 w-4 fill-white" /> : <Volume2 className="h-4 w-4 fill-white" />}
                 </Button>
+                <button onClick={togglePlay} className="h-12 w-12 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center mx-4">
+                    {isPlaying ? (
+                        <Pause className="h-6 w-6 fill-white" />
+                    ) : (
+                        <Play className="h-6 w-6 fill-white" />
+                    )}
+                </button>
             </div>
         </div>
     );

@@ -60,7 +60,12 @@ export default function AllCeremoniesPage() {
     }, [user]);
 
     const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
-        setCeremonies(prev => prev.map(c => c.id === updatedCeremony.id ? updatedCeremony : c));
+        const ceremonyExists = ceremonies.some(c => c.id === updatedCeremony.id);
+        if (ceremonyExists) {
+            setCeremonies(prev => prev.map(c => c.id === updatedCeremony.id ? updatedCeremony : c));
+        } else {
+            setCeremonies(prev => [...prev, updatedCeremony]);
+        }
         setEditingCeremony(null);
     };
 
@@ -167,7 +172,7 @@ export default function AllCeremoniesPage() {
                                 <Expand className="h-4 w-4" />
                             </Button>
                             </div>
-                            <div className="aspect-[9/16] h-[422px] overflow-hidden rounded-t-2xl relative group/video">
+                            <div className="aspect-[9/16] overflow-hidden rounded-t-2xl relative group/video">
                                 <VideoPlayer 
                                     videoUrl={ceremony.mediaUrl} 
                                     mediaType={ceremony.mediaType}
@@ -232,5 +237,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-
-    
