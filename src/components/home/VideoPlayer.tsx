@@ -43,7 +43,19 @@ const getTikTokEmbedUrl = (url: string): string | null => {
 
 const getFacebookEmbedUrl = (url: string): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
-    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
+
+    // Handle both regular video URLs and /share/v/ URLs
+    const isShareUrl = url.includes('/share/v/');
+    if (isShareUrl) {
+         return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
+    }
+    
+    // Fallback for regular video URLs
+    if (url.includes('/videos/')) {
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
+    }
+
+    return null;
 };
 
 const getStreamableEmbedUrl = (url: string): string | null => {
@@ -61,7 +73,7 @@ const getStreamableEmbedUrl = (url: string): string | null => {
 
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
+    return url.startsWith('/') || /\.(mp4|webm|ogg)(\?.*)?$/.test(url.split('?')[0]);
 };
 
 const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
