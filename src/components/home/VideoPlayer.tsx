@@ -40,7 +40,7 @@ const getTikTokEmbedUrl = (url: string, isActivated: boolean): string | null => 
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
     const autoplay = isActivated ? '1' : '0';
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=0&mute=1`;
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=1&mute=0`;
 };
 
 const getFacebookEmbedUrl = (url: string): string | null => {
@@ -89,7 +89,6 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
                 className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
                 onLoad={() => setIsLoading(false)}
             ></iframe>
-             {inCarousel && <div className="absolute inset-0 z-20"></div>}
         </div>
     );
 };
