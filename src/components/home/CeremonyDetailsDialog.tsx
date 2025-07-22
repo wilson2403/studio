@@ -57,14 +57,29 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
   };
   
   const getWhatsappLink = () => {
-      if (!selectedPlan || !hasPlans) {
-          return ceremony.link;
-      }
-      
-      const textParam = new URLSearchParams(ceremony.link.split('?')[1]).get('text');
-      const baseText = textParam ? `${textParam} - Plan: ${selectedPlan.name}` : `Hola, me interesa la ceremonia ${ceremony.title} con el plan: ${selectedPlan.name}`;
-      
-      return `https://wa.me/?text=${encodeURIComponent(baseText)}`;
+    const originalLink = ceremony.link;
+
+    if (!selectedPlan || !hasPlans) {
+        return originalLink;
+    }
+
+    let phone = '';
+    const phoneRegex = /(?:wa\.me\/|phone=)(\d+)/;
+    const match = originalLink.match(phoneRegex);
+
+    if (match && match[1]) {
+        phone = match[1];
+    }
+
+    if (!phone) {
+        console.warn("Could not extract phone number from WhatsApp link:", originalLink);
+        return originalLink; // Fallback to the original link if no phone number is found
+    }
+    
+    const textParam = new URLSearchParams(originalLink.split('?')[1]).get('text');
+    const baseText = textParam ? `${textParam} - Plan: ${selectedPlan.name}` : `Hola, me interesa la ceremonia ${ceremony.title} con el plan: ${selectedPlan.name}`;
+    
+    return `https://wa.me/${phone}?text=${encodeURIComponent(baseText)}`;
   }
   
   const isDisabled = hasPlans && !selectedPlan;
