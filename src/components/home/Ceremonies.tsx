@@ -176,7 +176,7 @@ export default function Ceremonies({
             >
                 <CarouselContent className="-ml-2">
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full sm:basis-1/2 lg:basis-[30%] p-0 pl-2">
+                    <CarouselItem key={ceremony.id} className="basis-full sm:basis-1/2 lg:basis-1/4 p-0 pl-2">
                       <div className="p-1 h-full">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
                           {isAdmin && (
@@ -350,3 +350,4 @@ interface CeremoniesProps {
     
 
     
+
