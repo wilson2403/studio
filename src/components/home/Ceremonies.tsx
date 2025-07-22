@@ -115,6 +115,7 @@ const CeremonyCard = ({
                 <VideoPlayer 
                   videoUrl={ceremony.mediaUrl} 
                   mediaType={ceremony.mediaType}
+                  videoFit={ceremony.videoFit}
                   title={ceremony.title} 
                   className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
                   isActivated={activeVideo === ceremony.id && ceremony.status === 'active'}
@@ -311,6 +312,7 @@ export default function Ceremonies({
                            <VideoPlayer 
                               videoUrl={ceremony.mediaUrl} 
                               mediaType={ceremony.mediaType}
+                              videoFit={ceremony.videoFit}
                               title={ceremony.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
                               isActivated={false} // Autoplay handled differently for carousels
@@ -460,6 +462,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 

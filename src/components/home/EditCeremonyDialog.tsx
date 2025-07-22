@@ -45,6 +45,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
   mediaUrl: z.string().optional(),
   mediaType: z.enum(['image', 'video']).default('image'),
+  videoFit: z.enum(['cover', 'contain']).default('cover'),
   plans: z.array(planSchema(t)).optional(),
   contributionText: z.string().optional(),
   status: z.enum(['active', 'finished', 'inactive']),
@@ -87,6 +88,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
       mediaUrl: '',
       mediaType: 'image',
+      videoFit: 'cover',
       plans: [{ name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
       contributionText: t('defaultContributionText'),
       status: 'active',
@@ -374,6 +376,18 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
               <SelectContent>
                 <SelectItem value="image">{t('formImageType')}</SelectItem>
                 <SelectItem value="video">{t('formVideoType')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="videoFit" className="text-right">{t('formVideoFit')}</Label>
+            <Select onValueChange={(value) => form.setValue('videoFit', value as 'cover' | 'contain')} defaultValue={form.getValues('videoFit')} disabled={isUploading}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder={t('formSelectFit')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cover">{t('videoFitCover')}</SelectItem>
+                <SelectItem value="contain">{t('videoFitContain')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

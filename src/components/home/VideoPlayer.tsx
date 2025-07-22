@@ -5,11 +5,12 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Pause, Play, Volume2, VolumeX, Maximize, Loader, Expand } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX, Loader } from 'lucide-react';
 
 interface VideoPlayerProps {
   videoUrl?: string;
   mediaType?: 'image' | 'video';
+  videoFit?: 'cover' | 'contain';
   title: string;
   className?: string;
   controls?: boolean;
@@ -93,7 +94,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
 };
 
 
-const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean }) => {
+const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover' }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain' }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay
@@ -128,16 +129,6 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
         e.stopPropagation();
         setIsMuted(prev => !prev);
     };
-
-    const handleFullscreen = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (videoRef.current) {
-            if (videoRef.current.requestFullscreen) {
-                videoRef.current.requestFullscreen();
-            }
-        }
-    };
-
 
     useEffect(() => {
         if(videoRef.current) {
@@ -174,7 +165,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
                 loop={true}
                 playsInline
                 muted={isMuted}
-                className={cn("w-full h-full object-contain", className)}
+                className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
              <div 
                 className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 cursor-pointer"
@@ -199,7 +190,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
     );
 };
 
-export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
+export const VideoPlayer = ({ videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -230,7 +221,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
+      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} />;
     }
     
     // Fallback for any other URL or invalid URL

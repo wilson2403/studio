@@ -55,6 +55,7 @@ export const seedCeremonies = async () => {
       featured: false,
       mediaUrl: 'https://streamable.com/e/x6y0g9',
       mediaType: 'video',
+      videoFit: 'cover',
       contributionText: 'Puedes reservar con el 20%',
       status: 'active',
       date: '2024-07-26',
@@ -70,6 +71,7 @@ export const seedCeremonies = async () => {
       featured: true,
       mediaUrl: 'https://www.tiktok.com/@elartedesanarcr/video/7391992796355153157',
       mediaType: 'video',
+      videoFit: 'cover',
       plans: [
         { name: 'Plan Básico', price: 80000, description: "Incluye ceremonia y guía." },
         { name: 'Plan Completo', price: 100000, priceUntil: 120000, description: "Incluye ceremonia, guía y hospedaje." }
@@ -84,6 +86,7 @@ export const seedCeremonies = async () => {
       description: '“Una experiencia que cambió mi perspectiva por completo.”',
       date: 'Junio 2024',
       mediaType: 'video',
+      videoFit: 'cover',
       mediaUrl: 'https://videos.pexels.com/video-files/8086041/8086041-hd_1920_1080_25fps.mp4',
       status: 'finished',
       price: 0,
@@ -97,6 +100,7 @@ export const seedCeremonies = async () => {
       description: 'Este es un ejemplo de una ceremonia inactiva.',
       date: 'Enero 2024',
       mediaType: 'image',
+      videoFit: 'cover',
       mediaUrl: 'https://placehold.co/600x400.png',
       status: 'inactive',
       price: 0,

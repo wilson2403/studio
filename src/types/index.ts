@@ -21,6 +21,7 @@ export type Ceremony = {
   featured: boolean;
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
+  videoFit?: 'cover' | 'contain';
   plans?: Plan[];
   contributionText?: string;
   status: 'active' | 'finished' | 'inactive';
