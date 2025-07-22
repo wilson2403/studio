@@ -17,7 +17,6 @@ import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
-import { useEditableContent } from '@/hooks/use-editable-content';
 
 interface CeremonyDetailsDialogProps {
   ceremony: Ceremony | null;
@@ -30,7 +29,6 @@ const USD_EXCHANGE_RATE = 500;
 export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: CeremonyDetailsDialogProps) {
   const { t, i18n } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const reserveButtonText = useEditableContent('reserveButtonText', t('reserve'));
 
   if (!ceremony) return null;
 
@@ -141,7 +139,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         <DialogFooter>
           <Button asChild className="w-full" disabled={hasPlans && !selectedPlan}>
             <a href={getWhatsappLink()} target="_blank" rel="noopener noreferrer">
-              {reserveButtonText}
+              {t('reserveButtonText')}
             </a>
           </Button>
         </DialogFooter>

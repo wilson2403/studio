@@ -25,7 +25,6 @@ import { cn } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
-import { useEditableContent } from '@/hooks/use-editable-content';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -45,7 +44,7 @@ const CeremonyCard = ({
     setActiveVideo: (id: string | null) => void;
 }) => {
     const cardRef = useRef<HTMLDivElement>(null);
-    const reserveButtonText = useEditableContent('reserveButtonText', 'Reservar Cupo');
+    const { t } = useTranslation();
 
      useEffect(() => {
         const observer = new IntersectionObserver(
@@ -133,7 +132,7 @@ const CeremonyCard = ({
                 onClick={() => onViewPlans(ceremony)}
                 className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
               >
-                {reserveButtonText}
+                {t('reserveButtonText')}
               </Button>
             </CardFooter>
             </div>
