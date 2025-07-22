@@ -216,15 +216,6 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
   }, [isActivated, inCarousel]);
 
-  
-  const handleTikTokClick = () => {
-      if (shouldLoad) {
-        setIframeKey(Date.now());
-      } else {
-        setShouldLoad(true);
-      }
-  };
-
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -242,8 +233,6 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     
     const url = videoUrl || '';
 
-    const isTikTok = url.includes('tiktok.com');
-
     const embedUrl = 
         getYoutubeEmbedUrl(url) ||
         getTikTokEmbedUrl(url) ||
@@ -255,7 +244,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
              return <IframePlaceholder onClick={() => setShouldLoad(true)} title={title} className={className} />;
         }
         return (
-            <div className='relative w-full h-full' onClick={isTikTok ? handleTikTokClick : undefined}>
+            <div className='relative w-full h-full'>
                 <iframe
                     key={iframeKey}
                     src={embedUrl}
@@ -293,3 +282,4 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     </div>
   );
 };
+

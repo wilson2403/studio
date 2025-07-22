@@ -260,8 +260,8 @@ export default function Ceremonies({
             </CarouselContent>
             {ceremonies.length > 2 && (
               <>
-                <CarouselPrevious className="left-[-1rem] md:-left-8" />
-                <CarouselNext className="right-[-1rem] md:-right-8"/>
+                <CarouselPrevious className="left-0 md:-left-4" />
+                <CarouselNext className="right-0 md:-right-4"/>
               </>
             )}
         </Carousel>
@@ -321,8 +321,8 @@ export default function Ceremonies({
                 </CarouselContent>
                 {ceremonies.length > 2 && (
                     <>
-                        <CarouselPrevious className="left-[-1rem] md:left-4" />
-                        <CarouselNext className="right-[-1rem] md:right-4"/>
+                        <CarouselPrevious className="left-0 md:left-2" />
+                        <CarouselNext className="right-0 md:right-2"/>
                     </>
                 )}
             </Carousel>
