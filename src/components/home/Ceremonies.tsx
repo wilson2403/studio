@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CalendarIcon, Edit, ExternalLink, PlusCircle, ArrowRight } from 'lucide-react';
+import { CalendarIcon, Edit, ExternalLink, PlusCircle, ArrowRight, Expand } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -100,20 +100,24 @@ const CeremonyCard = ({
                       </Button>
                     </div>
                   )}
-                {ceremony.mediaUrl && (
-                  <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                      <ExternalLink className="h-4 w-4" />
+                <div className="absolute top-2 left-2 z-20 flex items-center gap-1">
+                    {ceremony.mediaUrl && (
+                      <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      </a>
+                    )}
+                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => onExpandVideo(ceremony)}>
+                        <Expand className="h-4 w-4" />
                     </Button>
-                  </a>
-                )}
+                </div>
                 <VideoPlayer 
                   videoUrl={ceremony.mediaUrl} 
                   mediaType={ceremony.mediaType}
                   title={ceremony.title} 
                   className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
                   isActivated={activeVideo === ceremony.id && ceremony.status === 'active'}
-                  onExpand={() => onExpandVideo(ceremony)}
                 />
               </div>
             </CardHeader>
@@ -293,11 +297,16 @@ export default function Ceremonies({
                             </div>
                           )}
                            <div className="absolute top-2 left-2 z-20 flex gap-2">
-                              <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                    <ExternalLink className="h-4 w-4" />
-                                </Button>
-                              </a>
+                              {ceremony.mediaUrl && (
+                                <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                        <ExternalLink className="h-4 w-4" />
+                                    </Button>
+                                </a>
+                              )}
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setExpandedVideo(ceremony); }}>
+                                  <Expand className="h-4 w-4" />
+                              </Button>
                           </div>
                            <VideoPlayer 
                               videoUrl={ceremony.mediaUrl} 
@@ -306,7 +315,6 @@ export default function Ceremonies({
                               className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
                               isActivated={false} // Autoplay handled differently for carousels
                               inCarousel
-                              onExpand={() => setExpandedVideo(ceremony)}
                            />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
@@ -452,6 +460,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 

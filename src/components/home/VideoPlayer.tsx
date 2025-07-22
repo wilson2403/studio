@@ -15,7 +15,6 @@ interface VideoPlayerProps {
   controls?: boolean;
   isActivated?: boolean;
   inCarousel?: boolean;
-  onExpand?: () => void;
 }
 
 const getYoutubeEmbedUrl = (url: string): string | null => {
@@ -68,7 +67,7 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
 };
 
-const IframePlayer = ({ src, title, className, onExpand }: { src: string, title: string, className?: string, onExpand?: () => void }) => {
+const IframePlayer = ({ src, title, className }: { src: string, title: string, className?: string }) => {
     const [isLoading, setIsLoading] = useState(true);
     
     return (
@@ -89,19 +88,12 @@ const IframePlayer = ({ src, title, className, onExpand }: { src: string, title:
                 onLoad={() => setIsLoading(false)}
             ></iframe>
              <div className="absolute inset-0 z-20 pointer-events-none"></div>
-             {onExpand && (
-                <div className="absolute bottom-2 right-2 z-30">
-                    <Button variant="ghost" size="icon" onClick={onExpand} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
-                        <Expand className="h-4 w-4" />
-                    </Button>
-                </div>
-            )}
         </div>
     );
 };
 
 
-const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, onExpand }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, onExpand?: () => void }) => {
+const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay
@@ -202,11 +194,6 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, onExpand }
                 <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
                     {isMuted ? <VolumeX className="h-4 w-4 fill-white" /> : <Volume2 className="h-4 w-4 fill-white" />}
                 </Button>
-                {onExpand && (
-                     <Button variant="ghost" size="icon" onClick={onExpand} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
-                        <Expand className="h-4 w-4" />
-                    </Button>
-                )}
                 <Button variant="ghost" size="icon" onClick={handleFullscreen} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
                     <Maximize className="h-4 w-4" />
                 </Button>
@@ -215,7 +202,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, onExpand }
     );
 };
 
-export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false, onExpand }: VideoPlayerProps) => {
+export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -229,13 +216,6 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
             className={cn('object-cover', className)}
             data-ai-hint="spiritual event"
             />
-             {onExpand && (
-                <div className="absolute bottom-2 right-2 z-10">
-                    <Button variant="ghost" size="icon" onClick={onExpand} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
-                        <Expand className="h-4 w-4" />
-                    </Button>
-                </div>
-            )}
         </div>
       );
     }
@@ -249,11 +229,11 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
         getStreamableEmbedUrl(url);
 
     if (embedUrl) {
-       return <IframePlayer src={embedUrl} title={title} className={className} onExpand={onExpand} />;
+       return <IframePlayer src={embedUrl} title={title} className={className} />;
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} onExpand={onExpand} />;
+      return <DirectVideoPlayer src={url} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
     
     // Fallback for any other URL or invalid URL
