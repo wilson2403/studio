@@ -67,28 +67,31 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
 };
 
-const IframePlaceholder = ({ onClick, title, className, isLoading }: { onClick: () => void, title: string, className?: string, isLoading?: boolean }) => (
-    <div className={cn("relative w-full h-full cursor-pointer", className)} onClick={onClick}>
-        <Image
-            src="https://placehold.co/600x400.png"
-            alt={`${title} video thumbnail`}
-            fill
-            unoptimized
-            className='object-cover'
-            data-ai-hint="video social media"
-        />
-        <div className="absolute inset-0 bg-black/50"></div>
-        <div className="absolute inset-0 flex items-center justify-center text-white z-10">
-            <div className="h-16 w-16 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center">
-                {isLoading ? (
+const IframePlayer = ({ src, title, className }: { src: string, title: string, className?: string }) => {
+    const [isLoading, setIsLoading] = useState(true);
+    
+    return (
+        <div className={cn("relative w-full h-full", className)}>
+            {isLoading && (
+                 <div className="absolute inset-0 flex items-center justify-center text-white z-10">
                     <Loader className="h-8 w-8 animate-spin" />
-                ) : (
-                    <Play className="h-8 w-8 fill-white" />
-                )}
-            </div>
+                </div>
+            )}
+            <iframe
+                key={src} // Re-mounts iframe when src changes
+                src={src}
+                title={title}
+                frameBorder="0"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen
+                className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
+                onLoad={() => setIsLoading(false)}
+            ></iframe>
+             <div className="absolute inset-0 z-20 cursor-pointer"></div>
         </div>
-    </div>
-);
+    );
+};
+
 
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -224,18 +227,26 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
         getStreamableEmbedUrl(url);
 
     if (embedUrl) {
-        return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className} />;
+       return <IframePlayer src={embedUrl} title={title} className={className} />;
     }
 
     if (isDirectVideoUrl(url)) {
       return <DirectVideoPlayer src={url} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
     
-    if (url.includes('facebook.com')) {
-      return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className}/>
-    }
-    
-    return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className} />;
+    // Fallback for any other URL or invalid URL
+    return (
+        <div className={cn("relative w-full h-full", className)}>
+            <Image
+                src="https://placehold.co/600x400.png"
+                alt="Invalid video source"
+                fill
+                unoptimized
+                data-ai-hint="error"
+                className='object-cover'
+            />
+        </div>
+    );
   };
 
   return (
