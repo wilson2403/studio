@@ -18,7 +18,7 @@ import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { EditableTitle } from '../home/EditableTitle';
+import { EditableTitle } from '@/components/home/EditableTitle';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
