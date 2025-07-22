@@ -140,7 +140,7 @@ export default function Ceremonies({
         {ceremonies.map((ceremony) => (
           <Card
             key={ceremony.id}
-            className={cn(`w-full max-w-sm flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
+            className={cn(`w-full max-w-xl flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
               ceremony.featured
                 ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50 md:scale-105'
                 : 'border-card-foreground/10'

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Pause, Play } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX } from 'lucide-react';
 
 interface VideoPlayerProps {
   videoUrl?: string;
@@ -29,7 +29,7 @@ const getYoutubeEmbedUrl = (url: string): string | null => {
     loop: '1',
     controls: '1',
     playlist: videoId,
-    mute: '1',
+    mute: '0',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
@@ -38,13 +38,13 @@ const getTikTokEmbedUrl = (url: string): string | null => {
     if (!url) return null;
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&controls=1&mute=1`;
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=1&loop=1&controls=1&mute=0`;
 };
 
 const getFacebookEmbedUrl = (url: string): string | null => {
     if (!url) return null;
     if (!url.includes('facebook.com') && !url.includes('fb.watch')) return null;
-    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=1&loop=1&controls=1`;
+    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
 };
 
 const getStreamableEmbedUrl = (url: string): string | null => {
@@ -53,7 +53,7 @@ const getStreamableEmbedUrl = (url: string): string | null => {
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
     autoplay: '1',
-    mute: '1',
+    mute: '0',
     loop: '1',
     controls: '1',
   });
@@ -62,8 +62,7 @@ const getStreamableEmbedUrl = (url: string): string | null => {
 
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    // Strict check for local videos or URLs ending with a video extension.
-    return url.startsWith('/') || /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
+    return url.startsWith('/') || /\.(mp4|webm|ogg)(\?.*)?$/.test(url);
 };
 
 const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
@@ -88,6 +87,7 @@ const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void,
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isMuted, setIsMuted] = useState(true);
     
     if (!src) {
         return (
@@ -115,15 +115,17 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
         }
     };
     
+    const toggleMute = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsMuted(prev => !prev);
+    };
+
     useEffect(() => {
         if(videoRef.current) {
             videoRef.current.onplay = () => setIsPlaying(true);
             videoRef.current.onpause = () => setIsPlaying(false);
             if (inCarousel) {
-                videoRef.current.muted = true;
                 videoRef.current.play().catch(e => console.log("Autoplay blocked"));
-            } else {
-                 videoRef.current.muted = true;
             }
         }
     }, [inCarousel]);
@@ -132,21 +134,29 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
         if (videoRef.current && !inCarousel) {
             if (isActivated) {
                 videoRef.current.play().catch(console.error);
+                setIsMuted(false);
             } else {
                 videoRef.current.pause();
+                 setIsMuted(true);
             }
         }
     }, [isActivated, inCarousel]);
+    
+    useEffect(() => {
+      if(videoRef.current) {
+        videoRef.current.muted = isMuted;
+      }
+    }, [isMuted])
 
     return (
         <div className={cn("relative w-full h-full group/video", className)}>
             <video
                 ref={videoRef}
                 src={src}
-                autoPlay={inCarousel}
+                autoPlay={inCarousel || isActivated}
                 loop={true}
                 playsInline
-                muted={true}
+                muted={isMuted}
                 className={cn("w-full h-full object-cover", className)}
             />
              <div 
@@ -162,6 +172,11 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
                         <Play className="h-8 w-8 fill-white" />
                     </div>
                 )}
+            </div>
+            <div className="absolute bottom-2 right-2 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
+                <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full">
+                    {isMuted ? <VolumeX className="h-5 w-5 fill-white" /> : <Volume2 className="h-5 w-5 fill-white" />}
+                </Button>
             </div>
         </div>
     );
@@ -209,8 +224,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       return <DirectVideoPlayer src={videoUrl} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
 
-    // Fallback for any other URL (like GitHub) that is not directly embeddable.
-    // This will prevent the "no supported sources" error by not attempting to play it.
+    // Fallback for any other URL that is not directly embeddable.
     return <IframePlaceholder onClick={() => window.open(videoUrl, '_blank')} title={title} className={className} />;
   };
 
