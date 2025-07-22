@@ -141,38 +141,47 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
   try {
     let q;
     if (status) {
-      const dateOrder = status === 'finished' ? 'desc' : 'asc';
-      q = query(ceremoniesCollection, where('status', '==', status), orderBy('date', dateOrder));
+      // Query only by status, as composite indexes are not available in this environment
+      q = query(ceremoniesCollection, where('status', '==', status));
     } else {
       q = collection(db, 'ceremonies');
     }
     
-    const fullSnapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
     
     // Seed data only if the entire collection is empty
-    if (fullSnapshot.empty && !status) {
+    if (snapshot.empty && !status) {
         console.log('No ceremonies found, seeding database...');
         await seedCeremonies();
-        // After seeding, fetch again to get the data
         const newSnapshot = await getDocs(q);
         return newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
     }
 
-    const ceremoniesData = fullSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
+    const ceremoniesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
+    
+    // Manual sorting in code
+    ceremoniesData.sort((a, b) => {
+      const dateA = a.date || '';
+      const dateB = b.date || '';
+      
+      // For 'active' and 'inactive', sort ascending (nearest first)
+      if (status === 'active' || status === 'inactive') {
+        return dateA.localeCompare(dateB);
+      }
+      
+      // For 'finished', sort descending (most recent first)
+      if (status === 'finished') {
+        return dateB.localeCompare(dateA);
+      }
 
-    if (!status) {
-      return ceremoniesData.sort((a, b) => {
-        const statusOrder = { active: 1, inactive: 2, finished: 3 };
-        const statusComparison = (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
-        if (statusComparison !== 0) return statusComparison;
-        
-        // If statuses are the same, sort by date
-        const dateA = a.date || '';
-        const dateB = b.date || '';
-        if (a.status === 'finished') return dateB.localeCompare(dateA); // Desc for finished
-        return dateA.localeCompare(dateB); // Asc for active/inactive
-      });
-    }
+      // Default sorting for all ceremonies (if no status is provided)
+      const statusOrder = { active: 1, inactive: 2, finished: 3 };
+      const statusComparison = (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
+      if (statusComparison !== 0) return statusComparison;
+      
+      if (a.status === 'finished') return dateB.localeCompare(dateA); 
+      return dateA.localeCompare(dateB);
+    });
 
     return ceremoniesData;
   } catch (error) {
@@ -595,3 +604,6 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
     
 
 
+
+
+    
