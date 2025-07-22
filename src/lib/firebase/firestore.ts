@@ -1,5 +1,5 @@
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -44,7 +44,7 @@ export const setContent = async (id: string, value: string | { [key: string]: st
 // --- Ceremonies ---
 
 export const seedCeremonies = async () => {
-  const initialCeremonies: Omit<Ceremony, 'id'>[] = [
+  const initialCeremonies: Omit<Ceremony, 'id' | 'order'>[] = [
     {
       title: 'Sábado 26 de julio – Guanacaste',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
@@ -108,9 +108,9 @@ export const seedCeremonies = async () => {
   ];
 
   const batch = writeBatch(db);
-  initialCeremonies.forEach((ceremony) => {
+  initialCeremonies.forEach((ceremony, index) => {
     const docRef = doc(ceremoniesCollection); // Create a new doc with a random ID
-    batch.set(docRef, ceremony);
+    batch.set(docRef, { ...ceremony, order: index });
   });
   
   const heroTitleContent = {
@@ -139,14 +139,15 @@ export const seedCeremonies = async () => {
 
 export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive'): Promise<Ceremony[]> => {
   try {
-    const fullSnapshot = await getDocs(ceremoniesCollection);
+    const q = query(ceremoniesCollection, orderBy('order', 'asc'));
+    const fullSnapshot = await getDocs(q);
     
     // Seed data only if the entire collection is empty
     if (fullSnapshot.empty) {
         console.log('No ceremonies found, seeding database...');
         await seedCeremonies();
         // After seeding, fetch again to get the data
-        const newSnapshot = await getDocs(ceremoniesCollection);
+        const newSnapshot = await getDocs(q);
         const allCeremonies = newSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
         if (status) {
             return allCeremonies.filter(c => c.status === status);
@@ -173,7 +174,13 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
-        const docRef = await addDoc(ceremoniesCollection, ceremony);
+        const q = query(ceremoniesCollection, orderBy('order', 'desc'), where('status', '==', 'active'));
+        const snapshot = await getDocs(q);
+        const lastOrder = snapshot.empty ? -1 : (snapshot.docs[0].data().order ?? -1);
+        
+        const ceremonyWithOrder = { ...ceremony, order: lastOrder + 1 };
+        
+        const docRef = await addDoc(ceremoniesCollection, ceremonyWithOrder);
         return docRef.id;
     } catch(error) {
         console.error("Error adding ceremony: ", error);
@@ -191,6 +198,20 @@ export const updateCeremony = async (ceremony: Ceremony): Promise<void> => {
         throw error;
     }
 }
+
+export const updateCeremoniesOrder = async (ceremonies: Ceremony[]): Promise<void> => {
+    const batch = writeBatch(db);
+    ceremonies.forEach((ceremony, index) => {
+        const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
+        batch.update(ceremonyRef, { order: index });
+    });
+    try {
+        await batch.commit();
+    } catch (error) {
+        console.error("Error updating ceremonies order: ", error);
+        throw error;
+    }
+};
 
 export const deleteCeremony = async (id: string): Promise<void> => {
     try {

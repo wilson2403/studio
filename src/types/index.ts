@@ -24,6 +24,7 @@ export type Ceremony = {
   plans?: Plan[];
   contributionText?: string;
   status: 'active' | 'finished' | 'inactive';
+  order: number;
 };
 
 export type PastCeremony = {
