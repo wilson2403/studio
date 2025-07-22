@@ -178,8 +178,8 @@ export default function Ceremonies({
                             </div>
                             <Button
                                 onClick={() => handleViewPlans(ceremony)}
-                                variant="outline"
-                                className="w-full text-lg font-bold rounded-xl h-12 dark:bg-white dark:text-black dark:hover:bg-neutral-200"
+                                variant="secondary"
+                                className="w-full text-lg font-bold rounded-xl h-12"
                             >
                                 {t('reserveSpot')}
                             </Button>
