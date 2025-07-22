@@ -52,11 +52,6 @@ const CeremonyCard = ({
             ([entry]) => {
                 if (entry.isIntersecting) {
                     setActiveVideo(ceremony.id);
-                } else {
-                    if (activeVideo === ceremony.id) {
-                        // Optional: Only deactivate if it's the current active video
-                        // setActiveVideo(null); 
-                    }
                 }
             },
             { threshold: 0.6 } // Activate when 60% of the card is visible
@@ -72,7 +67,7 @@ const CeremonyCard = ({
                 observer.unobserve(currentCardRef);
             }
         };
-    }, [ceremony.id, activeVideo, setActiveVideo]);
+    }, [ceremony.id, setActiveVideo]);
 
 
     return (
