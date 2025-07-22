@@ -35,7 +35,7 @@ const formSchema = (t: (key: string) => string) => z.object({
     message: t('errorInvalidEmail'),
   }),
   password: z.string().min(6, {
-    message: t('errorMinLength', { field: t('loginPasswordLabel'), count: 6 }),
+    message: t('errorMinLength', { field: t('loginPasswordLabel') }),
   }),
 });
 

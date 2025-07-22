@@ -10,7 +10,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "export": "next build"
+    "export": "next export"
   },
   "dependencies": {
     "@genkit-ai/firebase": "^1.14.1",
