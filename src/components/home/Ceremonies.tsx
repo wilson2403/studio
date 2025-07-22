@@ -88,7 +88,7 @@ const CeremonyCard = ({
         <Card
             ref={cardRef}
             key={ceremony.id}
-            className={cn(`w-full max-w-md flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
+            className={cn(`w-full max-w-sm flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
               ceremony.featured
                 ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50'
                 : 'border-card-foreground/10'
@@ -132,11 +132,6 @@ const CeremonyCard = ({
                 {ceremony.date && (
                   <p className="flex items-center gap-1.5">
                     <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-                  </p>
-                )}
-                {ceremony.horario && (
-                  <p className="flex items-center gap-1.5">
-                    <Clock className='w-3 h-3'/> {ceremony.horario}
                   </p>
                 )}
               </div>
@@ -280,7 +275,7 @@ export default function Ceremonies({
             >
                 <CarouselContent>
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="md:basis-1/2 lg:basis-1/3">
+                    <CarouselItem key={ceremony.id} className="basis-full sm:basis-1/2">
                       <div className="p-1">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30">
                           {isAdmin && (
