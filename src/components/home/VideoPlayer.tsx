@@ -69,7 +69,7 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
 };
 
-const IframePlayer = ({ src, title, className }: { src: string, title: string, className?: string }) => {
+const IframePlayer = ({ src, title, className, inCarousel }: { src: string, title: string, className?: string, inCarousel?: boolean }) => {
     const [isLoading, setIsLoading] = useState(true);
     
     return (
@@ -89,7 +89,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
                 className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
                 onLoad={() => setIsLoading(false)}
             ></iframe>
-             <div className="absolute inset-0 z-20 pointer-events-none"></div>
+             {inCarousel && <div className="absolute inset-0 z-20"></div>}
         </div>
     );
 };
@@ -218,7 +218,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, videoFit, title, className, c
         getStreamableEmbedUrl(url);
 
     if (embedUrl) {
-       return <IframePlayer src={embedUrl} title={title} className={className} />;
+       return <IframePlayer src={embedUrl} title={title} className={className} inCarousel={inCarousel} />;
     }
 
     if (isDirectVideoUrl(url)) {
