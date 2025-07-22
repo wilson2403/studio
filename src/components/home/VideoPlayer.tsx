@@ -79,16 +79,19 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
                     <Loader className="h-8 w-8 animate-spin" />
                 </div>
             )}
-            <iframe
-                src={src}
-                title={title}
-                frameBorder="0"
-                scrolling="no"
-                allow="autoplay; encrypted-media; picture-in-picture"
-                allowFullScreen
-                className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
-                onLoad={() => setIsLoading(false)}
-            ></iframe>
+             {/* The pointer-events-none is crucial for TikTok to allow carousel swipe */}
+            <div className='w-full h-full pointer-events-none'>
+              <iframe
+                  src={src}
+                  title={title}
+                  frameBorder="0"
+                  scrolling="no"
+                  allow="autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
+                  onLoad={() => setIsLoading(false)}
+              ></iframe>
+            </div>
         </div>
     );
 };

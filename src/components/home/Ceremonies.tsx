@@ -216,7 +216,7 @@ export default function Ceremonies({
                               isActivated={true}
                               inCarousel
                            />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent group-active/item:bg-black/20 transition-colors duration-300"></div>
                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
                               <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
                                {ceremony.date && (
@@ -228,8 +228,8 @@ export default function Ceremonies({
                     </CarouselItem>
                 ))}
                 </CarouselContent>
-                <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-                <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+                <CarouselPrevious className="left-2 sm:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+                <CarouselNext className="right-2 sm:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
             </Carousel>
              <div className="mt-8 text-center">
                 <Button asChild variant="outline">
