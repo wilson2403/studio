@@ -29,128 +29,6 @@ import VideoPopupDialog from './VideoPopupDialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
-const CeremonyCard = ({
-    ceremony,
-    isAdmin,
-    onEdit,
-    onViewPlans,
-    onExpandVideo,
-    activeVideo,
-    setActiveVideo
-}: {
-    ceremony: Ceremony;
-    isAdmin: boolean;
-    onEdit: (ceremony: Ceremony) => void;
-    onViewPlans: (ceremony: Ceremony) => void;
-    onExpandVideo: (ceremony: Ceremony) => void;
-    activeVideo: string | null;
-    setActiveVideo: (id: string | null) => void;
-}) => {
-    const cardRef = useRef<HTMLDivElement>(null);
-    const { t } = useTranslation();
-
-     useEffect(() => {
-        if (ceremony.status !== 'active') return;
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setActiveVideo(ceremony.id);
-                }
-            },
-            { threshold: 0.6 } // Activate when 60% of the card is visible
-        );
-
-        const currentCardRef = cardRef.current;
-        if (currentCardRef) {
-            observer.observe(currentCardRef);
-        }
-
-        return () => {
-            if (currentCardRef) {
-                observer.unobserve(currentCardRef);
-            }
-        };
-    }, [ceremony.id, setActiveVideo, ceremony.status]);
-
-
-    return (
-        <Card
-            ref={cardRef}
-            key={ceremony.id}
-            className={cn(`w-full h-full flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
-              ceremony.featured
-                ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50'
-                : 'border-card-foreground/10'
-            )}
-          >
-            <CardHeader className="p-0">
-              <div 
-                className="relative aspect-[16/13] overflow-hidden"
-              >
-                 {isAdmin && (
-                    <div className="absolute top-2 right-2 z-20 flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white"
-                        onClick={(e) => {e.stopPropagation(); onEdit(ceremony)}}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                <div className="absolute top-2 left-2 z-20 flex items-center gap-1">
-                    {ceremony.mediaUrl && (
-                      <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                          <ExternalLink className="h-4 w-4" />
-                        </Button>
-                      </a>
-                    )}
-                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => onExpandVideo(ceremony)}>
-                        <Expand className="h-4 w-4" />
-                    </Button>
-                </div>
-                <VideoPlayer 
-                  videoUrl={ceremony.mediaUrl} 
-                  mediaType={ceremony.mediaType}
-                  videoFit={ceremony.videoFit}
-                  title={ceremony.title} 
-                  className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
-                  isActivated={activeVideo === ceremony.id && ceremony.status === 'active'}
-                />
-              </div>
-            </CardHeader>
-            <div className="p-6 flex flex-col flex-1">
-              <CardTitle className="text-2xl font-headline tracking-wide">
-                {ceremony.title}
-              </CardTitle>
-               <div className="font-mono text-xs text-muted-foreground mt-2 space-y-1">
-                {ceremony.date && (
-                  <p className="flex items-center gap-1.5">
-                    <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-                  </p>
-                )}
-              </div>
-              <CardDescription className="font-body text-base mt-2 flex-1">
-                {ceremony.description}
-              </CardDescription>
-            <CardContent className="flex-1 space-y-4 mt-6 p-0">
-            </CardContent>
-            <CardFooter className="p-0 pt-6 flex flex-col gap-2">
-              <Button
-                onClick={() => onViewPlans(ceremony)}
-                className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
-              >
-                {t('reserveSpot')}
-              </Button>
-            </CardFooter>
-            </div>
-          </Card>
-    );
-}
-
 export default function Ceremonies({ 
   status, 
   id,
@@ -246,33 +124,72 @@ export default function Ceremonies({
   const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
-     <div className="relative w-full max-w-6xl pl-10">
-        <Carousel
-            opts={{
-            align: 'center',
-            loop: ceremonies.length > 3,
-            }}
-            className="w-full"
-        >
-            <CarouselContent className="-ml-4">
-                {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-4">
-                        <CeremonyCard
-                            ceremony={ceremony}
-                            isAdmin={!!isAdmin}
-                            onEdit={setEditingCeremony}
-                            onViewPlans={handleViewPlans}
-                            onExpandVideo={setExpandedVideo}
-                            activeVideo={activeVideo}
-                            setActiveVideo={setActiveVideo}
-                        />
-                    </CarouselItem>
-                ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-            <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
-        </Carousel>
-    </div>
+    <div className="relative w-full max-w-6xl pl-10">
+       <Carousel
+           opts={{
+           align: 'center',
+           loop: ceremonies.length > 3,
+           }}
+           className="w-full"
+       >
+           <CarouselContent className="-ml-2">
+               {ceremonies.map((ceremony) => (
+                   <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
+                     <div className="p-1 h-full">
+                       <div className={cn("relative rounded-2xl overflow-hidden aspect-[9/19.2] group/item shadow-2xl h-full flex flex-col", ceremony.featured ? 'border-2 border-primary shadow-primary/20' : 'border-2 border-primary/30' )}>
+                         {isAdmin && (
+                           <div className="absolute top-2 right-2 z-20 flex gap-2">
+                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                               <Edit className="h-4 w-4" />
+                             </Button>
+                           </div>
+                         )}
+                          <div className="absolute top-2 left-2 z-20 flex gap-2">
+                             {ceremony.mediaUrl && (
+                               <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                       <ExternalLink className="h-4 w-4" />
+                                   </Button>
+                               </a>
+                             )}
+                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setExpandedVideo(ceremony); }}>
+                                 <Expand className="h-4 w-4" />
+                             </Button>
+                         </div>
+                          <VideoPlayer 
+                             videoUrl={ceremony.mediaUrl} 
+                             mediaType={ceremony.mediaType}
+                             videoFit={ceremony.videoFit}
+                             title={ceremony.title}
+                             className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
+                             isActivated={false} // Autoplay handled differently for carousels
+                             inCarousel
+                          />
+                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
+                         <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none flex flex-col h-full justify-end w-full">
+                             <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
+                             <p className="font-body text-sm opacity-90 mt-1 line-clamp-3">{ceremony.description}</p>
+                             {ceremony.date && (
+                               <p className="font-mono text-xs opacity-70 mt-2 flex items-center gap-1.5"><CalendarIcon className='w-3 h-3'/> {ceremony.date}</p>
+                             )}
+                              <div className="mt-4 pointer-events-auto">
+                                <Button
+                                    onClick={() => handleViewPlans(ceremony)}
+                                    className="w-full text-lg font-bold rounded-xl h-12"
+                                >
+                                    {t('reserveSpot')}
+                                </Button>
+                             </div>
+                         </div>
+                       </div>
+                     </div>
+                   </CarouselItem>
+               ))}
+           </CarouselContent>
+           <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+           <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+       </Carousel>
+   </div>
   );
 
   const renderFinishedCeremonies = () => (
@@ -473,3 +390,6 @@ interface CeremoniesProps {
 
 
 
+
+
+    
