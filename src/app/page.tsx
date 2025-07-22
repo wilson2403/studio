@@ -20,18 +20,18 @@ export default function Home() {
       <RegistrationPromptDialog />
       <Hero />
       <Ceremonies
-        status="finished"
-        id="eventos-anteriores"
-        titleId="pastEventsTitle"
-        titleInitialValue={t('pastEventsTitle')}
-        activeVideo={activeVideo}
-        setActiveVideo={setActiveVideo}
-      />
-      <Ceremonies
         status="active"
         id="ceremonias"
         titleId="upcomingCeremoniesTitle"
         titleInitialValue={t('upcomingCeremoniesTitle')}
+        activeVideo={activeVideo}
+        setActiveVideo={setActiveVideo}
+      />
+      <Ceremonies
+        status="finished"
+        id="eventos-anteriores"
+        titleId="pastEventsTitle"
+        titleInitialValue={t('pastEventsTitle')}
         activeVideo={activeVideo}
         setActiveVideo={setActiveVideo}
       />
