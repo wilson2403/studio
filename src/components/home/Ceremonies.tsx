@@ -270,7 +270,7 @@ export default function Ceremonies({
 
   const renderFinishedCeremonies = () => (
      <div className="w-full px-4 md:px-0">
-          <div className="relative w-full max-w-xl mx-auto">
+          <div className="relative w-full max-w-4xl mx-auto">
             <Carousel
                 opts={{
                 align: 'start',
@@ -280,7 +280,7 @@ export default function Ceremonies({
             >
                 <CarouselContent>
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3">
+                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2">
                       <div className="p-1">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30">
                           {isAdmin && (
