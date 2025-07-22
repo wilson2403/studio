@@ -174,12 +174,16 @@ export default function AllCeremoniesPage() {
                              />
                         </div>
                         <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center flex-grow">
-                             <p className="font-mono text-xl font-bold text-white mb-4">
+                             <p className="font-mono text-xl font-bold text-white mb-2">
                                 {ceremony.title}
                             </p>
-                            <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                              {t('reserveNow')}
-                            </Button>
+                            {ceremony.status === 'active' ? (
+                                <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
+                                {t('reserveNow')}
+                                </Button>
+                            ) : (
+                                ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
+                            )}
                         </CardContent>
                     </Card>
                   </div>
