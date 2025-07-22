@@ -128,6 +128,8 @@ export default function Ceremonies({
     <div className="w-full justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
             {ceremonies.map((ceremony) => {
+              const statusText = `status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`;
+              const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
               return (
                 <div key={ceremony.id} className="px-5">
                   <Card 
@@ -143,6 +145,9 @@ export default function Ceremonies({
                         </div>
                       )}
                       <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
+                          <Badge variant={statusVariant} className="capitalize">
+                            {t(statusText)}
+                          </Badge>
                           <div className="flex gap-2">
                             {ceremony.mediaUrl && (
                               <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -193,7 +198,7 @@ export default function Ceremonies({
         >
             <CarouselContent className="-ml-2 md:-ml-4">
             {ceremonies.map((ceremony) => (
-                <CarouselItem key={ceremony.id} className="basis-full md:basis-3/5 lg:basis-3/5 p-0 px-5">
+                <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-0 px-5">
                   <div className="p-1 h-full">
                     <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
                       {isAdmin && (
