@@ -150,7 +150,7 @@ export default function Ceremonies({
                                     <Expand className="h-4 w-4" />
                                 </Button>
                             </div>
-                            <div className="relative aspect-[9/16] w-full h-full">
+                             <div className="relative aspect-[9/16] w-full h-full">
                                 <VideoPlayer 
                                     videoUrl={ceremony.mediaUrl} 
                                     mediaType={ceremony.mediaType}
@@ -167,8 +167,8 @@ export default function Ceremonies({
                                 </div>
                             </div>
                          </div>
-                         <div className='bg-primary text-primary-foreground p-4 text-center flex flex-col items-center justify-center gap-4'>
-                            <div className='font-mono text-xs space-y-1 text-secondary-foreground'>
+                         <div className='bg-primary p-4 text-center flex flex-col items-center justify-center gap-4'>
+                            <div className='font-mono text-xs space-y-1 text-primary-foreground'>
                                 {ceremony.date && (
                                     <p className="flex items-center gap-1.5 justify-center">
                                         <CalendarIcon className='w-3 h-3'/> {ceremony.date}
