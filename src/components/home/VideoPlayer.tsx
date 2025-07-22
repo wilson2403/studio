@@ -174,7 +174,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
                 loop={true}
                 playsInline
                 muted={isMuted}
-                className={cn("w-full h-full object-cover", className)}
+                className={cn("w-full h-full object-contain", className)}
             />
              <div 
                 className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 cursor-pointer"
@@ -193,9 +193,6 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
             <div className="absolute bottom-2 right-2 flex gap-2 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
                 <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
                     {isMuted ? <VolumeX className="h-4 w-4 fill-white" /> : <Volume2 className="h-4 w-4 fill-white" />}
-                </Button>
-                <Button variant="ghost" size="icon" onClick={handleFullscreen} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
-                    <Maximize className="h-4 w-4" />
                 </Button>
             </div>
         </div>
