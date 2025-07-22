@@ -15,7 +15,6 @@ interface VideoPlayerProps {
   controls?: boolean;
   isActivated?: boolean;
   inCarousel?: boolean;
-  overlay?: boolean;
 }
 
 const getYoutubeEmbedUrl = (url: string): string | null => {
@@ -200,22 +199,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
     );
 };
 
-export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false, overlay = false }: VideoPlayerProps) => {
-  const [shouldLoad, setShouldLoad] = useState(false);
-  const [iframeKey, setIframeKey] = useState(Date.now());
-
-  useEffect(() => {
-    // Load immediately if in carousel, or when activated
-    if (inCarousel || isActivated) {
-        setShouldLoad(true);
-    }
-    
-    // If it's not in a carousel and gets deactivated, unload it
-    if (!inCarousel && !isActivated) {
-        setShouldLoad(false);
-    }
-  }, [isActivated, inCarousel]);
-
+export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -240,23 +224,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
         getStreamableEmbedUrl(url);
 
     if (embedUrl) {
-        if (!shouldLoad) {
-             return <IframePlaceholder onClick={() => setShouldLoad(true)} title={title} className={className} />;
-        }
-        return (
-            <div className='relative w-full h-full'>
-                <iframe
-                    key={iframeKey}
-                    src={embedUrl}
-                    title={title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    className={cn("w-full h-full")}
-                ></iframe>
-                {overlay && <div className="absolute inset-0 z-10"></div>}
-            </div>
-        )
+        return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className} />;
     }
 
     if (isDirectVideoUrl(url)) {
@@ -264,7 +232,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
     
     if (url.includes('facebook.com')) {
-      return <IframePlaceholder onClick={() => setShouldLoad(true)} title={title} className={className}/>
+      return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className}/>
     }
     
     return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className} />;
@@ -282,4 +250,3 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     </div>
   );
 };
-

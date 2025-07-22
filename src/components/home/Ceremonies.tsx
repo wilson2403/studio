@@ -260,8 +260,8 @@ export default function Ceremonies({
             </CarouselContent>
             {ceremonies.length > 2 && (
               <>
-                <CarouselPrevious className="left-2 md:left-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-                <CarouselNext className="right-2 md:right-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+                <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+                <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
               </>
             )}
         </Carousel>
@@ -304,7 +304,6 @@ export default function Ceremonies({
                               className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
                               isActivated={true} // Simplified for carousel
                               inCarousel
-                              overlay
                            />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
@@ -321,8 +320,8 @@ export default function Ceremonies({
                 </CarouselContent>
                 {ceremonies.length > 2 && (
                     <>
-                        <CarouselPrevious className="left-2 md:left-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-                        <CarouselNext className="right-2 md:right-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+                        <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+                        <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
                     </>
                 )}
             </Carousel>
