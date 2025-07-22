@@ -40,6 +40,124 @@ interface CeremoniesProps {
   setActiveVideo: (id: string | null) => void;
 }
 
+const CeremonyCard = ({
+    ceremony,
+    isAdmin,
+    onEdit,
+    onViewPlans,
+    activeVideo,
+    setActiveVideo
+}: {
+    ceremony: Ceremony;
+    isAdmin: boolean;
+    onEdit: (ceremony: Ceremony) => void;
+    onViewPlans: (ceremony: Ceremony) => void;
+    activeVideo: string | null;
+    setActiveVideo: (id: string | null) => void;
+}) => {
+    const cardRef = useRef<HTMLDivElement>(null);
+    const reserveButtonText = useEditableContent('reserveButtonText', 'Reservar Cupo');
+
+     useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setActiveVideo(ceremony.id);
+                } else {
+                    if (activeVideo === ceremony.id) {
+                        setActiveVideo(null);
+                    }
+                }
+            },
+            { threshold: 0.6 } // Activate when 60% of the card is visible
+        );
+
+        if (cardRef.current) {
+            observer.observe(cardRef.current);
+        }
+
+        return () => {
+            if (cardRef.current) {
+                observer.unobserve(cardRef.current);
+            }
+        };
+    }, [ceremony.id, setActiveVideo, activeVideo]);
+
+
+    return (
+        <Card
+            ref={cardRef}
+            key={ceremony.id}
+            className={cn(`w-full max-w-md flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
+              ceremony.featured
+                ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50'
+                : 'border-card-foreground/10'
+            )}
+          >
+            <CardHeader className="p-0">
+              <div 
+                className="relative aspect-video overflow-hidden"
+              >
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8 rounded-full z-20 bg-black/50 hover:bg-black/80 text-white"
+                    onClick={(e) => {e.stopPropagation(); onEdit(ceremony)}}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                )}
+                {ceremony.mediaUrl && (
+                  <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </a>
+                )}
+                <VideoPlayer 
+                  videoUrl={ceremony.mediaUrl} 
+                  mediaType={ceremony.mediaType}
+                  title={ceremony.title} 
+                  className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
+                  isActivated={activeVideo === ceremony.id}
+                />
+              </div>
+            </CardHeader>
+            <div className="p-6 flex flex-col flex-1">
+              <CardTitle className="text-2xl font-headline tracking-wide">
+                {ceremony.title}
+              </CardTitle>
+               <div className="font-mono text-xs text-muted-foreground mt-2 space-y-1">
+                {ceremony.date && (
+                  <p className="flex items-center gap-1.5">
+                    <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                  </p>
+                )}
+                {ceremony.horario && (
+                  <p className="flex items-center gap-1.5">
+                    <Clock className='w-3 h-3'/> {ceremony.horario}
+                  </p>
+                )}
+              </div>
+              <CardDescription className="font-body text-base mt-2 flex-1">
+                {ceremony.description}
+              </CardDescription>
+            <CardContent className="flex-1 space-y-4 mt-6 p-0">
+            </CardContent>
+            <CardFooter className="p-0 pt-6 flex flex-col gap-2">
+              <Button
+                onClick={() => onViewPlans(ceremony)}
+                className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
+              >
+                {reserveButtonText}
+              </Button>
+            </CardFooter>
+            </div>
+          </Card>
+    );
+}
+
 export default function Ceremonies({ 
   status, 
   id,
@@ -58,8 +176,7 @@ export default function Ceremonies({
   const [isAdding, setIsAdding] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
-  const reserveButtonText = useEditableContent('reserveButtonText', t('reserve'));
-
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -138,76 +255,15 @@ export default function Ceremonies({
   const renderActiveCeremonies = () => (
     <div className="flex flex-wrap gap-8 justify-center">
         {ceremonies.map((ceremony) => (
-          <Card
+          <CeremonyCard
             key={ceremony.id}
-            className={cn(`w-full max-w-md flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
-              ceremony.featured
-                ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50'
-                : 'border-card-foreground/10'
-            )}
-          >
-            <CardHeader className="p-0">
-              <div 
-                className="relative aspect-video overflow-hidden"
-                onClick={() => setActiveVideo(ceremony.id)}
-              >
-                {isAdmin && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 h-8 w-8 rounded-full z-20 bg-black/50 hover:bg-black/80 text-white"
-                    onClick={(e) => {e.stopPropagation(); setEditingCeremony(ceremony)}}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                )}
-                {ceremony.mediaUrl && (
-                  <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" className="absolute top-2 left-2 z-20">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </a>
-                )}
-                <VideoPlayer 
-                  videoUrl={ceremony.mediaUrl} 
-                  mediaType={ceremony.mediaType}
-                  title={ceremony.title} 
-                  className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
-                  isActivated={activeVideo === ceremony.id}
-                />
-              </div>
-            </CardHeader>
-            <div className="p-6 flex flex-col flex-1">
-              <CardTitle className="text-2xl font-headline tracking-wide">
-                {ceremony.title}
-              </CardTitle>
-               <div className="font-mono text-xs text-muted-foreground mt-2 space-y-1">
-                {ceremony.date && (
-                  <p className="flex items-center gap-1.5">
-                    <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-                  </p>
-                )}
-                {ceremony.horario && (
-                  <p className="flex items-center gap-1.5">
-                    <Clock className='w-3 h-3'/> {ceremony.horario}
-                  </p>
-                )}
-              </div>
-              <CardDescription className="font-body text-base mt-2 flex-1">
-                {ceremony.description}
-              </CardDescription>
-            <CardContent className="flex-1 space-y-4 mt-6 p-0">
-            </CardContent>
-            <CardFooter className="p-0 pt-6 flex flex-col gap-2">
-              <Button
-                onClick={() => handleViewPlans(ceremony)}
-                className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
-              >
-                {reserveButtonText}
-              </Button>
-            </CardFooter>
-            </div>
-          </Card>
+            ceremony={ceremony}
+            isAdmin={!!isAdmin}
+            onEdit={setEditingCeremony}
+            onViewPlans={handleViewPlans}
+            activeVideo={activeVideo}
+            setActiveVideo={setActiveVideo}
+          />
         ))}
       </div>
   );

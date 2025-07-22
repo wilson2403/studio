@@ -43,18 +43,9 @@ const getTikTokEmbedUrl = (url: string): string | null => {
 
 const getFacebookEmbedUrl = (url: string): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
-
-    // Handle both regular video URLs and /share/v/ URLs
-    const isShareUrl = url.includes('/share/v/');
-    if (isShareUrl) {
-         return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
-    }
-    
-    // Fallback for regular video URLs
-    if (url.includes('/videos/')) {
+    if (url.includes('/videos/') || url.includes('/share/v/')) {
         return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=1&mute=0&loop=1&controls=1`;
     }
-
     return null;
 };
 
@@ -73,7 +64,6 @@ const getStreamableEmbedUrl = (url: string): string | null => {
 
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    // Stricter check: must start with / for local or end with a video extension.
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
 };
 
@@ -238,7 +228,10 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       return <DirectVideoPlayer src={url} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
     
-    // Fallback for any other URL: show a placeholder that opens the link in a new tab.
+    if (url.includes('facebook.com')) {
+      return <IframePlaceholder onClick={() => {}} title={title} className={className}/>
+    }
+    
     return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className} />;
   };
 
