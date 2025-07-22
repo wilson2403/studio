@@ -98,7 +98,7 @@ export default function GuidesPage() {
               />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 pl-10 animate-in fade-in-0 duration-1000 delay-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 animate-in fade-in-0 duration-1000 delay-300">
               {guides.map((guide) => (
                   <Card key={guide.id} className="relative flex flex-col items-center justify-start text-center gap-6 p-6 rounded-2xl border-2 border-card-foreground/10 bg-card/80 backdrop-blur-sm shadow-lg group">
                       {isAdmin && (
@@ -149,5 +149,3 @@ export default function GuidesPage() {
     </EditableProvider>
   );
 }
-
-    
