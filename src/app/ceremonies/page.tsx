@@ -174,7 +174,7 @@ export default function AllCeremoniesPage() {
                                             </Button>
                                         </div>
                                     </div>
-                                    <div className="aspect-[9/16] overflow-hidden rounded-t-2xl relative group/video">
+                                    <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
                                         <VideoPlayer 
                                             videoUrl={ceremony.mediaUrl} 
                                             mediaType={ceremony.mediaType}
