@@ -258,12 +258,8 @@ export default function Ceremonies({
                     </CarouselItem>
                 ))}
             </CarouselContent>
-            {ceremonies.length > 2 && (
-              <>
-                <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-                <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
-              </>
-            )}
+            <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+            <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
         </Carousel>
     </div>
   );
@@ -318,12 +314,8 @@ export default function Ceremonies({
                     </CarouselItem>
                 ))}
                 </CarouselContent>
-                {ceremonies.length > 2 && (
-                    <>
-                        <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-                        <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
-                    </>
-                )}
+                <CarouselPrevious className="left-2 md:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+                <CarouselNext className="right-2 md:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
             </Carousel>
              <div className="mt-8 text-center">
                 <Button asChild variant="outline">
@@ -444,4 +436,5 @@ interface CeremoniesProps {
     
 
     
+
 
