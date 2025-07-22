@@ -255,7 +255,7 @@ export default function Ceremonies({
   );
 
   const renderFinishedCeremonies = () => (
-     <div className="w-full px-4 md:px-0">
+     <div className="w-full pl-10">
           <div className="relative w-full max-w-6xl mx-auto">
             <Carousel
                 opts={{
