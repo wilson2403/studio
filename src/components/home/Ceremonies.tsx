@@ -141,8 +141,7 @@ export default function Ceremonies({
                 </Button>
               </div>
               <div className="aspect-[9/16] h-[422px] overflow-hidden rounded-t-2xl relative group/video">
-                 <div className="px-5">
-                    <VideoPlayer 
+                   <VideoPlayer 
                       videoUrl={ceremony.mediaUrl} 
                       mediaType={ceremony.mediaType}
                       videoFit={ceremony.videoFit}
@@ -151,7 +150,6 @@ export default function Ceremonies({
                       isActivated={false}
                       inCarousel
                    />
-                 </div>
               </div>
               <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
                    <p className="font-mono text-xl font-bold text-white mb-4">
@@ -352,6 +350,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
