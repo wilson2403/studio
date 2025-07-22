@@ -101,7 +101,7 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover' }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain' }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(true); // Mute by default for autoplay
+    const [isMuted, setIsMuted] = useState(false); // Sound on by default for direct videos
     
     if (!src) {
         return (
