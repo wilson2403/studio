@@ -30,7 +30,7 @@ const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null =>
     loop: '1',
     controls: '1',
     playlist: videoId,
-    mute: isActivated ? '1' : '0',
+    mute: '1',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
@@ -60,7 +60,7 @@ const getStreamableEmbedUrl = (url: string, isActivated: boolean): string | null
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
     autoplay: isActivated ? '1' : '0',
-    mute: isActivated ? '1' : '0',
+    mute: '1',
     loop: '1',
     controls: '1',
   });
@@ -156,13 +156,11 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     }, [inCarousel]);
 
     useEffect(() => {
-        if (videoRef.current && !inCarousel) {
+        const video = videoRef.current;
+        if (video && !inCarousel) {
+            video.pause();
             if (isActivated) {
-                // Unmute when activated by hover, if desired, or keep muted
-                // setIsMuted(false); 
-                videoRef.current.play().catch(console.error);
-            } else {
-                videoRef.current.pause();
+                video.play().catch(console.error);
             }
         }
     }, [isActivated, inCarousel]);
