@@ -120,7 +120,12 @@ export default function Ceremonies({
   const renderActiveCeremonies = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         {ceremonies.map((ceremony) => (
-          <Card key={ceremony.id} className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50">
+          <Card 
+              key={ceremony.id} 
+              onMouseEnter={() => setActiveVideo(ceremony.id)}
+              onMouseLeave={() => setActiveVideo(null)}
+              className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50"
+          >
               {isAdmin && (
                 <div className="absolute top-2 right-2 z-20 flex gap-2">
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
@@ -147,8 +152,8 @@ export default function Ceremonies({
                       videoFit={ceremony.videoFit}
                       title={ceremony.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                      isActivated={false}
-                      inCarousel
+                      isActivated={activeVideo === ceremony.id}
+                      inCarousel={false}
                    />
               </div>
               <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
@@ -350,6 +355,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
