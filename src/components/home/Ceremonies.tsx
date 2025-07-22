@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
+import VideoPopupDialog from './VideoPopupDialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -33,6 +34,7 @@ const CeremonyCard = ({
     isAdmin,
     onEdit,
     onViewPlans,
+    onExpandVideo,
     activeVideo,
     setActiveVideo
 }: {
@@ -40,6 +42,7 @@ const CeremonyCard = ({
     isAdmin: boolean;
     onEdit: (ceremony: Ceremony) => void;
     onViewPlans: (ceremony: Ceremony) => void;
+    onExpandVideo: (ceremony: Ceremony) => void;
     activeVideo: string | null;
     setActiveVideo: (id: string | null) => void;
 }) => {
@@ -110,6 +113,7 @@ const CeremonyCard = ({
                   title={ceremony.title} 
                   className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
                   isActivated={activeVideo === ceremony.id && ceremony.status === 'active'}
+                  onExpand={() => onExpandVideo(ceremony)}
                 />
               </div>
             </CardHeader>
@@ -155,6 +159,7 @@ export default function Ceremonies({
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
+  const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const { t } = useTranslation();
@@ -252,6 +257,7 @@ export default function Ceremonies({
                             isAdmin={!!isAdmin}
                             onEdit={setEditingCeremony}
                             onViewPlans={handleViewPlans}
+                            onExpandVideo={setExpandedVideo}
                             activeVideo={activeVideo}
                             setActiveVideo={setActiveVideo}
                         />
@@ -300,6 +306,7 @@ export default function Ceremonies({
                               className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
                               isActivated={false} // Autoplay handled differently for carousels
                               inCarousel
+                              onExpand={() => setExpandedVideo(ceremony)}
                            />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
@@ -419,6 +426,15 @@ export default function Ceremonies({
           onClose={() => setViewingCeremony(null)}
         />
       )}
+      {expandedVideo && (
+        <VideoPopupDialog
+            isOpen={!!expandedVideo}
+            onClose={() => setExpandedVideo(null)}
+            videoUrl={expandedVideo.mediaUrl}
+            mediaType={expandedVideo.mediaType}
+            title={expandedVideo.title}
+        />
+      )}
     </section>
     </>
   );
@@ -436,6 +452,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
