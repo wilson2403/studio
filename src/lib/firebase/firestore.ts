@@ -599,7 +599,8 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
     }
 };
 
-
+export type { Chat };
+export type { UserProfile };
 
     
 
