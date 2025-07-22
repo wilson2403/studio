@@ -30,7 +30,7 @@ const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null =>
     loop: '1',
     controls: '1',
     playlist: videoId,
-    mute: '1',
+    mute: isActivated ? '0' : '1',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
@@ -40,14 +40,16 @@ const getTikTokEmbedUrl = (url: string, isActivated: boolean): string | null => 
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
     const autoplay = isActivated ? '1' : '0';
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=1&mute=1`;
+    const mute = isActivated ? '0' : '1';
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=1&mute=${mute}`;
 };
 
 const getFacebookEmbedUrl = (url: string, isActivated: boolean): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
     if (url.includes('/videos/') || url.includes('/share/v/')) {
         const autoplay = isActivated ? '1' : '0';
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplay}&mute=1&loop=1&controls=1`;
+        const mute = isActivated ? '0' : '1';
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplay}&mute=${mute}&loop=1&controls=1`;
     }
     return null;
 };
@@ -58,7 +60,7 @@ const getStreamableEmbedUrl = (url: string, isActivated: boolean): string | null
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
     autoplay: isActivated ? '1' : '0',
-    mute: '1',
+    mute: isActivated ? '0' : '1',
     loop: '1',
     controls: '1',
   });
