@@ -73,7 +73,8 @@ const getStreamableEmbedUrl = (url: string): string | null => {
 
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    return url.startsWith('/') || /\.(mp4|webm|ogg)(\?.*)?$/.test(url.split('?')[0]);
+    // Stricter check: must start with / for local or end with a video extension.
+    return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
 };
 
 const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
@@ -224,7 +225,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
                 src={embedUrl}
                 title={title}
                 frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 className="w-full h-full"
               ></iframe>
@@ -236,7 +237,8 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     if (isDirectVideoUrl(url)) {
       return <DirectVideoPlayer src={url} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
-
+    
+    // Fallback for any other URL: show a placeholder that opens the link in a new tab.
     return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className} />;
   };
 
