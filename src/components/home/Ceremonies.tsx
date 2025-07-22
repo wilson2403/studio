@@ -108,10 +108,10 @@ export default function Ceremonies({
   }
 
   const handleViewPlans = (ceremony: Ceremony) => {
-    if (user) {
-      setViewingCeremony(ceremony);
-    } else {
+    if (ceremony.registerRequired && !user) {
       router.push('/login');
+    } else {
+      setViewingCeremony(ceremony);
     }
   };
 

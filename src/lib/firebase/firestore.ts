@@ -59,7 +59,8 @@ export const seedCeremonies = async () => {
       contributionText: 'Puedes reservar con el 20%',
       status: 'active',
       date: '2024-07-26',
-      horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰'
+      horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
+      registerRequired: false,
     },
     {
       title: 'Sábado 2 de agosto – San Carlos',
@@ -79,7 +80,8 @@ export const seedCeremonies = async () => {
       contributionText: 'Puedes reservar con el 20%',
       status: 'active',
       date: '2024-08-02',
-      horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰'
+      horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
+      registerRequired: false,
     },
     {
       title: 'Transformación Interior',
@@ -94,6 +96,7 @@ export const seedCeremonies = async () => {
       features: [],
       link: '#',
       featured: false,
+      registerRequired: false,
     },
      {
       title: 'Ceremonia Inactiva de Prueba',
@@ -108,6 +111,7 @@ export const seedCeremonies = async () => {
       features: [],
       link: '#',
       featured: false,
+      registerRequired: false,
     },
   ];
 

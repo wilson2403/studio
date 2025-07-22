@@ -25,6 +25,7 @@ export type Ceremony = {
   plans?: Plan[];
   contributionText?: string;
   status: 'active' | 'finished' | 'inactive';
+  registerRequired?: boolean;
 };
 
 export type PastCeremony = {

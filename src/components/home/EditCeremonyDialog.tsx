@@ -52,6 +52,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   status: z.enum(['active', 'finished', 'inactive']),
   date: z.string().optional(),
   horario: z.string().optional(),
+  registerRequired: z.boolean().default(false),
 });
 
 type EditCeremonyFormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -92,6 +93,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       status: 'active',
       date: '',
       horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
+      registerRequired: false,
     },
   });
   
@@ -118,6 +120,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
         status: 'active',
         date: '',
         horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
+        registerRequired: false,
       });
     }
   }, [ceremony, isEditMode, form, t]);
@@ -627,6 +630,25 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             </FormControl>
                             <div className="space-y-1 leading-none">
                                 <FormLabel>{t('formFeatured')}</FormLabel>
+                            </div>
+                        </FormItem>
+                    )}
+                />
+                
+                <FormField
+                    control={form.control}
+                    name="registerRequired"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                                <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    disabled={isUploading}
+                                />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                                <FormLabel>{t('formRegisterRequired')}</FormLabel>
                             </div>
                         </FormItem>
                     )}
