@@ -130,7 +130,7 @@ export default function Ceremonies({
                    <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
                      <div className="p-1 h-full">
                        <div className={cn("rounded-2xl overflow-hidden group/item shadow-2xl h-full flex flex-col", ceremony.featured ? 'border-2 border-primary shadow-primary/20' : 'border-2 border-primary/30' )}>
-                         <div className="relative aspect-[9/16] w-full">
+                         <div className="relative aspect-[16/10.8] w-full">
                             {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
@@ -166,7 +166,7 @@ export default function Ceremonies({
                             </div>
                          </div>
                          <div className='bg-primary text-primary-foreground p-4 text-center flex flex-col items-center justify-center gap-4'>
-                            <div className='font-mono text-xs space-y-1'>
+                            <div className='font-mono text-xs text-secondary-foreground space-y-1'>
                                 {ceremony.date && (
                                     <p className="flex items-center gap-1.5 justify-center">
                                         <CalendarIcon className='w-3 h-3'/> {ceremony.date}
@@ -399,4 +399,5 @@ interface CeremoniesProps {
 
 
     
+
 
