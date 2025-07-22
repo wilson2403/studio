@@ -2,15 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { CalendarIcon, Edit, ExternalLink, PlusCircle, ArrowRight, Expand } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -166,12 +158,16 @@ export default function Ceremonies({
                              inCarousel
                           />
                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
-                         <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none flex flex-col h-full justify-end w-full">
-                             <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
-                             <p className="font-body text-sm opacity-90 mt-1 line-clamp-3">{ceremony.description}</p>
+                         <div className="absolute bottom-0 left-0 p-4 md:p-6 pb-8 text-white pointer-events-none flex flex-col h-full justify-end w-full">
+                            <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
                              {ceremony.date && (
-                               <p className="font-mono text-xs opacity-70 mt-2 flex items-center gap-1.5"><CalendarIcon className='w-3 h-3'/> {ceremony.date}</p>
+                               <p className="font-mono text-xs opacity-80 mt-1">{ceremony.date}</p>
                              )}
+                             {ceremony.horario && (
+                                <p className="font-mono text-xs opacity-80">{ceremony.horario}</p>
+                             )}
+                             <p className="font-body text-sm opacity-90 mt-2 line-clamp-3">{ceremony.description}</p>
+                             
                               <div className="mt-4 pointer-events-auto">
                                 <Button
                                     onClick={() => handleViewPlans(ceremony)}
@@ -238,10 +234,10 @@ export default function Ceremonies({
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
                               <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
-                              <p className="font-body text-sm opacity-90 mt-1">{ceremony.description}</p>
-                              {ceremony.date && (
-                                <p className="font-mono text-xs opacity-70 mt-2 flex items-center gap-1.5"><CalendarIcon className='w-3 h-3'/> {ceremony.date}</p>
+                               {ceremony.date && (
+                                <p className="font-mono text-xs opacity-70 mt-1">{ceremony.date}</p>
                               )}
+                              <p className="font-body text-sm opacity-90 mt-1">{ceremony.description}</p>
                           </div>
                         </div>
                       </div>
