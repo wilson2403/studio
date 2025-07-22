@@ -139,7 +139,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         <DialogFooter>
           <Button asChild className="w-full" disabled={hasPlans && !selectedPlan}>
             <a href={getWhatsappLink()} target="_blank" rel="noopener noreferrer">
-              {t('reserveButtonText')}
+              {t('reserveWhatsapp')}
             </a>
           </Button>
         </DialogFooter>

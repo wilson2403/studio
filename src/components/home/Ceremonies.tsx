@@ -132,7 +132,7 @@ const CeremonyCard = ({
                 onClick={() => onViewPlans(ceremony)}
                 className={cn(`w-full text-lg font-bold rounded-xl h-12`)}
               >
-                {t('reserveButtonText')}
+                {t('reserveWhatsapp')}
               </Button>
             </CardFooter>
             </div>
