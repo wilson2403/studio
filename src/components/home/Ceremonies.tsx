@@ -54,23 +54,25 @@ const CeremonyCard = ({
                     setActiveVideo(ceremony.id);
                 } else {
                     if (activeVideo === ceremony.id) {
-                        setActiveVideo(null);
+                        // Optional: Only deactivate if it's the current active video
+                        // setActiveVideo(null); 
                     }
                 }
             },
             { threshold: 0.6 } // Activate when 60% of the card is visible
         );
 
-        if (cardRef.current) {
-            observer.observe(cardRef.current);
+        const currentCardRef = cardRef.current;
+        if (currentCardRef) {
+            observer.observe(currentCardRef);
         }
 
         return () => {
-            if (cardRef.current) {
-                observer.unobserve(cardRef.current);
+            if (currentCardRef) {
+                observer.unobserve(currentCardRef);
             }
         };
-    }, [ceremony.id, setActiveVideo, activeVideo]);
+    }, [ceremony.id, activeVideo, setActiveVideo]);
 
 
     return (

@@ -73,9 +73,9 @@ const IframePlaceholder = ({ onClick, title, className, isLoading }: { onClick: 
             src="https://placehold.co/600x400.png"
             alt={`${title} video thumbnail`}
             fill
-            objectFit="cover"
-            data-ai-hint="video social media"
+            unoptimized
             className='object-cover'
+            data-ai-hint="video social media"
         />
         <div className="absolute inset-0 bg-black/50"></div>
         <div className="absolute inset-0 flex items-center justify-center text-white z-10">
@@ -102,7 +102,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
                     src="https://placehold.co/600x400.png"
                     alt="Invalid video source"
                     fill
-                    objectFit="cover"
+                    unoptimized
                     data-ai-hint="error"
                     className='object-cover'
                 />
@@ -201,10 +201,12 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
 
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
   const [isIframeLoading, setIsIframeLoading] = useState(false);
+  const [iframeKey, setIframeKey] = useState(Date.now());
 
   useEffect(() => {
       if (isActivated || inCarousel) {
           setIsIframeLoading(true);
+          setIframeKey(Date.now()); // Reset iframe on activation
       } else {
           setIsIframeLoading(false);
       }
@@ -212,6 +214,13 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
   
   const handleIframeLoad = () => {
     setIsIframeLoading(false);
+  };
+  
+  const handleTikTokClick = () => {
+      if (isActivated) {
+        setIframeKey(Date.now());
+        setIsIframeLoading(true);
+      }
   };
 
 
@@ -222,7 +231,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
           src={videoUrl || 'https://placehold.co/600x400.png'}
           alt={title}
           fill
-          objectFit="cover"
+          unoptimized
           className={cn('object-cover', className)}
           data-ai-hint="spiritual event"
         />
@@ -230,6 +239,8 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
     
     const url = videoUrl || '';
+
+    const isTikTok = url.includes('tiktok.com');
 
     const embedUrl = 
         getYoutubeEmbedUrl(url) ||
@@ -242,9 +253,10 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
              return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
         }
         return (
-            <>
+            <div className='w-full h-full' onClick={isTikTok ? handleTikTokClick : undefined}>
                 {isIframeLoading && <IframePlaceholder onClick={() => {}} title={title} className={className} isLoading={true} />}
                 <iframe
+                    key={iframeKey}
                     src={embedUrl}
                     title={title}
                     frameBorder="0"
@@ -253,7 +265,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
                     className={cn("w-full h-full", isIframeLoading && "hidden")}
                     onLoad={handleIframeLoad}
                 ></iframe>
-            </>
+            </div>
         )
     }
 
