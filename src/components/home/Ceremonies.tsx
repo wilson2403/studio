@@ -250,11 +250,15 @@ export default function Ceremonies({
   );
 
   if (loading) {
+    const skeletonClass = status === 'active' ? 'aspect-[4/5]' : 'aspect-[9/16]';
     return (
       <section id={id} className="container py-8 md:py-16">
+        <div className="flex flex-col items-center text-center space-y-4 mb-12">
+          <Skeleton className="h-12 w-1/2" />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(3)].map((_, i) => (
-             <Skeleton key={i} className="flex flex-col rounded-2xl border-2 border-card-foreground/10 bg-card/50"></Skeleton>
+             <Skeleton key={i} className={cn('w-full', skeletonClass)} />
           ))}
         </div>
       </section>
