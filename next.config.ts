@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'www.facebook.com',
+        hostname: 'raw.githubusercontent.com',
         port: '',
         pathname: '/**',
       }
