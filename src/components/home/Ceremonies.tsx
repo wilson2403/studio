@@ -118,7 +118,7 @@ export default function Ceremonies({
   const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
         {ceremonies.map((ceremony) => (
           <Card 
               key={ceremony.id} 
