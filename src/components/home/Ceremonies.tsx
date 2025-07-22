@@ -119,7 +119,7 @@ export default function Ceremonies({
   const renderActiveCeremonies = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
         {ceremonies.map((ceremony) => (
-          <div key={ceremony.id} className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 h-[550px] bg-card/50">
+          <div key={ceremony.id} className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50">
               {isAdmin && (
                 <div className="absolute top-2 right-2 z-20 flex gap-2">
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
@@ -139,7 +139,7 @@ export default function Ceremonies({
                   <Expand className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 aspect-[9/16]">
                  <VideoPlayer 
                     videoUrl={ceremony.mediaUrl} 
                     mediaType={ceremony.mediaType}
@@ -150,14 +150,13 @@ export default function Ceremonies({
                     inCarousel
                  />
               </div>
-              <div className="p-4 bg-card">
-                  <h3 className="text-lg font-headline text-primary mb-2">{ceremony.title}</h3>
+              <div className="p-4 bg-primary/10 rounded-b-lg">
                   <div className="bg-primary p-3 rounded-md text-center">
-                    <p className="font-mono text-sm text-secondary-foreground">
+                    <p className="font-mono text-sm text-primary-foreground">
                         {ceremony.date}
                     </p>
                   </div>
-                  <Button variant="default" className='w-full mt-4' onClick={() => handleViewPlans(ceremony)}>
+                  <Button variant="secondary" className='w-full mt-4' onClick={() => handleViewPlans(ceremony)}>
                     {t('reserveNow')}
                   </Button>
               </div>
