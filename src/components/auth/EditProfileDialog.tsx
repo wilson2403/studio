@@ -86,13 +86,13 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
 
         const profile = await getUserProfile(user.uid);
         if (profile) {
-            const [code, dial_code] = profile.phone?.match(/^(\+\d+)(\d+)$/)?.slice(1) || ['', ''];
-            const country = countryCodes.find(c => c.dial_code === code);
+            const phoneString = profile.phone || '';
+            const country = countryCodes.find(c => phoneString.startsWith(c.dial_code));
             
             profileForm.reset({
                 displayName: profile.displayName || '',
                 countryCode: country ? `${country.code}-${country.dial_code}` : 'CR-+506',
-                phone: dial_code || profile.phone || '',
+                phone: country ? phoneString.substring(country.dial_code.length) : phoneString,
             });
             emailForm.reset({
                 email: profile.email || '',
@@ -108,10 +108,10 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
   const onProfileSubmit = async (data: ProfileFormValues) => {
     if (!user) return;
     try {
-        const dialCode = data.countryCode ? data.countryCode.split('-')[1] : undefined;
-        const fullPhoneNumber = data.phone && dialCode
-            ? `${dialCode}${data.phone.replace(/\D/g, '')}`
-            : undefined;
+        const dialCode = data.countryCode ? data.countryCode.split('-')[1] : '';
+        const phoneNumber = data.phone ? data.phone.replace(/\D/g, '') : '';
+        const fullPhoneNumber = phoneNumber ? `${dialCode}${phoneNumber}` : undefined;
+        console.log("Saving phone:", fullPhoneNumber);
 
       await updateUserProfile(user.uid, { displayName: data.displayName, phone: fullPhoneNumber });
       toast({ title: t('profileUpdatedSuccess') });
