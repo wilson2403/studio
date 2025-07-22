@@ -18,6 +18,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
 import VideoPopupDialog from './VideoPopupDialog';
+import { CalendarIcon } from 'lucide-react';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -128,54 +129,60 @@ export default function Ceremonies({
                {ceremonies.map((ceremony) => (
                    <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
                      <div className="p-1 h-full">
-                       <div className={cn("relative rounded-2xl overflow-hidden aspect-[9/19.2] group/item shadow-2xl h-full flex flex-col", ceremony.featured ? 'border-2 border-primary shadow-primary/20' : 'border-2 border-primary/30' )}>
-                         {isAdmin && (
-                           <div className="absolute top-2 right-2 z-20 flex gap-2">
-                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
-                               <Edit className="h-4 w-4" />
-                             </Button>
-                           </div>
-                         )}
-                          <div className="absolute top-2 left-2 z-20 flex gap-2">
-                             {ceremony.mediaUrl && (
-                               <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                       <ExternalLink className="h-4 w-4" />
-                                   </Button>
-                               </a>
-                             )}
-                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setExpandedVideo(ceremony); }}>
-                                 <Expand className="h-4 w-4" />
-                             </Button>
-                         </div>
-                          <VideoPlayer 
-                             videoUrl={ceremony.mediaUrl} 
-                             mediaType={ceremony.mediaType}
-                             videoFit={ceremony.videoFit}
-                             title={ceremony.title}
-                             className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                             isActivated={false} // Autoplay handled differently for carousels
-                             inCarousel
-                          />
-                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
-                         <div className="absolute bottom-0 left-0 p-4 md:p-6 pb-8 text-white pointer-events-none flex flex-col h-full justify-end w-full">
-                            <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
-                             {ceremony.date && (
-                               <p className="font-mono text-xs opacity-80 mt-1">{ceremony.date}</p>
-                             )}
-                             {ceremony.horario && (
-                                <p className="font-mono text-xs opacity-80">{ceremony.horario}</p>
-                             )}
-                             <p className="font-body text-sm opacity-90 mt-2 line-clamp-3">{ceremony.description}</p>
-                             
-                              <div className="mt-4 pointer-events-auto">
-                                <Button
-                                    onClick={() => handleViewPlans(ceremony)}
-                                    className="w-full text-lg font-bold rounded-xl h-12"
-                                >
-                                    {t('reserveSpot')}
+                       <div className={cn("rounded-2xl overflow-hidden group/item shadow-2xl h-full flex flex-col", ceremony.featured ? 'border-2 border-primary shadow-primary/20' : 'border-2 border-primary/30' )}>
+                         <div className="relative aspect-[9/16] w-full">
+                            {isAdmin && (
+                            <div className="absolute top-2 right-2 z-20 flex gap-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                                <Edit className="h-4 w-4" />
                                 </Button>
-                             </div>
+                            </div>
+                            )}
+                            <div className="absolute top-2 left-2 z-20 flex gap-2">
+                                {ceremony.mediaUrl && (
+                                <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                        <ExternalLink className="h-4 w-4" />
+                                    </Button>
+                                </a>
+                                )}
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setExpandedVideo(ceremony); }}>
+                                    <Expand className="h-4 w-4" />
+                                </Button>
+                            </div>
+                            <VideoPlayer 
+                                videoUrl={ceremony.mediaUrl} 
+                                mediaType={ceremony.mediaType}
+                                videoFit={ceremony.videoFit}
+                                title={ceremony.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
+                                isActivated={false} // Autoplay handled differently for carousels
+                                inCarousel
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
+                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none flex flex-col justify-end w-full">
+                                <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
+                                <p className="font-body text-sm opacity-90 mt-2 line-clamp-3">{ceremony.description}</p>
+                            </div>
+                         </div>
+                         <div className='bg-primary text-primary-foreground p-4 text-center flex flex-col items-center justify-center gap-4'>
+                            <div className='font-mono text-xs space-y-1'>
+                                {ceremony.date && (
+                                    <p className="flex items-center gap-1.5 justify-center">
+                                        <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                                    </p>
+                                )}
+                                {ceremony.horario && (
+                                    <p>{ceremony.horario}</p>
+                                )}
+                            </div>
+                            <Button
+                                onClick={() => handleViewPlans(ceremony)}
+                                variant="secondary"
+                                className="w-full text-lg font-bold rounded-xl h-12"
+                            >
+                                {t('reserveSpot')}
+                            </Button>
                          </div>
                        </div>
                      </div>
@@ -386,6 +393,9 @@ interface CeremoniesProps {
 
 
 
+
+
+    
 
 
     
