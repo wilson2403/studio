@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -20,10 +21,10 @@ export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType,
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="p-0 border-0 bg-transparent shadow-none w-auto max-w-7xl h-auto max-h-[90vh] flex items-center justify-center">
+      <DialogContent className="p-0 border-0 bg-transparent shadow-none w-full max-w-7xl h-auto max-h-[90vh] flex items-center justify-center">
         <DialogTitle className="sr-only">{title}</DialogTitle>
          <div className={cn(
-            "w-full h-full",
+            "w-full h-full flex flex-1",
          )}>
           <VideoPlayer
             videoUrl={videoUrl}
