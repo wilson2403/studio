@@ -184,73 +184,69 @@ export default function Ceremonies({
   );
 
   const renderFinishedCeremonies = () => (
-     <div className="w-full px-5">
-      <div className='w-full flex justify-center'>
-          <div className="relative w-full max-w-6xl">
-            <Carousel
-                opts={{
-                align: 'start',
-                loop: false,
-                }}
-                className="w-full"
-            >
-                <CarouselContent className="-ml-2">
-                {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full sm:basis-1/2 lg:basis-1/3 p-0 pl-2">
-                      <div className="p-1 h-full">
-                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
-                          {isAdmin && (
-                            <div className="absolute top-2 right-2 z-20 flex gap-2">
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          )}
-                           <div className="absolute top-2 left-2 z-20 flex gap-2">
-                              {ceremony.mediaUrl && (
-                                <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                        <ExternalLink className="h-4 w-4" />
-                                    </Button>
-                                </a>
-                              )}
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
-                                  <Expand className="h-4 w-4" />
-                              </Button>
-                          </div>
-                           <VideoPlayer 
-                              videoUrl={ceremony.mediaUrl} 
-                              mediaType={ceremony.mediaType}
-                              videoFit={ceremony.videoFit}
-                              title={ceremony.title}
-                              isActivated={true}
-                              inCarousel
-                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none group-active/item:pointer-events-auto transition-colors duration-300"></div>
-                          <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
-                              <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
-                               {ceremony.date && (
-                                <p className="font-mono text-xs opacity-70 mt-1">{ceremony.date}</p>
-                              )}
-                          </div>
+     <div className="w-full">
+        <Carousel
+            opts={{
+              align: 'start',
+              loop: false,
+            }}
+            className="w-full max-w-5xl mx-auto"
+        >
+            <CarouselContent className="-ml-2 md:-ml-4">
+            {ceremonies.map((ceremony) => (
+                <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-0 pl-2 md:pl-4">
+                  <div className="p-1 h-full">
+                    <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
+                      {isAdmin && (
+                        <div className="absolute top-2 right-2 z-20 flex gap-2">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
                         </div>
+                      )}
+                       <div className="absolute top-2 left-2 z-20 flex gap-2">
+                          {ceremony.mediaUrl && (
+                            <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                    <ExternalLink className="h-4 w-4" />
+                                </Button>
+                            </a>
+                          )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
+                              <Expand className="h-4 w-4" />
+                          </Button>
                       </div>
-                    </CarouselItem>
-                ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2 sm:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-                <CarouselNext className="right-2 sm:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
-            </Carousel>
-             <div className="mt-8 text-center">
-                <Button asChild variant="outline">
-                    <Link href="/ceremonies">
-                        {t('viewAllEvents')}
-                        <ArrowRight className="ml-2 h-4 w-4"/>
-                    </Link>
-                </Button>
-            </div>
+                       <VideoPlayer 
+                          videoUrl={ceremony.mediaUrl} 
+                          mediaType={ceremony.mediaType}
+                          videoFit={ceremony.videoFit}
+                          title={ceremony.title}
+                          isActivated={true}
+                          inCarousel
+                       />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none group-active/item:pointer-events-auto transition-colors duration-300"></div>
+                      <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
+                          <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
+                           {ceremony.date && (
+                            <p className="font-mono text-xs opacity-70 mt-1">{ceremony.date}</p>
+                          )}
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+            ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-2 sm:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+            <CarouselNext className="right-2 sm:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+        </Carousel>
+        <div className="mt-8 text-center">
+            <Button asChild variant="outline">
+                <Link href="/ceremonies">
+                    {t('viewAllEvents')}
+                    <ArrowRight className="ml-2 h-4 w-4"/>
+                </Link>
+            </Button>
         </div>
-      </div>
      </div>
   );
 
