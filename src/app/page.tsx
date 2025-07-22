@@ -6,7 +6,6 @@ import Contact from '@/components/home/Contact';
 import RegistrationPromptDialog from '@/components/auth/RegistrationPromptDialog';
 import { useTranslation } from 'react-i18next';
 import Hero from '@/components/home/Hero';
-import WelcomeTour from '@/components/auth/WelcomeTour';
 import ExploreMore from '@/components/home/ExploreMore';
 import { useState } from 'react';
 
@@ -16,7 +15,6 @@ export default function Home() {
 
   return (
     <div className="container">
-      <WelcomeTour />
       <RegistrationPromptDialog />
       <Hero />
       <Ceremonies
