@@ -11,7 +11,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "export": "next export"
+    "export": "next build"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
