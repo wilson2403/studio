@@ -260,8 +260,8 @@ export default function Ceremonies({
             </CarouselContent>
             {ceremonies.length > 2 && (
               <>
-                <CarouselPrevious className="left-0 md:-left-4" />
-                <CarouselNext className="right-0 md:-right-4"/>
+                <CarouselPrevious className="left-2 md:left-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+                <CarouselNext className="right-2 md:right-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
               </>
             )}
         </Carousel>
@@ -321,8 +321,8 @@ export default function Ceremonies({
                 </CarouselContent>
                 {ceremonies.length > 2 && (
                     <>
-                        <CarouselPrevious className="left-0 md:left-2" />
-                        <CarouselNext className="right-0 md:right-2"/>
+                        <CarouselPrevious className="left-2 md:left-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+                        <CarouselNext className="right-2 md:right-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
                     </>
                 )}
             </Carousel>
@@ -441,5 +441,7 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+
+    
 
     
