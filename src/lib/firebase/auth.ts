@@ -11,7 +11,7 @@ import {
   sendEmailVerification,
   User,
   updateEmail,
-  updatePassword,
+  updatePassword as firebaseUpdatePassword,
   reauthenticateWithCredential,
   EmailAuthProvider,
 } from 'firebase/auth';
@@ -118,32 +118,24 @@ export const onAuthStateChanged = (callback: (user: User | null) => void) => {
   return firebaseOnAuthStateChanged(auth, callback);
 };
 
-// This is a simplified re-authentication function. 
-// In a real app, you would prompt the user for their current password.
-const reauthenticate = async () => {
+const reauthenticate = async (password: string) => {
     const user = auth.currentUser;
     if (!user) throw new Error("No user is signed in to re-authenticate.");
+    if (!user.email) throw new Error("Cannot re-authenticate user without an email.");
 
-    // This is where you would typically show a dialog to get the password
-    const password = prompt("Please re-enter your password for security:");
-    if (!password) throw new Error("Password is required for this action.");
-
-    if (user.email) {
-        const credential = EmailAuthProvider.credential(user.email, password);
-        return reauthenticateWithCredential(user, credential);
-    }
-    
-    throw new Error("Cannot re-authenticate user without an email.");
+    const credential = EmailAuthProvider.credential(user.email, password);
+    return reauthenticateWithCredential(user, credential);
 };
 
 
-export const updateUserEmail = async (newEmail: string) => {
+export const updateUserEmail = async (newEmail: string, currentPassword?: string) => {
     const user = auth.currentUser;
     if (!user) throw new Error("No user is signed in.");
+    if (!currentPassword) throw new Error("Current password is required to update email.");
 
     try {
         // Re-authentication is required for sensitive operations like changing an email.
-        await reauthenticate();
+        await reauthenticate(currentPassword);
         await updateEmail(user, newEmail);
         // Also update the email in your Firestore database
         const userRef = doc(db, 'users', user.uid);
@@ -155,14 +147,14 @@ export const updateUserEmail = async (newEmail: string) => {
     }
 };
 
-export const updateUserPassword = async (newPassword: string) => {
+export const updateUserPassword = async (currentPassword: string, newPassword: string) => {
     const user = auth.currentUser;
     if (!user) throw new Error("No user is signed in.");
     
     try {
         // Re-authentication is also required for changing the password.
-        await reauthenticate();
-        await updatePassword(user, newPassword);
+        await reauthenticate(currentPassword);
+        await firebaseUpdatePassword(user, newPassword);
     } catch (error) {
         console.error("Error updating password:", error);
         throw error;

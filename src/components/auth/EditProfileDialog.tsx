@@ -41,6 +41,7 @@ const emailSchema = (t: (key: string, options?: any) => string) => z.object({
 });
 
 const passwordSchema = (t: (key: string, options?: any) => string) => z.object({
+  currentPassword: z.string().min(1, { message: t('errorRequired', { field: t('currentPassword')}) }),
   newPassword: z.string().min(6, { message: t('errorMinLength', { field: t('loginPasswordLabel'), count: 6 }) }),
   confirmPassword: z.string(),
 }).refine(data => data.newPassword === data.confirmPassword, {
@@ -76,7 +77,7 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
 
   const passwordForm = useForm<PasswordFormValues>({
       resolver: zodResolver(passwordSchema(t)),
-      defaultValues: { newPassword: '', confirmPassword: '' },
+      defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   })
 
   useEffect(() => {
@@ -111,10 +112,9 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
         const dialCode = data.countryCode ? data.countryCode.split('-')[1] : '';
         const phoneNumber = data.phone ? data.phone.replace(/\D/g, '') : '';
         const fullPhoneNumber = phoneNumber ? `${dialCode}${phoneNumber}` : undefined;
-        console.log("Saving phone:", fullPhoneNumber);
-
-      await updateUserProfile(user.uid, { displayName: data.displayName, phone: fullPhoneNumber });
-      toast({ title: t('profileUpdatedSuccess') });
+        
+        await updateUserProfile(user.uid, { displayName: data.displayName, phone: fullPhoneNumber });
+        toast({ title: t('profileUpdatedSuccess') });
     } catch (error: any) {
       toast({ title: t('profileUpdatedError'), description: error.message, variant: 'destructive' });
     }
@@ -123,7 +123,12 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
   const onEmailSubmit = async (data: EmailFormValues) => {
       if (!user) return;
       try {
-          await updateUserEmail(data.email);
+          const currentPassword = prompt(t('enterPasswordToConfirm'));
+          if (!currentPassword) {
+              toast({ title: t('passwordRequired'), variant: 'destructive' });
+              return;
+          }
+          await updateUserEmail(data.email, currentPassword);
           toast({ title: t('emailUpdatedSuccess'), description: t('emailUpdatedSuccessDesc') });
       } catch (error: any) {
           toast({ title: t('emailUpdatedError'), description: error.message, variant: 'destructive' });
@@ -133,7 +138,7 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
   const onPasswordSubmit = async (data: PasswordFormValues) => {
       if (!user) return;
       try {
-          await updateUserPassword(data.newPassword);
+          await updateUserPassword(data.currentPassword, data.newPassword);
           toast({ title: t('passwordUpdatedSuccess') });
           passwordForm.reset();
       } catch (error: any) {
@@ -241,6 +246,19 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
                     {/* Password Form */}
                     <Form {...passwordForm}>
                          <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                              <FormField
+                                control={passwordForm.control}
+                                name="currentPassword"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('currentPassword')}</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
                              <FormField
                                 control={passwordForm.control}
                                 name="newPassword"
