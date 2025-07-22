@@ -128,9 +128,8 @@ export default function Ceremonies({
            <CarouselContent className="-ml-2">
                {ceremonies.map((ceremony) => (
                    <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
-                     <div className="p-1 h-full">
                        <div className={cn("rounded-2xl overflow-hidden group/item shadow-2xl h-full flex flex-col", ceremony.featured ? 'border-2 border-primary shadow-primary/20' : 'border-2 border-primary/30' )}>
-                         <div className="relative aspect-[16/10.8] w-full">
+                         <div className="relative aspect-[16/13] w-full">
                             {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
@@ -160,9 +159,9 @@ export default function Ceremonies({
                                 inCarousel
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent pointer-events-none"></div>
-                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none flex flex-col justify-end w-full">
+                            <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">
                                 <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
-                                <p className="font-body text-sm opacity-90 mt-2 line-clamp-3">{ceremony.description}</p>
+                                <p className="font-body text-sm opacity-90 mt-1 line-clamp-3 flex-1">{ceremony.description}</p>
                             </div>
                          </div>
                          <div className='bg-primary text-primary-foreground p-4 text-center flex flex-col items-center justify-center gap-4'>
@@ -185,7 +184,6 @@ export default function Ceremonies({
                             </Button>
                          </div>
                        </div>
-                     </div>
                    </CarouselItem>
                ))}
            </CarouselContent>
@@ -401,3 +399,6 @@ interface CeremoniesProps {
     
 
 
+
+
+    
