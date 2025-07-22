@@ -71,7 +71,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
     const [isLoading, setIsLoading] = useState(true);
     
     return (
-        <div className={cn("relative w-full h-full", className)}>
+        <div className={cn("relative w-full h-full overflow-hidden", className)}>
             {isLoading && (
                  <div className="absolute inset-0 flex items-center justify-center text-white z-10 pointer-events-none">
                     <Loader className="h-8 w-8 animate-spin" />
@@ -81,6 +81,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
                 src={src}
                 title={title}
                 frameBorder="0"
+                scrolling="no"
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
                 className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
