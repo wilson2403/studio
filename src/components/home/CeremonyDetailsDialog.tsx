@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Ceremony, Plan } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { CalendarIcon, Check, Clock } from 'lucide-react';
+import { CalendarIcon, Check } from 'lucide-react';
 import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
@@ -82,11 +82,6 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
             {ceremony.date && (
               <p className="flex items-center gap-1.5">
                 <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-              </p>
-            )}
-            {ceremony.horario && (
-              <p className="flex items-center gap-1.5">
-                <Clock className='w-3 h-3'/> {ceremony.horario}
               </p>
             )}
           </div>
