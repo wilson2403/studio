@@ -69,6 +69,12 @@ const isDirectVideoUrl = (url: string): boolean => {
 
 const IframePlayer = ({ src, title, className }: { src: string, title: string, className?: string }) => {
     const [isLoading, setIsLoading] = useState(true);
+    const [reloadKey, setReloadKey] = useState(0);
+
+    const handleReload = () => {
+        setIsLoading(true);
+        setReloadKey(prev => prev + 1);
+    }
     
     return (
         <div className={cn("relative w-full h-full", className)}>
@@ -78,7 +84,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
                 </div>
             )}
             <iframe
-                key={src} 
+                key={`${src}-${reloadKey}`} 
                 src={src}
                 title={title}
                 frameBorder="0"
@@ -87,7 +93,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
                 className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
                 onLoad={() => setIsLoading(false)}
             ></iframe>
-             <div className="absolute inset-0 z-20 pointer-events-none"></div>
+            <div className="absolute inset-0 z-20 cursor-pointer" onClick={handleReload}></div>
         </div>
     );
 };
