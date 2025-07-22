@@ -51,7 +51,7 @@ export const signInWithGoogle = async () => {
   }
 };
 
-export const signUpWithEmail = async (email: string, password: string, displayName: string, phone?: string) => {
+export const signUpWithEmail = async (email: string, password: string, displayName: string, countryCode?: string, phone?: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -59,6 +59,11 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     // Update profile and send verification email
     await updateProfile(user, { displayName });
     await sendEmailVerification(user);
+    
+    const dialCode = countryCode ? countryCode.split('-')[1] : undefined;
+    const fullPhoneNumber = phone && dialCode
+        ? `${dialCode}${phone.replace(/\D/g, '')}`
+        : undefined;
 
     // Create user document in Firestore
     const userRef = doc(db, 'users', user.uid);
@@ -66,7 +71,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
       uid: user.uid,
       email: user.email,
       displayName: displayName,
-      phone: phone || null,
+      phone: fullPhoneNumber,
       photoURL: user.photoURL,
       providerId: 'password',
       isAdmin: user.email === ADMIN_EMAIL,

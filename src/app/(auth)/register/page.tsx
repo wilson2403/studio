@@ -70,18 +70,14 @@ export default function RegisterPage() {
       email: '',
       password: '',
       confirmPassword: '',
-      countryCode: '+506',
+      countryCode: 'CR-+506',
       phone: '',
     },
   });
 
   async function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     try {
-      const fullPhoneNumber = values.phone && values.countryCode 
-        ? `${values.countryCode}${values.phone.replace(/\D/g, '')}` 
-        : undefined;
-
-      await signUpWithEmail(values.email, values.password, values.name, fullPhoneNumber);
+      await signUpWithEmail(values.email, values.password, values.name, values.countryCode, values.phone);
       toast({
         title: t('registerSuccessTitle'),
         description: t('registerSuccessDescription'),
@@ -180,7 +176,7 @@ export default function RegisterPage() {
                                 <SelectContent>
                                     <ScrollArea className="h-72">
                                         {countryCodes.map(country => (
-                                            <SelectItem key={`${country.code}-${country.dial_code}`} value={country.dial_code}>
+                                            <SelectItem key={`${country.code}-${country.dial_code}`} value={`${country.code}-${country.dial_code}`}>
                                                 {country.code} ({country.dial_code})
                                             </SelectItem>
                                         ))}
