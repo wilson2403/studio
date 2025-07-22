@@ -115,6 +115,12 @@ export default function Ceremonies({
     }
   };
 
+  const handleExpandVideo = (e: React.MouseEvent, ceremony: Ceremony) => {
+    e.stopPropagation();
+    setActiveVideo(null); // Stop the background video
+    setExpandedVideo(ceremony);
+  };
+
   const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
@@ -142,7 +148,7 @@ export default function Ceremonies({
                           </Button>
                         </a>
                       )}
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setExpandedVideo(ceremony); }}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
                         <Expand className="h-4 w-4" />
                       </Button>
                     </div>
@@ -153,7 +159,7 @@ export default function Ceremonies({
                             videoFit={ceremony.videoFit}
                             title={ceremony.title}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                            isActivated={activeVideo === ceremony.id}
+                            isActivated={activeVideo === ceremony.id && !expandedVideo}
                             inCarousel={false}
                          />
                     </div>
@@ -203,7 +209,7 @@ export default function Ceremonies({
                                     </Button>
                                 </a>
                               )}
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setExpandedVideo(ceremony); }}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
                                   <Expand className="h-4 w-4" />
                               </Button>
                           </div>
