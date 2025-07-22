@@ -25,7 +25,7 @@ const getYoutubeEmbedUrl = (url: string): string | null => {
   if (!videoId) return null;
 
   const params = new URLSearchParams({
-    autoplay: '0', // Changed to 0
+    autoplay: '0', 
     loop: '1',
     controls: '1',
     playlist: videoId,
@@ -38,14 +38,12 @@ const getTikTokEmbedUrl = (url: string): string | null => {
     if (!url) return null;
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
-    // Set autoplay to 0 to give user control over sound
     return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=0&loop=1&controls=1&mute=0`;
 };
 
 const getFacebookEmbedUrl = (url: string): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
     if (url.includes('/videos/') || url.includes('/share/v/')) {
-        // Set autoplay to 0
         return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=0&mute=0&loop=1&controls=1`;
     }
     return null;
@@ -56,7 +54,7 @@ const getStreamableEmbedUrl = (url: string): string | null => {
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
-    autoplay: '0', // Changed to 0
+    autoplay: '0',
     mute: '0',
     loop: '1',
     controls: '1',
@@ -75,7 +73,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
     return (
         <div className={cn("relative w-full h-full", className)}>
             {isLoading && (
-                 <div className="absolute inset-0 flex items-center justify-center text-white z-10">
+                 <div className="absolute inset-0 flex items-center justify-center text-white z-10 pointer-events-none">
                     <Loader className="h-8 w-8 animate-spin" />
                 </div>
             )}
@@ -89,8 +87,7 @@ const IframePlayer = ({ src, title, className }: { src: string, title: string, c
                 className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
                 onLoad={() => setIsLoading(false)}
             ></iframe>
-             {/* This overlay allows the parent carousel to scroll on mobile */}
-             <div className="absolute inset-0 z-20 cursor-pointer"></div>
+             <div className="absolute inset-0 z-20 pointer-events-none"></div>
         </div>
     );
 };
