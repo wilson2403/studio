@@ -236,7 +236,7 @@ export default function Ceremonies({
   const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
-     <div className="relative w-full max-w-6xl">
+     <div className="relative w-full max-w-6xl pl-10">
         <Carousel
             opts={{
             align: 'center',
@@ -436,6 +436,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
