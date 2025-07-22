@@ -150,11 +150,11 @@ export default function Ceremonies({
                     inCarousel
                  />
               </div>
-              <div className="p-4 bg-primary/10 rounded-b-lg text-center">
+              <div className="p-4 bg-card text-center">
                   <p className="font-mono text-lg text-primary-foreground bg-primary p-3 rounded-md">
                       {ceremony.date}
                   </p>
-                  <Button variant="secondary" className='w-full mt-4' onClick={() => handleViewPlans(ceremony)}>
+                  <Button variant="default" className='w-full mt-4' onClick={() => handleViewPlans(ceremony)}>
                     {t('reserveNow')}
                   </Button>
               </div>
@@ -345,3 +345,5 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+
+    
