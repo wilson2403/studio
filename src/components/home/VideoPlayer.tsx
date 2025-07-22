@@ -30,7 +30,7 @@ const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null =>
     loop: '1',
     controls: '1',
     playlist: videoId,
-    mute: isActivated ? '0' : '1',
+    mute: '1',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
@@ -48,7 +48,7 @@ const getFacebookEmbedUrl = (url: string, isActivated: boolean): string | null =
     if (!url || !url.includes('facebook.com')) return null;
     if (url.includes('/videos/') || url.includes('/share/v/')) {
         const autoplay = isActivated ? '1' : '0';
-        const mute = isActivated ? '0' : '1';
+        const mute = '1';
         return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplay}&mute=${mute}&loop=1&controls=1`;
     }
     return null;
@@ -60,7 +60,7 @@ const getStreamableEmbedUrl = (url: string, isActivated: boolean): string | null
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
     autoplay: isActivated ? '1' : '0',
-    mute: isActivated ? '0' : '1',
+    mute: '1',
     loop: '1',
     controls: '1',
   });
