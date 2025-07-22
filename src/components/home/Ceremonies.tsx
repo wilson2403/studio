@@ -75,7 +75,7 @@ const CeremonyCard = ({
         <Card
             ref={cardRef}
             key={ceremony.id}
-            className={cn(`w-full max-w-sm flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
+            className={cn(`w-full h-full flex flex-col rounded-2xl border-2 hover:border-primary/80 transition-all duration-300 group overflow-hidden`, 
               ceremony.featured
                 ? 'border-primary shadow-[0_0_30px_-10px] shadow-primary/50'
                 : 'border-card-foreground/10'
@@ -236,18 +236,35 @@ export default function Ceremonies({
   const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
-     <div className="flex flex-wrap gap-8 justify-center">
-        {ceremonies.map((ceremony) => (
-            <CeremonyCard
-                key={ceremony.id}
-                ceremony={ceremony}
-                isAdmin={!!isAdmin}
-                onEdit={setEditingCeremony}
-                onViewPlans={handleViewPlans}
-                activeVideo={activeVideo}
-                setActiveVideo={setActiveVideo}
-            />
-        ))}
+     <div className="relative w-full max-w-6xl mx-auto">
+        <Carousel
+            opts={{
+            align: 'start',
+            loop: ceremonies.length > 2,
+            }}
+            className="w-full"
+        >
+            <CarouselContent className="-ml-4">
+                {ceremonies.map((ceremony) => (
+                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-4">
+                        <CeremonyCard
+                            ceremony={ceremony}
+                            isAdmin={!!isAdmin}
+                            onEdit={setEditingCeremony}
+                            onViewPlans={handleViewPlans}
+                            activeVideo={activeVideo}
+                            setActiveVideo={setActiveVideo}
+                        />
+                    </CarouselItem>
+                ))}
+            </CarouselContent>
+            {ceremonies.length > 2 && (
+              <>
+                <CarouselPrevious className="left-[-1rem] md:-left-8" />
+                <CarouselNext className="right-[-1rem] md:-right-8"/>
+              </>
+            )}
+        </Carousel>
     </div>
   );
 
@@ -424,3 +441,5 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+
+    
