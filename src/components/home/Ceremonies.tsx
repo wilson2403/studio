@@ -173,7 +173,7 @@ export default function Ceremonies({
   );
 
   const renderFinishedCeremonies = () => (
-     <div className="w-full pl-10">
+     <div className="w-full px-5">
       <div className='w-full flex justify-center'>
           <div className="relative w-full max-w-6xl">
             <Carousel
