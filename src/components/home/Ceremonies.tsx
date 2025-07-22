@@ -152,8 +152,8 @@ export default function Ceremonies({
                  />
               </div>
               <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
-                   <p className="font-mono text-xl font-bold text-primary mb-4">
-                      {ceremony.date}
+                   <p className="font-mono text-xl font-bold text-white mb-4">
+                      {ceremony.title}
                   </p>
                   <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                     Reservar
@@ -350,5 +350,6 @@ interface CeremoniesProps {
     
 
     
+
 
 
