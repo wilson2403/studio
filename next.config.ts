@@ -9,6 +9,13 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    turbopack: {
+      resolve: {
+        conditionNames: ['react-server', 'edge-light', 'browser', 'import', 'require'],
+      },
+    },
+  },
   images: {
     remotePatterns: [
       {
