@@ -96,7 +96,7 @@ const CeremonyCard = ({
           >
             <CardHeader className="p-0">
               <div 
-                className="relative aspect-[4/3] overflow-hidden"
+                className="relative aspect-video overflow-hidden"
               >
                 {isAdmin && (
                   <Button
@@ -275,7 +275,7 @@ export default function Ceremonies({
             >
                 <CarouselContent>
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full sm:basis-1/2">
+                    <CarouselItem key={ceremony.id} className="md:basis-1/2 lg:basis-1/3">
                       <div className="p-1">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30">
                           {isAdmin && (
