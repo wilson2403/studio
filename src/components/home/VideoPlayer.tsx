@@ -84,6 +84,7 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
             )}
             <div className='w-full h-full'>
               <iframe
+                  key={src} // Force re-render when src changes
                   src={src}
                   title={title}
                   frameBorder="0"
@@ -102,7 +103,7 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
 const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover' }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain' }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(!isActivated);
+    const [isMuted, setIsMuted] = useState(true); // Mute by default for autoplay
     
     if (!src) {
         return (
@@ -136,11 +137,20 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     };
 
     useEffect(() => {
-        if(videoRef.current) {
-            videoRef.current.onplay = () => setIsPlaying(true);
-            videoRef.current.onpause = () => setIsPlaying(false);
+        const video = videoRef.current;
+        if(video) {
+            const handlePlay = () => setIsPlaying(true);
+            const handlePause = () => setIsPlaying(false);
+            video.addEventListener('play', handlePlay);
+            video.addEventListener('pause', handlePause);
+
             if (inCarousel) {
-                videoRef.current.play().catch(e => console.log("Autoplay blocked"));
+                video.play().catch(e => console.log("Autoplay blocked for carousel"));
+            }
+
+            return () => {
+                video.removeEventListener('play', handlePlay);
+                video.removeEventListener('pause', handlePause);
             }
         }
     }, [inCarousel]);
@@ -148,6 +158,8 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     useEffect(() => {
         if (videoRef.current && !inCarousel) {
             if (isActivated) {
+                // Unmute when activated by hover, if desired, or keep muted
+                // setIsMuted(false); 
                 videoRef.current.play().catch(console.error);
             } else {
                 videoRef.current.pause();

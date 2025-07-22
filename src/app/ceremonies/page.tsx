@@ -6,7 +6,7 @@ import { getCeremonies, Ceremony } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle } from 'lucide-react';
+import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, Calendar } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -141,6 +141,7 @@ export default function AllCeremoniesPage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
                     {visibleCeremonies.map((ceremony) => {
+                        const statusText = `status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
                         return (
                             <div key={ceremony.id} className="px-5">
@@ -158,7 +159,7 @@ export default function AllCeremoniesPage() {
                                     )}
                                     <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
                                         <Badge variant={statusVariant} className="capitalize">
-                                            {t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`)}
+                                            {t(statusText)}
                                         </Badge>
                                         <div className='flex gap-2'>
                                             {ceremony.mediaUrl && (
