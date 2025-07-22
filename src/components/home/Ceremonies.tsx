@@ -109,7 +109,7 @@ const CeremonyCard = ({
                   mediaType={ceremony.mediaType}
                   title={ceremony.title} 
                   className="absolute inset-0 w-full h-full group-hover:scale-105 transition-transform duration-500"
-                  isActivated={activeVideo === ceremony.id}
+                  isActivated={activeVideo === ceremony.id && ceremony.status === 'active'}
                 />
               </div>
             </CardHeader>
@@ -263,9 +263,9 @@ export default function Ceremonies({
             >
                 <CarouselContent className="-ml-2">
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 pl-2">
-                      <div className="p-1">
-                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30">
+                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-0 pl-2">
+                      <div className="p-1 h-full">
+                        <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
                           {isAdmin && (
                             <div className="absolute top-2 right-2 z-20 flex gap-2">
                               <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
@@ -285,8 +285,9 @@ export default function Ceremonies({
                               mediaType={ceremony.mediaType}
                               title={ceremony.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                              isActivated={false} // Let the player handle its state
+                              isActivated={true} // Simplified for carousel
                               inCarousel
+                              overlay
                            />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
                           <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">

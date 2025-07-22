@@ -15,6 +15,7 @@ interface VideoPlayerProps {
   controls?: boolean;
   isActivated?: boolean;
   inCarousel?: boolean;
+  overlay?: boolean;
 }
 
 const getYoutubeEmbedUrl = (url: string): string | null => {
@@ -199,25 +200,28 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
     );
 };
 
-export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
-  const [isIframeLoading, setIsIframeLoading] = useState(false);
+export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false, overlay = false }: VideoPlayerProps) => {
+  const [shouldLoad, setShouldLoad] = useState(false);
   const [iframeKey, setIframeKey] = useState(Date.now());
 
   useEffect(() => {
-      if (isActivated || inCarousel) {
-          setIframeKey(Date.now()); // Reset iframe on activation to force reload
-      }
-      setIsIframeLoading(isActivated || inCarousel);
+    // Load immediately if in carousel, or when activated
+    if (inCarousel || isActivated) {
+        setShouldLoad(true);
+    }
+    
+    // If it's not in a carousel and gets deactivated, unload it
+    if (!inCarousel && !isActivated) {
+        setShouldLoad(false);
+    }
   }, [isActivated, inCarousel]);
-  
-  const handleIframeLoad = () => {
-    setIsIframeLoading(false);
-  };
+
   
   const handleTikTokClick = () => {
-      if (isActivated) {
+      if (shouldLoad) {
         setIframeKey(Date.now());
-        setIsIframeLoading(true);
+      } else {
+        setShouldLoad(true);
       }
   };
 
@@ -247,12 +251,11 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
         getStreamableEmbedUrl(url);
 
     if (embedUrl) {
-        if (!isActivated && !inCarousel) {
-             return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
+        if (!shouldLoad) {
+             return <IframePlaceholder onClick={() => setShouldLoad(true)} title={title} className={className} />;
         }
         return (
-            <div className='w-full h-full' onClick={isTikTok ? handleTikTokClick : undefined}>
-                {isIframeLoading && <IframePlaceholder onClick={() => {}} title={title} className={className} isLoading={true} />}
+            <div className='relative w-full h-full' onClick={isTikTok ? handleTikTokClick : undefined}>
                 <iframe
                     key={iframeKey}
                     src={embedUrl}
@@ -260,9 +263,9 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
-                    className={cn("w-full h-full", isIframeLoading && "hidden")}
-                    onLoad={handleIframeLoad}
+                    className={cn("w-full h-full")}
                 ></iframe>
+                {overlay && <div className="absolute inset-0 z-10"></div>}
             </div>
         )
     }
@@ -272,7 +275,7 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
     }
     
     if (url.includes('facebook.com')) {
-      return <IframePlaceholder onClick={() => {}} title={title} className={className}/>
+      return <IframePlaceholder onClick={() => setShouldLoad(true)} title={title} className={className}/>
     }
     
     return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className} />;
@@ -283,7 +286,6 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       data-video-player
       className={cn(
         "relative w-full h-full bg-black flex items-center justify-center text-white overflow-hidden",
-        isActivated && 'cursor-default',
         className
       )}
     >
