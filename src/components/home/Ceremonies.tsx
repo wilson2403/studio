@@ -118,10 +118,10 @@ export default function Ceremonies({
   const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
-    <div className="w-full pl-10">
+    <div className="w-full pl-10 justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
             {ceremonies.map((ceremony) => (
-              <div key={ceremony.id} className="px-5">
+              <div key={ceremony.id} className="pl-5">
                 <Card 
                     onMouseEnter={() => setActiveVideo(ceremony.id)}
                     onMouseLeave={() => setActiveVideo(null)}
