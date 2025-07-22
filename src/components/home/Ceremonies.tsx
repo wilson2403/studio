@@ -150,12 +150,10 @@ export default function Ceremonies({
                     inCarousel
                  />
               </div>
-              <div className="p-4 bg-primary/10 rounded-b-lg">
-                  <div className="bg-primary p-3 rounded-md text-center">
-                    <p className="font-mono text-sm text-primary-foreground">
-                        {ceremony.date}
-                    </p>
-                  </div>
+              <div className="p-4 bg-primary/10 rounded-b-lg text-center">
+                  <p className="font-mono text-lg text-primary-foreground bg-primary p-3 rounded-md">
+                      {ceremony.date}
+                  </p>
                   <Button variant="secondary" className='w-full mt-4' onClick={() => handleViewPlans(ceremony)}>
                     {t('reserveNow')}
                   </Button>
