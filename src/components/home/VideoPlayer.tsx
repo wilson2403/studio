@@ -61,7 +61,6 @@ const getStreamableEmbedUrl = (url: string): string | null => {
 
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    // Stricter check: must start with / or end with a video extension.
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
 };
 
@@ -185,8 +184,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel }: { src: s
 export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
 
   const renderContent = () => {
-    // 1. Handle explicit image type
-    if (mediaType === 'image' || (!videoUrl && mediaType !== 'video')) {
+    if (mediaType === 'image') {
       return (
         <Image
           src={videoUrl || 'https://placehold.co/600x400.png'}
@@ -199,10 +197,8 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
       );
     }
     
-    // Ensure videoUrl is a string before proceeding
     const url = videoUrl || '';
 
-    // 2. Handle embeddable video platform URLs
     const embedUrl = 
         getYoutubeEmbedUrl(url) ||
         getTikTokEmbedUrl(url) ||
@@ -222,16 +218,13 @@ export const VideoPlayer = ({ videoUrl, mediaType, title, className, controls = 
               ></iframe>
             );
         }
-        // For embeddable URLs that are not yet activated, show a placeholder
         return <IframePlaceholder onClick={() => {}} title={title} className={className} />;
     }
 
-    // 3. Handle direct video file URLs
     if (isDirectVideoUrl(url)) {
       return <DirectVideoPlayer src={url} className={cn(className, 'object-cover')} isActivated={isActivated} inCarousel={inCarousel} />;
     }
 
-    // 4. Fallback for any other URL (like GitHub, etc.)
     return <IframePlaceholder onClick={() => window.open(url, '_blank')} title={title} className={className} />;
   };
 
