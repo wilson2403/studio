@@ -213,7 +213,7 @@ export default function Ceremonies({
                               videoFit={ceremony.videoFit}
                               title={ceremony.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                              isActivated={false}
+                              isActivated={true}
                               inCarousel
                            />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
