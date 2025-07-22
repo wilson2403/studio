@@ -37,7 +37,7 @@ export default function LoadingScreen() {
 
   return (
     <div className={cn(
-        "fixed inset-0 z-[100] flex items-center justify-center bg-transparent backdrop-blur-sm transition-opacity duration-500",
+        "fixed inset-0 z-[100] flex items-center justify-center bg-background transition-opacity duration-500",
         loading ? "opacity-100" : "opacity-0"
     )}>
       <Loader className="h-12 w-12 animate-spin text-primary" />
