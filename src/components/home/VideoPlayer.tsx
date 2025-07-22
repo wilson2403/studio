@@ -70,7 +70,7 @@ const isDirectVideoUrl = (url: string): boolean => {
 const IframePlaceholder = ({ onClick, title, className }: { onClick: () => void, title: string, className?: string }) => (
     <div className={cn("relative w-full h-full cursor-pointer", className)} onClick={onClick}>
         <Image
-            src="https://i.postimg.cc/pXjZ1K2M/video-placeholder.png"
+            src="https://placehold.co/600x400.png"
             alt={`${title} video thumbnail`}
             layout="fill"
             objectFit="cover"
