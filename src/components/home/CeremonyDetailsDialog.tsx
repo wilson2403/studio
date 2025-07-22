@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 interface CeremonyDetailsDialogProps {
   ceremony: Ceremony | null;
@@ -65,6 +66,8 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
       
       return `https://wa.me/?text=${encodeURIComponent(baseText)}`;
   }
+  
+  const isDisabled = hasPlans && !selectedPlan;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
@@ -142,8 +145,8 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
             </div>
         </ScrollArea>
         <DialogFooter>
-          <Button asChild className="w-full" disabled={hasPlans && !selectedPlan}>
-            <a href={getWhatsappLink()} target="_blank" rel="noopener noreferrer">
+           <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
+            <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer">
               {t('reserveWhatsapp')}
             </a>
           </Button>
