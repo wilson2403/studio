@@ -29,6 +29,7 @@ import { useEditableContent } from '@/hooks/use-editable-content';
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useToast } from '@/hooks/use-toast';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -194,6 +195,7 @@ export default function Ceremonies({
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { t } = useTranslation();
+  const { toast } = useToast();
   const router = useRouter();
   
   useEffect(() => {
@@ -341,7 +343,7 @@ export default function Ceremonies({
             >
                 <CarouselContent>
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="md:basis-1/2">
+                    <CarouselItem key={ceremony.id} className="md:basis-1/2 lg:basis-1/3">
                       <div className="p-1">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30">
                           {isAdmin && (
@@ -491,4 +493,15 @@ export default function Ceremonies({
     </section>
     </>
   );
+}
+
+interface CeremoniesProps {
+    status: 'active' | 'finished' | 'inactive';
+    id: string;
+    titleId: string;
+    titleInitialValue: string;
+    subtitleId?: string;
+    subtitleInitialValue?: string;
+    activeVideo: string | null;
+    setActiveVideo: (id: string | null) => void;
 }
