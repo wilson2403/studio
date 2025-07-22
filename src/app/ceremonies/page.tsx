@@ -17,6 +17,7 @@ import { VideoPlayer } from '@/components/home/VideoPlayer';
 import VideoPopupDialog from '@/components/home/VideoPopupDialog';
 import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
 import { EditableTitle } from '@/components/home/EditableTitle';
+import { EditableProvider } from '../home/EditableProvider';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -128,12 +129,14 @@ export default function AllCeremoniesPage() {
     const renderCeremonyGrid = (ceremonyList: Ceremony[], titleId: string, titleInitialValue: string) => (
         <section className="mb-16">
             <div className="flex flex-col items-center text-center space-y-4 mb-12">
-                <EditableTitle
-                    tag="h2"
-                    id={titleId}
-                    initialValue={titleInitialValue}
-                    className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
-                />
+                <EditableProvider>
+                    <EditableTitle
+                        tag="h2"
+                        id={titleId}
+                        initialValue={titleInitialValue}
+                        className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+                    />
+                </EditableProvider>
             </div>
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
                 {ceremonyList.map((ceremony) => (
