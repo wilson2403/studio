@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -15,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { User } from 'firebase/auth';
@@ -61,6 +62,7 @@ interface EditProfileDialogProps {
 export default function EditProfileDialog({ user, isOpen, onClose }: EditProfileDialogProps) {
   const { toast } = useToast();
   const { t } = useTranslation();
+  const [isGoogleUser, setIsGoogleUser] = useState(false);
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema(t)),
@@ -80,6 +82,8 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
   useEffect(() => {
     async function loadProfile() {
       if (user) {
+        setIsGoogleUser(user.providerData.some(p => p.providerId === 'google.com'));
+
         const profile = await getUserProfile(user.uid);
         if (profile) {
             const [code, dial_code] = profile.phone?.match(/^(\+\d+)(\d+)$/)?.slice(1) || ['', ''];
@@ -206,66 +210,70 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
                     </form>
                 </Form>
 
-                <Separator />
+                {!isGoogleUser && (
+                  <>
+                    <Separator />
 
-                {/* Email Form */}
-                <Form {...emailForm}>
-                     <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
-                        <FormField
-                            control={emailForm.control}
-                            name="email"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('loginEmailLabel')}</FormLabel>
-                                <FormControl>
-                                    <Input type="email" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                         <Button type="submit" variant="outline" disabled={emailForm.formState.isSubmitting}>
-                            {t('updateEmail')}
-                        </Button>
-                    </form>
-                </Form>
+                    {/* Email Form */}
+                    <Form {...emailForm}>
+                         <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
+                            <FormField
+                                control={emailForm.control}
+                                name="email"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('loginEmailLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input type="email" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <Button type="submit" variant="outline" disabled={emailForm.formState.isSubmitting}>
+                                {t('updateEmail')}
+                            </Button>
+                        </form>
+                    </Form>
 
-                <Separator />
-                
-                {/* Password Form */}
-                <Form {...passwordForm}>
-                     <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
-                         <FormField
-                            control={passwordForm.control}
-                            name="newPassword"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('newPassword')}</FormLabel>
-                                <FormControl>
-                                    <Input type="password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={passwordForm.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('registerConfirmPasswordLabel')}</FormLabel>
-                                <FormControl>
-                                    <Input type="password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                            )}
-                        />
-                         <Button type="submit" variant="outline" disabled={passwordForm.formState.isSubmitting}>
-                            {t('updatePassword')}
-                        </Button>
-                    </form>
-                </Form>
+                    <Separator />
+                    
+                    {/* Password Form */}
+                    <Form {...passwordForm}>
+                         <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                             <FormField
+                                control={passwordForm.control}
+                                name="newPassword"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('newPassword')}</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={passwordForm.control}
+                                name="confirmPassword"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('registerConfirmPasswordLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <Button type="submit" variant="outline" disabled={passwordForm.formState.isSubmitting}>
+                                {t('updatePassword')}
+                            </Button>
+                        </form>
+                    </Form>
+                  </>
+                )}
             </div>
         </ScrollArea>
         <DialogFooter>
