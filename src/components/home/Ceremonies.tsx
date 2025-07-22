@@ -152,7 +152,7 @@ export default function Ceremonies({
                  />
               </div>
               <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
-                  <p className="font-mono text-xl font-bold text-primary mb-4">
+                   <p className="font-mono text-xl font-bold text-primary mb-4">
                       {ceremony.date}
                   </p>
                   <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
@@ -176,7 +176,7 @@ export default function Ceremonies({
             >
                 <CarouselContent className="-ml-2">
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full sm:basis-1/2 lg:basis-1/4 p-0 pl-2">
+                    <CarouselItem key={ceremony.id} className="basis-2/3 sm:basis-1/2 lg:basis-1/4 p-0 pl-2">
                       <div className="p-1 h-full">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
                           {isAdmin && (
@@ -350,4 +350,5 @@ interface CeremoniesProps {
     
 
     
+
 
