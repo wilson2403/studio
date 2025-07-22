@@ -239,14 +239,14 @@ export default function Ceremonies({
      <div className="relative w-full max-w-6xl mx-auto">
         <Carousel
             opts={{
-            align: 'start',
-            loop: ceremonies.length > 2,
+            align: 'center',
+            loop: ceremonies.length > 3,
             }}
             className="w-full"
         >
             <CarouselContent className="-ml-4">
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-4">
+                    <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-4">
                         <CeremonyCard
                             ceremony={ceremony}
                             isAdmin={!!isAdmin}
@@ -269,14 +269,14 @@ export default function Ceremonies({
           <div className="relative w-full max-w-6xl mx-auto">
             <Carousel
                 opts={{
-                align: 'start',
+                align: 'center',
                 loop: false,
                 }}
                 className="w-full"
             >
                 <CarouselContent className="-ml-2">
                 {ceremonies.map((ceremony) => (
-                    <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-0 pl-2">
+                    <CarouselItem key={ceremony.id} className="basis-2/3 md:basis-1/2 lg:basis-1/3 p-0 pl-2">
                       <div className="p-1 h-full">
                         <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
                           {isAdmin && (
@@ -298,7 +298,7 @@ export default function Ceremonies({
                               mediaType={ceremony.mediaType}
                               title={ceremony.title}
                               className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-105"
-                              isActivated={true} // Simplified for carousel
+                              isActivated={false} // Autoplay handled differently for carousels
                               inCarousel
                            />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
@@ -436,5 +436,6 @@ interface CeremoniesProps {
     
 
     
+
 
 
