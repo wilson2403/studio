@@ -178,7 +178,7 @@ export default function Ceremonies({
                             </div>
                             <Button
                                 onClick={() => handleViewPlans(ceremony)}
-                                variant="secondary"
+                                variant="default"
                                 className="w-full text-lg font-bold rounded-xl h-12"
                             >
                                 {t('reserveSpot')}
@@ -399,3 +399,4 @@ interface CeremoniesProps {
 
 
     
+
