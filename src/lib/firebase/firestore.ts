@@ -145,7 +145,6 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
   try {
     let q;
     if (status) {
-      // Query only by status, as composite indexes are not available in this environment
       q = query(ceremoniesCollection, where('status', '==', status));
     } else {
       q = collection(db, 'ceremonies');
@@ -153,7 +152,6 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
     
     const snapshot = await getDocs(q);
     
-    // Seed data only if the entire collection is empty
     if (snapshot.empty && !status) {
         console.log('No ceremonies found, seeding database...');
         await seedCeremonies();
@@ -168,20 +166,30 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
       const dateA = a.date || '';
       const dateB = b.date || '';
       
-      // For 'active' and 'inactive', sort ascending (nearest first)
-      if (status === 'active' || status === 'inactive') {
+      if (status === 'active') {
+        // Sort featured first, then by date
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
         return dateA.localeCompare(dateB);
       }
       
-      // For 'finished', sort descending (most recent first)
+      if (status === 'inactive') {
+        return dateA.localeCompare(dateB);
+      }
+      
       if (status === 'finished') {
         return dateB.localeCompare(dateA);
       }
 
-      // Default sorting for all ceremonies (if no status is provided)
+      // Default sorting for all ceremonies
       const statusOrder = { active: 1, inactive: 2, finished: 3 };
       const statusComparison = (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
       if (statusComparison !== 0) return statusComparison;
+      
+      if (a.status === 'active') {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+      }
       
       if (a.status === 'finished') return dateB.localeCompare(dateA); 
       return dateA.localeCompare(dateB);
