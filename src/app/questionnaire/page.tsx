@@ -68,10 +68,8 @@ export default function QuestionnairePage() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (!currentUser) {
-        router.push('/login?redirect=/questionnaire');
-      } else {
-        setUser(currentUser);
+      setUser(currentUser);
+      if (currentUser) {
         const profile = await getUserProfile(currentUser.uid);
         const completed = !!profile?.questionnaireCompleted;
         setIsCompleted(completed);
@@ -80,13 +78,12 @@ export default function QuestionnairePage() {
         if (answers) {
           form.reset(answers);
         }
-
-        setLoading(false);
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [router, form]);
+  }, [form]);
 
   const onSubmit = async (values: z.infer<ReturnType<typeof questionnaireSchema>>) => {
     if (!user) return;
