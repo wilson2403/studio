@@ -21,6 +21,7 @@ import { ArrowRight, Check, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind,
 import Link from 'next/link';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Progress } from '@/components/ui/progress';
+import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -54,6 +55,7 @@ export default function PreparationGuidePage() {
   const [api, setApi] = useState<CarouselApi>()
   const [currentStep, setCurrentStep] = useState(0)
   const [totalSteps, setTotalSteps] = useState(1)
+  const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -259,6 +261,7 @@ export default function PreparationGuidePage() {
   }
 
   return (
+    <>
     <div className="container py-12 md:py-16">
       <Card className="mx-auto max-w-4xl shadow-2xl">
         <CardHeader className="text-center">
@@ -325,7 +328,11 @@ export default function PreparationGuidePage() {
                             <PartyPopper className="h-16 w-16 text-primary" />
                             <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
                             <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
-                            <Button asChild><Link href="/">{t('backToHome')}</Link></Button>
+                            <div className='flex flex-wrap justify-center gap-2 mt-4'>
+                                <Button asChild><Link href="/">{t('backToHome')}</Link></Button>
+                                <Button asChild variant="outline"><Link href="/preparation">{t('viewPreparationGuide')}</Link></Button>
+                                <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                            </div>
                        </div>
                     ) : null}
 
@@ -348,6 +355,13 @@ export default function PreparationGuidePage() {
         </CardContent>
       </Card>
     </div>
+    {user && (
+        <ViewAnswersDialog
+            user={user}
+            isOpen={isAnswersDialogOpen}
+            onClose={() => setIsAnswersDialogOpen(false)}
+        />
+    )}
+    </>
   );
 }
-
