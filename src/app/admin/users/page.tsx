@@ -30,6 +30,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Progress } from '@/components/ui/progress';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -52,6 +53,8 @@ type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
+const TOTAL_PREPARATION_STEPS = 11;
+
 
 const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMessage, 'id'> => ({
     name: t('defaultInvitationName'),
@@ -249,6 +252,13 @@ export default function AdminUsersPage() {
         }
     }
 
+    const getPreparationPercentage = (user: UserProfile) => {
+        if (user.questionnaireCompleted) return 100;
+        const progress = user.preparationStep || 0;
+        // The +1 is because steps are 0-indexed, but a user on step 0 has completed 1 step.
+        return Math.floor(((progress + 1) / TOTAL_PREPARATION_STEPS) * 100);
+    }
+
 
     if (loading) {
         return (
@@ -329,7 +339,10 @@ export default function AdminUsersPage() {
                                                 {u.questionnaireCompleted ? (
                                                     <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
                                                 ) : (
-                                                    <XCircle className="h-5 w-5 text-red-500 mx-auto" />
+                                                    <div className='flex items-center justify-center gap-2'>
+                                                        <XCircle className="h-5 w-5 text-red-500" />
+                                                        <span>({getPreparationPercentage(u)}%)</span>
+                                                    </div>
                                                 )}
                                             </TableCell>
                                             <TableCell>
@@ -344,13 +357,15 @@ export default function AdminUsersPage() {
                                                     <Edit className="mr-2 h-4 w-4"/>
                                                     {t('editUser')}
                                                 </Button>
-                                                {u.questionnaireCompleted && (
-                                                    <Button variant="outline" size="sm" onClick={() => setViewingUser(u)}>
-                                                        <FileText className="mr-2 h-4 w-4"/>
-                                                        {t('viewQuestionnaire')}
-                                                    </Button>
-                                                )}
-                                                {!u.questionnaireCompleted && (
+                                                {u.preparationStep !== undefined && u.preparationStep > 0 || u.questionnaireCompleted ? (
+                                                    <div className='flex flex-col gap-1'>
+                                                        <Button variant="outline" size="sm" onClick={() => setViewingUser(u)}>
+                                                            <FileText className="mr-2 h-4 w-4"/>
+                                                            {t('viewQuestionnaire')} {u.questionnaireCompleted ? '' : `(${getPreparationPercentage(u)}%)`}
+                                                        </Button>
+                                                        {!u.questionnaireCompleted && <Progress value={getPreparationPercentage(u)} className='h-1' />}
+                                                    </div>
+                                                ) : (
                                                     <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
                                                         <WhatsappIcon className="mr-2 h-4 w-4"/>
                                                         {t('invite')}
@@ -590,5 +605,7 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
+    
 
     
