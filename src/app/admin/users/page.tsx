@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics } from '@/lib/firebase/firestore';
@@ -31,6 +31,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
+import AssignCeremonyDialog from '@/components/admin/AssignCeremonyDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -71,6 +72,7 @@ export default function AdminUsersPage() {
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
+    const [assigningUser, setAssigningUser] = useState<UserProfile | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
     const [analytics, setAnalytics] = useState<SectionAnalytics[]>([]);
     const [loadingAnalytics, setLoadingAnalytics] = useState(true);
@@ -170,6 +172,11 @@ export default function AdminUsersPage() {
             setEditingUser(null);
         }
     };
+    
+    const handleCeremonyAssignmentUpdate = (updatedUser: UserProfile) => {
+        setUsers(users.map(u => u.uid === updatedUser.uid ? updatedUser : u));
+    }
+
 
     const handleSendInvite = (template: InvitationMessage) => {
         if (!invitingUser) return;
@@ -356,6 +363,10 @@ export default function AdminUsersPage() {
                                                 <Button variant="outline" size="sm" onClick={() => setEditingUser(u)}>
                                                     <Edit className="mr-2 h-4 w-4"/>
                                                     {t('editUser')}
+                                                </Button>
+                                                <Button variant="outline" size="sm" onClick={() => setAssigningUser(u)}>
+                                                    <Star className="mr-2 h-4 w-4"/>
+                                                    {t('assignCeremony')}
                                                 </Button>
                                                 {u.preparationStep !== undefined && u.preparationStep > 0 || u.questionnaireCompleted ? (
                                                     <div className='flex flex-col gap-1'>
@@ -575,6 +586,14 @@ export default function AdminUsersPage() {
                     isOpen={!!editingUser} 
                     onClose={() => setEditingUser(null)}
                     onAdminUpdate={handleProfileUpdate}
+                />
+            )}
+             {assigningUser && (
+                <AssignCeremonyDialog
+                    user={assigningUser}
+                    isOpen={!!assigningUser}
+                    onClose={() => setAssigningUser(null)}
+                    onUpdate={handleCeremonyAssignmentUpdate}
                 />
             )}
              {invitingUser && (

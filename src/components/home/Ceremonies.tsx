@@ -2,11 +2,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw, Users } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters, getUsersForCeremony } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -59,7 +59,7 @@ export default function Ceremonies({
   }, []);
 
   useEffect(() => {
-    const fetchCeremonies = async () => {
+    const fetchAndDecorateCeremonies = async () => {
       setLoading(true);
       try {
         let ceremoniesData = await getCeremonies(status);
@@ -72,7 +72,18 @@ export default function Ceremonies({
             }
         }
         
-        setCeremonies(ceremoniesData);
+        // Decorate with user counts
+        if (status === 'active') {
+          const decoratedCeremonies = await Promise.all(
+            ceremoniesData.map(async (ceremony) => {
+              const users = await getUsersForCeremony(ceremony.id);
+              return { ...ceremony, assignedUsers: users };
+            })
+          );
+          setCeremonies(decoratedCeremonies);
+        } else {
+          setCeremonies(ceremoniesData);
+        }
 
       } catch (error) {
         console.error("Failed to fetch ceremonies:", error);
@@ -80,7 +91,7 @@ export default function Ceremonies({
         setLoading(false);
       }
     };
-    fetchCeremonies();
+    fetchAndDecorateCeremonies();
   }, [status]);
 
   const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
@@ -144,6 +155,7 @@ export default function Ceremonies({
     <div className="w-full justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
             {ceremonies.map((ceremony) => {
+              const registeredCount = ceremony.assignedUsers?.length || 0;
               return (
                 <div key={ceremony.id} className="px-5">
                   <Card 
@@ -184,9 +196,13 @@ export default function Ceremonies({
                            />
                       </div>
                       <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
-                           <p className="font-mono text-xl font-bold text-white mb-4">
+                           <p className="font-mono text-xl font-bold text-white mb-2">
                               {ceremony.title}
                           </p>
+                          <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
+                              <Users className="h-4 w-4" />
+                              <span>{t('registeredCount', { count: registeredCount })}</span>
+                          </div>
                           <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                             {t('reserveNow')}
                           </Button>
@@ -408,3 +424,4 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+

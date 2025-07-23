@@ -1,5 +1,5 @@
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -560,6 +560,27 @@ export const updateUserStatus = async (uid: string, status: UserStatus): Promise
         throw error;
     }
 };
+
+export const updateUserAssignedCeremonies = async (uid: string, ceremonyIds: string[]): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, { assignedCeremonies: ceremonyIds });
+    } catch (error) {
+        console.error("Error updating assigned ceremonies:", error);
+        throw error;
+    }
+}
+
+export const getUsersForCeremony = async (ceremonyId: string): Promise<UserProfile[]> => {
+    try {
+        const q = query(usersCollection, where('assignedCeremonies', 'array-contains', ceremonyId));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => doc.data() as UserProfile);
+    } catch (error) {
+        console.error(`Error getting users for ceremony ${ceremonyId}:`, error);
+        return [];
+    }
+}
 
 
 // --- Theme Settings ---

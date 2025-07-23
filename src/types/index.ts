@@ -29,6 +29,7 @@ export type Ceremony = {
   viewCount?: number;
   reserveClickCount?: number;
   whatsappClickCount?: number;
+  assignedUsers?: UserProfile[];
 };
 
 export type PastCeremony = {
@@ -60,6 +61,7 @@ export type UserProfile = {
     questionnaireCompleted?: boolean;
     status?: UserStatus;
     preparationStep?: number;
+    assignedCeremonies?: string[];
 }
 
 export type ThemeSettings = {
@@ -171,3 +173,4 @@ export type SectionAnalytics = {
     clickCount: number;
 };
     
+

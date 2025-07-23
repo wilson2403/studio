@@ -2,11 +2,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick, getUsersForCeremony } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, Calendar, Eye, MousePointerClick } from 'lucide-react';
+import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, Calendar, Eye, MousePointerClick, Users } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -43,11 +43,12 @@ export default function AllCeremoniesPage() {
             setUser(currentUser);
              if (currentUser) {
                 const profile = await getUserProfile(currentUser.uid);
-                setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
-                fetchCeremonies(true);
+                const isAdminUser = !!profile?.isAdmin || currentUser.email === ADMIN_EMAIL;
+                setIsAdmin(isAdminUser);
+                fetchCeremonies(isAdminUser);
             } else {
                 setIsAdmin(false);
-                setPageLoading(false); // Stop loading if no user
+                router.push('/login?redirect=/ceremonies');
             }
         });
         return () => unsubscribe();
@@ -59,7 +60,15 @@ export default function AllCeremoniesPage() {
             const data = await getCeremonies(); // Get all ceremonies
             // Filter inactive ones only if user is not admin
             const visibleCeremonies = isAdminUser ? data : data.filter(c => c.status !== 'inactive');
-            setCeremonies(visibleCeremonies);
+            
+             const decoratedCeremonies = await Promise.all(
+                visibleCeremonies.map(async (ceremony) => {
+                    const users = await getUsersForCeremony(ceremony.id);
+                    return { ...ceremony, assignedUsers: users };
+                })
+            );
+            setCeremonies(decoratedCeremonies);
+
         } catch (error) {
             console.error("Failed to fetch ceremonies:", error);
         } finally {
@@ -180,6 +189,7 @@ export default function AllCeremoniesPage() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
                     {ceremonies.map((ceremony) => {
+                        const registeredCount = ceremony.assignedUsers?.length || 0;
                         const statusText = `status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
                         return (
@@ -228,6 +238,12 @@ export default function AllCeremoniesPage() {
                                         <p className="font-mono text-xl font-bold text-white mb-2">
                                             {ceremony.title}
                                         </p>
+                                        {ceremony.status === 'active' && (
+                                            <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
+                                                <Users className="h-4 w-4" />
+                                                <span>{t('registeredCount', { count: registeredCount })}</span>
+                                            </div>
+                                        )}
                                         {ceremony.status === 'active' ? (
                                             <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                                             {t('reserveNow')}
