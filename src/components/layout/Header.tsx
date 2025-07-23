@@ -38,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.18';
+const APP_VERSION = '1.19';
 
 export default function Header() {
   const pathname = usePathname();
@@ -138,7 +138,7 @@ export default function Header() {
             </DropdownMenuItem>
              <DropdownMenuItem onMouseDown={() => router.push('/my-ceremonies')}>
                 <Briefcase className="mr-2 h-4 w-4" />
-                <span>{t('navMyCeremonies')}</span>
+                <span>{t('myCeremoniesTitle')}</span>
             </DropdownMenuItem>
              <DropdownMenuItem onMouseDown={() => router.push('/courses')}>
                 <BookOpen className="mr-2 h-4 w-4" />
@@ -296,7 +296,7 @@ export default function Header() {
                            <SheetClose asChild>
                               <Link href="/my-ceremonies" className="transition-colors hover:text-primary flex items-center gap-2">
                                   <Briefcase className="h-5 w-5" />
-                                  {t('navMyCeremonies')}
+                                  {t('myCeremoniesTitle')}
                               </Link>
                           </SheetClose>
                           <SheetClose asChild>
