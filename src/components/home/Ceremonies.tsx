@@ -2,11 +2,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -18,10 +18,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
 import VideoPopupDialog from './VideoPopupDialog';
-import { CalendarIcon } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
-import { Badge } from '../ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -34,6 +33,7 @@ export default function Ceremonies({
   subtitleInitialValue
 }: CeremoniesProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
@@ -46,8 +46,14 @@ export default function Ceremonies({
   const { toast } = useToast();
   
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+          const profile = await getUserProfile(currentUser.uid);
+          setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+      } else {
+          setIsAdmin(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -111,9 +117,8 @@ export default function Ceremonies({
   }
 
   const handleViewPlans = (ceremony: Ceremony) => {
-    if (isAdmin) {
+    if (!isAdmin) {
       incrementCeremonyReserveClick(ceremony.id);
-      setCeremonies(prev => prev.map(c => c.id === ceremony.id ? { ...c, reserveClickCount: (c.reserveClickCount || 0) + 1 } : c));
     }
 
     if (ceremony.registerRequired && !user) {
@@ -134,8 +139,6 @@ export default function Ceremonies({
     setActiveVideo(null); // Stop the background video
     setExpandedVideo(ceremony);
   };
-
-  const isAdmin = user && user.email === ADMIN_EMAIL;
   
   const renderActiveCeremonies = () => (
     <div className="w-full justify-center">
@@ -251,11 +254,23 @@ export default function Ceremonies({
                           inCarousel
                        />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none transition-colors duration-300"></div>
-                      <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none">
+                      <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">
                           <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
                            {ceremony.date && (
                             <p className="font-mono text-xs opacity-70 mt-1">{ceremony.date}</p>
                           )}
+                           {isAdmin && (
+                            <div className="flex justify-start gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
+                                <div className='flex items-center gap-1.5'>
+                                    <Eye className="h-4 w-4" />
+                                    <span>{ceremony.viewCount || 0}</span>
+                                </div>
+                                <div className='flex items-center gap-1.5'>
+                                    <MousePointerClick className="h-4 w-4" />
+                                    <span>{ceremony.reserveClickCount || 0}</span>
+                                </div>
+                            </div>
+                           )}
                       </div>
                     </div>
                   </div>

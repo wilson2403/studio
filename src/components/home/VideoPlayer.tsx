@@ -6,7 +6,11 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Pause, Play, Volume2, VolumeX, Loader } from 'lucide-react';
-import { incrementCeremonyViewCount } from '@/lib/firebase/firestore';
+import { getUserProfile, incrementCeremonyViewCount } from '@/lib/firebase/firestore';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '@/lib/firebase/config';
+
+const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
 interface VideoPlayerProps {
   ceremonyId: string;
@@ -220,9 +224,24 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
 };
 
 export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handlePlay = () => {
-    incrementCeremonyViewCount(ceremonyId);
+    if (!isAdmin) {
+      incrementCeremonyViewCount(ceremonyId);
+    }
   }
 
   const renderContent = () => {

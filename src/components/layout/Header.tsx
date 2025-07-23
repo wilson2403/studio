@@ -80,7 +80,9 @@ export default function Header() {
   };
 
   const handleLinkClick = (sectionId: string) => {
-    logSectionClick(sectionId, user?.uid);
+    if (!isAdmin) {
+      logSectionClick(sectionId, user?.uid);
+    }
   }
 
   const AuthContent = () => {

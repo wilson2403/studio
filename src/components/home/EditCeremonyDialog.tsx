@@ -19,9 +19,9 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Ceremony, Plan } from '@/types';
-import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, finishCeremony, reactivateCeremony, inactivateCeremony } from '@/lib/firebase/firestore';
+import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, finishCeremony, reactivateCeremony, inactivateCeremony, resetCeremonyCounters } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, PlusCircle, Trash, CheckCircle, RotateCcw, Archive } from 'lucide-react';
+import { Copy, PlusCircle, Trash, CheckCircle, RotateCcw, Archive, History } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useState, useEffect } from 'react';
@@ -318,6 +318,17 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
               variant: 'destructive'
           });
       }
+  }
+
+  const handleResetCounters = async () => {
+    if (!ceremony) return;
+    try {
+        await resetCeremonyCounters(ceremony.id);
+        onUpdate({ ...ceremony, viewCount: 0, reserveClickCount: 0, whatsappClickCount: 0 });
+        toast({ title: t('countersResetSuccess') });
+    } catch (error) {
+        toast({ title: t('countersResetError'), variant: 'destructive' });
+    }
   }
 
   const handleCloseDialog = (open: boolean) => {
@@ -689,6 +700,24 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             <Copy className="mr-2 h-4 w-4" />
                             {t('duplicate')}
                           </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                    <History className="mr-2 h-4 w-4" />
+                                    {t('resetCounters')}
+                                </Button>
+                            </AlertDialogTrigger>
+                             <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>{t('resetCountersConfirmTitle')}</AlertDialogTitle>
+                                    <AlertDialogDescription>{t('resetCountersConfirmDescription')}</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleResetCounters}>{t('continue')}</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                           {ceremony.status === 'active' ? (
                             <div className="flex gap-2">
                               <AlertDialog>

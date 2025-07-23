@@ -317,6 +317,20 @@ export const incrementCeremonyWhatsappClick = async (id: string): Promise<void> 
     }
 }
 
+export const resetCeremonyCounters = async (id: string): Promise<void> => {
+    try {
+        const ceremonyRef = doc(db, 'ceremonies', id);
+        await updateDoc(ceremonyRef, {
+            viewCount: 0,
+            reserveClickCount: 0,
+            whatsappClickCount: 0
+        });
+    } catch (error) {
+        console.error("Error resetting ceremony counters:", error);
+        throw error;
+    }
+}
+
 
 // --- Guides ---
 export const seedGuides = async () => {
@@ -826,6 +840,20 @@ export const getSectionAnalytics = async (): Promise<SectionAnalytics[]> => {
     return [];
   }
 };
+
+export const resetSectionAnalytics = async (): Promise<void> => {
+    try {
+        const snapshot = await getDocs(analyticsCollection);
+        const batch = writeBatch(db);
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+    } catch (error) {
+        console.error("Error resetting section analytics:", error);
+        throw error;
+    }
+}
 
 
 export type { Chat };

@@ -13,12 +13,16 @@ import { Button } from '@/components/ui/button';
 import { Ceremony, Plan } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { CalendarIcon, Check, Clock } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { incrementCeremonyWhatsappClick } from '@/lib/firebase/firestore';
+import { getUserProfile, incrementCeremonyWhatsappClick } from '@/lib/firebase/firestore';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '@/lib/firebase/config';
+
+const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
 interface CeremonyDetailsDialogProps {
   ceremony: Ceremony | null;
@@ -31,6 +35,19 @@ const USD_EXCHANGE_RATE = 500;
 export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: CeremonyDetailsDialogProps) {
   const { t, i18n } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        if (currentUser) {
+            const profile = await getUserProfile(currentUser.uid);
+            setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+        } else {
+            setIsAdmin(false);
+        }
+    });
+    return () => unsubscribe();
+  }, []);
 
   if (!ceremony) return null;
 
@@ -84,7 +101,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
   }
 
   const handleWhatsappClick = () => {
-    if (ceremony) {
+    if (ceremony && !isAdmin) {
         incrementCeremonyWhatsappClick(ceremony.id);
     }
   }
