@@ -38,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.16';
+const APP_VERSION = '1.17';
 
 export default function Header() {
   const pathname = usePathname();
@@ -60,7 +60,7 @@ export default function Header() {
      { href: '/my-ceremonies', label: t('navMyCeremonies'), sectionId: 'my-ceremonies' },
      { href: '/courses', label: t('navCourses'), sectionId: 'courses'},
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
-     { href: '/artedesanar', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
+     { href: '/questionnaire', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
 
   const adminNavLinks = [
