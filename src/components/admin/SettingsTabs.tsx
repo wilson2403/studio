@@ -203,7 +203,10 @@ export default function SettingsTabs({ user }: { user: User }) {
   const pathname = usePathname();
 
   const handleTabChange = (value: string) => {
-    router.push(`/admin${value === 'profile' ? '' : `/${value}`}`);
+    // This logic seems incorrect for subpages.
+    // It should be something like router.push(`/admin/${value}`)
+    const targetPath = value === 'profile' ? '/admin' : `/admin/${value}`;
+    router.push(targetPath);
   };
 
   const profileForm = useForm<ProfileFormValues>({
@@ -314,11 +317,11 @@ export default function SettingsTabs({ user }: { user: User }) {
   ];
 
   return (
-    <Tabs defaultValue={pathname.replace('/admin', '') || 'profile'} onValueChange={handleTabChange} className="w-full">
+    <Tabs defaultValue={pathname.replace('/admin', '') || '/'} className="w-full">
       <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value=""><UserIcon className="mr-2 h-4 w-4"/>{t('profileTab')}</TabsTrigger>
-        <TabsTrigger value="/theme"><Palette className="mr-2 h-4 w-4"/>{t('themeTab')}</TabsTrigger>
-        <TabsTrigger value="/backup"><History className="mr-2 h-4 w-4"/>{t('backupTab')}</TabsTrigger>
+        <TabsTrigger value="/" onClick={() => router.push('/admin')}><UserIcon className="mr-2 h-4 w-4"/>{t('profileTab')}</TabsTrigger>
+        <TabsTrigger value="/theme" onClick={() => router.push('/admin/theme')}><Palette className="mr-2 h-4 w-4"/>{t('themeTab')}</TabsTrigger>
+        <TabsTrigger value="/backup" onClick={() => router.push('/admin/backup')}><History className="mr-2 h-4 w-4"/>{t('backupTab')}</TabsTrigger>
       </TabsList>
     </Tabs>
   );
