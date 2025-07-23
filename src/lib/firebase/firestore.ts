@@ -651,7 +651,7 @@ export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswe
     const userRef = doc(db, 'users', uid);
     batch.update(userRef, { 
       questionnaireCompleted: true,
-      preparationStep: 5 // Set to the step after the last question
+      preparationStep: 11 // Set to final step
     });
 
     try {
@@ -679,7 +679,13 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
 export const updatePreparationProgress = async (uid: string, step: number): Promise<void> => {
     try {
         const userRef = doc(db, 'users', uid);
-        await updateDoc(userRef, { preparationStep: step });
+        const userDoc = await getDoc(userRef);
+        if (userDoc.exists()) {
+            const currentProgress = userDoc.data()?.preparationStep || 0;
+            if (step > currentProgress) {
+                await updateDoc(userRef, { preparationStep: step });
+            }
+        }
     } catch (error) {
         console.error("Error updating preparation progress:", error);
         // Do not throw, this is a background update

@@ -17,9 +17,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
-import { ArrowRight, Check, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind, CheckCircle, PartyPopper } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PartyPopper, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind } from 'lucide-react';
 import Link from 'next/link';
-import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Progress } from '@/components/ui/progress';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
@@ -58,6 +58,7 @@ export default function PreparationGuidePage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [totalSteps, setTotalSteps] = useState(1)
   const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -68,7 +69,6 @@ export default function PreparationGuidePage() {
     mode: 'onChange',
   });
 
-  // Content for the steps
   const processSteps = [
       { id: "preparationProcess", titleId: "preparationProcessTitle", descriptionId: "preparationProcessDescription", Icon: Sprout },
       { id: "ceremonyProcess", titleId: "ceremonyProcessTitle", descriptionId: "ceremonyProcessDescription", Icon: Sparkles },
@@ -96,10 +96,10 @@ export default function PreparationGuidePage() {
   ];
 
   const updateUserProgress = useCallback(async (step: number) => {
-    if (user) {
+    if (user && !isCompleted) {
       await updatePreparationProgress(user.uid, step);
     }
-  }, [user]);
+  }, [user, isCompleted]);
 
   useEffect(() => {
     if (!api) return;
@@ -109,9 +109,7 @@ export default function PreparationGuidePage() {
     const handleSelect = () => {
       const newStep = api.selectedScrollSnap();
       setCurrentStep(newStep);
-      if (newStep > 0) {
-        updateUserProgress(newStep);
-      }
+      updateUserProgress(newStep);
     };
     
     api.on("select", handleSelect);
@@ -128,12 +126,19 @@ export default function PreparationGuidePage() {
         try {
           const profile = await getUserProfile(currentUser.uid);
           const savedAnswers = await getQuestionnaire(currentUser.uid);
+          
+          if (profile?.questionnaireCompleted) {
+            setIsCompleted(true);
+          }
+
           if (savedAnswers) {
             form.reset(savedAnswers);
           }
-          if (api && profile?.preparationStep) {
-            api.scrollTo(profile.preparationStep, true);
+          if (api) {
+            const targetStep = profile?.questionnaireCompleted ? allSteps.length - 1 : (profile?.preparationStep || 0);
+            api.scrollTo(targetStep, true);
           }
+
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -144,21 +149,32 @@ export default function PreparationGuidePage() {
   }, [api, form]);
 
   const goToNextStep = async () => {
-    const questionId = allSteps[currentStep].id as keyof FormData;
-    const isValid = await form.trigger(questionId);
+    const isQuestionStep = allSteps[currentStep].type === 'question';
+    if (isQuestionStep && !isCompleted) {
+        const questionId = allSteps[currentStep].id as keyof FormData;
+        const isValid = await form.trigger(questionId);
+        if (!isValid) return;
+    }
 
-    if (isValid && api?.canScrollNext()) {
-      api.scrollNext();
-    } else if (api?.canScrollNext()) {
-      // For info steps
+    if (api?.canScrollNext()) {
       api.scrollNext();
     }
   };
+  
+  const goToPrevStep = () => {
+      if(api?.canScrollPrev()) {
+          api.scrollPrev();
+      }
+  }
 
   const onQuestionnaireSubmit = async () => {
-    if (!user) return;
+    if (!user || isCompleted) {
+        goToNextStep();
+        return;
+    };
     try {
         await saveQuestionnaire(user.uid, form.getValues());
+        setIsCompleted(true);
         goToNextStep();
     } catch (error) {
         toast({
@@ -169,8 +185,30 @@ export default function PreparationGuidePage() {
     }
   };
 
+  const renderReadOnlyAnswer = (label: string, value?: string, details?: string) => {
+    if (value === undefined && details === undefined) return null;
+
+    let displayValue: React.ReactNode;
+    if (value) {
+        displayValue = <span className={`font-medium ${value === 'yes' ? 'text-destructive' : 'text-primary'}`}>{t(value)}</span>;
+    } else {
+        displayValue = <p className="mt-1 text-sm whitespace-pre-wrap">{details || t('noDetailsProvided')}</p>;
+    }
+    return (
+        <div className="space-y-2">
+            <h3 className="text-xl font-semibold">{label}</h3>
+            <div className="text-muted-foreground">{displayValue}</div>
+             {value && details && <p className="text-sm text-muted-foreground whitespace-pre-wrap">{details}</p>}
+        </div>
+    );
+  };
+
   const renderRadioGroup = (name: keyof FormData, label: string) => {
       const fieldName = name as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
+      if (isCompleted || currentStep < form.getValues().preparationStep || 0) {
+        return renderReadOnlyAnswer(label, form.getValues(fieldName), form.getValues(fieldName.replace('has', 'details').replace('is', 'details') as keyof FormData));
+      }
+
       return (
          <FormField
           control={form.control}
@@ -201,7 +239,7 @@ export default function PreparationGuidePage() {
       const detailsFieldName = name as "medicalConditionsDetails" | "medicationDetails" | "mentalHealthDetails" | "previousExperienceDetails";
       const conditionFieldName = conditionName as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
       
-      if (form.watch(conditionFieldName) === 'yes') {
+      if (form.watch(conditionFieldName) === 'yes' && !isCompleted && currentStep >= (form.getValues().preparationStep || 0)) {
           return (
              <FormField
                 control={form.control}
@@ -230,6 +268,9 @@ export default function PreparationGuidePage() {
       case 'hasPreviousExperience':
         return <div>{renderRadioGroup('hasPreviousExperience', t('questionnaireExperience'))}{renderDetailsField('previousExperienceDetails', 'hasPreviousExperience', t('questionnaireExperienceDetails'))}</div>;
       case 'mainIntention':
+         if (isCompleted || currentStep < (form.getValues().preparationStep || 0)) {
+             return renderReadOnlyAnswer(t('questionnaireIntention'), undefined, form.getValues('mainIntention'));
+         }
         return <FormField control={form.control} name="mainIntention" render={({ field }) => (
                   <FormItem><FormLabel className="text-xl">{t('questionnaireIntention')}</FormLabel><FormControl><Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>;
@@ -273,105 +314,109 @@ export default function PreparationGuidePage() {
               <CarouselContent>
                 {allSteps.map((step, index) => (
                   <CarouselItem key={index} className="min-h-[400px] flex flex-col justify-between p-6">
-                    {step.type === 'question' ? (
-                      <div className="space-y-6">
-                        {getQuestionStepComponent(step.id)}
-                      </div>
-                    ) : step.type === 'info' && step.id === 'process' ? (
-                       <div>
-                          <EditableTitle tag="h2" id="preparationProcessTitle" initialValue={t('preparationProcessTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              {(step.content as typeof processSteps).map(({ id, titleId, descriptionId, Icon }) => (
-                                  <div key={id} className="flex flex-col items-center text-center gap-3 p-4">
-                                      <div className="p-3 bg-primary/10 rounded-full"><Icon className="h-8 w-8 text-primary" /></div>
-                                      <EditableTitle tag="h3" id={titleId} initialValue={t(titleId)} className="text-xl font-bold" />
-                                      <EditableTitle tag="p" id={descriptionId} initialValue={t(descriptionId)} className="text-muted-foreground" />
-                                  </div>
-                              ))}
-                           </div>
-                       </div>
-                    ) : step.type === 'info' && step.id === 'diet' ? (
-                      <div>
-                        <EditableTitle tag="h2" id="dietTitle" initialValue={t('dietTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
-                        <EditableTitle tag="p" id="dietSubtitle" initialValue={t('dietSubtitle')} className="text-muted-foreground text-center mb-6" />
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <Card className="bg-green-950/20 border-green-500/30 p-4">
-                               <CardHeader className="p-2">
-                                  <CardTitle className="flex items-center gap-2 text-green-400">
-                                      <Leaf/>
-                                      <EditableTitle tag="p" id="allowedFoodsTitle" initialValue={t('allowedFoodsTitle')} />
-                                  </CardTitle>
-                               </CardHeader>
-                               <CardContent className="p-2">
-                                   <EditableTitle tag="p" id="allowedFoodsList" initialValue={t('allowedFoodsList')} />
-                               </CardContent>
-                            </Card>
-                            <Card className="bg-red-950/20 border-red-500/30 p-4">
+                    <div className="space-y-6 flex-grow">
+                        {step.type === 'question' ? (
+                            getQuestionStepComponent(step.id)
+                        ) : step.type === 'info' && step.id === 'process' ? (
+                        <div>
+                            <EditableTitle tag="h2" id="preparationProcessTitle" initialValue={t('preparationProcessTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {(step.content as typeof processSteps).map(({ id, titleId, descriptionId, Icon }) => (
+                                    <div key={id} className="flex flex-col items-center text-center gap-3 p-4">
+                                        <div className="p-3 bg-primary/10 rounded-full"><Icon className="h-8 w-8 text-primary" /></div>
+                                        <EditableTitle tag="h3" id={titleId} initialValue={t(titleId)} className="text-xl font-bold" />
+                                        <EditableTitle tag="p" id={descriptionId} initialValue={t(descriptionId)} className="text-muted-foreground" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        ) : step.type === 'info' && step.id === 'diet' ? (
+                        <div>
+                            <EditableTitle tag="h2" id="dietTitle" initialValue={t('dietTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
+                            <EditableTitle tag="p" id="dietSubtitle" initialValue={t('dietSubtitle')} className="text-muted-foreground text-center mb-6" />
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <Card className="bg-green-950/20 border-green-500/30 p-4">
                                 <CardHeader className="p-2">
-                                  <CardTitle className="flex items-center gap-2 text-red-400">
-                                    <Minus/>
-                                    <EditableTitle tag="p" id="prohibitedFoodsTitle" initialValue={t('prohibitedFoodsTitle')} />
-                                  </CardTitle>
+                                    <CardTitle className="flex items-center gap-2 text-green-400">
+                                        <Leaf/>
+                                        <EditableTitle tag="p" id="allowedFoodsTitle" initialValue={t('allowedFoodsTitle')} />
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-2">
-                                  <EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} />
+                                    <EditableTitle tag="p" id="allowedFoodsList" initialValue={t('allowedFoodsList')} />
                                 </CardContent>
-                            </Card>
-                        </div>
-                      </div>
-                    ) : step.type === 'info' && step.id === 'mentalPrep' ? (
-                      <div>
-                        <EditableTitle tag="h2" id="mentalPrepTitle" initialValue={t('mentalPrepTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
-                        <EditableTitle tag="p" id="mentalPrepSubtitle" initialValue={t('mentalPrepSubtitle')} className="text-muted-foreground text-center mb-6" />
-                        <div className="grid md:grid-cols-3 gap-6">
-                          {(step.content as typeof mentalPrepSteps).map(item => (
-                            <Card key={item.titleId} className="p-4 text-center">
-                                <EditableTitle tag="h3" id={item.titleId} initialValue={t(item.titleId)} className="font-bold text-lg mb-2" />
-                                <EditableTitle tag="p" id={item.descriptionId} initialValue={t(item.descriptionId)} className="text-muted-foreground" />
-                            </Card>
-                          ))}
-                        </div>
-                      </div>
-                    ) : step.type === 'info' && step.id === 'emotionalHealing' ? (
-                       <div className="text-center max-w-2xl mx-auto">
-                           <EditableTitle tag="h2" id="emotionalHealingTitle" initialValue={t('emotionalHealingTitle')} className="text-2xl font-headline text-primary mb-4" />
-                           <EditableTitle tag="p" id="emotionalHealingDescription" initialValue={t('emotionalHealingDescription')} className="text-muted-foreground" />
-                       </div>
-                    ) : step.type === 'info' && step.id === 'whatToBring' ? (
-                       <div>
-                          <EditableTitle tag="h2" id="whatToBringTitle" initialValue={t('whatToBringTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
-                          <EditableTitle tag="p" id="whatToBringSubtitle" initialValue={t('whatToBringSubtitle')} className="text-muted-foreground text-center mb-6" />
-                          <div className="grid md:grid-cols-2 gap-6">
-                              <div>
-                                <EditableTitle tag="h3" id="comfortItemsTitle" initialValue={t('comfortItemsTitle')} className="font-bold text-lg mb-2" />
-                                <EditableTitle tag="p" id="comfortItemsList" initialValue={t('comfortItemsList')} />
-                              </div>
-                              <div>
-                                <EditableTitle tag="h3" id="essentialsTitle" initialValue={t('essentialsTitle')} className="font-bold text-lg mb-2" />
-                                <EditableTitle tag="p" id="essentialsList" initialValue={t('essentialsList')} />
-                              </div>
-                          </div>
-                       </div>
-                    ) : step.type === 'final' ? (
-                       <div className="text-center flex flex-col items-center gap-4">
-                            <PartyPopper className="h-16 w-16 text-primary" />
-                            <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
-                            <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
-                            <div className='flex flex-wrap justify-center gap-2 mt-4'>
-                                <Button asChild><Link href="/">{t('backToHome')}</Link></Button>
-                                <Button asChild variant="outline"><Link href="/preparation">{t('viewPreparationGuide')}</Link></Button>
-                                <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                </Card>
+                                <Card className="bg-red-950/20 border-red-500/30 p-4">
+                                    <CardHeader className="p-2">
+                                    <CardTitle className="flex items-center gap-2 text-red-400">
+                                        <Minus/>
+                                        <EditableTitle tag="p" id="prohibitedFoodsTitle" initialValue={t('prohibitedFoodsTitle')} />
+                                    </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-2">
+                                    <EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} />
+                                    </CardContent>
+                                </Card>
                             </div>
-                       </div>
-                    ) : null}
+                        </div>
+                        ) : step.type === 'info' && step.id === 'mentalPrep' ? (
+                        <div>
+                            <EditableTitle tag="h2" id="mentalPrepTitle" initialValue={t('mentalPrepTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
+                            <EditableTitle tag="p" id="mentalPrepSubtitle" initialValue={t('mentalPrepSubtitle')} className="text-muted-foreground text-center mb-6" />
+                            <div className="grid md:grid-cols-3 gap-6">
+                            {(step.content as typeof mentalPrepSteps).map(item => (
+                                <Card key={item.titleId} className="p-4 text-center">
+                                    <EditableTitle tag="h3" id={item.titleId} initialValue={t(item.titleId)} className="font-bold text-lg mb-2" />
+                                    <EditableTitle tag="p" id={item.descriptionId} initialValue={t(item.descriptionId)} className="text-muted-foreground" />
+                                </Card>
+                            ))}
+                            </div>
+                        </div>
+                        ) : step.type === 'info' && step.id === 'emotionalHealing' ? (
+                        <div className="text-center max-w-2xl mx-auto">
+                            <EditableTitle tag="h2" id="emotionalHealingTitle" initialValue={t('emotionalHealingTitle')} className="text-2xl font-headline text-primary mb-4" />
+                            <EditableTitle tag="p" id="emotionalHealingDescription" initialValue={t('emotionalHealingDescription')} className="text-muted-foreground" />
+                        </div>
+                        ) : step.type === 'info' && step.id === 'whatToBring' ? (
+                        <div>
+                            <EditableTitle tag="h2" id="whatToBringTitle" initialValue={t('whatToBringTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
+                            <EditableTitle tag="p" id="whatToBringSubtitle" initialValue={t('whatToBringSubtitle')} className="text-muted-foreground text-center mb-6" />
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <EditableTitle tag="h3" id="comfortItemsTitle" initialValue={t('comfortItemsTitle')} className="font-bold text-lg mb-2" />
+                                    <EditableTitle tag="p" id="comfortItemsList" initialValue={t('comfortItemsList')} />
+                                </div>
+                                <div>
+                                    <EditableTitle tag="h3" id="essentialsTitle" initialValue={t('essentialsTitle')} className="font-bold text-lg mb-2" />
+                                    <EditableTitle tag="p" id="essentialsList" initialValue={t('essentialsList')} />
+                                </div>
+                            </div>
+                        </div>
+                        ) : step.type === 'final' ? (
+                        <div className="text-center flex flex-col items-center gap-4">
+                                <PartyPopper className="h-16 w-16 text-primary" />
+                                <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
+                                <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
+                                <div className='flex flex-wrap justify-center gap-2 mt-4'>
+                                    <Button asChild><Link href="/">{t('backToHome')}</Link></Button>
+                                    <Button asChild variant="outline"><Link href="/preparation">{t('viewPreparationGuide')}</Link></Button>
+                                    <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                </div>
+                        </div>
+                        ) : null}
+                    </div>
+                    
+                    <div className="mt-8 flex justify-between">
+                        <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
+                             <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
+                        </Button>
 
-                    <div className="mt-8 flex justify-end">
                       {allSteps[currentStep].type === 'question' && allSteps[currentStep].id === 'mainIntention' ? (
                           <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
                               {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
                       ) : allSteps[currentStep].type !== 'final' ? (
-                          <Button onClick={goToNextStep}>
+                          <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
                               {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
                       ) : null}
