@@ -252,6 +252,7 @@ export default function Ceremonies({
                           title={ceremony.title}
                           isActivated={true}
                           inCarousel
+                          defaultMuted={false}
                        />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none transition-colors duration-300"></div>
                       <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">

@@ -22,6 +22,7 @@ interface VideoPlayerProps {
   controls?: boolean;
   isActivated?: boolean;
   inCarousel?: boolean;
+  defaultMuted?: boolean;
 }
 
 const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null => {
@@ -46,7 +47,7 @@ const getTikTokEmbedUrl = (url: string, isActivated: boolean): string | null => 
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
     const autoplay = isActivated ? '1' : '0';
-    const mute = isActivated ? '0' : '1';
+    const mute = '1'; // Always mute TikTok embeds on our side
     return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=1&mute=${mute}`;
 };
 
@@ -116,10 +117,10 @@ const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: s
 };
 
 
-const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover', onPlay }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain', onPlay: () => void }) => {
+const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover', onPlay, defaultMuted = true }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain', onPlay: () => void, defaultMuted?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [isMuted, setIsMuted] = useState(true); // Sound off by default for direct videos
+    const [isMuted, setIsMuted] = useState(defaultMuted);
     const hasPlayed = useRef(false);
     
     if (!src) {
@@ -223,7 +224,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     );
 };
 
-export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false, defaultMuted = true }: VideoPlayerProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
    useEffect(() => {
@@ -273,7 +274,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, 
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} onPlay={handlePlay}/>;
+      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted}/>;
     }
     
     // Fallback for any other URL or invalid URL
