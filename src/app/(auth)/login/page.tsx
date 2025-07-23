@@ -1,10 +1,11 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
@@ -43,6 +44,8 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect');
   const { t } = useTranslation();
 
   const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
@@ -60,7 +63,7 @@ export default function LoginPage() {
         title: t('loginSuccessTitle'),
         description: t('loginSuccessDescription'),
       });
-      router.push('/');
+      router.push(redirectUrl || '/');
     } catch (error: any) {
       toast({
         title: t('loginErrorTitle'),
@@ -77,7 +80,7 @@ export default function LoginPage() {
         title: t('googleSuccessTitle'),
         description: t('googleSuccessDescription'),
       });
-      router.push('/');
+      router.push(redirectUrl || '/');
     } catch (error: any) {
       toast({
         title: t('googleErrorTitle'),
@@ -147,7 +150,7 @@ export default function LoginPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             {t('loginNoAccount')}{' '}
-            <Link href="/register" className="text-primary hover:underline">
+            <Link href={redirectUrl ? `/register?redirect=${redirectUrl}` : '/register'} className="text-primary hover:underline">
               {t('loginSignUpHere')}
             </Link>
           </p>

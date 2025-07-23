@@ -16,6 +16,20 @@ const invitationMessagesCollection = collection(db, 'invitationMessages');
 const analyticsCollection = collection(db, 'analytics');
 const coursesCollection = collection(db, 'courses');
 
+const logError = async (error: any, context?: Record<string, any>) => {
+    try {
+        await addDoc(errorLogsCollection, {
+            message: error.message,
+            stack: error.stack,
+            context: context || {},
+            timestamp: serverTimestamp(),
+            status: 'new'
+        });
+    } catch (e) {
+        console.error("Failed to log error to Firestore:", e);
+    }
+};
+
 
 // --- Page Content ---
 
@@ -30,6 +44,7 @@ export const getContent = async (id: string): Promise<string | { [key: string]: 
     return null;
   } catch (error) {
     console.error("Error getting content: ", error);
+    await logError(error, { function: 'getContent', id });
     return null;
   }
 }
@@ -40,6 +55,7 @@ export const setContent = async (id: string, value: string | { [key: string]: st
     await setDoc(docRef, { value });
   } catch (error) {
     console.error("Error setting content: ", error);
+    await logError(error, { function: 'setContent', id, value });
     throw error;
   }
 }
@@ -65,6 +81,7 @@ export const seedCeremonies = async () => {
       date: '2024-07-26',
       horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
       registerRequired: false,
+      showParticipantCount: false,
       viewCount: 0,
       reserveClickCount: 0,
       whatsappClickCount: 0,
@@ -89,6 +106,7 @@ export const seedCeremonies = async () => {
       date: '2024-08-02',
       horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
       registerRequired: false,
+      showParticipantCount: false,
       viewCount: 0,
       reserveClickCount: 0,
       whatsappClickCount: 0,
@@ -218,6 +236,7 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
     return ceremoniesData;
   } catch (error) {
     console.error("Error fetching ceremonies: ", error);
+    await logError(error, { function: 'getCeremonies', status });
     return [];
   }
 };
@@ -234,6 +253,7 @@ export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<strin
         return docRef.id;
     } catch(error) {
         console.error("Error adding ceremony: ", error);
+        await logError(error, { function: 'addCeremony', ceremony });
         throw error;
     }
 }
@@ -245,6 +265,7 @@ export const updateCeremony = async (ceremony: Ceremony): Promise<void> => {
         await updateDoc(ceremonyRef, data);
     } catch(error) {
         console.error("Error updating ceremony: ", error);
+        await logError(error, { function: 'updateCeremony', ceremony });
         throw error;
     }
 }
@@ -255,6 +276,7 @@ export const deleteCeremony = async (id: string): Promise<void> => {
         await deleteDoc(ceremonyRef);
     } catch(error) {
         console.error("Error deleting ceremony: ", error);
+        await logError(error, { function: 'deleteCeremony', id });
         throw error;
     }
 }
@@ -265,6 +287,7 @@ export const finishCeremony = async (ceremony: Ceremony): Promise<void> => {
     await updateDoc(ceremonyRef, { status: 'finished' });
   } catch (error) {
     console.error("Error finishing ceremony: ", error);
+    await logError(error, { function: 'finishCeremony', ceremony });
     throw error;
   }
 };
@@ -275,6 +298,7 @@ export const inactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
     await updateDoc(ceremonyRef, { status: 'inactive' });
   } catch (error) {
     console.error("Error inactivating ceremony: ", error);
+    await logError(error, { function: 'inactivateCeremony', ceremony });
     throw error;
   }
 };
@@ -286,6 +310,7 @@ export const reactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
     await updateDoc(ceremonyRef, { status: 'active' });
   } catch (error) {
     console.error("Error reactivating ceremony: ", error);
+    await logError(error, { function: 'reactivateCeremony', ceremony });
     throw error;
   }
 };
@@ -296,7 +321,9 @@ export const incrementCeremonyViewCount = async (id: string): Promise<void> => {
         const ceremonyRef = doc(db, 'ceremonies', id);
         await updateDoc(ceremonyRef, { viewCount: increment(1) });
     } catch (error) {
+        // Non-critical, just log it
         console.error("Error incrementing view count:", error);
+        await logError(error, { function: 'incrementCeremonyViewCount', id });
     }
 }
 
@@ -306,6 +333,7 @@ export const incrementCeremonyReserveClick = async (id: string): Promise<void> =
         await updateDoc(ceremonyRef, { reserveClickCount: increment(1) });
     } catch (error) {
         console.error("Error incrementing reserve click count:", error);
+        await logError(error, { function: 'incrementCeremonyReserveClick', id });
     }
 }
 
@@ -315,6 +343,7 @@ export const incrementCeremonyWhatsappClick = async (id: string): Promise<void> 
         await updateDoc(ceremonyRef, { whatsappClickCount: increment(1) });
     } catch (error) {
         console.error("Error incrementing whatsapp click count:", error);
+        await logError(error, { function: 'incrementCeremonyWhatsappClick', id });
     }
 }
 
@@ -328,6 +357,7 @@ export const resetCeremonyCounters = async (id: string): Promise<void> => {
         });
     } catch (error) {
         console.error("Error resetting ceremony counters:", error);
+        await logError(error, { function: 'resetCeremonyCounters', id });
         throw error;
     }
 }
@@ -415,6 +445,7 @@ export const getGuides = async (): Promise<Guide[]> => {
         return guides;
     } catch (error) {
         console.error("Error fetching guides: ", error);
+        await logError(error, { function: 'getGuides' });
         return [];
     }
 }
@@ -428,6 +459,7 @@ export const updateGuide = async (guide: Guide): Promise<void> => {
 
     } catch (error) {
         console.error("Error updating guide: ", error);
+        await logError(error, { function: 'updateGuide', guide });
         throw error;
     }
 }
@@ -438,6 +470,7 @@ export const deleteGuide = async (id: string): Promise<void> => {
         await deleteDoc(guideRef);
     } catch (error) {
         console.error("Error deleting guide: ", error);
+        await logError(error, { function: 'deleteGuide', id });
         throw error;
     }
 };
@@ -461,6 +494,7 @@ export const uploadImage = (file: File, onProgress: (progress: number) => void):
       },
       (error) => {
         console.error("Image upload failed:", error);
+        logError(error, { function: 'uploadImage' });
         reject(error);
       },
       () => {
@@ -488,6 +522,7 @@ export const uploadVideo = (file: File, onProgress: (progress: number) => void, 
       },
       (error) => {
         console.error("Video upload failed:", error);
+        logError(error, { function: 'uploadVideo' });
         reject(error);
       },
       () => {
@@ -497,6 +532,7 @@ export const uploadVideo = (file: File, onProgress: (progress: number) => void, 
           })
           .catch((error) => {
             console.error("Failed to get download URL:", error);
+            logError(error, { function: 'getDownloadURL' });
             reject(error);
           });
       }
@@ -513,6 +549,7 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
         return querySnapshot.docs.map(doc => doc.data() as UserProfile);
     } catch (error) {
         console.error("Error getting all users:", error);
+        await logError(error, { function: 'getAllUsers' });
         return [];
     }
 };
@@ -528,6 +565,7 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
         return null;
     } catch (error) {
         console.error("Error getting user profile:", error);
+        await logError(error, { function: 'getUserProfile', uid });
         return null;
     }
 };
@@ -538,6 +576,7 @@ export const updateUserProfile = async (uid: string, data: Partial<UserProfile>)
         await setDoc(userRef, data, { merge: true });
     } catch (error) {
         console.error("Error updating user profile:", error);
+        await logError(error, { function: 'updateUserProfile', uid, data });
         throw error;
     }
 };
@@ -548,6 +587,7 @@ export const updateUserRole = async (uid: string, isAdmin: boolean): Promise<voi
         await updateDoc(userRef, { isAdmin });
     } catch (error) {
         console.error("Error updating user role:", error);
+        await logError(error, { function: 'updateUserRole', uid, isAdmin });
         throw error;
     }
 };
@@ -558,6 +598,7 @@ export const updateUserStatus = async (uid: string, status: UserStatus): Promise
         await updateDoc(userRef, { status });
     } catch (error) {
         console.error("Error updating user status:", error);
+        await logError(error, { function: 'updateUserStatus', uid, status });
         throw error;
     }
 };
@@ -568,6 +609,7 @@ export const updateUserAssignedCeremonies = async (uid: string, ceremonyIds: str
         await updateDoc(userRef, { assignedCeremonies: ceremonyIds });
     } catch (error) {
         console.error("Error updating assigned ceremonies:", error);
+        await logError(error, { function: 'updateUserAssignedCeremonies', uid, ceremonyIds });
         throw error;
     }
 }
@@ -579,6 +621,7 @@ export const getUsersForCeremony = async (ceremonyId: string): Promise<UserProfi
         return snapshot.docs.map(doc => doc.data() as UserProfile);
     } catch (error) {
         console.error(`Error getting users for ceremony ${ceremonyId}:`, error);
+        await logError(error, { function: 'getUsersForCeremony', ceremonyId });
         return [];
     }
 }
@@ -595,6 +638,7 @@ export const getThemeSettings = async (): Promise<ThemeSettings | null> => {
         return null;
     } catch (error) {
         console.error("Error getting theme settings:", error);
+        await logError(error, { function: 'getThemeSettings' });
         return null;
     }
 }
@@ -605,6 +649,7 @@ export const setThemeSettings = async (settings: ThemeSettings): Promise<void> =
         await setDoc(docRef, settings);
     } catch (error) {
         console.error("Error setting theme settings:", error);
+        await logError(error, { function: 'setThemeSettings' });
         throw error;
     }
 }
@@ -616,19 +661,24 @@ export const saveChatMessage = async (chatId: string, messages: ChatMessage[], u
     const chatRef = doc(db, 'chats', chatId);
     const chatSnap = await getDoc(chatRef);
 
-    if (chatSnap.exists()) {
-        await updateDoc(chatRef, {
-            messages: messages,
-            updatedAt: serverTimestamp(),
-        });
-    } else {
-        await setDoc(chatRef, {
-            id: chatId,
-            messages: messages,
-            user: user,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-        });
+    try {
+        if (chatSnap.exists()) {
+            await updateDoc(chatRef, {
+                messages: messages,
+                updatedAt: serverTimestamp(),
+            });
+        } else {
+            await setDoc(chatRef, {
+                id: chatId,
+                messages: messages,
+                user: user,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+        }
+    } catch (error) {
+        console.error("Error saving chat message:", error);
+        await logError(error, { function: 'saveChatMessage', chatId });
     }
 }
 
@@ -643,6 +693,7 @@ export const getChat = async (chatId: string): Promise<Chat | null> => {
         return null;
     } catch (error) {
         console.error("Error getting chat:", error);
+        await logError(error, { function: 'getChat', chatId });
         return null;
     }
 };
@@ -654,6 +705,7 @@ export const getAllChats = async (): Promise<Chat[]> => {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
     } catch (error) {
         console.error("Error fetching chats: ", error);
+        await logError(error, { function: 'getAllChats' });
         return [];
     }
 };
@@ -667,6 +719,7 @@ export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswe
     const questionnaireRef = doc(db, 'questionnaires', uid);
     batch.set(questionnaireRef, {
         ...answers,
+        uid,
         updatedAt: serverTimestamp(),
     }, { merge: true });
 
@@ -680,6 +733,7 @@ export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswe
         await batch.commit();
     } catch (error) {
         console.error("Error saving questionnaire and updating user profile:", error);
+        await logError(error, { function: 'saveQuestionnaire', uid });
         throw error;
     }
 };
@@ -694,6 +748,7 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
         return null;
     } catch (error) {
         console.error("Error getting questionnaire:", error);
+        await logError(error, { function: 'getQuestionnaire', uid });
         return null;
     }
 };
@@ -704,12 +759,15 @@ export const updatePreparationProgress = async (uid: string, step: number): Prom
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
             const currentProgress = userDoc.data()?.preparationStep || 0;
-            if (step > currentProgress) {
+            const isCompleted = userDoc.data()?.questionnaireCompleted || false;
+            // Only update if the new step is greater and the questionnaire is not yet complete
+            if (step > currentProgress && !isCompleted) {
                 await updateDoc(userRef, { preparationStep: step });
             }
         }
     } catch (error) {
         console.error("Error updating preparation progress:", error);
+        await logError(error, { function: 'updatePreparationProgress', uid, step });
         // Do not throw, this is a background update
     }
 };
@@ -754,6 +812,7 @@ export const getInvitationMessages = async (): Promise<InvitationMessage[]> => {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InvitationMessage));
     } catch (error) {
         console.error("Error getting invitation messages:", error);
+        await logError(error, { function: 'getInvitationMessages' });
         return [];
     }
 }
@@ -764,6 +823,7 @@ export const addInvitationMessage = async (message: InvitationMessage): Promise<
         await setDoc(docRef, message);
     } catch (error) {
         console.error("Error adding invitation message:", error);
+        await logError(error, { function: 'addInvitationMessage' });
         throw error;
     }
 }
@@ -774,6 +834,7 @@ export const updateInvitationMessage = async (message: InvitationMessage): Promi
         await updateDoc(docRef, message);
     } catch (error) {
         console.error("Error updating invitation message:", error);
+        await logError(error, { function: 'updateInvitationMessage' });
         throw error;
     }
 }
@@ -784,6 +845,7 @@ export const deleteInvitationMessage = async (id: string): Promise<void> => {
         await deleteDoc(docRef);
     } catch (error) {
         console.error("Error deleting invitation message:", error);
+        await logError(error, { function: 'deleteInvitationMessage' });
         throw error;
     }
 }
@@ -879,6 +941,7 @@ export const getSectionAnalytics = async (): Promise<SectionAnalytics[]> => {
     return analyticsData;
   } catch (error) {
     console.error("Error getting section analytics:", error);
+    await logError(error, { function: 'getSectionAnalytics' });
     return [];
   }
 };
@@ -893,6 +956,7 @@ export const resetSectionAnalytics = async (): Promise<void> => {
         await batch.commit();
     } catch (error) {
         console.error("Error resetting section analytics:", error);
+        await logError(error, { function: 'resetSectionAnalytics' });
         throw error;
     }
 }
@@ -906,6 +970,7 @@ export const getCourses = async (): Promise<Course[]> => {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Course));
     } catch (error) {
         console.error("Error getting courses:", error);
+        await logError(error, { function: 'getCourses' });
         return [];
     }
 }
@@ -919,6 +984,7 @@ export const addCourse = async (course: Omit<Course, 'id' | 'createdAt'>): Promi
         return docRef.id;
     } catch(error) {
         console.error("Error adding course: ", error);
+        await logError(error, { function: 'addCourse', course });
         throw error;
     }
 }
@@ -930,6 +996,7 @@ export const updateCourse = async (course: Course): Promise<void> => {
         await updateDoc(courseRef, data);
     } catch(error) {
         console.error("Error updating course: ", error);
+        await logError(error, { function: 'updateCourse', course });
         throw error;
     }
 }
@@ -940,6 +1007,7 @@ export const deleteCourse = async (id: string): Promise<void> => {
         await deleteDoc(courseRef);
     } catch(error) {
         console.error("Error deleting course: ", error);
+        await logError(error, { function: 'deleteCourse', id });
         throw error;
     }
 }
@@ -954,6 +1022,7 @@ export const updateUserCompletedCourses = async (uid: string, courseId: string, 
         }
     } catch (error) {
         console.error("Error updating completed courses:", error);
+        await logError(error, { function: 'updateUserCompletedCourses', uid, courseId, isCompleted });
         throw error;
     }
 }
@@ -979,3 +1048,4 @@ export type { UserProfile };
 
 
     
+
