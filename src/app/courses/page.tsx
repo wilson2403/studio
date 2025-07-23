@@ -127,13 +127,13 @@ export default function CoursesPage() {
         <div className="space-y-8">
             <h2 className="text-3xl font-headline text-primary">{title}</h2>
             {list.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid md:grid-cols-2 gap-8 max-w-4xl">
                     {list.map(course => {
                         const isCompleted = userProfile?.completedCourses?.includes(course.id) || false;
                         return (
                             <Card key={course.id} className="overflow-hidden">
                                 <div className="aspect-video relative">
-                                    <VideoPlayer ceremonyId={course.id} videoUrl={course.videoUrl} mediaType="video" title={course.title} />
+                                    <VideoPlayer ceremonyId={course.id} videoUrl={course.videoUrl} mediaType="video" title={course.title} defaultMuted={false}/>
                                 </div>
                                 <CardContent className="p-4 space-y-3">
                                     <div className='flex justify-between items-start'>
@@ -199,8 +199,3 @@ export default function CoursesPage() {
         </div>
     );
 }
-
-
-
-
-    
