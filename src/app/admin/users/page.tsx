@@ -48,7 +48,7 @@ const messagesFormSchema = (t: (key: string) => string) => z.object({
 });
 
 type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
-type MessagesFormValues = z.infer<typeof messagesFormSchema>>;
+type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
