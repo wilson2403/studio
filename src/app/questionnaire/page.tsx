@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
-import { ArrowLeft, ArrowRight, PartyPopper, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PartyPopper, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Progress } from '@/components/ui/progress';
@@ -415,10 +415,18 @@ export default function PreparationGuidePage() {
                                 <PartyPopper className="h-16 w-16 text-primary" />
                                 <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
                                 <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
-                                <div className='flex flex-wrap justify-center gap-2 mt-4'>
-                                    <Button asChild><Link href="/">{t('backToHome')}</Link></Button>
-                                    <Button asChild variant="outline"><Link href="/preparation">{t('viewPreparationGuide')}</Link></Button>
-                                    <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                <div className='flex flex-col gap-3 mt-4'>
+                                    <Button asChild variant="default" size="lg">
+                                        <Link href="/courses">
+                                            <BookOpen className="mr-2 h-4 w-4" />
+                                            {t('viewCoursesRecommendation')}
+                                        </Link>
+                                    </Button>
+                                    <div className='flex flex-wrap justify-center gap-2'>
+                                        <Button asChild><Link href="/">{t('backToHome')}</Link></Button>
+                                        <Button asChild variant="outline"><Link href="/preparation">{t('viewPreparationGuide')}</Link></Button>
+                                        <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                    </div>
                                 </div>
                         </div>
                         ) : null}
@@ -457,3 +465,4 @@ export default function PreparationGuidePage() {
     </EditableProvider>
   );
 }
+
