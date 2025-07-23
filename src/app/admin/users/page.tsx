@@ -59,8 +59,8 @@ const TOTAL_PREPARATION_STEPS = 11;
 
 const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMessage, 'id'> => ({
     name: t('defaultInvitationName'),
-    es: '¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: https://artedesanar.vercel.app/sanacion',
-    en: 'Hello! We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar. You can do it here: https://artedesanar.vercel.app/sanacion',
+    es: '¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: https://artedesanar.vercel.app/artedesanar',
+    en: 'Hello! We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar. You can do it here: https://artedesanar.vercel.app/artedesanar',
 });
 
 

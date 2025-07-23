@@ -59,7 +59,7 @@ export default function Header() {
      { href: '/ceremonies', label: t('navAllCeremonies'), sectionId: 'ceremonies' },
      { href: '/my-ceremonies', label: t('navMyCeremonies'), sectionId: 'my-ceremonies' },
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
-     { href: '/sanacion', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
+     { href: '/artedesanar', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
 
   const adminNavLinks = [

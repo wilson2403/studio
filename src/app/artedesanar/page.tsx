@@ -306,10 +306,10 @@ export default function PreparationGuidePage() {
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-2">
                     <Button asChild className="w-full">
-                        <Link href="/login?redirect=/sanacion">{t('signIn')}</Link>
+                        <Link href="/login?redirect=/artedesanar">{t('signIn')}</Link>
                     </Button>
                     <Button asChild variant="secondary" className="w-full">
-                        <Link href="/register?redirect=/sanacion">{t('registerButton')}</Link>
+                        <Link href="/register?redirect=/artedesanar">{t('registerButton')}</Link>
                     </Button>
                 </CardContent>
             </Card>
