@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -57,7 +57,6 @@ export default function Header() {
   
   const userNavLinks = [
      { href: '/ceremonies', label: t('navAllCeremonies'), sectionId: 'ceremonies' },
-     { href: '/my-ceremonies', label: t('navMyCeremonies'), sectionId: 'my-ceremonies' },
      { href: '/courses', label: t('navCourses'), sectionId: 'courses'},
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
      { href: '/questionnaire', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
@@ -137,6 +136,10 @@ export default function Header() {
             <DropdownMenuItem onClick={() => setIsProfileDialogOpen(true)}>
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>{t('editProfile')}</span>
+            </DropdownMenuItem>
+             <DropdownMenuItem onMouseDown={() => router.push('/my-ceremonies')}>
+                <Briefcase className="mr-2 h-4 w-4" />
+                <span>{t('navMyCeremonies')}</span>
             </DropdownMenuItem>
             {isAdmin && (
               <>
@@ -280,12 +283,20 @@ export default function Header() {
                   <div className="pr-6">
                     <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
                       {user && (
+                        <>
                           <SheetClose asChild>
                               <button onClick={() => setIsProfileDialogOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
                                   <UserIcon className="h-5 w-5" />
                                   {t('editProfile')}
                               </button>
                           </SheetClose>
+                           <SheetClose asChild>
+                              <Link href="/my-ceremonies" className="transition-colors hover:text-primary flex items-center gap-2">
+                                  <Briefcase className="h-5 w-5" />
+                                  {t('navMyCeremonies')}
+                              </Link>
+                          </SheetClose>
+                        </>
                       )}
                       {isAdmin && (
                         <>
