@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -28,6 +28,7 @@ import EditProfileDialog from '@/components/auth/EditProfileDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { v4 as uuidv4 } from 'uuid';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -49,6 +50,7 @@ type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
 type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 
 const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMessage, 'id'> => ({
     name: t('defaultInvitationName'),
@@ -94,7 +96,7 @@ export default function AdminUsersPage() {
                 setUsers(allUsers);
             } catch (error) {
                 console.error("Failed to fetch users:", error);
-                toast({ title: "Error", description: "Could not fetch user list.", variant: "destructive" });
+                toast({ title: t('error'), description: t('errorFetchUsers'), variant: "destructive" });
             }
         };
 
@@ -145,6 +147,16 @@ export default function AdminUsersPage() {
             toast({ title: t('roleUpdatedSuccess') });
         } catch (error) {
             toast({ title: t('roleUpdatedError'), variant: 'destructive' });
+        }
+    };
+    
+    const handleStatusChange = async (uid: string, status: UserStatus) => {
+        try {
+            await updateUserStatus(uid, status);
+            setUsers(users.map(u => u.uid === uid ? { ...u, status } : u));
+            toast({ title: t('statusUpdatedSuccess') });
+        } catch (error) {
+            toast({ title: t('statusUpdatedError'), variant: 'destructive' });
         }
     };
     
@@ -267,7 +279,7 @@ export default function AdminUsersPage() {
                                     <TableRow>
                                         <TableHead>{t('userName')}</TableHead>
                                         <TableHead>{t('userEmail')}</TableHead>
-                                        <TableHead>{t('userPhone')}</TableHead>
+                                        <TableHead>{t('userStatus')}</TableHead>
                                         <TableHead>{t('userQuestionnaire')}</TableHead>
                                         <TableHead>{t('userAdmin')}</TableHead>
                                         <TableHead>{t('actions')}</TableHead>
@@ -278,12 +290,29 @@ export default function AdminUsersPage() {
                                         <TableRow key={u.uid}>
                                             <TableCell>{u.displayName || 'N/A'}</TableCell>
                                             <TableCell>{u.email}</TableCell>
-                                            <TableCell>{u.phone || 'N/A'}</TableCell>
+                                            <TableCell>
+                                                <Select
+                                                    value={u.status || 'Interesado'}
+                                                    onValueChange={(value) => handleStatusChange(u.uid, value as UserStatus)}
+                                                    disabled={u.isAdmin || u.email === ADMIN_EMAIL}
+                                                >
+                                                    <SelectTrigger className="w-36">
+                                                        <SelectValue placeholder={t('selectStatus')} />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {userStatuses.map(status => (
+                                                            <SelectItem key={status} value={status}>
+                                                                {t(`userStatus${status}`)}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
                                             <TableCell className="text-center">
                                                 {u.questionnaireCompleted ? (
-                                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                                    <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
                                                 ) : (
-                                                    <XCircle className="h-5 w-5 text-red-500" />
+                                                    <XCircle className="h-5 w-5 text-red-500 mx-auto" />
                                                 )}
                                             </TableCell>
                                             <TableCell>
@@ -521,3 +550,5 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
+    
