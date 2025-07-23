@@ -674,7 +674,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                     )}
                 </div>
 
-                <DialogFooter className="flex-col sm:flex-row justify-between pt-4">
+                <DialogFooter className="flex-col sm:flex-row sm:justify-between w-full pt-4">
                     <div className="flex gap-2 items-center flex-wrap">
                       {isEditMode && ceremony && (
                         <>
@@ -766,7 +766,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                         </>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center justify-end flex-shrink-0">
                       <DialogClose asChild>
                         <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
                       </DialogClose>
