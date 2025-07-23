@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics } from '@/lib/firebase/firestore';
@@ -32,6 +32,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Progress } from '@/components/ui/progress';
 import AssignCeremonyDialog from '@/components/admin/AssignCeremonyDialog';
+import ViewUserCoursesDialog from '@/components/admin/ViewUserCoursesDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -68,7 +69,8 @@ export default function AdminUsersPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserProfile[]>([]);
-    const [viewingUser, setViewingUser] = useState<UserProfile | null>(null);
+    const [viewingUserQuestionnaire, setViewingUserQuestionnaire] = useState<UserProfile | null>(null);
+    const [viewingUserCourses, setViewingUserCourses] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
@@ -368,9 +370,13 @@ export default function AdminUsersPage() {
                                                     <Star className="mr-2 h-4 w-4"/>
                                                     {t('assignCeremony')}
                                                 </Button>
+                                                 <Button variant="outline" size="sm" onClick={() => setViewingUserCourses(u)}>
+                                                    <Video className="mr-2 h-4 w-4" />
+                                                    {t('viewCourses')}
+                                                </Button>
                                                 {u.preparationStep !== undefined && u.preparationStep > 0 || u.questionnaireCompleted ? (
                                                     <div className='flex flex-col gap-1'>
-                                                        <Button variant="outline" size="sm" onClick={() => setViewingUser(u)}>
+                                                        <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
                                                             <FileText className="mr-2 h-4 w-4"/>
                                                             {t('viewQuestionnaire')} {u.questionnaireCompleted ? '' : `(${getPreparationPercentage(u)}%)`}
                                                         </Button>
@@ -572,11 +578,18 @@ export default function AdminUsersPage() {
                     </Card>
                 </TabsContent>
             </Tabs>
-            {viewingUser && (
+            {viewingUserQuestionnaire && (
                 <QuestionnaireDialog 
-                    user={viewingUser} 
-                    isOpen={!!viewingUser} 
-                    onClose={() => setViewingUser(null)} 
+                    user={viewingUserQuestionnaire} 
+                    isOpen={!!viewingUserQuestionnaire} 
+                    onClose={() => setViewingUserQuestionnaire(null)} 
+                />
+            )}
+             {viewingUserCourses && (
+                <ViewUserCoursesDialog
+                    user={viewingUserCourses}
+                    isOpen={!!viewingUserCourses}
+                    onClose={() => setViewingUserCourses(null)}
                 />
             )}
              {editingUser && (

@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -58,6 +58,7 @@ export default function Header() {
   const userNavLinks = [
      { href: '/ceremonies', label: t('navAllCeremonies'), sectionId: 'ceremonies' },
      { href: '/my-ceremonies', label: t('navMyCeremonies'), sectionId: 'my-ceremonies' },
+     { href: '/courses', label: t('navCourses'), sectionId: 'courses'},
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
      { href: '/artedesanar', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
