@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -1027,6 +1027,32 @@ export const updateUserCompletedCourses = async (uid: string, courseId: string, 
     }
 }
 
+export const updateVideoProgress = async (uid: string, videoId: string, time: number): Promise<void> => {
+    try {
+        const progressRef = doc(db, `users/${uid}/videoProgress`, videoId);
+        await setDoc(progressRef, { time, updatedAt: serverTimestamp() });
+    } catch (error) {
+        console.error("Error updating video progress:", error);
+        await logError(error, { function: 'updateVideoProgress', uid, videoId, time });
+    }
+};
+
+export const getVideoProgress = async (uid: string, videoId: string): Promise<number | null> => {
+    try {
+        const progressRef = doc(db, `users/${uid}/videoProgress`, videoId);
+        const docSnap = await getDoc(progressRef);
+        if (docSnap.exists()) {
+            return docSnap.data().time;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error getting video progress:", error);
+        await logError(error, { function: 'getVideoProgress', uid, videoId });
+        return null;
+    }
+};
+
+
 
 
 export type { Chat };
@@ -1048,4 +1074,5 @@ export type { UserProfile };
 
 
     
+
 

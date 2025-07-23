@@ -133,7 +133,7 @@ export default function CoursesPage() {
                         return (
                             <Card key={course.id} className="overflow-hidden">
                                 <div className="aspect-video relative">
-                                    <VideoPlayer ceremonyId={course.id} videoUrl={course.videoUrl} mediaType="video" title={course.title} defaultMuted={false}/>
+                                    <VideoPlayer ceremonyId={course.id} videoUrl={course.videoUrl} mediaType="video" title={course.title} defaultMuted={false} trackProgress={true} userId={user?.uid}/>
                                 </div>
                                 <CardContent className="p-4 space-y-3">
                                     <div className='flex justify-between items-start'>

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Pause, Play, Volume2, VolumeX, Loader } from 'lucide-react';
-import { getUserProfile, incrementCeremonyViewCount } from '@/lib/firebase/firestore';
+import { getUserProfile, incrementCeremonyViewCount, updateVideoProgress, getVideoProgress } from '@/lib/firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
@@ -23,6 +23,8 @@ interface VideoPlayerProps {
   isActivated?: boolean;
   inCarousel?: boolean;
   defaultMuted?: boolean;
+  trackProgress?: boolean;
+  userId?: string | null;
 }
 
 const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null => {
@@ -117,12 +119,13 @@ const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: s
 };
 
 
-const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover', onPlay, defaultMuted = true }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain', onPlay: () => void, defaultMuted?: boolean }) => {
+const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover', onPlay, defaultMuted = true, trackProgress, videoId, userId }: { src: string, videoId: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain', onPlay: () => void, defaultMuted?: boolean, trackProgress?: boolean, userId?: string | null }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(defaultMuted);
     const hasPlayed = useRef(false);
-    
+    const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
     if (!src) {
         return (
             <div className={cn("relative w-full h-full", className)}>
@@ -137,6 +140,22 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
             </div>
         );
     }
+
+    const startProgressTracking = () => {
+        if (!trackProgress || !userId || !videoId || progressIntervalRef.current) return;
+        progressIntervalRef.current = setInterval(() => {
+            if (videoRef.current) {
+                updateVideoProgress(userId, videoId, videoRef.current.currentTime);
+            }
+        }, 5000); // Save every 5 seconds
+    };
+
+    const stopProgressTracking = () => {
+        if (progressIntervalRef.current) {
+            clearInterval(progressIntervalRef.current);
+            progressIntervalRef.current = null;
+        }
+    };
     
     const togglePlay = (e?: React.MouseEvent) => {
         e?.stopPropagation(); 
@@ -163,21 +182,35 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
                     onPlay();
                     hasPlayed.current = true;
                 }
+                startProgressTracking();
             };
-            const handlePause = () => setIsPlaying(false);
+            const handlePause = () => {
+                setIsPlaying(false);
+                stopProgressTracking();
+            }
             video.addEventListener('play', handlePlay);
             video.addEventListener('pause', handlePause);
 
             if (inCarousel) {
                 video.play().catch(e => console.log("Autoplay blocked for carousel"));
             }
+            
+            // Fetch and set initial progress
+            if (trackProgress && userId && videoId) {
+                getVideoProgress(userId, videoId).then(time => {
+                    if (time && videoRef.current) {
+                        videoRef.current.currentTime = time;
+                    }
+                });
+            }
 
             return () => {
                 video.removeEventListener('play', handlePlay);
                 video.removeEventListener('pause', handlePause);
+                stopProgressTracking();
             }
         }
-    }, [inCarousel, onPlay]);
+    }, [inCarousel, onPlay, trackProgress, userId, videoId]);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -224,11 +257,13 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     );
 };
 
-export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false, defaultMuted = true }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false, defaultMuted = true, trackProgress = false }: VideoPlayerProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
    useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
       if (currentUser) {
         const profile = await getUserProfile(currentUser.uid);
         setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
@@ -240,7 +275,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, 
   }, []);
 
   const handlePlay = () => {
-    if (!isAdmin) {
+    if (!isAdmin && !trackProgress) { // Don't count view for courses
       incrementCeremonyViewCount(ceremonyId);
     }
   }
@@ -274,7 +309,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, 
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted}/>;
+      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} />;
     }
     
     // Fallback for any other URL or invalid URL

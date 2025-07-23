@@ -64,6 +64,7 @@ export type UserProfile = {
     preparationStep?: number;
     assignedCeremonies?: string[];
     completedCourses?: string[];
+    videoProgress?: { [videoId: string]: number };
 }
 
 export type ThemeSettings = {
@@ -183,4 +184,11 @@ export type Course = {
     category: 'required' | 'optional';
     createdAt: Timestamp;
 };
+
+export type VideoProgress = {
+    [videoId: string]: {
+        time: number;
+        updatedAt: Timestamp;
+    }
+}
     

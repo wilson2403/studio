@@ -32,13 +32,13 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { getUserProfile, logSectionClick } from '@/lib/firebase/firestore';
+import { getUserProfile, logSectionClick, updateVideoProgress } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.19';
+const APP_VERSION = '1.20';
 
 export default function Header() {
   const pathname = usePathname();
