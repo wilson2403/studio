@@ -131,3 +131,12 @@ export type QuestionnaireAnswers = {
     hasPreviousExperience: 'yes' | 'no';
     previousExperienceDetails?: string;
 };
+
+export type ErrorLog = {
+    id: string;
+    message: string;
+    stack?: string;
+    context?: Record<string, any>;
+    timestamp: Timestamp;
+    status: 'new' | 'fixed';
+}

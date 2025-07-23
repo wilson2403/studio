@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, User as UserIcon } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, User as UserIcon, Terminal } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -37,6 +37,7 @@ import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const APP_VERSION = '1.9';
 
 export default function Header() {
   const pathname = usePathname();
@@ -125,6 +126,7 @@ export default function Header() {
                 <DropdownMenuItem onClick={() => router.push('/admin')}>
                   <ShieldCheck className="mr-2 h-4 w-4" />
                   <span>{t('admin')}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/admin/users')}>
                   <Users className="mr-2 h-4 w-4" />
@@ -133,6 +135,10 @@ export default function Header() {
                 <DropdownMenuItem onClick={() => router.push('/admin/chat')}>
                   <MessageSquare className="mr-2 h-4 w-4" />
                   <span>{t('chatHistory')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/admin/logs')}>
+                  <Terminal className="mr-2 h-4 w-4" />
+                  <span>{t('errorLogs')}</span>
                 </DropdownMenuItem>
               </>
             )}
@@ -250,10 +256,13 @@ export default function Header() {
                     {isAdmin && (
                       <>
                         <SheetClose asChild>
-                            <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2">
-                                <ShieldCheck className="h-5 w-5" />
-                                {t('admin')}
-                            </Link>
+                            <div className="w-full">
+                                <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2">
+                                    <ShieldCheck className="h-5 w-5" />
+                                    <span>{t('admin')}</span>
+                                    <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
+                                </Link>
+                            </div>
                         </SheetClose>
                         <SheetClose asChild>
                           <Link href="/admin/users" className="transition-colors hover:text-primary flex items-center gap-2">
@@ -265,6 +274,12 @@ export default function Header() {
                           <Link href="/admin/chat" className="transition-colors hover:text-primary flex items-center gap-2">
                             <MessageSquare className="h-5 w-5" />
                             {t('chatHistory')}
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link href="/admin/logs" className="transition-colors hover:text-primary flex items-center gap-2">
+                            <Terminal className="h-5 w-5" />
+                            {t('errorLogs')}
                           </Link>
                         </SheetClose>
                       </>

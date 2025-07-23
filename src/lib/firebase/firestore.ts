@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -11,6 +11,7 @@ const usersCollection = collection(db, 'users');
 const settingsCollection = collection(db, 'settings');
 const chatsCollection = collection(db, 'chats');
 const questionnairesCollection = collection(db, 'questionnaires');
+const errorLogsCollection = collection(db, 'error_logs');
 
 
 // --- Page Content ---
@@ -611,6 +612,38 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
     }
 };
 
+// --- Error Logs ---
+export const getErrorLogs = async (): Promise<ErrorLog[]> => {
+    try {
+        const q = query(errorLogsCollection, orderBy('timestamp', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ErrorLog));
+    } catch (error) {
+        console.error("Error getting error logs:", error);
+        return [];
+    }
+}
+
+export const updateErrorLogStatus = async (id: string, status: 'new' | 'fixed'): Promise<void> => {
+    try {
+        const logRef = doc(db, 'error_logs', id);
+        await updateDoc(logRef, { status });
+    } catch (error) {
+        console.error("Error updating error log status:", error);
+        throw error;
+    }
+}
+
+export const deleteErrorLog = async (id: string): Promise<void> => {
+    try {
+        const logRef = doc(db, 'error_logs', id);
+        await deleteDoc(logRef);
+    } catch (error) {
+        console.error("Error deleting error log:", error);
+        throw error;
+    }
+}
+
 export type { Chat };
 export type { UserProfile };
 
@@ -624,3 +657,4 @@ export type { UserProfile };
 
 
     
+
