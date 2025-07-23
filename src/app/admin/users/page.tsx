@@ -24,7 +24,6 @@ import { Button } from '@/components/ui/button';
 import { sendEmailToAllUsers } from '@/ai/flows/email-flow';
 import QuestionnaireDialog from '@/components/admin/QuestionnaireDialog';
 import { WhatsappIcon } from '@/components/icons/WhatsappIcon';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserStatus } from '@/types';
 import EditProfileDialog from '@/components/auth/EditProfileDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
@@ -51,7 +50,6 @@ type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
 type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 
 const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMessage, 'id'> => ({
     name: t('defaultInvitationName'),
@@ -139,16 +137,6 @@ export default function AdminUsersPage() {
             toast({ title: t('roleUpdatedSuccess') });
         } catch (error) {
             toast({ title: t('roleUpdatedError'), variant: 'destructive' });
-        }
-    };
-
-    const handleStatusChange = async (uid: string, status: UserStatus) => {
-        try {
-            await updateUserStatus(uid, status);
-            setUsers(users.map(u => u.uid === uid ? { ...u, status } : u));
-            toast({ title: t('statusUpdatedSuccess') });
-        } catch (error) {
-            toast({ title: t('statusUpdatedError'), variant: 'destructive' });
         }
     };
     
@@ -271,7 +259,6 @@ export default function AdminUsersPage() {
                                         <TableHead>{t('userName')}</TableHead>
                                         <TableHead>{t('userEmail')}</TableHead>
                                         <TableHead>{t('userPhone')}</TableHead>
-                                        <TableHead>{t('userStatus')}</TableHead>
                                         <TableHead>{t('userQuestionnaire')}</TableHead>
                                         <TableHead>{t('userAdmin')}</TableHead>
                                         <TableHead>{t('actions')}</TableHead>
@@ -283,23 +270,6 @@ export default function AdminUsersPage() {
                                             <TableCell>{u.displayName || 'N/A'}</TableCell>
                                             <TableCell>{u.email}</TableCell>
                                             <TableCell>{u.phone || 'N/A'}</TableCell>
-                                            <TableCell>
-                                                <Select
-                                                    value={u.status || 'Interesado'}
-                                                    onValueChange={(value: UserStatus) => handleStatusChange(u.uid, value)}
-                                                >
-                                                    <SelectTrigger className="w-[120px]">
-                                                        <SelectValue placeholder={t('selectStatus')} />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {userStatuses.map(status => (
-                                                            <SelectItem key={status} value={status}>
-                                                                {t(`status${status}`)}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </TableCell>
                                             <TableCell className="text-center">
                                                 {u.questionnaireCompleted ? (
                                                     <CheckCircle className="h-5 w-5 text-green-500" />
