@@ -26,6 +26,9 @@ export type Ceremony = {
   contributionText?: string;
   status: 'active' | 'finished' | 'inactive';
   registerRequired?: boolean;
+  viewCount?: number;
+  reserveClickCount?: number;
+  whatsappClickCount?: number;
 };
 
 export type PastCeremony = {

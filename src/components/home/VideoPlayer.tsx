@@ -6,8 +6,10 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Pause, Play, Volume2, VolumeX, Loader } from 'lucide-react';
+import { incrementCeremonyViewCount } from '@/lib/firebase/firestore';
 
 interface VideoPlayerProps {
+  ceremonyId: string;
   videoUrl?: string;
   mediaType?: 'image' | 'video';
   videoFit?: 'cover' | 'contain';
@@ -72,8 +74,18 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
 };
 
-const IframePlayer = ({ src, title, className, inCarousel }: { src: string, title: string, className?: string, inCarousel?: boolean }) => {
+const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: string, className?: string, onPlay: () => void }) => {
     const [isLoading, setIsLoading] = useState(true);
+    const hasPlayed = useRef(false);
+
+    const handleLoad = () => {
+        setIsLoading(false);
+        // Attempt to detect play, though it's unreliable with iframes
+        if (!hasPlayed.current) {
+            onPlay();
+            hasPlayed.current = true;
+        }
+    }
     
     return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
@@ -92,7 +104,7 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
                   allow="autoplay; encrypted-media; picture-in-picture"
                   allowFullScreen
                   className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
-                  onLoad={() => setIsLoading(false)}
+                  onLoad={handleLoad}
               ></iframe>
             </div>
         </div>
@@ -100,10 +112,11 @@ const IframePlayer = ({ src, title, className, inCarousel }: { src: string, titl
 };
 
 
-const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover' }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain' }) => {
+const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover', onPlay }: { src: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain', onPlay: () => void }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false); // Sound on by default for direct videos
+    const hasPlayed = useRef(false);
     
     if (!src) {
         return (
@@ -139,7 +152,13 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     useEffect(() => {
         const video = videoRef.current;
         if(video) {
-            const handlePlay = () => setIsPlaying(true);
+            const handlePlay = () => {
+                setIsPlaying(true);
+                if (!hasPlayed.current) {
+                    onPlay();
+                    hasPlayed.current = true;
+                }
+            };
             const handlePause = () => setIsPlaying(false);
             video.addEventListener('play', handlePlay);
             video.addEventListener('pause', handlePause);
@@ -153,7 +172,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
                 video.removeEventListener('pause', handlePause);
             }
         }
-    }, [inCarousel]);
+    }, [inCarousel, onPlay]);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -200,7 +219,11 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     );
 };
 
-export const VideoPlayer = ({ videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false }: VideoPlayerProps) => {
+
+  const handlePlay = () => {
+    incrementCeremonyViewCount(ceremonyId);
+  }
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -227,11 +250,11 @@ export const VideoPlayer = ({ videoUrl, mediaType, videoFit, title, className, c
         getStreamableEmbedUrl(url, isActivated);
 
     if (embedUrl) {
-       return <IframePlayer src={embedUrl} title={title} className={className} inCarousel={inCarousel} />;
+       return <IframePlayer src={embedUrl} title={title} className={className} onPlay={handlePlay} />;
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} />;
+      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} onPlay={handlePlay}/>;
     }
     
     // Fallback for any other URL or invalid URL

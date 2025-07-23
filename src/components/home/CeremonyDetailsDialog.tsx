@@ -18,6 +18,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { ScrollArea } from '../ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { incrementCeremonyWhatsappClick } from '@/lib/firebase/firestore';
 
 interface CeremonyDetailsDialogProps {
   ceremony: Ceremony | null;
@@ -80,6 +81,12 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
     const baseText = textParam ? `${textParam} - Plan: ${selectedPlan.name}` : `Hola, me interesa la ceremonia ${ceremony.title} con el plan: ${selectedPlan.name}`;
     
     return `https://wa.me/${phone}?text=${encodeURIComponent(baseText)}`;
+  }
+
+  const handleWhatsappClick = () => {
+    if (ceremony) {
+        incrementCeremonyWhatsappClick(ceremony.id);
+    }
   }
   
   const isDisabled = hasPlans && !selectedPlan;
@@ -161,7 +168,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         </ScrollArea>
         <DialogFooter>
            <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
-            <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer">
+            <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
               {t('reserveWhatsapp')}
             </a>
           </Button>

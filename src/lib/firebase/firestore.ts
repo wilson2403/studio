@@ -1,5 +1,5 @@
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -63,6 +63,9 @@ export const seedCeremonies = async () => {
       date: '2024-07-26',
       horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
       registerRequired: false,
+      viewCount: 0,
+      reserveClickCount: 0,
+      whatsappClickCount: 0,
     },
     {
       title: 'Sábado 2 de agosto – San Carlos',
@@ -84,6 +87,9 @@ export const seedCeremonies = async () => {
       date: '2024-08-02',
       horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
       registerRequired: false,
+      viewCount: 0,
+      reserveClickCount: 0,
+      whatsappClickCount: 0,
     },
     {
       title: 'Transformación Interior',
@@ -99,6 +105,9 @@ export const seedCeremonies = async () => {
       link: '#',
       featured: false,
       registerRequired: false,
+      viewCount: 0,
+      reserveClickCount: 0,
+      whatsappClickCount: 0,
     },
      {
       title: 'Ceremonia Inactiva de Prueba',
@@ -114,6 +123,9 @@ export const seedCeremonies = async () => {
       link: '#',
       featured: false,
       registerRequired: false,
+      viewCount: 0,
+      reserveClickCount: 0,
+      whatsappClickCount: 0,
     },
   ];
 
@@ -211,7 +223,12 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
-        const docRef = await addDoc(ceremoniesCollection, ceremony);
+        const docRef = await addDoc(ceremoniesCollection, {
+            ...ceremony,
+            viewCount: 0,
+            reserveClickCount: 0,
+            whatsappClickCount: 0
+        });
         return docRef.id;
     } catch(error) {
         console.error("Error adding ceremony: ", error);
@@ -270,6 +287,34 @@ export const reactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
     throw error;
   }
 };
+
+// --- Ceremony Analytics ---
+export const incrementCeremonyViewCount = async (id: string): Promise<void> => {
+    try {
+        const ceremonyRef = doc(db, 'ceremonies', id);
+        await updateDoc(ceremonyRef, { viewCount: increment(1) });
+    } catch (error) {
+        console.error("Error incrementing view count:", error);
+    }
+}
+
+export const incrementCeremonyReserveClick = async (id: string): Promise<void> => {
+    try {
+        const ceremonyRef = doc(db, 'ceremonies', id);
+        await updateDoc(ceremonyRef, { reserveClickCount: increment(1) });
+    } catch (error) {
+        console.error("Error incrementing reserve click count:", error);
+    }
+}
+
+export const incrementCeremonyWhatsappClick = async (id: string): Promise<void> => {
+    try {
+        const ceremonyRef = doc(db, 'ceremonies', id);
+        await updateDoc(ceremonyRef, { whatsappClickCount: increment(1) });
+    } catch (error) {
+        console.error("Error incrementing whatsapp click count:", error);
+    }
+}
 
 
 // --- Guides ---
@@ -700,5 +745,6 @@ export type { UserProfile };
 
 
     
+
 
 

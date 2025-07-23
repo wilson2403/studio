@@ -2,11 +2,11 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -111,6 +111,11 @@ export default function Ceremonies({
   }
 
   const handleViewPlans = (ceremony: Ceremony) => {
+    if (isAdmin) {
+      incrementCeremonyReserveClick(ceremony.id);
+      setCeremonies(prev => prev.map(c => c.id === ceremony.id ? { ...c, reserveClickCount: (c.reserveClickCount || 0) + 1 } : c));
+    }
+
     if (ceremony.registerRequired && !user) {
        toast({
           title: t('authRequiredTitle'),
@@ -166,6 +171,7 @@ export default function Ceremonies({
                       </div>
                       <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
                            <VideoPlayer 
+                              ceremonyId={ceremony.id}
                               videoUrl={ceremony.mediaUrl} 
                               mediaType={ceremony.mediaType}
                               videoFit={ceremony.videoFit}
@@ -181,6 +187,18 @@ export default function Ceremonies({
                           <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                             {t('reserveNow')}
                           </Button>
+                          {isAdmin && (
+                            <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
+                                <div className='flex items-center gap-1.5'>
+                                    <Eye className="h-4 w-4" />
+                                    <span>{ceremony.viewCount || 0}</span>
+                                </div>
+                                <div className='flex items-center gap-1.5'>
+                                    <MousePointerClick className="h-4 w-4" />
+                                    <span>{ceremony.reserveClickCount || 0}</span>
+                                </div>
+                            </div>
+                           )}
                       </CardContent>
                   </Card>
                 </div>
@@ -223,7 +241,8 @@ export default function Ceremonies({
                               <Expand className="h-4 w-4" />
                           </Button>
                       </div>
-                       <VideoPlayer 
+                       <VideoPlayer
+                          ceremonyId={ceremony.id}
                           videoUrl={ceremony.mediaUrl} 
                           mediaType={ceremony.mediaType}
                           videoFit={ceremony.videoFit}

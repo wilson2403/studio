@@ -2,11 +2,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCeremonies, Ceremony, getUserProfile } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, Calendar } from 'lucide-react';
+import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, Calendar, Eye, MousePointerClick } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -96,6 +96,11 @@ export default function AllCeremoniesPage() {
     }
 
     const handleViewPlans = (ceremony: Ceremony) => {
+        if (isAdmin) {
+            incrementCeremonyReserveClick(ceremony.id);
+            setCeremonies(prev => prev.map(c => c.id === ceremony.id ? { ...c, reserveClickCount: (c.reserveClickCount || 0) + 1 } : c));
+        }
+
         if (ceremony.registerRequired && !user) {
             toast({
                 title: t('authRequiredTitle'),
@@ -208,6 +213,7 @@ export default function AllCeremoniesPage() {
                                     </div>
                                     <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
                                         <VideoPlayer 
+                                            ceremonyId={ceremony.id}
                                             videoUrl={ceremony.mediaUrl} 
                                             mediaType={ceremony.mediaType}
                                             videoFit={ceremony.videoFit}
@@ -226,6 +232,18 @@ export default function AllCeremoniesPage() {
                                             </Button>
                                         ) : (
                                             ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
+                                        )}
+                                        {isAdmin && (
+                                            <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
+                                                <div className='flex items-center gap-1.5'>
+                                                    <Eye className="h-4 w-4" />
+                                                    <span>{ceremony.viewCount || 0}</span>
+                                                </div>
+                                                <div className='flex items-center gap-1.5'>
+                                                    <MousePointerClick className="h-4 w-4" />
+                                                    <span>{ceremony.reserveClickCount || 0}</span>
+                                                </div>
+                                            </div>
                                         )}
                                     </CardContent>
                                 </Card>
