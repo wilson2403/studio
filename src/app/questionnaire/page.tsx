@@ -205,8 +205,11 @@ export default function PreparationGuidePage() {
 
   const renderRadioGroup = (name: keyof FormData, label: string) => {
       const fieldName = name as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
-      if (isCompleted || currentStep < (form.getValues().preparationStep || 0)) {
-        return renderReadOnlyAnswer(label, form.getValues(fieldName), form.getValues(fieldName.replace('has', 'details').replace('is', 'details') as keyof FormData));
+      const profile = form.getValues();
+      const isReadOnly = isCompleted || currentStep < (profile.preparationStep || 0);
+
+      if (isReadOnly) {
+        return renderReadOnlyAnswer(label, form.getValues(fieldName), form.getValues((fieldName.replace('has', 'details').replace('is', 'details') + 'Details') as keyof FormData));
       }
 
       return (
@@ -238,8 +241,10 @@ export default function PreparationGuidePage() {
   const renderDetailsField = (name: keyof FormData, conditionName: keyof FormData, label: string) => {
       const detailsFieldName = name as "medicalConditionsDetails" | "medicationDetails" | "mentalHealthDetails" | "previousExperienceDetails";
       const conditionFieldName = conditionName as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
+      const profile = form.getValues();
+      const isReadOnly = isCompleted || currentStep < (profile.preparationStep || 0);
       
-      if (form.watch(conditionFieldName) === 'yes' && !isCompleted && currentStep >= (form.getValues().preparationStep || 0)) {
+      if (form.watch(conditionFieldName) === 'yes' && !isReadOnly) {
           return (
              <FormField
                 control={form.control}
@@ -268,7 +273,10 @@ export default function PreparationGuidePage() {
       case 'hasPreviousExperience':
         return <div>{renderRadioGroup('hasPreviousExperience', t('questionnaireExperience'))}{renderDetailsField('previousExperienceDetails', 'hasPreviousExperience', t('questionnaireExperienceDetails'))}</div>;
       case 'mainIntention':
-         if (isCompleted || currentStep < (form.getValues().preparationStep || 0)) {
+        const profile = form.getValues();
+        const isReadOnly = isCompleted || currentStep < (profile.preparationStep || 0);
+
+         if (isReadOnly) {
              return renderReadOnlyAnswer(t('questionnaireIntention'), undefined, form.getValues('mainIntention'));
          }
         return <FormField control={form.control} name="mainIntention" render={({ field }) => (
@@ -421,7 +429,7 @@ export default function PreparationGuidePage() {
                              <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
                         </Button>
 
-                      {allSteps[currentStep].type === 'question' && allSteps[currentStep].id === 'mainIntention' ? (
+                      {allSteps[currentStep].type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
                           <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
                               {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
@@ -449,5 +457,3 @@ export default function PreparationGuidePage() {
     </EditableProvider>
   );
 }
-
-    
