@@ -1,153 +1,46 @@
 
 {
     "appName": "El Arte de Sanar",
-    "navHome": "Inicio",
-    "navMedicine": "Medicina",
-    "navGuides": "Guías",
-    "navAllCeremonies": "Ceremonias",
-    "navPreparation": "Preparación",
-    "navQuestionnaire": "Guía",
-    "navMyCeremonies": "Mis Ceremonias",
-    "navCourses": "Cursos",
     "signIn": "Iniciar Sesión",
     "signOut": "Cerrar Sesión",
+    "editProfile": "Editar Perfil",
+    "headerMenuTitle": "Menú",
+    "changeLanguage": "Cambiar Idioma",
+    "toggleTheme": "Cambiar Tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
     "footerText": "© {{year}} El Arte de Sanar. Todos los derechos reservados.",
+    "navHome": "Inicio",
+    "navCeremonies": "Ceremonias",
+    "navGuides": "Guías",
+    "navMedicine": "Medicina",
+    "navPreparation": "Preparación",
+    "navQuestionnaire": "Mi Proceso",
+    "navAllCeremonies": "Todas las Ceremonias",
+    "navMyCeremonies": "Mis Ceremonias",
+    "navCourses": "Cursos",
     "heroTitle": "Un Encuentro Sagrado con Medicinas Ancestrales",
     "heroSubtitle": "Descubre cómo la Ayahuasca puede transformar tu vida, brindándote claridad, sanación emocional y una renovada conexión con el universo. Únete a nosotros en esta experiencia transformadora, donde la tradición se encuentra con la guía experta para un viaje inolvidable.",
     "upcomingCeremoniesTitle": "Próximas Ceremonias",
+    "reserveNow": "Reservar Ahora",
     "pastEventsTitle": "Eventos Anteriores",
     "viewAllEvents": "Ver Todos los Eventos",
-    "reserveNow": "Reservar Ahora",
-    "ayahuascaInfoTitle": "El Camino de la Ayahuasca",
-    "whatIsAyahuascaTitle": "¿Qué es la Ayahuasca?",
-    "whatIsAyahuascaDescription": "La Ayahuasca es una medicina ancestral sagrada de la Amazonía, compuesta por dos plantas: la liana de Ayahuasca (Banisteriopsis caapi) y las hojas de Chacruna (Psychotria viridis). Juntas, crean una poderosa pócima que abre las puertas de la percepción, permitiendo una profunda sanación emocional, mental y espiritual.",
-    "howAyahuascaWorksTitle": "¿Cómo Funciona?",
-    "howAyahuascaWorksDescription": "La medicina actúa a nivel físico y energético, limpiando el cuerpo de toxinas y liberando la mente de patrones limitantes. Durante la ceremonia, los participantes pueden experimentar visiones, liberaciones emocionales y profundos entendimientos espirituales, siempre guiados en un espacio seguro y de contención.",
-    "spiritualMasterTitle": "Una Maestra Espiritual",
-    "spiritualMasterDescription": "Conocida como la 'planta maestra', la Ayahuasca nos enseña a ver más allá de lo evidente, a reconectar con nuestra esencia y a comprender nuestro propósito en la vida. Es un viaje de autoconocimiento y transformación que requiere respeto, intención y valentía.",
-    "ceremonyBenefitsTitle": "Beneficios de la Ceremonia",
-    "ayahuascaBenefitClarityTitle": "Claridad Mental y Emocional",
-    "ayahuascaBenefitClarityDescription": "Ayuda a liberar bloqueos emocionales, resolver conflictos internos y encontrar respuestas a preguntas profundas, brindando una renovada sensación de paz y claridad mental.",
-    "ayahuascaBenefitHealingTitle": "Sanación Física y Energética",
-    "ayahuascaBenefitHealingDescription": "La medicina purifica el organismo, fortalece el sistema inmunológico y revitaliza la energía, promoviendo un estado de bienestar integral.",
-    "ayahuascaBenefitConnectionTitle": "Conexión Espiritual",
-    "ayahuascaBenefitConnectionDescription": "Facilita una conexión profunda con tu ser interior, con los demás y con el universo, expandiendo la conciencia y revelando la interconexión de todas las cosas.",
-    "groupCeremonyTitle": "Ceremonia Grupal",
-    "groupCeremonyDescription": "Participa en una experiencia compartida donde la energía colectiva potencia la sanación individual. Es una oportunidad para conectar con otros en el mismo camino.",
-    "privateCeremonyTitle": "Ceremonia Privada",
-    "privateCeremonyDescription": "Para quienes buscan un proceso más íntimo y personalizado, ofrecemos ceremonias privadas adaptadas a tus necesidades e intenciones específicas.",
-    "exploreMoreTitle": "Explora Tu Camino",
+    "exploreMoreTitle": "Explora Tu Camino de Sanación",
     "exploreMedicineTitle": "La Medicina",
-    "exploreMedicineDescription": "Conoce más sobre la historia, los componentes y el uso sagrado de la Ayahuasca como herramienta de transformación.",
-    "exploreMedicineButton": "Descubre la Ayahuasca",
+    "exploreMedicineDescription": "Aprende sobre la historia, los efectos y la naturaleza sagrada de la Ayahuasca.",
+    "exploreMedicineButton": "Descubre la Medicina",
     "exploreGuidesTitle": "Nuestros Guías",
-    "exploreGuidesDescription": "Conoce a los guías experimentados que te acompañarán con respeto y sabiduría en tu viaje de sanación.",
+    "exploreGuidesDescription": "Conoce a los guías experimentados que te acompañarán en tu viaje.",
     "exploreGuidesButton": "Conoce a los Guías",
-    "preparationCtaTitle": "Tu Preparación",
-    "preparationCtaDescription": "Una preparación adecuada es clave para una experiencia profunda. Encuentra aquí recomendaciones dietéticas y mentales.",
-    "preparationCtaButton": "Prepárate para el Viaje",
+    "preparationCtaTitle": "Comienza Tu Viaje",
+    "preparationCtaDescription": "La preparación adecuada es clave. Sigue nuestra guía para prepararte.",
+    "preparationCtaButton": "Ver Guía de Preparación",
     "contactTitle": "Únete a Nuestra Comunidad",
-    "contactCommunityText": "Síguenos en nuestras redes sociales para estar al tanto de nuestras próximas ceremonias, recibir contenido inspirador y conectar con otros buscadores en el camino de la sanación.",
-    "guidesPageTitle": "Conoce a Nuestros Guías",
-    "guidesPageSubtitle": "Cada uno de nuestros guías aporta una mezcla única de sabiduría ancestral, compasión y experiencia para garantizar un viaje seguro y profundo para cada participante.",
-    "allCeremoniesTitle": "Nuestras Ceremonias",
-    "allCeremoniesSubtitle": "Explora nuestros próximos y pasados eventos. Cada ceremonia es una oportunidad única de sanación y transformación.",
-    "addCeremony": "Añadir Ceremonia",
-    "noUpcomingCeremonies": "No hay ceremonias programadas por el momento. ¡Vuelve pronto!",
-    "editCeremony": "Editar Ceremonia",
-    "editGuideTitle": "Editar Guía",
-    "editGuideDescription": "Actualiza la información de este guía.",
-    "formName": "Nombre",
-    "formDescription": "Descripción",
-    "formImage": "Imagen",
-    "formImageUrl": "URL de la Imagen",
-    "or": "O",
-    "formUploadFile": "Subir Archivo",
-    "cancel": "Cancelar",
-    "saveChanges": "Guardar Cambios",
-    "saving": "Guardando...",
-    "delete": "Eliminar",
-    "guideUpdated": "Guía actualizada correctamente.",
-    "errorUpdatingGuide": "Error al actualizar la guía.",
-    "deleteGuideConfirmTitle": "¿Estás seguro de que quieres eliminar este guía?",
-    "deleteGuideConfirmDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente al guía de la base de datos.",
-    "continue": "Continuar",
-    "guideDeleted": "Guía eliminada correctamente.",
-    "errorDeletingGuide": "Error al eliminar la guía.",
-    "mediaRequired": "Se requiere un archivo multimedia",
-    "mediaRequiredDescription": "Por favor, proporciona una URL o sube un archivo.",
-    "addCeremonyTitle": "Añadir Nueva Ceremonia",
-    "addCeremonyDescription": "Completa los detalles para crear un nuevo evento de ceremonia.",
-    "editCeremonyDescription": "Realiza cambios en los detalles de tu ceremonia a continuación.",
-    "formTitle": "Título",
-    "formPrice": "Precio",
-    "formPriceType": "Tipo de Precio",
-    "priceTypeExact": "Exacto",
-    "priceTypeFrom": "Desde",
-    "formSelectType": "Selecciona un tipo",
-    "formLink": "Enlace de WhatsApp",
-    "formMediaUrl": "URL del Medio (Imagen o Video)",
-    "formMediaType": "Tipo de Medio",
-    "formImageType": "Imagen",
-    "formVideoType": "Video",
-    "formFeatured": "Ceremonia Destacada",
-    "formRegisterRequired": "Requerir registro para ver detalles",
-    "formShowParticipantCount": "Mostrar personas inscritas",
-    "formFeatures": "Características",
-    "formAddFeature": "Añadir Característica",
-    "errorRequired": "El campo {{field}} es obligatorio.",
-    "errorInvalidUrl": "Por favor, introduce una URL válida.",
-    "errorPositiveNumber": "El campo {{field}} debe ser un número positivo.",
-    "ceremonyUpdated": "Ceremonia actualizada correctamente.",
-    "ceremonyCreated": "Ceremonia creada correctamente.",
-    "errorUpdatingCeremony": "Error al actualizar la ceremonia.",
-    "errorCreatingCeremony": "Error al crear la ceremonia.",
-    "deleteCeremonyConfirmTitle": "¿Estás seguro de que quieres eliminar esta ceremonia?",
-    "deleteCeremonyConfirmDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente la ceremonia de la base de datos.",
-    "ceremonyDeleted": "Ceremonia eliminada correctamente.",
-    "errorDeletingCeremony": "Error al eliminar la ceremonia.",
-    "duplicate": "Duplicar",
-    "ceremonyDuplicated": "Ceremonia duplicada correctamente.",
-    "errorDuplicatingCeremony": "Error al duplicar la ceremonia.",
-    "plansTitle": "Planes",
-    "planName": "Nombre del Plan",
-    "planDescription": "Descripción del Plan",
-    "planPrice": "Precio",
-    "planPriceFrom": "Precio (Desde)",
-    "planPriceUntil": "Precio (Hasta)",
-    "addPlan": "Añadir Plan",
-    "formContributionText": "Texto de Contribución",
-    "defaultContributionText": "Puedes reservar tu espacio con un 20%.",
-    "selectAPlan": "Selecciona un Plan",
-    "reserveWhatsapp": "Reservar por WhatsApp",
-    "includes": "Incluye:",
-    "featureFood": "Alimentación",
-    "featureLodging": "Hospedaje",
-    "fullPlanUpTo": "Plan completo disponible",
-    "formDate": "Fecha",
-    "formSchedule": "Horario",
-    "markAsFinished": "Marcar como Finalizada",
-    "finishCeremonyConfirmTitle": "¿Finalizar Ceremonia?",
-    "finishCeremonyConfirmDescription": "Esto moverá la ceremonia a la sección de 'Eventos Pasados'. Esta acción puede ser revertida.",
-    "ceremonyFinishedSuccess": "Ceremonia marcada como finalizada.",
-    "ceremonyMovedToPast": "Ahora aparecerá en la sección de 'Eventos Pasados'.",
-    "errorFinishingCeremony": "Error al finalizar la ceremonia.",
-    "status": "Estado",
-    "statusActive": "Activa",
-    "statusFinished": "Finalizada",
-    "statusInactive": "Inactiva",
-    "reactivateCeremony": "Reactivar Ceremonia",
-    "ceremonyReactivatedSuccess": "Ceremonia reactivada.",
-    "errorReactivatingCeremony": "Error al reactivar la ceremonia.",
-    "markAsInactive": "Marcar como Inactiva",
-    "inactivateCeremonyConfirmTitle": "¿Desactivar Ceremonia?",
-    "inactivateCeremonyConfirmDescription": "La ceremonia se ocultará de la vista pública pero podrá ser reactivada más tarde.",
-    "ceremonyInactivatedSuccess": "Ceremonia marcada como inactiva.",
-    "errorInactivatingCeremony": "Error al desactivar la ceremonia.",
+    "contactCommunityText": "Síguenos en nuestras redes sociales para mantenerte conectado, recibir actualizaciones sobre próximos eventos y ser parte de nuestra creciente comunidad de sanación. Tu viaje de transformación comienza aquí.",
     "loginWelcome": "Bienvenido de Nuevo",
-    "loginSubtext": "Inicia sesión para continuar tu viaje.",
+    "loginSubtext": "Ingresa tus credenciales para acceder a tu cuenta.",
     "loginWithGoogle": "Continuar con Google",
-    "loginContinueWith": "O CONTINUAR CON",
+    "loginContinueWith": "O CONTINÚA CON",
     "loginEmailLabel": "Correo Electrónico",
     "loginEmailPlaceholder": "nombre@ejemplo.com",
     "loginPasswordLabel": "Contraseña",
@@ -156,517 +49,399 @@
     "loginNoAccount": "¿No tienes una cuenta?",
     "loginSignUpHere": "Regístrate aquí",
     "loginSuccessTitle": "Inicio de Sesión Exitoso",
-    "loginSuccessDescription": "¡Bienvenido de nuevo!",
+    "loginSuccessDescription": "¡Bienvenido de nuevo! Has iniciado sesión.",
     "loginErrorTitle": "Error al Iniciar Sesión",
-    "googleSuccessTitle": "Sesión iniciada con Google",
-    "googleSuccessDescription": "¡Bienvenido a El Arte de Sanar!",
-    "googleErrorTitle": "Error al Iniciar con Google",
-    "errorInvalidEmail": "Por favor, introduce una dirección de correo electrónico válida.",
-    "errorMinLength": "El campo {{field}} debe tener al menos {{count}} caracteres.",
-    "registerTitle": "Crea Tu Cuenta",
-    "registerSubtext": "Únete a nuestra comunidad para comenzar tu transformación.",
+    "googleSuccessTitle": "Inicio de Sesión con Google Exitoso",
+    "googleSuccessDescription": "Has iniciado sesión exitosamente con Google.",
+    "googleErrorTitle": "Error al Iniciar Sesión con Google",
+    "registerTitle": "Crear una Cuenta",
+    "registerSubtext": "Únete a nuestra comunidad y comienza tu viaje de sanación.",
     "registerWithGoogle": "Registrarse con Google",
-    "registerContinueWith": "O REGISTRARSE CON",
-    "registerNameLabel": "Nombre Completo",
+    "registerContinueWith": "O CONTINÚA CON",
+    "registerNameLabel": "Nombre",
     "registerNamePlaceholder": "Tu Nombre",
-    "registerPhoneLabel": "Número de Teléfono (Opcional)",
+    "registerPhoneLabel": "Teléfono (Opcional)",
     "registerPhonePlaceholder": "8888-8888",
     "registerConfirmPasswordLabel": "Confirmar Contraseña",
     "registerButton": "Crear Cuenta",
     "registerHaveAccount": "¿Ya tienes una cuenta?",
     "registerLoginHere": "Inicia sesión aquí",
-    "registerSuccessTitle": "¡Cuenta Creada!",
-    "registerSuccessDescription": "Se ha enviado un correo de verificación. Por favor, revisa tu bandeja de entrada.",
+    "registerSuccessTitle": "Registro Exitoso",
+    "registerSuccessDescription": "Tu cuenta ha sido creada. Por favor, revisa tu correo electrónico para verificar tu cuenta.",
     "registerErrorTitle": "Error en el Registro",
+    "errorInvalidEmail": "Por favor, introduce una dirección de correo electrónico válida.",
+    "errorMinLength": "El campo {{field}} debe tener al menos {{count}} caracteres.",
     "errorPasswordsDontMatch": "Las contraseñas no coinciden.",
-    "errorCountryCodeRequired": "Por favor, selecciona un código de país si proporcionas un número de teléfono.",
-    "formCodePlaceholder": "Código",
-    "toggleTheme": "Cambiar tema",
-    "themeLight": "Claro",
-    "themeDark": "Oscuro",
-    "changeLanguage": "Cambiar idioma",
-    "headerMenuTitle": "Menú",
-    "editProfile": "Editar Perfil",
+    "errorCountryCodeRequired": "Por favor, selecciona un código de país si introduces un número de teléfono.",
+    "ayahuascaInfoTitle": "El Camino de la Ayahuasca",
+    "whatIsAyahuascaTitle": "¿Qué es la Ayahuasca?",
+    "whatIsAyahuascaDescription": "La Ayahuasca es una medicina ancestral sagrada del Amazonas, compuesta por dos plantas: la liana de Ayahuasca (Banisteriopsis caapi) y las hojas de Chacruna (Psychotria viridis). Juntas, crean una poderosa pócima que abre las puertas a una profunda exploración espiritual y emocional, utilizada durante siglos en rituales de sanación y autodescubrimiento.",
+    "howAyahuascaWorksTitle": "¿Cómo Funciona?",
+    "howAyahuascaWorksDescription": "La combinación de estas plantas activa el DMT en el cerebro, una molécula que nuestro cuerpo produce de forma natural. Esta activación induce estados visionarios que permiten la introspección, la liberación emocional y una conexión profunda con el subconsciente. El proceso es guiado para garantizar un entorno seguro y contenido para este viaje interior.",
+    "spiritualMasterTitle": "La Planta como Maestra Espiritual",
+    "spiritualMasterDescription": "La Ayahuasca es considerada una planta maestra que enseña, purifica y sana. Cada experiencia es única y profundamente personal, ofreciendo claridad sobre patrones de vida, heridas emocionales no resueltas y el propósito de uno. Es una herramienta de transformación que requiere respeto, intención y disposición para entregarse al proceso.",
+    "ceremonyBenefitsTitle": "Beneficios de la Ceremonia",
+    "ayahuascaBenefitClarityTitle": "Claridad y Propósito",
+    "ayahuascaBenefitClarityDescription": "Muchos encuentran respuestas a preguntas profundas y obtienen un sentido más claro de su propósito y dirección en la vida.",
+    "ayahuascaBenefitHealingTitle": "Sanación Emocional y de Traumas",
+    "ayahuascaBenefitHealingDescription": "La medicina permite acceder a recuerdos y emociones reprimidas, facilitando la sanación de traumas y bloqueos emocionales de una manera compasiva.",
+    "ayahuascaBenefitConnectionTitle": "Conexión y Expansión",
+    "ayahuascaBenefitConnectionDescription": "Experimenta una profunda sensación de conexión contigo mismo, con los demás y con el universo, expandiendo tu conciencia y percepción de la realidad.",
+    "groupCeremonyTitle": "Ceremonias Grupales",
+    "groupCeremonyDescription": "Participa en un espacio compartido donde la energía colectiva potencia la experiencia individual. Es una oportunidad para sanar en comunidad, apoyado por la fuerza del grupo y la experiencia de los guías.",
+    "privateCeremonyTitle": "Ceremonias Privadas",
+    "privateCeremonyDescription": "Para aquellos que buscan un proceso más íntimo y personalizado, ofrecemos ceremonias privadas. Este formato permite un enfoque más profundo en tus intenciones específicas, con la dedicación exclusiva de nuestros guías.",
+    "allCeremoniesTitle": "Nuestras Ceremonias",
+    "allCeremoniesSubtitle": "Encuentra el espacio perfecto para iniciar o continuar tu viaje de sanación. Cada ceremonia es una oportunidad única de transformación.",
+    "authRequiredTitle": "Registro Requerido",
+    "authRequiredDescription": "Por favor, inicia sesión en tu cuenta para reservar un lugar en esta ceremonia.",
+    "statusActive": "Activa",
+    "statusFinished": "Finalizada",
+    "statusInactive": "Inactiva",
+    "registeredCount": "{{count}} personas inscritas",
+    "guidesPageTitle": "Nuestros Guías",
+    "guidesPageSubtitle": "Nos sentimos honrados de presentar a los guías experimentados y dedicados que te acompañarán en tu viaje de sanación. Cada uno aporta una mezcla única de sabiduría, compasión y experiencia para garantizar un espacio seguro y transformador.",
+    "editGuideTitle": "Editar Guía",
+    "editGuideDescription": "Actualiza la información de este guía.",
+    "formName": "Nombre",
+    "formDescription": "Descripción",
+    "formImage": "Imagen",
+    "formImageUrl": "URL de la Imagen",
+    "or": "o",
+    "formUploadFile": "Sube un archivo",
+    "mediaRequired": "Imagen Requerida",
+    "mediaRequiredDescription": "Por favor, proporciona una URL de imagen o sube un archivo.",
+    "uploadingFile": "Subiendo archivo...",
+    "saving": "Guardando...",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "saveChanges": "Guardar Cambios",
+    "guideUpdated": "Guía actualizado correctamente.",
+    "errorUpdatingGuide": "Error al actualizar el guía.",
+    "deleteGuideConfirmTitle": "¿Estás seguro?",
+    "deleteGuideConfirmDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente al guía de la base de datos.",
+    "guideDeleted": "Guía eliminado.",
+    "errorDeletingGuide": "Error al eliminar el guía.",
+    "addCeremony": "Añadir Ceremonia",
+    "addCeremonyTitle": "Añadir Nueva Ceremonia",
+    "addCeremonyDescription": "Rellena los detalles de la nueva ceremonia.",
+    "editCeremony": "Editar Ceremonia",
+    "editCeremonyDescription": "Realiza cambios en esta ceremonia.",
+    "formTitle": "Título",
+    "formPrice": "Precio",
+    "formPriceType": "Tipo de Precio",
+    "formSelectType": "Selecciona un tipo",
+    "priceTypeExact": "Exacto",
+    "priceTypeFrom": "Desde",
+    "formContributionText": "Texto de Contribución",
+    "defaultContributionText": "Puedes reservar con el 20%",
+    "formLink": "Enlace de WhatsApp",
+    "formMediaUrl": "URL del Medio (Imagen o Video)",
+    "formOrUpload": "o sube un archivo",
+    "formMediaType": "Tipo de Medio",
+    "formImageType": "Imagen",
+    "formVideoType": "Video",
+    "formVideoFit": "Ajuste del Video",
+    "formSelectFit": "Selecciona un tipo de ajuste",
+    "videoFitCover": "Cubrir (Cover)",
+    "videoFitContain": "Contener (Contain)",
+    "formFeatures": "Características",
+    "formAddFeature": "Añadir Característica",
+    "featureFood": "Alimentación",
+    "featureLodging": "Hospedaje",
+    "plansTitle": "Planes de Precios",
+    "addPlan": "Añadir Plan",
+    "planName": "Nombre del Plan",
+    "planDescription": "Descripción del Plan",
+    "planPriceFrom": "Precio Desde",
+    "planPriceUntil": "Precio Hasta (Opcional)",
+    "formFeatured": "Ceremonia Destacada",
+    "formRegisterRequired": "Requerir que el usuario esté registrado para reservar",
+    "formShowParticipantCount": "Mostrar contador de participantes",
+    "mediaRequiredCeremony": "Medio Requerido",
+    "mediaRequiredDescriptionCeremony": "Por favor, proporciona una URL de medio o sube un archivo.",
+    "ceremonyCreated": "Ceremonia creada exitosamente.",
+    "errorCreatingCeremony": "Error al crear la ceremonia.",
+    "ceremonyUpdated": "Ceremonia actualizada exitosamente.",
+    "errorUpdatingCeremony": "Error al actualizar la ceremonia.",
+    "deleteCeremonyConfirmTitle": "¿Estás completamente seguro?",
+    "deleteCeremonyConfirmDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente la ceremonia de la base de datos.",
+    "ceremonyDeleted": "Ceremonia eliminada.",
+    "errorDeletingCeremony": "Error al eliminar la ceremonia.",
+    "duplicate": "Duplicar",
+    "ceremonyDuplicated": "Ceremonia duplicada exitosamente.",
+    "errorDuplicatingCeremony": "Error al duplicar la ceremonia.",
+    "markAsFinished": "Marcar como Finalizada",
+    "finishCeremonyConfirmTitle": "¿Finalizar Ceremonia?",
+    "finishCeremonyConfirmDescription": "Esto moverá la ceremonia a la sección de 'Eventos Pasados'. Aún podrás editarla más tarde.",
+    "ceremonyFinishedSuccess": "Ceremonia marcada como finalizada.",
+    "ceremonyMovedToPast": "Ahora aparecerá en la sección de 'Eventos Anteriores'.",
+    "errorFinishingCeremony": "Error al marcar la ceremonia como finalizada.",
+    "markAsInactive": "Marcar como Inactiva",
+    "inactivateCeremonyConfirmTitle": "¿Desactivar Ceremonia?",
+    "inactivateCeremonyConfirmDescription": "Esto ocultará la ceremonia para los usuarios no administradores. Podrás reactivarla más tarde.",
+    "ceremonyInactivatedSuccess": "Ceremonia marcada como inactiva.",
+    "errorInactivatingCeremony": "Error al desactivar la ceremonia.",
+    "reactivateCeremony": "Reactivar Ceremonia",
+    "ceremonyReactivatedSuccess": "Ceremonia reactivada exitosamente.",
+    "errorReactivatingCeremony": "Error al reactivar la ceremonia.",
+    "resetCounters": "Reiniciar Contadores",
+    "resetCountersConfirmTitle": "¿Reiniciar Contadores?",
+    "resetCountersConfirmDescription": "Esto restablecerá los contadores de vistas y clics de esta ceremonia a cero.",
+    "countersResetSuccess": "Los contadores han sido reiniciados.",
+    "countersResetError": "Error al reiniciar los contadores.",
+    "selectAPlan": "Selecciona un Plan",
+    "includes": "Incluye:",
+    "reserveWhatsapp": "Reservar por WhatsApp",
     "adminPanel": "Panel de Administración",
-    "adminPanelSubtitle": "Gestiona y personaliza tu aplicación desde aquí.",
+    "adminPanelSubtitle": "Gestiona el contenido y la configuración de tu aplicación.",
     "projectStructure": "Estructura del Proyecto",
     "systemPrompt": "Prompt del Sistema",
     "promptCopied": "¡Prompt del sistema copiado al portapapeles!",
     "promptCopyError": "Error al copiar el prompt.",
-    "formVideoFit": "Ajuste del Video",
-    "videoFitCover": "Cubrir",
-    "videoFitContain": "Contener",
-    "formOrUpload": "o sube un archivo...",
-    "uploadingFile": "Subiendo archivo...",
-    "errorInvalidFileType": "Tipo de Archivo Inválido",
-    "errorSelectVideo": "Por favor, selecciona un archivo de video.",
-    "errorNoFileOrUrl": "No se Proporcionó Archivo o URL",
-    "errorSelectVideoOrUrl": "Por favor, selecciona un archivo de video o proporciona una URL.",
-    "videoUpdatedSuccessfully": "Video actualizado correctamente.",
-    "errorUploadingVideo": "Error al subir el video.",
-    "errorUnexpected": "Ocurrió un error inesperado.",
-    "editHeroVideoTitle": "Editar Video Principal",
-    "editHeroVideoDescription": "Reemplaza el video principal de la página de inicio.",
-    "videoUrlLabel": "URL del Video",
-    "selectNewVideo": "Seleccionar nuevo video",
-    "videoFormSelected": "Seleccionado: {{fileName}}",
-    "editableSuccess": "Contenido actualizado correctamente",
-    "editableError": "Error al actualizar el contenido",
-    "save": "Guardar",
+    "userManagementTitle": "Gestión de Usuarios",
+    "userManagementSubtitle": "Visualiza y gestiona los roles y datos de los usuarios.",
+    "usersTab": "Usuarios",
+    "emailTab": "Correo Masivo",
+    "invitationTabTitle": "Mensajes de Invitación",
+    "analyticsTab": "Analíticas",
+    "allUsersTitle": "Todos los Usuarios",
+    "allUsersDescription": "Lista de todos los usuarios registrados en el sistema.",
+    "userName": "Nombre",
+    "userEmail": "Correo",
+    "userStatus": "Estado",
+    "userQuestionnaire": "Cuestionario",
+    "userAdmin": "Admin",
+    "actions": "Acciones",
+    "admin": "Admin",
+    "selectStatus": "Seleccionar estado",
+    "userStatusInteresado": "Interesado",
+    "userStatusCliente": "Cliente",
+    "userStatusPendiente": "Pendiente",
+    "roleUpdatedSuccess": "Rol de usuario actualizado correctamente.",
+    "roleUpdatedError": "Error al actualizar el rol de usuario.",
+    "statusUpdatedSuccess": "Estado de usuario actualizado correctamente.",
+    "statusUpdatedError": "Error al actualizar el estado de usuario.",
+    "editUser": "Editar",
+    "viewQuestionnaire": "Ver Cuestionario",
+    "invite": "Invitar",
+    "sendEmailTitle": "Enviar Correo Masivo",
+    "sendEmailDescription": "Redacta y envía un correo electrónico a todos los usuarios registrados.",
+    "emailSubject": "Asunto",
+    "emailSubjectPlaceholder": "Un anuncio importante",
+    "emailBody": "Cuerpo (HTML soportado)",
+    "emailBodyPlaceholder": "<h1>¡Hola a todos!</h1><p>Esta es una actualización importante...</p>",
+    "sendEmailButton": "Enviar Correo a Todos los Usuarios",
+    "sending": "Enviando...",
+    "emailsSentSuccess": "Correos Enviados",
+    "emailsSentError": "Error al Enviar Correos",
+    "invitationTabDescription": "Gestiona las plantillas de mensajes de WhatsApp utilizadas para invitar a los usuarios a rellenar el cuestionario.",
+    "templateName": "Nombre de la Plantilla",
+    "newTemplateName": "Nueva Plantilla #{{count}}",
+    "templateMessageES": "Mensaje (Español)",
+    "newTemplateMessageES": "¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: [ENLACE]",
+    "templateMessageEN": "Mensaje (Inglés)",
+    "newTemplateMessageEN": "Hello! We invite you to complete the medical questionnaire to continue with your reservation process at The Art of Healing. You can do it here: [LINK]",
+    "addTemplate": "Añadir Plantilla",
+    "deleteTemplate": "Eliminar Plantilla",
+    "messagesUpdatedSuccess": "Plantillas de mensajes actualizadas correctamente.",
+    "messagesUpdatedError": "Error al actualizar las plantillas de mensajes.",
+    "templateDeleted": "Plantilla eliminada.",
+    "errorDeletingTemplate": "Error al eliminar la plantilla.",
+    "selectInvitationTemplate": "Selecciona una Plantilla de Invitación",
+    "selectInvitationTemplateDescription": "Elige un mensaje para enviar a {{name}} por WhatsApp.",
+    "invitationSent": "WhatsApp se abrió con el mensaje precargado.",
+    "analyticsTitle": "Analíticas de Clics",
+    "analyticsDescription": "Observa qué secciones de tu sitio reciben más interacción.",
+    "sectionId": "Sección",
+    "clickCount": "Clics",
+    "noAnalyticsData": "Aún no hay datos de analíticas disponibles.",
+    "resetAnalytics": "Reiniciar Datos",
+    "resetAnalyticsConfirmTitle": "¿Reiniciar Datos de Analíticas?",
+    "resetAnalyticsConfirmDescription": "Esto eliminará permanentemente todos los datos de seguimiento de clics. Esta acción no se puede deshacer.",
+    "analyticsResetSuccess": "Los datos de analíticas han sido reiniciados.",
+    "analyticsResetError": "Error al reiniciar los datos de analíticas.",
+    "editProfileTitle": "Editar Perfil",
+    "editProfileDescription": "Actualiza tu información personal.",
+    "currentPassword": "Contraseña Actual",
+    "newPassword": "Nueva Contraseña",
+    "updateEmail": "Actualizar Correo",
+    "updatePassword": "Actualizar Contraseña",
+    "close": "Cerrar",
+    "profileUpdatedSuccess": "Perfil actualizado correctamente.",
+    "profileUpdatedError": "Error al actualizar el perfil.",
+    "emailUpdatedSuccess": "Correo actualizado correctamente.",
+    "emailUpdatedSuccessDesc": "Se ha enviado un enlace de verificación a tu nueva dirección de correo.",
+    "emailUpdatedError": "Error al actualizar el correo.",
+    "passwordUpdatedSuccess": "Contraseña actualizada correctamente.",
+    "passwordUpdatedError": "Error al actualizar la contraseña.",
+    "passwordRequired": "Se requiere la contraseña para esta acción.",
+    "error": "Error",
+    "errorFetchUsers": "No se pudo obtener la lista de usuarios.",
+    "assignCeremony": "Asignar Ceremonia",
+    "assignCeremonyTo": "Asignar Ceremonias a {{name}}",
+    "assignCeremonyDescriptionAdmin": "Selecciona las ceremonias a las que este usuario será asignado.",
+    "assignmentsUpdatedSuccess": "Asignaciones actualizadas correctamente.",
+    "errorUpdatingAssignments": "Error al actualizar las asignaciones.",
+    "noCeremoniesFound": "Aún no se han creado ceremonias.",
     "myCeremoniesTitle": "Mis Ceremonias",
-    "myCeremoniesSubtitle": "Aquí están las ceremonias a las que estás asignado. Revisa los detalles y prepárate para tu viaje.",
-    "noAssignedCeremoniesTitle": "No Hay Ceremonias Asignadas",
-    "noAssignedCeremoniesDescription": "Aún no has sido asignado a ninguna ceremonia. Explora nuestros eventos y ponte en contacto para reservar tu lugar.",
+    "myCeremoniesSubtitle": "Aquí están las ceremonias a las que estás inscrito. Prepárate para tu viaje.",
+    "noAssignedCeremoniesTitle": "Sin Ceremonias Asignadas",
+    "noAssignedCeremoniesDescription": "Actualmente no estás asignado a ninguna ceremonia. Explora nuestros próximos eventos para encontrar tu próximo viaje.",
     "exploreCeremonies": "Explorar Ceremonias",
-    "viewDetails": "Ver Detalles"
-  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-- "themeSunset": "Atardecer"
-- "themeDefault": "Predeterminado"
-- "themeCustomization": "Personalización del Tema"
-- "predefinedThemes": "Temas Predefinidos"
-- "themeUpdatedSuccess": "¡Tema actualizado!"
-- "themeUpdatedError": "Error al actualizar el tema."
-- "themeUpdateReload": "Recargando para aplicar los cambios..."
-- "themePrimaryLabel": "Primario"
-- "themePrimaryForegroundLabel": "Texto Primario"
-- "themeBackgroundLabel": "Fondo"
-- "themeForegroundLabel": "Texto"
-- "themeCardLabel": "Tarjeta"
-- "themeCardForegroundLabel": "Texto de Tarjeta"
-- "themeAccentLabel": "Acento"
-- "themeAccentForegroundLabel": "Texto de Acento"
-- "themeSecondaryLabel": "Secundario"
-- "themeMutedLabel": "Silenciado"
-- "themeDestructiveLabel": "Destructivo"
-- "themeBorderLabel": "Borde"
-- "themeInputLabel": "Entrada"
-- "themeRingLabel": "Anillo"
-- "themeTab": "Personalización del Tema"
-- "themeCustomizationDescription": "Personaliza la apariencia de tu aplicación."
-- "userManagementTitle": "Gestión de Usuarios"
-- "userManagementSubtitle": "Ver usuarios, gestionar roles y enviar comunicaciones."
-- "usersTab": "Usuarios"
-- "emailTab": "Correo Masivo"
-- "allUsersTitle": "Todos los Usuarios"
-- "allUsersDescription": "Una lista de todos los usuarios en tu sistema."
-- "userName": "Nombre"
-- "userEmail": "Correo"
-- "userStatus": "Estado"
-- "userQuestionnaire": "Cuestionario"
-- "userAdmin": "Admin"
-- "actions": "Acciones"
-- "admin": "Admin"
-- "selectStatus": "Seleccionar estado"
-- "userStatusInteresado": "Interesado"
-- "userStatusCliente": "Cliente"
-- "userStatusPendiente": "Pendiente"
-- "roleUpdatedSuccess": "Rol de usuario actualizado."
-- "roleUpdatedError": "Error al actualizar el rol de usuario."
-- "statusUpdatedSuccess": "Estado de usuario actualizado."
-- "statusUpdatedError": "Error al actualizar el estado del usuario."
-- "editUser": "Editar"
-- "viewQuestionnaire": "Ver Respuestas"
-- "invite": "Invitar"
-- "sendEmailTitle": "Enviar Correo Masivo"
-- "sendEmailDescription": "Redacta y envía un correo a todos los usuarios registrados."
-- "emailSubject": "Asunto"
-- "emailSubjectPlaceholder": "Un anuncio especial para nuestra comunidad"
-- "emailBody": "Cuerpo (HTML)"
-- "emailBodyPlaceholder": "<h1>¡Hola a todos!</h1><p>Tenemos noticias emocionantes que compartir...</p>"
-- "sendEmailButton": "Enviar Correo a Todos los Usuarios"
-- "sending": "Enviando..."
-- "emailsSentSuccess": "¡Correos enviados con éxito!"
-- "emailsSentError": "Error al enviar los correos."
-- "error": "Error"
-- "errorFetchUsers": "No se pudo obtener la lista de usuarios."
-- "editProfileTitle": "Editar Perfil"
-- "editProfileDescription": "Realiza cambios en tu perfil aquí. Haz clic en guardar cuando hayas terminado."
-- "profileUpdatedSuccess": "Perfil actualizado con éxito."
-- "profileUpdatedError": "Error al actualizar el perfil."
-- "close": "Cerrar"
-- "currentPassword": "Contraseña Actual"
-- "newPassword": "Nueva Contraseña"
-- "updateEmail": "Actualizar Correo"
-- "updatePassword": "Actualizar Contraseña"
-- "emailUpdatedSuccess": "Correo actualizado con éxito."
-- "emailUpdatedSuccessDesc": "Por favor, revisa tu nueva dirección de correo para un enlace de verificación."
-- "emailUpdatedError": "Error al actualizar el correo."
-- "passwordUpdatedSuccess": "Contraseña actualizada con éxito."
-- "passwordUpdatedError": "Error al actualizar la contraseña."
-- "passwordRequired": "Se requiere la contraseña para confirmar."
-- "authRequiredJourneyTitle": "Tu Viaje Comienza Aquí"
-- "authRequiredJourneyDescription": "Por favor, inicia sesión o crea una cuenta para acceder a la guía de preparación."
-- "authRequiredCeremoniesDescription": "Por favor, inicia sesión o crea una cuenta para ver nuestras ceremonias.",
-"preparationGuideTitle": "Preparación para el Viaje",
-"preparationGuideSubtitle": "Sigue estos pasos para preparar tu cuerpo, mente y espíritu para la ceremonia.",
-"previous": "Anterior",
-"saveAndContinue": "Guardar y Continuar",
-"preparationCompleteTitle": "¡Estás Listo/a!",
-"preparationCompleteDescription": "Has completado todos los pasos de la preparación. Estamos emocionados de compartir este espacio sagrado contigo. Si tienes alguna pregunta, no dudes en contactarnos.",
-"backToHome": "Volver al Inicio",
-"viewMyAnswers": "Ver Mis Respuestas",
-"questionnaireErrorTitle": "Error al Guardar",
-"questionnaireErrorDescription": "Hubo un problema al guardar tus respuestas. Por favor, inténtalo de nuevo.",
-"authRequiredTitle": "Autenticación Requerida",
-"authRequiredDescription": "Debes iniciar sesión para realizar esta acción.",
-"myQuestionnaireAnswers": "Mis Respuestas del Cuestionario",
-"myQuestionnaireAnswersDescription": "Un resumen de las respuestas que proporcionaste en el cuestionario médico.",
-"noAnswersSubmitted": "Aún no se han enviado respuestas.",
-"questionnaireResponsesFor": "Respuestas del Cuestionario de {{name}}",
-"questionnaireResponsesDescription": "Estas son las respuestas proporcionadas por el usuario.",
-"noDetailsProvided": "No se proporcionaron detalles.",
-"questionnaireMedicalConditions": "¿Tienes alguna condición médica significativa? (ej. problemas cardíacos, presión alta, epilepsia)",
-"questionnaireMedicalConditionsDetails": "Si es sí, por favor proporciona detalles.",
-"questionnaireMedication": "¿Estás tomando actualmente algún medicamento, especialmente antidepresivos o ansiolíticos?",
-"questionnaireMedicationDetails": "Si es sí, por favor enuméralos.",
-"questionnaireMentalHealth": "¿Tienes antecedentes personales o familiares de condiciones de salud mental? (ej. esquizofrenia, trastorno bipolar, psicosis)",
-"questionnaireMentalHealthDetails": "Si es sí, por favor proporciona detalles.",
-"questionnaireExperience": "¿Has tenido experiencias previas con Ayahuasca u otras sustancias psicoactivas?",
-"questionnaireExperienceDetails": "Si es sí, por favor describe brevemente tu experiencia.",
-"questionnaireIntention": "¿Cuál es tu principal intención para participar en esta ceremonia?",
-"questionnaireIntentionPlaceholder": "Describe qué esperas sanar, comprender o lograr...",
-"errorRequiredSimple": "Este campo es obligatorio.",
-"errorRequiredDetails": "Por favor, proporciona detalles si respondiste 'sí'.",
-"yes": "Sí",
-"no": "No",
-"preparationGuideFullSubtitle": "Sigue nuestra guía completa para preparar tu cuerpo, mente y espíritu para una experiencia profunda y segura.",
-"preparationProcessTitle": "El Proceso de Sanación",
-"preparationProcessDescription": "Entiende las etapas de tu viaje, desde la preparación hasta la integración.",
-"ceremonyProcessTitle": "La Ceremonia",
-"ceremonyProcessDescription": "Un ritual sagrado guiado por expertos para facilitar tu conexión interior.",
-"experienceProcessTitle": "La Experiencia",
-"experienceProcessDescription": "Navega por tu mundo interior para encontrar claridad, sanación y liberación.",
-"integrationProcessTitle": "La Integración",
-"integrationProcessDescription": "Herramientas y apoyo para incorporar las lecciones aprendidas en tu vida diaria.",
-"dietTitle": "Dieta Preparatoria",
-"dietSubtitle": "Durante al menos una semana antes de la ceremonia, recomendamos una dieta limpia y ligera.",
-"allowedFoodsTitle": "Alimentos Permitidos",
-"allowedFoodsList": "Frutas y verduras frescas, granos integrales (arroz, quinoa), legumbres, carnes magras (pollo, pescado), abundante agua.",
-"prohibitedFoodsTitle": "Alimentos a Evitar",
-"prohibitedFoodsList": "Carne roja, cerdo, alimentos fermentados, picantes o muy salados, lácteos, azúcar y cafeína.",
-"mentalPrepTitle": "Preparación Mental y Espiritual",
-"mentalPrepSubtitle": "Cultiva un estado de paz y apertura para recibir la medicina.",
-"meditationTitle": "Meditación",
-"meditationDescription": "Practica la meditación diaria para calmar la mente y conectar con tu ser interior.",
-"intentionsTitle": "Intenciones",
-"intentionsDescription": "Reflexiona sobre tus intenciones. ¿Qué buscas? ¿Qué quieres sanar?",
-"reflectionTitle": "Reflexión",
-"reflectionDescription": "Lleva un diario para anotar tus pensamientos, miedos y esperanzas antes de la ceremonia.",
-"emotionalHealingTitle": "Sanación Emocional y Espiritual",
-"emotionalHealingDescription": "La Ayahuasca es una poderosa herramienta para la liberación emocional. Permite acceder a partes profundas de tu subconsciente para sanar viejas heridas, liberar traumas y encontrar un estado de paz interior y aceptación. Es un camino hacia el amor propio y la reconciliación con tu propia historia.",
-"whatToBringTitle": "Qué Traer a la Ceremonia",
-"whatToBringSubtitle": "Prepara estos elementos para asegurar una experiencia cómoda y enfocada.",
-"comfortItemsTitle": "Artículos de Comodidad",
-"comfortItemsList": "Ropa cómoda y holgada (preferiblemente de colores claros), una manta o saco de dormir, una almohada o cojín, una botella de agua.",
-"essentialsTitle": "Esenciales Personales",
-"essentialsList": "Un cuaderno y bolígrafo para anotar tus reflexiones, una linterna (con luz roja si es posible), artículos de higiene personal.",
-"errorLogsTitle": "Registros de Errores",
-"errorLogsSubtitle": "Revisa y gestiona los errores del sistema.",
-"systemLogs": "Registros del Sistema",
-"systemLogsDescription": "Una lista de los errores capturados por el sistema.",
-"logTimestamp": "Fecha y Hora",
-"logMessage": "Mensaje",
-"logStatus": "Estado",
-"logStatusNew": "Nuevo",
-"logStatusFixed": "Solucionado",
-"viewDetails": "Ver Detalles",
-"markAsFixed": "Marcar como Solucionado",
-"deleteLogConfirmTitle": "¿Eliminar Registro?",
-"deleteLogConfirmDescription": "¿Estás seguro de que quieres eliminar permanentemente este registro de error?",
-"errorFetchLogs": "Error al obtener los registros de errores.",
-"logStatusUpdated": "Estado del registro actualizado.",
-"errorUpdatingLog": "Error al actualizar el estado del registro.",
-"logDeleted": "Registro eliminado.",
-"errorDeletingLog": "Error al eliminar el registro.",
-"logDetails": "Detalles del Registro",
-"logDetailsDescription": "Información detallada sobre el error capturado.",
-"logStack": "Stack Trace",
-"logContext": "Contexto",
-"fixWithAI": "Intentar Solucionar con IA",
-"featureComingSoon": "Esta función estará disponible próximamente.",
-"chatHistoryTitle": "Historial de Chats",
-"chatHistorySubtitle": "Revisa las conversaciones pasadas con el guía espiritual.",
-"allConversationsTitle": "Todas las Conversaciones",
-"allConversationsDescription": "Un registro de cada interacción que los usuarios han tenido.",
-"anonymousUser": "Usuario Anónimo",
-"noConversationsFound": "No se han registrado conversaciones todavía.",
-"spiritualGuide": "Guía Espiritual",
-"online": "En línea",
-"typeYourMessage": "Escribe tu mensaje...",
-"chatbotWelcome": "Bienvenido. Soy el guía espiritual de 'El Arte de Sanar'. ¿Cómo puedo ayudarte en tu camino hoy?",
-"chatbotError": "Lo siento, estoy teniendo problemas para conectarme en este momento. Por favor, inténtalo de nuevo en un momento.",
-"backupTitle": "Copia de Seguridad y Restauración",
-"backupSubtitle": "Gestiona los datos de tu aplicación.",
-"exportDataTitle": "Exportar Datos",
-"exportDataDescription": "Descarga una copia de seguridad completa de tus datos de Firestore como un archivo JSON.",
-"exportButton": "Exportar Todos los Datos",
-"exporting": "Exportando...",
-"importDataTitle": "Importar Datos",
-"importDataDescription": "Restaura los datos desde un archivo JSON. Esto sobrescribirá los datos existentes.",
-"selectFileButton": "Seleccionar un archivo .json...",
-"importButton": "Importar Datos",
-"importing": "Importando...",
-"importWarningTitle": "¿Estás absolutamente seguro?",
-"importWarningDescription": "Esta acción es destructiva. Sobrescribirá todos los datos actuales en la base de datos con los datos del archivo seleccionado. Esto no se puede deshacer.",
-"exportSuccessTitle": "Exportación Exitosa",
-"exportErrorTitle": "Error en la Exportación",
-"importSuccessTitle": "Importación Exitosa",
-"importSuccessDescription": "Los datos han sido restaurados desde el archivo de copia de seguridad.",
-"importErrorTitle": "Error en la Importación",
-"rollbackCardTitle": "Deshacer Importación",
-"rollbackCardDescription": "Se creó una copia de seguridad automática de los datos antes de la última importación. Puedes usarla para deshacer los cambios si algo salió mal.",
-"rollbackButton": "Volver al Estado Anterior",
-"rollingBack": "Revirtiendo...",
-"rollbackWarningTitle": "Confirmar Reversión",
-"rollbackWarningDescription": "Esto restaurará la base de datos al estado en que se encontraba antes de tu última importación. ¿Estás seguro de que quieres proceder?",
-"rollbackSuccessTitle": "Reversión Exitosa",
-"rollbackSuccessDescription": "La base de datos ha sido restaurada a su estado anterior.",
-"rollbackErrorTitle": "Error en la Reversión",
-"invitationTabTitle": "Mensajes de Invitación",
-"invitationTabDescription": "Gestiona las plantillas de WhatsApp utilizadas para invitar a los usuarios a completar el cuestionario.",
-"templateName": "Nombre de la Plantilla",
-"templateMessageES": "Mensaje (Español)",
-"templateMessageEN": "Mensaje (Inglés)",
-"newTemplateName": "Nueva Plantilla {{count}}",
-"newTemplateMessageES": "¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: https://artedesanar.vercel.app/artedesanar",
-"newTemplateMessageEN": "Hello! We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar. You can do it here: https://artedesanar.vercel.app/artedesanar",
-"addTemplate": "Añadir Plantilla",
-"deleteTemplate": "Eliminar Plantilla",
-"templateDeleted": "Plantilla eliminada.",
-"errorDeletingTemplate": "Error al eliminar la plantilla.",
-"messagesUpdatedSuccess": "Mensajes actualizados correctamente.",
-"messagesUpdatedError": "Error al actualizar los mensajes.",
-"selectInvitationTemplate": "Seleccionar Plantilla de Invitación",
-"selectInvitationTemplateDescription": "Elige un mensaje para enviar a {{name}}.",
-"invitationSent": "WhatsApp se abrió con el mensaje prellenado.",
-"defaultInvitationName": "Invitación Predeterminada",
-"assignCeremony": "Asignar Ceremonia",
-"assignCeremonyTo": "Asignar Ceremonias a {{name}}",
-"assignCeremonyDescriptionAdmin": "Selecciona las ceremonias a las que este usuario debe ser asignado.",
-"noCeremoniesFound": "No se encontraron ceremonias.",
-"assignmentsUpdatedSuccess": "Asignaciones de usuario actualizadas.",
-"errorUpdatingAssignments": "Error al actualizar las asignaciones.",
-"registeredCount": "{{count}} inscritos",
-"analyticsTab": "Analíticas",
-"analyticsTitle": "Analíticas del Sitio",
-"analyticsDescription": "Rastrea la interacción del usuario en diferentes secciones del sitio.",
-"sectionId": "Sección",
-"clickCount": "Clics",
-"noAnalyticsData": "Aún no hay datos de analíticas disponibles.",
-"resetAnalytics": "Reiniciar Datos de Analíticas",
-"resetAnalyticsConfirmTitle": "¿Reiniciar Analíticas?",
-"resetAnalyticsConfirmDescription": "Esto eliminará permanentemente todos los datos de seguimiento de clics. Esta acción no se puede deshacer.",
-"analyticsResetSuccess": "Los datos de analíticas han sido reiniciados.",
-"analyticsResetError": "Error al reiniciar los datos de analíticas.",
-"resetCounters": "Reiniciar Contadores",
-"resetCountersConfirmTitle": "¿Reiniciar Contadores de Ceremonia?",
-"resetCountersConfirmDescription": "Esto reiniciará a cero los contadores de vistas, clics en reservar y clics en WhatsApp para esta ceremonia.",
-"countersResetSuccess": "Los contadores han sido reiniciados.",
-"countersResetError": "Error al reiniciar los contadores.",
-"coursesTitle": "Cursos",
-"coursesSubtitle": "Profundiza tus conocimientos y prepara tu espíritu con nuestra colección de videos seleccionados.",
-"authRequiredCoursesTitle": "Accede a Contenido Exclusivo",
-"authRequiredCoursesDescription": "Inicia sesión o crea una cuenta para acceder a nuestros cursos y seguir tu progreso.",
-"requiredCourses": "Preparación Requerida",
-"optionalCourses": "Contenido Opcional",
-"markAsCompleted": "Marcar como Completado",
-"addCourse": "Añadir Curso",
-"editCourse": "Editar Curso",
-"viewUserCoursesTitle": "Progreso del Curso de {{name}}",
-"viewUserCoursesProgress": "{{completed}} de {{total}} cursos completados.",
-"noCoursesAvailable": "No hay cursos disponibles en este momento.",
-"viewCourses": "Ver Cursos",
-"courseUpdated": "Curso actualizado con éxito.",
-"courseAdded": "Curso añadido con éxito.",
-"courseDeleted": "Curso eliminado con éxito.",
-"errorSavingCourse": "Error al guardar el curso."
+    "viewDetails": "Ver Detalles",
+    "questionnaireResponsesFor": "Respuestas del Cuestionario de {{name}}",
+    "questionnaireResponsesDescription": "Revisa las respuestas enviadas por el usuario.",
+    "noAnswersSubmitted": "Este usuario aún no ha enviado respuestas al cuestionario.",
+    "questionnaireMedicalConditions": "¿Tienes alguna condición médica significativa (cardíaca, respiratoria, etc.)?",
+    "questionnaireMedication": "¿Estás tomando actualmente algún medicamento (incluidos antidepresivos o suplementos)?",
+    "questionnaireMentalHealth": "¿Tienes antecedentes de condiciones de salud mental (ej. esquizofrenia, trastorno bipolar)?",
+    "questionnaireExperience": "¿Tienes experiencia previa con Ayahuasca u otras sustancias psicoactivas?",
+    "questionnaireIntention": "¿Cuál es tu principal intención para participar en esta ceremonia?",
+    "noDetailsProvided": "No se proporcionaron detalles.",
+    "yes": "Sí",
+    "no": "No",
+    "errorRequiredSimple": "Este campo es obligatorio.",
+    "errorRequiredDetails": "Por favor, proporciona detalles si respondiste 'Sí'.",
+    "questionnaireIntentionPlaceholder": "Describe lo que esperas sanar, entender o lograr...",
+    "preparationGuideTitle": "Tu Viaje de Preparación",
+    "preparationGuideSubtitle": "Sigue estos pasos para preparar tu cuerpo, mente y espíritu para la ceremonia.",
+    "previous": "Anterior",
+    "saveAndContinue": "Guardar y Continuar",
+    "backToHome": "Volver al Inicio",
+    "viewPreparationGuide": "Ver Guía Completa",
+    "viewMyAnswers": "Ver Mis Respuestas",
+    "preparationCompleteTitle": "¡Preparación Completa!",
+    "preparationCompleteDescription": "Has completado todos los pasos. Estás listo para la siguiente fase de tu viaje. Te contactaremos pronto con más detalles.",
+    "preparationProcessTitle": "Los 4 Pilares del Proceso",
+    "preparationProcessDescription": "Nuestro proceso se divide en cuatro etapas clave para asegurar una experiencia profunda y duradera.",
+    "ceremonyProcessTitle": "La Ceremonia",
+    "ceremonyProcessDescription": "La experiencia central donde conectas con la medicina en un entorno seguro y sagrado.",
+    "experienceProcessTitle": "La Vivencia",
+    "experienceProcessDescription": "El viaje interior de visiones, emociones y autodescubrimiento guiado por la planta.",
+    "integrationProcessTitle": "La Integración",
+    "integrationProcessDescription": "El proceso crucial de aplicar las lecciones aprendidas en tu vida diaria para un cambio duradero.",
+    "dietTitle": "Preparación Nutricional: La Dieta",
+    "dietSubtitle": "Durante al menos una semana antes de la ceremonia, recomendamos una dieta limpia para preparar tu cuerpo.",
+    "allowedFoodsTitle": "Alimentos Permitidos",
+    "allowedFoodsList": "Frutas y verduras frescas, granos integrales (arroz, quinoa), legumbres, carnes magras (pollo, pescado) y mucha agua.",
+    "prohibitedFoodsTitle": "Alimentos a Evitar",
+    "prohibitedFoodsList": "Carne roja, cerdo, alimentos fermentados, picantes o muy salados, lácteos, azúcar y cafeína. Evitar alcohol y drogas recreativas.",
+    "mentalPrepTitle": "Preparación Mental y Espiritual",
+    "mentalPrepSubtitle": "Cultiva un estado de calma y apertura para recibir las enseñanzas de la medicina.",
+    "meditationTitle": "Meditación",
+    "meditationDescription": "Practica la meditación diaria para calmar la mente y conectar con tu interior.",
+    "intentionsTitle": "Establece Intenciones",
+    "intentionsDescription": "Reflexiona sobre lo que deseas sanar o comprender. Anota tus intenciones.",
+    "reflectionTitle": "Diario Personal",
+    "reflectionDescription": "Escribe sobre tus miedos, esperanzas y expectativas antes de la ceremonia.",
+    "emotionalHealingTitle": "Apertura a la Sanación Emocional",
+    "emotionalHealingDescription": "La ceremonia puede traer a la superficie emociones profundas. La clave es no resistirse. Permítete sentir, llorar, reír y liberar lo que surja. Nuestros guías estarán allí para apoyarte. Confía en el proceso y en la sabiduría de la medicina para mostrarte lo que necesitas sanar.",
+    "whatToBringTitle": "Qué Traer a la Ceremonia",
+    "whatToBringSubtitle": "Para asegurar tu comodidad y una buena experiencia, te recomendamos traer lo siguiente:",
+    "comfortItemsTitle": "Para tu Comodidad",
+    "comfortItemsList": "Ropa cómoda y holgada (preferiblemente de colores claros), una manta o saco de dormir abrigado, una almohada o cojín y una botella de agua.",
+    "essentialsTitle": "Esenciales Personales",
+    "essentialsList": "Un cuaderno y bolígrafo para escribir, una linterna (con luz roja si es posible), artículos de higiene personal y un corazón abierto.",
+    "authRequiredJourneyTitle": "Tu Viaje te Espera",
+    "authRequiredJourneyDescription": "Inicia sesión o crea una cuenta para comenzar tu preparación y acceder a contenido exclusivo.",
+    "authRequiredCeremoniesDescription": "Inicia sesión o crea una cuenta para ver y reservar nuestras ceremonias sagradas.",
+    "authRequiredCoursesDescription": "Inicia sesión o crea una cuenta para acceder a nuestra biblioteca de cursos de preparación e integración.",
+    "myQuestionnaireAnswers": "Mis Respuestas del Cuestionario",
+    "myQuestionnaireAnswersDescription": "Esta es una copia de las respuestas que enviaste para tu preparación.",
+    "questionnaireErrorTitle": "Error al Guardar",
+    "questionnaireErrorDescription": "Hubo un problema al guardar tus respuestas. Por favor, inténtalo de nuevo.",
+    "preparationGuideFullSubtitle": "Tu viaje de transformación requiere una preparación consciente del cuerpo, la mente y el espíritu. Esta guía te acompañará en cada paso.",
+    "preparationPageTitle": "Preparación para la Ceremonia",
+    "backupTitle": "Copia de Seguridad y Restauración",
+    "backupSubtitle": "Gestiona los datos de tu aplicación exportándolos o importándolos.",
+    "exportDataTitle": "Exportar Datos",
+    "exportDataDescription": "Descarga un archivo JSON con todos los datos de tu sitio (ceremonias, guías, contenido, etc.).",
+    "exporting": "Exportando...",
+    "exportButton": "Exportar Todos los Datos",
+    "exportSuccessTitle": "¡Exportación exitosa!",
+    "exportErrorTitle": "¡Error en la exportación!",
+    "importDataTitle": "Importar Datos",
+    "importDataDescription": "Importa datos desde un archivo JSON previamente exportado. Esto sobrescribirá los datos existentes.",
+    "selectFileButton": "Selecciona un archivo JSON...",
+    "importing": "Importando...",
+    "importButton": "Importar Datos",
+    "importSuccessTitle": "¡Importación exitosa!",
+    "importSuccessDescription": "Los datos han sido importados y aplicados.",
+    "importErrorTitle": "¡Error en la importación!",
+    "importWarningTitle": "¿Estás completamente seguro?",
+    "importWarningDescription": "Esta acción sobrescribirá todos los datos actuales de la aplicación con los datos del archivo seleccionado. Esto no se puede deshacer.",
+    "rollbackCardTitle": "Deshacer Última Importación",
+    "rollbackCardDescription": "Se creó una copia de seguridad automática antes de tu última importación. Puedes restaurarla si la importación causó problemas.",
+    "rollingBack": "Restaurando...",
+    "rollbackButton": "Volver al Estado Anterior",
+    "rollbackSuccessTitle": "¡Restauración exitosa!",
+    "rollbackSuccessDescription": "Los datos han sido restaurados al estado anterior a la última importación.",
+    "rollbackErrorTitle": "¡Error en la restauración!",
+    "rollbackWarningTitle": "Confirmar Restauración",
+    "rollbackWarningDescription": "¿Estás seguro de que deseas restaurar los datos de antes de la última importación? Todos los cambios realizados desde entonces se perderán.",
+    "chatHistoryTitle": "Historial de Chats",
+    "chatHistorySubtitle": "Revisa las conversaciones entre los usuarios y el Guía Espiritual de IA.",
+    "allConversationsTitle": "Todas las Conversaciones",
+    "allConversationsDescription": "Navega por el historial completo de los chats de los usuarios.",
+    "anonymousUser": "Usuario Anónimo",
+    "noConversationsFound": "Aún no se han registrado conversaciones.",
+    "spiritualGuide": "Guía Espiritual",
+    "online": "En línea",
+    "typeYourMessage": "Escribe tu mensaje...",
+    "chatbotWelcome": "Saludos, soy el Guía Espiritual de 'El Arte de Sanar'. ¿Cómo puedo asistirte en tu camino hoy?",
+    "chatbotError": "Lo siento, estoy teniendo problemas para conectarme en este momento. Por favor, inténtalo de nuevo en un momento.",
+    "errorLogsTitle": "Registros de Errores del Sistema",
+    "errorLogsSubtitle": "Supervisa y gestiona los errores del sistema reportados por la aplicación.",
+    "systemLogs": "Registros del Sistema",
+    "systemLogsDescription": "Una lista de todos los errores capturados. Revísalos para identificar y solucionar problemas.",
+    "logTimestamp": "Fecha y Hora",
+    "logMessage": "Mensaje",
+    "logStatus": "Estado",
+    "logStatusFixed": "Solucionado",
+    "logStatusNew": "Nuevo",
+    "viewDetails": "Ver Detalles",
+    "markAsFixed": "Marcar como Solucionado",
+    "deleteLogConfirmTitle": "¿Eliminar Registro?",
+    "deleteLogConfirmDescription": "¿Estás seguro de que deseas eliminar permanentemente este registro de error?",
+    "logDetails": "Detalles del Registro",
+    "logDetailsDescription": "Información detallada sobre el error capturado.",
+    "logStack": "Stack Trace",
+    "logContext": "Contexto",
+    "fixWithAI": "Intentar Solucionar con IA",
+    "featureComingSoon": "¡Función próximamente!",
+    "close": "Cerrar",
+    "errorFetchLogs": "Error al obtener los registros de errores.",
+    "logStatusUpdated": "Estado del registro actualizado.",
+    "errorUpdatingLog": "Error al actualizar el estado del registro.",
+    "logDeleted": "Registro eliminado.",
+    "errorDeletingLog": "Error al eliminar el registro.",
+    "coursesTitle": "Cursos de Aprendizaje",
+    "coursesSubtitle": "Profundiza tus conocimientos y prepárate para tu integración con nuestra videoteca.",
+    "addCourse": "Añadir Curso",
+    "editCourse": "Editar Curso",
+    "deleteCourse": "Eliminar Curso",
+    "courseUpdated": "Curso actualizado correctamente.",
+    "errorUpdatingCourse": "Error al actualizar el curso.",
+    "courseCreated": "Curso creado correctamente.",
+    "errorCreatingCourse": "Error al crear el curso.",
+    "deleteCourseConfirmTitle": "¿Eliminar Curso?",
+    "deleteCourseConfirmDescription": "Esto eliminará permanentemente este curso. Esta acción no se puede deshacer.",
+    "courseDeleted": "Curso eliminado.",
+    "errorDeletingCourse": "Error al eliminar el curso.",
+    "formVideoUrl": "URL del Video (YouTube, TikTok, etc.)",
+    "formCategory": "Categoría",
+    "formCategoryRequired": "Requerido",
+    "formCategoryOptional": "Opcional",
+    "requiredCourses": "Cursos Requeridos",
+    "optionalCourses": "Cursos Opcionales",
+    "markAsSeen": "Marcar como visto",
+    "noCoursesAvailable": "No hay cursos disponibles en este momento.",
+    "viewUserCoursesTitle": "Progreso de Cursos de {{name}}",
+    "viewUserCoursesProgress": "Completados {{completed}} de {{total}} cursos.",
+    "viewCourses": "Ver Cursos",
+    "notFoundTitle": "Página No Encontrada",
+    "notFoundDescription": "¡Vaya! La página que buscas no existe.",
+    "goHome": "Ir al Inicio"
 }
