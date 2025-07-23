@@ -156,7 +156,7 @@ export default function AdminUsersPage() {
             await updateUserStatus(uid, status);
             setUsers(users.map(u => u.uid === uid ? { ...u, status } : u));
             toast({ title: t('statusUpdatedSuccess') });
-        } catch (error) {
+        } catch (error) => {
             toast({ title: t('statusUpdatedError'), variant: 'destructive' });
         }
     };
@@ -272,11 +272,10 @@ export default function AdminUsersPage() {
             </div>
 
             <Tabs defaultValue="users" className="w-full">
-                <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 h-auto md:h-10">
+                <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto md:h-10">
                     <TabsTrigger value="users"><Users className="mr-2 h-4 w-4" />{t('usersTab')}</TabsTrigger>
                     <TabsTrigger value="email"><Mail className="mr-2 h-4 w-4" />{t('emailTab')}</TabsTrigger>
                     <TabsTrigger value="invitation"><MessageSquare className="mr-2 h-4 w-4"/>{t('invitationTabTitle')}</TabsTrigger>
-                    <TabsTrigger value="analytics"><BarChart3 className="mr-2 h-4 w-4"/>{t('analyticsTab')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="users">
                     <Card className="bg-card/50 backdrop-blur-sm">
@@ -484,60 +483,6 @@ export default function AdminUsersPage() {
                                         </div>
                                     </form>
                                 </Form>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                <TabsContent value="analytics">
-                    <Card className="bg-card/50 backdrop-blur-sm">
-                        <CardHeader className='flex-row items-center justify-between'>
-                           <div>
-                                <CardTitle>{t('analyticsTitle')}</CardTitle>
-                                <CardDescription>{t('analyticsDescription')}</CardDescription>
-                           </div>
-                           <AlertDialog>
-                               <AlertDialogTrigger asChild>
-                                    <Button variant="destructive">
-                                        <History className='mr-2 h-4 w-4' />
-                                        {t('resetAnalytics')}
-                                    </Button>
-                               </AlertDialogTrigger>
-                               <AlertDialogContent>
-                                   <AlertDialogHeader>
-                                       <AlertDialogTitle>{t('resetAnalyticsConfirmTitle')}</AlertDialogTitle>
-                                       <AlertDialogDescription>{t('resetAnalyticsConfirmDescription')}</AlertDialogDescription>
-                                   </AlertDialogHeader>
-                                   <AlertDialogFooter>
-                                       <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                       <AlertDialogAction onClick={handleResetAnalytics}>{t('continue')}</AlertDialogAction>
-                                   </AlertDialogFooter>
-                               </AlertDialogContent>
-                           </AlertDialog>
-                        </CardHeader>
-                        <CardContent>
-                            {loadingAnalytics ? (
-                                <div className="space-y-4">
-                                    <Skeleton className="h-10 w-full" />
-                                    <Skeleton className="h-10 w-full" />
-                                    <Skeleton className="h-10 w-full" />
-                                </div>
-                            ) : (
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>{t('analyticsSection')}</TableHead>
-                                            <TableHead className="text-right">{t('analyticsClicks')}</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {analytics.map((item) => (
-                                            <TableRow key={item.sectionId}>
-                                                <TableCell className="font-medium capitalize">{item.sectionId}</TableCell>
-                                                <TableCell className="text-right">{item.clickCount}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
                             )}
                         </CardContent>
                     </Card>

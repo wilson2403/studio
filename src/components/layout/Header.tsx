@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -62,8 +62,11 @@ export default function Header() {
 
   const adminNavLinks = [
       { href: '/admin', label: t('adminPanel'), icon: ShieldCheck },
+      { href: '/admin/users', label: t('usersTab'), icon: UserIcon },
       { href: '/admin/theme', label: t('themeTab'), icon: Palette },
-      { href: '/admin/backup', label: t('backupTab'), icon: History }
+      { href: '/admin/backup', label: t('backupTab'), icon: History },
+      { href: '/admin/chat', label: t('chatHistory'), icon: MessageSquare },
+      { href: '/admin/logs', label: t('errorLogs'), icon: Terminal }
   ];
 
   useEffect(() => {
@@ -282,6 +285,7 @@ export default function Header() {
                     )}
                     {isAdmin && (
                       <>
+                        <DropdownMenuSeparator />
                         {adminNavLinks.map((link) => (
                             <SheetClose asChild key={link.href}>
                                 <Link href={link.href} className="transition-colors hover:text-primary flex items-center gap-2 w-full">
@@ -291,9 +295,9 @@ export default function Header() {
                                 </Link>
                             </SheetClose>
                         ))}
+                        <DropdownMenuSeparator />
                       </>
                     )}
-                    <DropdownMenuSeparator />
                     {navLinks.map((link) => (
                       <SheetClose asChild key={link.href}>
                         <Link
