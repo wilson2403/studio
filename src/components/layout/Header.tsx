@@ -268,13 +268,11 @@ export default function Header() {
                     {isAdmin && (
                       <>
                         <SheetClose asChild>
-                            <div className="w-full">
-                                <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2">
-                                    <ShieldCheck className="h-5 w-5" />
-                                    <span>{t('admin')}</span>
-                                    <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
-                                </Link>
-                            </div>
+                            <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2 w-full">
+                                <ShieldCheck className="h-5 w-5" />
+                                <span>{t('admin')}</span>
+                                <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
+                            </Link>
                         </SheetClose>
                         <SheetClose asChild>
                           <Link href="/admin/users" className="transition-colors hover:text-primary flex items-center gap-2">
