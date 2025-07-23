@@ -134,22 +134,6 @@ export default function Header() {
                   <span>{t('admin')}</span>
                   <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/admin/users')}>
-                  <Users className="mr-2 h-4 w-4" />
-                  <span>{t('userManagement')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/admin/chat')}>
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  <span>{t('chatHistory')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/admin/logs')}>
-                  <Terminal className="mr-2 h-4 w-4" />
-                  <span>{t('errorLogs')}</span>
-                </DropdownMenuItem>
-                 <DropdownMenuItem onClick={() => router.push('/admin/backup')}>
-                  <History className="mr-2 h-4 w-4" />
-                  <span>{t('backup')}</span>
-                </DropdownMenuItem>
               </>
             )}
             <DropdownMenuSeparator />
@@ -254,6 +238,29 @@ export default function Header() {
               <SheetContent side="right">
                 <SheetHeader>
                   <SheetTitle className="sr-only">{t('headerMenuTitle')}</SheetTitle>
+                   {user && (
+                    <div className="flex items-center gap-4 border-b pb-4">
+                       <Avatar className="h-12 w-12">
+                          <AvatarImage
+                            src={user.photoURL || undefined}
+                            alt={user.displayName || 'Avatar'}
+                          />
+                          <AvatarFallback>
+                            {user.displayName
+                              ? user.displayName.charAt(0).toUpperCase()
+                              : user.email?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-md font-medium leading-none">
+                            {user.displayName}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </div>
+                    </div>
+                   )}
                 </SheetHeader>
                 <div className="flex flex-col h-full">
                   <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
@@ -266,39 +273,13 @@ export default function Header() {
                         </SheetClose>
                     )}
                     {isAdmin && (
-                      <>
-                        <SheetClose asChild>
-                            <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2 w-full">
-                                <ShieldCheck className="h-5 w-5" />
-                                <span>{t('admin')}</span>
-                                <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
-                            </Link>
-                        </SheetClose>
-                        <SheetClose asChild>
-                          <Link href="/admin/users" className="transition-colors hover:text-primary flex items-center gap-2">
-                            <Users className="h-5 w-5" />
-                            {t('userManagement')}
-                          </Link>
-                        </SheetClose>
-                        <SheetClose asChild>
-                          <Link href="/admin/chat" className="transition-colors hover:text-primary flex items-center gap-2">
-                            <MessageSquare className="h-5 w-5" />
-                            {t('chatHistory')}
-                          </Link>
-                        </SheetClose>
-                        <SheetClose asChild>
-                          <Link href="/admin/logs" className="transition-colors hover:text-primary flex items-center gap-2">
-                            <Terminal className="h-5 w-5" />
-                            {t('errorLogs')}
-                          </Link>
-                        </SheetClose>
-                        <SheetClose asChild>
-                          <Link href="/admin/backup" className="transition-colors hover:text-primary flex items-center gap-2">
-                            <History className="h-5 w-5" />
-                            {t('backup')}
-                          </Link>
-                        </SheetClose>
-                      </>
+                      <SheetClose asChild>
+                        <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2 w-full">
+                            <ShieldCheck className="h-5 w-5" />
+                            <span>{t('adminPanel')}</span>
+                            <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
+                        </Link>
+                      </SheetClose>
                     )}
                     {navLinks.map((link) => (
                       <SheetClose asChild key={link.href}>
