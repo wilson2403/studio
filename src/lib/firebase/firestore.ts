@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -13,6 +13,7 @@ const chatsCollection = collection(db, 'chats');
 const questionnairesCollection = collection(db, 'questionnaires');
 const errorLogsCollection = collection(db, 'error_logs');
 const invitationMessagesCollection = collection(db, 'invitationMessages');
+const analyticsCollection = collection(db, 'analytics');
 
 
 // --- Page Content ---
@@ -786,6 +787,44 @@ export const importAllData = async (data: BackupData): Promise<void> => {
   });
 
   await batch.commit();
+};
+
+// --- Analytics ---
+export const logSectionClick = async (sectionId: string, userId?: string): Promise<void> => {
+  try {
+    await addDoc(analyticsCollection, {
+      sectionId,
+      userId: userId || 'anonymous',
+      timestamp: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error(`Error logging click for section ${sectionId}:`, error);
+    // Don't throw, as this is a background task
+  }
+};
+
+export const getSectionAnalytics = async (): Promise<SectionAnalytics[]> => {
+  try {
+    const snapshot = await getDocs(analyticsCollection);
+    const logs = snapshot.docs.map(doc => doc.data() as SectionClickLog);
+
+    const counts = logs.reduce((acc, log) => {
+      acc[log.sectionId] = (acc[log.sectionId] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const analyticsData = Object.entries(counts).map(([sectionId, clickCount]) => ({
+      sectionId,
+      clickCount,
+    }));
+
+    analyticsData.sort((a, b) => b.clickCount - a.clickCount);
+
+    return analyticsData;
+  } catch (error) {
+    console.error("Error getting section analytics:", error);
+    return [];
+  }
 };
 
 

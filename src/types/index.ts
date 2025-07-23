@@ -159,4 +159,14 @@ export type BackupData = {
     settings: { id: string; value: any }[];
 };
 
+export type SectionClickLog = {
+    sectionId: string;
+    userId: string;
+    timestamp: Timestamp;
+};
+
+export type SectionAnalytics = {
+    sectionId: string;
+    clickCount: number;
+};
     

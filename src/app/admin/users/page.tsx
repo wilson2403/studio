@@ -6,10 +6,10 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2 } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -24,7 +24,6 @@ import { Button } from '@/components/ui/button';
 import { sendEmailToAllUsers } from '@/ai/flows/email-flow';
 import QuestionnaireDialog from '@/components/admin/QuestionnaireDialog';
 import { WhatsappIcon } from '@/components/icons/WhatsappIcon';
-import { UserStatus } from '@/types';
 import EditProfileDialog from '@/components/auth/EditProfileDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -67,6 +66,8 @@ export default function AdminUsersPage() {
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
+    const [analytics, setAnalytics] = useState<SectionAnalytics[]>([]);
+    const [loadingAnalytics, setLoadingAnalytics] = useState(true);
     const router = useRouter();
     const { t, i18n } = useTranslation();
     const { toast } = useToast();
@@ -110,7 +111,14 @@ export default function AdminUsersPage() {
             setInvitationTemplates(templates);
             messagesForm.reset({ templates });
             setLoadingMessages(false);
-        }
+        };
+        
+        const fetchAnalytics = async () => {
+            setLoadingAnalytics(true);
+            const data = await getSectionAnalytics();
+            setAnalytics(data);
+            setLoadingAnalytics(false);
+        };
 
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
@@ -122,7 +130,7 @@ export default function AdminUsersPage() {
                 router.push('/'); return;
             }
             setUser(currentUser);
-            await Promise.all([fetchUsers(), fetchInvitationMessages()]);
+            await Promise.all([fetchUsers(), fetchInvitationMessages(), fetchAnalytics()]);
             setLoading(false);
         });
 
@@ -241,10 +249,11 @@ export default function AdminUsersPage() {
             </div>
 
             <Tabs defaultValue="users" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
+                <TabsList className="grid w-full grid-cols-4">
                     <TabsTrigger value="users"><Users className="mr-2 h-4 w-4" />{t('usersTab')}</TabsTrigger>
                     <TabsTrigger value="email"><Mail className="mr-2 h-4 w-4" />{t('emailTab')}</TabsTrigger>
                     <TabsTrigger value="invitation"><MessageSquare className="mr-2 h-4 w-4"/>{t('invitationTabTitle')}</TabsTrigger>
+                    <TabsTrigger value="analytics"><BarChart3 className="mr-2 h-4 w-4"/>{t('analyticsTab')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="users">
                     <Card className="bg-card/50 backdrop-blur-sm">
@@ -429,6 +438,40 @@ export default function AdminUsersPage() {
                                         </div>
                                     </form>
                                 </Form>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="analytics">
+                    <Card className="bg-card/50 backdrop-blur-sm">
+                        <CardHeader>
+                            <CardTitle>{t('analyticsTitle')}</CardTitle>
+                            <CardDescription>{t('analyticsDescription')}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {loadingAnalytics ? (
+                                <div className="space-y-4">
+                                    <Skeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
+                                </div>
+                            ) : (
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>{t('analyticsSection')}</TableHead>
+                                            <TableHead className="text-right">{t('analyticsClicks')}</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {analytics.map((item) => (
+                                            <TableRow key={item.sectionId}>
+                                                <TableCell className="font-medium capitalize">{item.sectionId}</TableCell>
+                                                <TableCell className="text-right">{item.clickCount}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
                             )}
                         </CardContent>
                     </Card>

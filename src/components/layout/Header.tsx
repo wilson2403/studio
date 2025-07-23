@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, User as UserIcon, Terminal, History } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, User as UserIcon, Terminal, History, BarChart3 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -32,7 +32,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { getUserProfile } from '@/lib/firebase/firestore';
+import { getUserProfile, logSectionClick } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 
@@ -49,15 +49,15 @@ export default function Header() {
   const { t } = useTranslation();
 
   const navLinks = [
-    { href: '/', label: t('navHome') },
-    { href: '/ayahuasca', label: t('navAyahuasca') },
-    { href: '/ceremonies', label: t('navAllCeremonies') },
-    { href: '/guides', label: t('navGuides') },
-    { href: '/preparation', label: t('navPreparation') },
+    { href: '/', label: t('navHome'), sectionId: 'home' },
+    { href: '/ayahuasca', label: t('navAyahuasca'), sectionId: 'ayahuasca' },
+    { href: '/ceremonies', label: t('navAllCeremonies'), sectionId: 'ceremonies' },
+    { href: '/guides', label: t('navGuides'), sectionId: 'guides' },
+    { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
   ];
   
   const userNavLinks = [
-     { href: '/questionnaire', label: t('navQuestionnaire') }
+     { href: '/questionnaire', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
 
   useEffect(() => {
@@ -78,6 +78,10 @@ export default function Header() {
     await signOut();
     router.push('/');
   };
+
+  const handleLinkClick = (sectionId: string) => {
+    logSectionClick(sectionId, user?.uid);
+  }
 
   const AuthContent = () => {
     if (loading) {
@@ -188,7 +192,7 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center">
           <div className="mr-4 flex items-center">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
+            <Link href="/" className="mr-6 flex items-center space-x-2" onClick={() => handleLinkClick('home')}>
               <Logo className="h-10 w-10" />
               <span className="font-bold font-headline text-lg">
                   <EditableTitle
@@ -204,6 +208,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
+                onClick={() => handleLinkClick(link.sectionId)}
                 className={cn(
                   'transition-colors hover:text-primary',
                   (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
@@ -218,6 +223,7 @@ export default function Header() {
                <Link
                 key={link.href}
                 href={link.href}
+                onClick={() => handleLinkClick(link.sectionId)}
                 className={cn(
                   'transition-colors hover:text-primary',
                   (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
@@ -298,6 +304,7 @@ export default function Header() {
                       <SheetClose asChild key={link.href}>
                         <Link
                           href={link.href}
+                          onClick={() => handleLinkClick(link.sectionId)}
                           className="transition-colors hover:text-primary"
                         >
                           {link.label}
@@ -308,6 +315,7 @@ export default function Header() {
                       <SheetClose asChild key={link.href}>
                         <Link
                           href={link.href}
+                          onClick={() => handleLinkClick(link.sectionId)}
                           className="transition-colors hover:text-primary flex items-center gap-2"
                         >
                           <FileText className="h-5 w-5" />
