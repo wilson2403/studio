@@ -44,11 +44,11 @@ export default function AllCeremoniesPage() {
              if (currentUser) {
                 const profile = await getUserProfile(currentUser.uid);
                 setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+                fetchCeremonies(true);
             } else {
                 setIsAdmin(false);
+                setPageLoading(false); // Stop loading if no user
             }
-            // Fetch ceremonies only after user state is determined.
-            fetchCeremonies(!!currentUser?.email && currentUser.email === ADMIN_EMAIL);
         });
         return () => unsubscribe();
     }, [router]);
@@ -291,5 +291,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-
-    
