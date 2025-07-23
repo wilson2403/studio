@@ -62,6 +62,7 @@ export type UserProfile = {
     status?: UserStatus;
     preparationStep?: number;
     assignedCeremonies?: string[];
+    completedCourses?: string[];
 }
 
 export type ThemeSettings = {
@@ -172,5 +173,13 @@ export type SectionAnalytics = {
     sectionId: string;
     clickCount: number;
 };
-    
 
+export type Course = {
+    id: string;
+    title: string;
+    description: string;
+    videoUrl: string;
+    category: 'required' | 'optional';
+    createdAt: Timestamp;
+};
+    

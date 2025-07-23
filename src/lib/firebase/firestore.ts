@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -14,6 +14,7 @@ const questionnairesCollection = collection(db, 'questionnaires');
 const errorLogsCollection = collection(db, 'error_logs');
 const invitationMessagesCollection = collection(db, 'invitationMessages');
 const analyticsCollection = collection(db, 'analytics');
+const coursesCollection = collection(db, 'courses');
 
 
 // --- Page Content ---
@@ -895,6 +896,68 @@ export const resetSectionAnalytics = async (): Promise<void> => {
         throw error;
     }
 }
+
+// --- Courses ---
+
+export const getCourses = async (): Promise<Course[]> => {
+    try {
+        const q = query(coursesCollection, orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Course));
+    } catch (error) {
+        console.error("Error getting courses:", error);
+        return [];
+    }
+}
+
+export const addCourse = async (course: Omit<Course, 'id' | 'createdAt'>): Promise<string> => {
+    try {
+        const docRef = await addDoc(coursesCollection, {
+            ...course,
+            createdAt: serverTimestamp(),
+        });
+        return docRef.id;
+    } catch(error) {
+        console.error("Error adding course: ", error);
+        throw error;
+    }
+}
+
+export const updateCourse = async (course: Course): Promise<void> => {
+    try {
+        const courseRef = doc(db, 'courses', course.id);
+        const { id, ...data } = course;
+        await updateDoc(courseRef, data);
+    } catch(error) {
+        console.error("Error updating course: ", error);
+        throw error;
+    }
+}
+
+export const deleteCourse = async (id: string): Promise<void> => {
+    try {
+        const courseRef = doc(db, 'courses', id);
+        await deleteDoc(courseRef);
+    } catch(error) {
+        console.error("Error deleting course: ", error);
+        throw error;
+    }
+}
+
+export const updateUserCompletedCourses = async (uid: string, courseId: string, isCompleted: boolean): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        if (isCompleted) {
+            await updateDoc(userRef, { completedCourses: arrayUnion(courseId) });
+        } else {
+            await updateDoc(userRef, { completedCourses: arrayRemove(courseId) });
+        }
+    } catch (error) {
+        console.error("Error updating completed courses:", error);
+        throw error;
+    }
+}
+
 
 
 export type { Chat };
