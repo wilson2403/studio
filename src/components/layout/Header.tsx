@@ -90,7 +90,7 @@ export default function Header() {
     router.push('/');
   };
 
-  const handleLinkClick = (sectionId: string) => {
+  const handleLinkMouseDown = (sectionId: string) => {
     if (!isAdmin) {
       logSectionClick(sectionId, user?.uid);
     }
@@ -141,7 +141,7 @@ export default function Header() {
               <>
                 <DropdownMenuSeparator />
                 {adminNavLinks.map(link => (
-                    <DropdownMenuItem key={link.href} onClick={() => router.push(link.href)}>
+                    <DropdownMenuItem key={link.href} onMouseDown={() => router.push(link.href)}>
                         <link.icon className="mr-2 h-4 w-4" />
                         <span>{link.label}</span>
                         {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
@@ -191,7 +191,7 @@ export default function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur">
         <div className="container flex h-16 items-center">
           <div className="mr-4 flex items-center">
-            <Link href="/" className="mr-6 flex items-center space-x-2" onClick={() => handleLinkClick('home')}>
+            <Link href="/" className="mr-6 flex items-center space-x-2" onMouseDown={() => handleLinkMouseDown('home')}>
               <Logo className="h-10 w-10" />
               <span className="font-bold font-headline text-lg">
                   <EditableTitle
@@ -207,7 +207,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => handleLinkClick(link.sectionId)}
+                onMouseDown={() => handleLinkMouseDown(link.sectionId)}
                 className={cn(
                   'transition-colors hover:text-primary',
                   (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
@@ -222,7 +222,7 @@ export default function Header() {
                <Link
                 key={link.href}
                 href={link.href}
-                onClick={() => handleLinkClick(link.sectionId)}
+                onMouseDown={() => handleLinkMouseDown(link.sectionId)}
                 className={cn(
                   'transition-colors hover:text-primary',
                   (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
@@ -305,7 +305,7 @@ export default function Header() {
                         <SheetClose asChild key={link.href}>
                           <Link
                             href={link.href}
-                            onClick={() => handleLinkClick(link.sectionId)}
+                            onMouseDown={() => handleLinkMouseDown(link.sectionId)}
                             className="transition-colors hover:text-primary"
                           >
                             {link.label}
@@ -316,7 +316,7 @@ export default function Header() {
                         <SheetClose asChild key={link.href}>
                           <Link
                             href={link.href}
-                            onClick={() => handleLinkClick(link.sectionId)}
+                            onMouseDown={() => handleLinkMouseDown(link.sectionId)}
                             className="transition-colors hover:text-primary"
                           >
                             {link.label}
