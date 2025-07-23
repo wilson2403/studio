@@ -109,7 +109,7 @@ export default function AdminUsersPage() {
     };
 
     const handleInvite = (phone?: string) => {
-        const message = t('whatsappInviteMessage');
+        const message = '¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: https://artedesanar.vercel.app/questionnaire';
         const encodedMessage = encodeURIComponent(message);
         let url = `https://wa.me/`
 
