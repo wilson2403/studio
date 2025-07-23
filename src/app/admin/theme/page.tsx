@@ -245,7 +245,7 @@ export default function ThemePage() {
                 <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
                     {t('themeTab')}
                 </h1>
-                <p className="mt-2 text-lg text-foreground/80 font-body">{t('themeTabDescription')}</p>
+                <p className="mt-2 text-lg text-foreground/80 font-body">{t('themeCustomizationDescription')}</p>
             </div>
             
              <Card>

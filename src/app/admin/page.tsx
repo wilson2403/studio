@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bot, Copy, FileType } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import SettingsTabs from '@/components/admin/SettingsTabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -132,7 +131,7 @@ const systemPrompt = `Eres un experto desarrollador de aplicaciones web full-sta
     -   La autenticación se gestiona con Firebase Authentication (Google y correo/contraseña).
     -   El rol de "administrador" se asigna a un correo específico (\`wilson2403@gmail.com\`) o a través de un booleano \`isAdmin\` en el perfil de usuario en Firestore.
 
-5.  **Personalización del Tema (Página \`/admin\`):**
+5.  **Personalización del Tema (Página \`/admin/theme\`):**
     -   La pestaña "Tema" en el panel de administración permite cambiar la paleta de colores completa de la aplicación para los modos claro y oscuro.
     -   Se utiliza un selector de color (\`ColorPicker\`) para facilitar la elección.
     -   Los cambios se guardan en el documento \`theme\` dentro de la colección \`settings\` en Firestore.
@@ -194,8 +193,6 @@ export default function AdminPage() {
         </h1>
         <p className="mt-2 text-lg text-foreground/80 font-body">{t('adminPanelSubtitle')}</p>
       </div>
-      
-      <SettingsTabs user={user} />
 
       <div className="grid md:grid-cols-2 gap-8">
         <Card className="bg-card/50 backdrop-blur-sm">

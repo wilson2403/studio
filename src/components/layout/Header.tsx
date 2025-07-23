@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, User as UserIcon, Terminal, History, BarChart3 } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -58,6 +58,12 @@ export default function Header() {
   
   const userNavLinks = [
      { href: '/questionnaire', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
+  ];
+
+  const adminNavLinks = [
+      { href: '/admin', label: t('adminPanel'), icon: ShieldCheck },
+      { href: '/admin/theme', label: t('themeTab'), icon: Palette },
+      { href: '/admin/backup', label: t('backupTab'), icon: History }
   ];
 
   useEffect(() => {
@@ -129,11 +135,13 @@ export default function Header() {
             {isAdmin && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push('/admin')}>
-                  <ShieldCheck className="mr-2 h-4 w-4" />
-                  <span>{t('admin')}</span>
-                  <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
-                </DropdownMenuItem>
+                {adminNavLinks.map(link => (
+                    <DropdownMenuItem key={link.href} onClick={() => router.push(link.href)}>
+                        <link.icon className="mr-2 h-4 w-4" />
+                        <span>{link.label}</span>
+                        {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
+                    </DropdownMenuItem>
+                ))}
               </>
             )}
             <DropdownMenuSeparator />
@@ -273,14 +281,19 @@ export default function Header() {
                         </SheetClose>
                     )}
                     {isAdmin && (
-                      <SheetClose asChild>
-                        <Link href="/admin" className="transition-colors hover:text-primary flex items-center gap-2 w-full">
-                            <ShieldCheck className="h-5 w-5" />
-                            <span>{t('adminPanel')}</span>
-                            <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>
-                        </Link>
-                      </SheetClose>
+                      <>
+                        {adminNavLinks.map((link) => (
+                            <SheetClose asChild key={link.href}>
+                                <Link href={link.href} className="transition-colors hover:text-primary flex items-center gap-2 w-full">
+                                    <link.icon className="h-5 w-5" />
+                                    <span>{link.label}</span>
+                                    {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
+                                </Link>
+                            </SheetClose>
+                        ))}
+                      </>
                     )}
+                    <DropdownMenuSeparator />
                     {navLinks.map((link) => (
                       <SheetClose asChild key={link.href}>
                         <Link
@@ -297,9 +310,8 @@ export default function Header() {
                         <Link
                           href={link.href}
                           onClick={() => handleLinkClick(link.sectionId)}
-                          className="transition-colors hover:text-primary flex items-center gap-2"
+                          className="transition-colors hover:text-primary"
                         >
-                          <FileText className="h-5 w-5" />
                           {link.label}
                         </Link>
                       </SheetClose>
