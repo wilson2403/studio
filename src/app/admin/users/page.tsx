@@ -42,7 +42,7 @@ const messageTemplateSchema = (t: (key: string, options?: any) => string) => z.o
     en: z.string().min(1, t('errorRequired', { field: t('templateMessageEN') })),
 });
 
-const messagesFormSchema = (t: (key: string) => string) => z.object({
+const messagesFormSchema = (t: (key: string, options?: any) => string) => z.object({
     templates: z.array(messageTemplateSchema(t)),
 });
 
@@ -54,8 +54,8 @@ const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 
 const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMessage, 'id'> => ({
     name: t('defaultInvitationName'),
-    es: t('defaultInvitationMessageES'),
-    en: t('defaultInvitationMessageEN'),
+    es: '¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: https://artedesanar.vercel.app/questionnaire',
+    en: 'Hello! We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar. You can do it here: https://artedesanar.vercel.app/questionnaire',
 });
 
 
@@ -291,22 +291,28 @@ export default function AdminUsersPage() {
                                             <TableCell>{u.displayName || 'N/A'}</TableCell>
                                             <TableCell>{u.email}</TableCell>
                                             <TableCell>
-                                                <Select
-                                                    value={u.status || 'Interesado'}
-                                                    onValueChange={(value) => handleStatusChange(u.uid, value as UserStatus)}
-                                                    disabled={u.isAdmin || u.email === ADMIN_EMAIL}
-                                                >
-                                                    <SelectTrigger className="w-36">
-                                                        <SelectValue placeholder={t('selectStatus')} />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {userStatuses.map(status => (
-                                                            <SelectItem key={status} value={status}>
-                                                                {t(`userStatus${status}`)}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
+                                                {(u.isAdmin || u.email === ADMIN_EMAIL) ? (
+                                                    <div className='flex items-center gap-2 font-semibold text-primary'>
+                                                        <ShieldCheck className="h-4 w-4" />
+                                                        {t('admin')}
+                                                    </div>
+                                                ) : (
+                                                    <Select
+                                                        value={u.status || 'Interesado'}
+                                                        onValueChange={(value) => handleStatusChange(u.uid, value as UserStatus)}
+                                                    >
+                                                        <SelectTrigger className="w-36">
+                                                            <SelectValue placeholder={t('selectStatus')} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {userStatuses.map(status => (
+                                                                <SelectItem key={status} value={status}>
+                                                                    {t(`userStatus${status}`)}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 {u.questionnaireCompleted ? (
