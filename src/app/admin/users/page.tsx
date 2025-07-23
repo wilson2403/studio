@@ -6,10 +6,10 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3 } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -237,6 +238,16 @@ export default function AdminUsersPage() {
              toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
         }
     }
+    
+    const handleResetAnalytics = async () => {
+        try {
+            await resetSectionAnalytics();
+            setAnalytics([]);
+            toast({ title: t('analyticsResetSuccess') });
+        } catch (error) {
+            toast({ title: t('analyticsResetError'), variant: 'destructive' });
+        }
+    }
 
 
     if (loading) {
@@ -261,7 +272,7 @@ export default function AdminUsersPage() {
             </div>
 
             <Tabs defaultValue="users" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 h-auto md:h-10">
                     <TabsTrigger value="users"><Users className="mr-2 h-4 w-4" />{t('usersTab')}</TabsTrigger>
                     <TabsTrigger value="email"><Mail className="mr-2 h-4 w-4" />{t('emailTab')}</TabsTrigger>
                     <TabsTrigger value="invitation"><MessageSquare className="mr-2 h-4 w-4"/>{t('invitationTabTitle')}</TabsTrigger>
@@ -479,9 +490,29 @@ export default function AdminUsersPage() {
                 </TabsContent>
                 <TabsContent value="analytics">
                     <Card className="bg-card/50 backdrop-blur-sm">
-                        <CardHeader>
-                            <CardTitle>{t('analyticsTitle')}</CardTitle>
-                            <CardDescription>{t('analyticsDescription')}</CardDescription>
+                        <CardHeader className='flex-row items-center justify-between'>
+                           <div>
+                                <CardTitle>{t('analyticsTitle')}</CardTitle>
+                                <CardDescription>{t('analyticsDescription')}</CardDescription>
+                           </div>
+                           <AlertDialog>
+                               <AlertDialogTrigger asChild>
+                                    <Button variant="destructive">
+                                        <History className='mr-2 h-4 w-4' />
+                                        {t('resetAnalytics')}
+                                    </Button>
+                               </AlertDialogTrigger>
+                               <AlertDialogContent>
+                                   <AlertDialogHeader>
+                                       <AlertDialogTitle>{t('resetAnalyticsConfirmTitle')}</AlertDialogTitle>
+                                       <AlertDialogDescription>{t('resetAnalyticsConfirmDescription')}</AlertDialogDescription>
+                                   </AlertDialogHeader>
+                                   <AlertDialogFooter>
+                                       <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                       <AlertDialogAction onClick={handleResetAnalytics}>{t('continue')}</AlertDialogAction>
+                                   </AlertDialogFooter>
+                               </AlertDialogContent>
+                           </AlertDialog>
                         </CardHeader>
                         <CardContent>
                             {loadingAnalytics ? (
@@ -556,5 +587,7 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
+    
 
     
