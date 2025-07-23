@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
@@ -28,7 +28,7 @@ export default function BackupPage() {
     const { t } = useTranslation();
     const { toast } = useToast();
 
-    useState(() => {
+    useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
                 router.push('/');
@@ -39,7 +39,7 @@ export default function BackupPage() {
         });
 
         return () => unsubscribe();
-    });
+    }, [router]);
 
     const handleExport = async () => {
         setIsExporting(true);
