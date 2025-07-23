@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { User } from 'firebase/auth';
-import { getUserProfile, updateUserProfile } from '@/lib/firebase/firestore';
+import { getUserProfile, updateUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { updateUserEmail, updateUserPassword } from '@/lib/firebase/auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { ScrollArea } from '../ui/scroll-area';
@@ -55,12 +55,14 @@ type EmailFormValues = z.infer<ReturnType<typeof emailSchema>>;
 type PasswordFormValues = z.infer<ReturnType<typeof passwordSchema>>;
 
 interface EditProfileDialogProps {
-  user: User | null;
+  user: User | UserProfile | null;
   isOpen: boolean;
   onClose: () => void;
+  isAdminEditing?: boolean;
+  onAdminUpdate?: (data: ProfileFormValues & { phone?: string }) => void;
 }
 
-export default function EditProfileDialog({ user, isOpen, onClose }: EditProfileDialogProps) {
+export default function EditProfileDialog({ user, isOpen, onClose, isAdminEditing = false, onAdminUpdate }: EditProfileDialogProps) {
   const { toast } = useToast();
   const { t } = useTranslation();
   const [isGoogleUser, setIsGoogleUser] = useState(false);
@@ -83,7 +85,9 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
   useEffect(() => {
     async function loadProfile() {
       if (user) {
-        setIsGoogleUser(user.providerData.some(p => p.providerId === 'google.com'));
+        if ('providerData' in user) {
+            setIsGoogleUser(user.providerData.some(p => p.providerId === 'google.com'));
+        }
 
         const profile = await getUserProfile(user.uid);
         if (profile) {
@@ -113,8 +117,16 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
         const phoneNumber = data.phone ? data.phone.replace(/\D/g, '') : '';
         const fullPhoneNumber = phoneNumber ? `${dialCode}${phoneNumber}` : undefined;
         
-        await updateUserProfile(user.uid, { displayName: data.displayName, phone: fullPhoneNumber });
+        const updateData = { displayName: data.displayName, phone: fullPhoneNumber };
+        await updateUserProfile(user.uid, updateData);
+        
+        if (isAdminEditing && onAdminUpdate) {
+            onAdminUpdate(updateData);
+        }
+
         toast({ title: t('profileUpdatedSuccess') });
+        if(isAdminEditing) onClose();
+
     } catch (error: any) {
       toast({ title: t('profileUpdatedError'), description: error.message, variant: 'destructive' });
     }
@@ -215,7 +227,7 @@ export default function EditProfileDialog({ user, isOpen, onClose }: EditProfile
                     </form>
                 </Form>
 
-                {!isGoogleUser && (
+                {!isGoogleUser && !isAdminEditing && (
                   <>
                     <Separator />
 

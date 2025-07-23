@@ -6,10 +6,10 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getContent } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -26,6 +26,7 @@ import QuestionnaireDialog from '@/components/admin/QuestionnaireDialog';
 import { WhatsappIcon } from '@/components/icons/WhatsappIcon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserStatus } from '@/types';
+import EditProfileDialog from '@/components/auth/EditProfileDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -42,8 +43,10 @@ export default function AdminUsersPage() {
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [viewingUser, setViewingUser] = useState<UserProfile | null>(null);
+    const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+    const [invitationMessage, setInvitationMessage] = useState<{es: string, en: string} | null>(null);
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { toast } = useToast();
 
     const emailForm = useForm<EmailFormValues>({
@@ -65,6 +68,13 @@ export default function AdminUsersPage() {
             }
         };
 
+        const fetchInvitationMessage = async () => {
+            const content = await getContent('invitationMessage');
+            if(content && typeof content === 'object') {
+                setInvitationMessage(content as {es: string, en: string});
+            }
+        }
+
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
                 router.push('/');
@@ -80,7 +90,7 @@ export default function AdminUsersPage() {
             }
 
             setUser(currentUser);
-            await fetchUsers();
+            await Promise.all([fetchUsers(), fetchInvitationMessage()]);
             setLoading(false);
         });
 
@@ -107,9 +117,17 @@ export default function AdminUsersPage() {
             toast({ title: t('statusUpdatedError'), variant: 'destructive' });
         }
     };
+    
+    const handleProfileUpdate = (updatedProfile: Partial<UserProfile>) => {
+        if(editingUser) {
+            setUsers(users.map(u => u.uid === editingUser.uid ? { ...u, ...updatedProfile } : u));
+            setEditingUser(null);
+        }
+    };
 
     const handleInvite = (phone?: string) => {
-        const message = '¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: https://artedesanar.vercel.app/questionnaire';
+        const lang = i18n.language as 'es' | 'en';
+        const message = invitationMessage?.[lang] || invitationMessage?.es || 'Te invitamos a completar el cuestionario: https://artedesanar.vercel.app/questionnaire';
         const encodedMessage = encodeURIComponent(message);
         let url = `https://wa.me/`
 
@@ -224,7 +242,11 @@ export default function AdminUsersPage() {
                                                     disabled={u.email === ADMIN_EMAIL}
                                                 />
                                             </TableCell>
-                                            <TableCell className='flex gap-2'>
+                                            <TableCell className='flex gap-2 flex-wrap'>
+                                                <Button variant="outline" size="sm" onClick={() => setEditingUser(u)}>
+                                                    <Edit className="mr-2 h-4 w-4"/>
+                                                    {t('editUser')}
+                                                </Button>
                                                 {u.questionnaireCompleted && (
                                                     <Button variant="outline" size="sm" onClick={() => setViewingUser(u)}>
                                                         <FileText className="mr-2 h-4 w-4"/>
@@ -295,6 +317,15 @@ export default function AdminUsersPage() {
                     user={viewingUser} 
                     isOpen={!!viewingUser} 
                     onClose={() => setViewingUser(null)} 
+                />
+            )}
+             {editingUser && (
+                <EditProfileDialog 
+                    user={editingUser} 
+                    isAdminEditing={true}
+                    isOpen={!!editingUser} 
+                    onClose={() => setEditingUser(null)}
+                    onAdminUpdate={handleProfileUpdate}
                 />
             )}
         </div>
