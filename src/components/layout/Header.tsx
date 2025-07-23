@@ -37,7 +37,7 @@ import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.9';
+const APP_VERSION = '1.10';
 
 export default function Header() {
   const pathname = usePathname();
