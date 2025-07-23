@@ -2,62 +2,61 @@
     "navHome": "Home",
     "navMedicine": "Medicine",
     "navGuides": "Guides",
-    "navCeremonies": "Ceremonies",
-    "navContact": "Contact",
+    "navAllCeremonies": "All Ceremonies",
     "navPreparation": "Preparation",
     "navQuestionnaire": "Questionnaire",
-    "navAllCeremonies": "All Ceremonies",
     "navMyCeremonies": "My Ceremonies",
     "signIn": "Sign In",
     "signOut": "Sign Out",
+    "editProfile": "Edit Profile",
+    "footerText": "© {{year}} El Arte de Sanar. All rights reserved.",
     "appName": "The Art of Healing",
-    "footerText": "© {{year}} The Art of Healing. All rights reserved.",
     "heroTitle": "A Sacred Encounter with Ancestral Medicines",
     "heroSubtitle": "Discover how Ayahuasca can transform your life, bringing you clarity, emotional healing, and a renewed connection with the universe. Join us in this transformative experience, where tradition meets expert guidance for an unforgettable journey.",
     "upcomingCeremoniesTitle": "Upcoming Ceremonies",
-    "pastEventsTitle": "Previous Events",
     "reserveNow": "Reserve Now",
+    "pastEventsTitle": "Previous Events",
     "viewAllEvents": "View All Events",
-    "exploreMoreTitle": "Explore, Heal, Transform",
+    "exploreMoreTitle": "Explore Your Path to Healing",
     "exploreMedicineTitle": "The Medicine",
-    "exploreMedicineDescription": "Learn about the origins, benefits, and sacred process of the Ayahuasca ceremony.",
-    "exploreMedicineButton": "Discover Ayahuasca",
+    "exploreMedicineDescription": "Understand the history, benefits, and sacred process of the Ayahuasca ceremony.",
+    "exploreMedicineButton": "Learn about Ayahuasca",
     "exploreGuidesTitle": "Our Guides",
-    "exploreGuidesDescription": "Meet the spiritual guardians who will accompany you on your journey of transformation.",
+    "exploreGuidesDescription": "Meet the experienced spiritual guides who will accompany you on your journey of transformation.",
     "exploreGuidesButton": "Meet the Guides",
-    "preparationCtaTitle": "Your Journey Begins",
-    "preparationCtaDescription": "Proper preparation is key to a profound experience. Access our complete guide.",
-    "preparationCtaButton": "View Preparation Guide",
+    "preparationCtaTitle": "Your Preparation",
+    "preparationCtaDescription": "Proper preparation is key. Find dietary recommendations, mental exercises, and tips to get the most out of your experience.",
+    "preparationCtaButton": "Start Preparing",
     "contactTitle": "Connect with Us",
-    "contactCommunityText": "Join our community and stay updated on our upcoming events and ceremonies. Follow us on our social networks.",
-    "ayahuascaInfoTitle": "The Sacred Medicine: Ayahuasca",
+    "contactCommunityText": "Follow us on our social media to stay updated on our upcoming ceremonies, receive spiritual content, and be part of our healing community.",
+    "ayahuascaInfoTitle": "The Sacred Medicine",
     "whatIsAyahuascaTitle": "What is Ayahuasca?",
-    "whatIsAyahuascaDescription": "Ayahuasca is an ancestral brew from the Amazon, made from the combination of two sacred plants. It is used in traditional ceremonies to facilitate deep processes of healing, self-knowledge, and spiritual connection.",
+    "whatIsAyahuascaDescription": "Ayahuasca is an ancestral brew from the Amazon, created by combining two sacred plants. For centuries, it has been used in traditional ceremonies to facilitate deep healing, spiritual exploration, and a connection with a higher consciousness.",
     "howAyahuascaWorksTitle": "How does it work?",
-    "howAyahuascaWorksDescription": "The brew induces a modified state of consciousness that allows for the exploration of the subconscious, releasing emotional blockages, and gaining a clearer and more expanded understanding of oneself and the universe.",
-    "spiritualMasterTitle": "A Spiritual Master",
-    "spiritualMasterDescription": "Ayahuasca is considered a master plant because it teaches, guides, and reveals profound knowledge. Each experience is unique and is adapted to the personal process of each participant, offering what is necessary for their evolution.",
+    "howAyahuascaWorksDescription": "The medicine works by cleansing the body, mind, and spirit. Participants often experience visions, emotional release, and profound insights that help them resolve internal conflicts, heal past traumas, and gain a clearer understanding of their life's purpose.",
+    "spiritualMasterTitle": "A Spiritual Master, Not a Drug",
+    "spiritualMasterDescription": "It is crucial to approach Ayahuasca with respect and a clear intention. It is not a recreational substance but a powerful spiritual tool that demands reverence and responsible guidance. Our ceremonies are led by experienced guides who ensure a safe and sacred environment for your journey.",
     "ceremonyBenefitsTitle": "Benefits of the Ceremony",
-    "ayahuascaBenefitClarityTitle": "Mental and Spiritual Clarity",
-    "ayahuascaBenefitClarityDescription": "Provides a clear and profound perspective on your life, purpose, and decisions.",
-    "ayahuascaBenefitHealingTitle": "Emotional and Physical Healing",
-    "ayahuascaBenefitHealingDescription": "Helps release deep traumas, emotional blockages, and psychosomatic ailments.",
-    "ayahuascaBenefitConnectionTitle": "Connection with the Whole",
-    "ayahuascaBenefitConnectionDescription": "Expands consciousness and strengthens the connection with nature, the universe, and your own essence.",
+    "ayahuascaBenefitClarityTitle": "Clarity and Purpose",
+    "ayahuascaBenefitClarityDescription": "Many find answers to their deepest questions and a renewed sense of direction in life.",
+    "ayahuascaBenefitHealingTitle": "Emotional Healing",
+    "ayahuascaBenefitHealingDescription": "Release emotional blockages, heal past traumas, and find inner peace.",
+    "ayahuascaBenefitConnectionTitle": "Spiritual Connection",
+    "ayahuascaBenefitConnectionDescription": "Deepen your connection with yourself, others, and the universe.",
     "groupCeremonyTitle": "Group Ceremony",
-    "groupCeremonyDescription": "A shared experience where the collective energy enhances healing. Ideal for feeling accompanied and supported by the community.",
+    "groupCeremonyDescription": "A shared experience where the collective energy enhances the healing process. Ideal for feeling the support of a community on the same path.",
     "privateCeremonyTitle": "Private Ceremony",
-    "privateCeremonyDescription": "An intimate and personalized journey focused on your specific process, with the dedicated attention of the guides.",
-    "guidesPageTitle": "Meet Our Guides",
-    "guidesPageSubtitle": "A team dedicated to your well-being, committed to accompanying you with respect, love, and professionalism on your path of healing and self-discovery.",
-    "guide_desc_wilson_alfaro": "Spiritual guide with a deep connection to Amazonian traditions. Trained in the Peruvian Amazon, Wilson brings an ancestral understanding of Ayahuasca and its healing power. His experience facilitates a safe and trustworthy space for personal exploration.",
-    "guide_desc_jacob": "Spiritual teacher trained in the Peruvian Amazon, where he learned directly from healers the sacred use of ancestral medicine. With a serene and profound presence, she guides ceremonies in Casa Trinitos (Guanacaste), where it accompanies transformation processes.",
-    "guide_desc_harley": "Specialist in medical care and first aid, with experience in guided meditations and therapeutic massages. Her professional presence guarantees a safe environment throughout the ceremony, providing confidence and support to both the team and the participants.",
-    "guide_desc_johanna": "Medicine guardian trained in the Peruvian Amazon. Providing ceremonies in Colombia and Costa Rica, her presence brings security, containment and balance between the physical and spiritual, holding the ceremonial space with firmness, care and deep connection with feminine healing.",
+    "privateCeremonyDescription": "An intimate and personalized session designed for those seeking to work on specific or very deep issues with the exclusive attention of the guides.",
+    "guidesPageTitle": "Our Guides",
+    "guidesPageSubtitle": "Each of our guides brings a unique blend of experience, wisdom, and compassion, ensuring that your journey is held in a space of complete safety and trust.",
+    "allCeremoniesTitle": "Our Ceremonies",
+    "allCeremoniesSubtitle": "Find the perfect space to begin or continue your journey of healing and self-discovery.",
+    "addCeremony": "Add Ceremony",
+    "noUpcomingCeremonies": "There are no upcoming ceremonies scheduled at this time. Please check back soon.",
     "loginWelcome": "Welcome Back",
-    "loginSubtext": "Enter your credentials to access your journey.",
+    "loginSubtext": "Sign in to continue your journey.",
     "loginWithGoogle": "Continue with Google",
-    "loginContinueWith": "Or continue with",
+    "loginContinueWith": "OR CONTINUE WITH",
     "loginEmailLabel": "Email",
     "loginEmailPlaceholder": "name@example.com",
     "loginPasswordLabel": "Password",
@@ -66,128 +65,42 @@
     "loginNoAccount": "Don't have an account?",
     "loginSignUpHere": "Sign up here",
     "loginSuccessTitle": "Login Successful",
-    "loginSuccessDescription": "Welcome back to your journey!",
-    "loginErrorTitle": "Login Error",
+    "loginSuccessDescription": "Welcome back!",
+    "loginErrorTitle": "Login Failed",
     "googleSuccessTitle": "Google Sign-In Successful",
-    "googleSuccessDescription": "You have successfully signed in with Google.",
-    "googleErrorTitle": "Google Sign-In Error",
-    "registerTitle": "Create your Account",
-    "registerSubtext": "Join our community to begin your transformation.",
-    "registerWithGoogle": "Continue with Google",
-    "registerContinueWith": "Or create an account with",
+    "googleSuccessDescription": "You are now logged in.",
+    "googleErrorTitle": "Google Sign-In Failed",
+    "registerTitle": "Create Your Account",
+    "registerSubtext": "Join our community to start your healing path.",
+    "registerWithGoogle": "Sign up with Google",
+    "registerContinueWith": "OR CREATE AN ACCOUNT WITH",
     "registerNameLabel": "Full Name",
-    "registerNamePlaceholder": "Your Name",
+    "registerNamePlaceholder": "John Doe",
+    "registerPhoneLabel": "Phone Number (Optional)",
+    "registerPhonePlaceholder": "8888-8888",
     "registerConfirmPasswordLabel": "Confirm Password",
     "registerButton": "Create Account",
     "registerHaveAccount": "Already have an account?",
     "registerLoginHere": "Log in here",
-    "registerSuccessTitle": "Registration Successful",
-    "registerSuccessDescription": "We have sent a verification link to your email.",
-    "registerErrorTitle": "Registration Error",
-    "errorInvalidEmail": "Please enter a valid email.",
-    "errorMinLength": "The {{field}} must be at least {{count}} characters.",
+    "registerSuccessTitle": "Account Created",
+    "registerSuccessDescription": "We're glad to have you! Please check your email to verify your account.",
+    "registerErrorTitle": "Registration Failed",
+    "errorInvalidEmail": "Please enter a valid email address.",
+    "errorMinLength": "{{field}} must be at least {{count}} characters.",
     "errorPasswordsDontMatch": "Passwords do not match.",
-    "errorRequired": "The {{field}} is required.",
-    "errorRequiredSimple": "This field is required.",
-    "errorRequiredDetails": "Details are required if you answered 'Yes'.",
-    "errorInvalidUrl": "Please enter a valid URL.",
-    "errorPositiveNumber": "The {{field}} must be a positive number.",
-
-    "preparationGuideTitle": "Preparation Guide",
-    "preparationGuideSubtitle": "Follow these steps to prepare your body, mind, and spirit for the ceremony.",
-    "preparationGuideFullSubtitle": "Your journey of transformation begins long before the ceremony. Proper preparation is the key to opening yourself to the deepest teachings of the medicine and navigating the experience with clarity and confidence. This guide will accompany you step by step.",
-    "preparationPageTitle": "Your Path to Transformation",
-    "previous": "Previous",
-    "continue": "Continue",
-    "saveAndContinue": "Save & Continue",
-    "questionnaireMedicalConditions": "Do you have any significant medical conditions (heart, blood pressure, etc.)?",
-    "questionnaireMedicalConditionsDetails": "Please provide details about your medical conditions.",
-    "questionnaireMedication": "Are you currently taking any medication (including antidepressants)?",
-    "questionnaireMedicationDetails": "Please specify the medications you are taking.",
-    "questionnaireMentalHealth": "Do you have a history of mental health conditions (schizophrenia, bipolarity, psychosis)?",
-    "questionnaireMentalHealthDetails": "Please provide details about your mental health history.",
-    "questionnaireIntention": "What is your main intention for participating in this ceremony?",
-    "questionnaireIntentionPlaceholder": "Describe what you hope to heal, understand, or explore...",
-    "questionnaireExperience": "Have you had previous experiences with Ayahuasca or other sacred plants?",
-    "questionnaireExperienceDetails": "Briefly describe your previous experiences.",
-    "yes": "Yes",
-    "no": "No",
-    "preparationCompleteTitle": "Congratulations! You are ready.",
-    "preparationCompleteDescription": "You have completed all the preparation steps. You are now ready to embark on this journey of healing and self-discovery. We are waiting for you at the ceremony.",
-    "backToHome": "Back to Home",
-    "viewPreparationGuide": "View Preparation Guide",
-    "viewMyAnswers": "View My Answers",
-    "questionnaireErrorTitle": "Error Saving Questionnaire",
-    "questionnaireErrorDescription": "There was a problem saving your answers. Please try again.",
-    "myQuestionnaireAnswers": "My Questionnaire Answers",
-    "myQuestionnaireAnswersDescription": "This is a summary of the information you provided.",
-    "noDetailsProvided": "No details provided.",
-    "noAnswersSubmitted": "You have not submitted any answers yet.",
-    "close": "Close",
-
-    "preparationProcessTitle": "The Process",
-    "preparationProcessDescription": "Understand the stages of your journey, from preparation to integration.",
-    "ceremonyProcessTitle": "The Ceremony",
-    "ceremonyProcessDescription": "What to expect during the sacred ritual and how to navigate the experience.",
-    "experienceProcessTitle": "The Experience",
-    "experienceProcessDescription": "Visions, emotions, and purges as part of the healing.",
-    "integrationProcessTitle": "The Integration",
-    "integrationProcessDescription": "How to apply the teachings in your daily life for lasting transformation.",
-    "dietTitle": "The Cleansing Diet",
-    "dietSubtitle": "For at least one week before the ceremony, it is crucial to prepare your body by avoiding certain foods to purify your system and allow the medicine to work more effectively.",
-    "allowedFoodsTitle": "What to Eat",
-    "allowedFoodsList": "Fresh fruits and vegetables, legumes, whole grains (rice, quinoa), lean chicken or fish (grilled or steamed), drink plenty of water.",
-    "prohibitedFoodsTitle": "What to Avoid",
-    "prohibitedFoodsList": "Red meat, pork, spicy or fried foods, fermented products, aged cheeses, alcohol, coffee, and recreational drugs.",
-    "mentalPrepTitle": "Mental and Spiritual Preparation",
-    "mentalPrepSubtitle": "Your inner state is as important as your physical diet. Cultivate a calm and receptive mind.",
-    "meditationTitle": "Meditation",
-    "meditationDescription": "Practice daily meditation to calm the mind and connect with your inner self.",
-    "intentionsTitle": "Intentions",
-    "intentionsDescription": "Clearly define what you want to work on. What do you want to heal? What do you want to understand?",
-    "reflectionTitle": "Reflection",
-    "reflectionDescription": "Journal about your thoughts and emotions. This will help you clarify your intentions.",
-    "emotionalHealingTitle": "Openness to Healing",
-    "emotionalHealingDescription": "The ceremony can be emotionally intense. Come with an open heart, ready to face and release what no longer serves you. Trust the process and the guides.",
-    "whatToBringTitle": "What to Bring to the Ceremony",
-    "whatToBringSubtitle": "Prepare these items to ensure a comfortable and focused experience.",
-    "comfortItemsTitle": "For your Comfort",
-    "comfortItemsList": "Comfortable, warm clothing (in layers), a blanket or sleeping bag, a pillow or cushion, a change of clothes.",
-    "essentialsTitle": "Essentials",
-    "essentialsList": "A bottle of water, a flashlight (with red light if possible), a notebook and pen for jotting down reflections, personal hygiene items.",
-
-    "headerMenuTitle": "Menu",
-    "editProfile": "Edit Profile",
-    "toggleTheme": "Toggle theme",
-    "themeLight": "Light",
-    "themeDark": "Dark",
-    "changeLanguage": "Change language",
-    "mustBeLoggedIn": "You must be logged in to view this page.",
-
-    "authRequiredJourneyTitle": "Begin Your Healing Journey",
-    "authRequiredJourneyDescription": "Please sign in or create an account to continue your journey and access our exclusive content.",
-    "authRequiredCeremoniesDescription": "Please sign in to view the details of our upcoming ceremonies and reserve your spot.",
-    "authRequiredPreparationDescription": "Access the complete guide to prepare your body and mind for a transformative experience.",
-    "authRequiredQuestionnaireDescription": "Complete your medical questionnaire to ensure a safe and profound experience.",
-    
+    "errorCountryCodeRequired": "Please select a country code if you enter a phone number.",
     "adminPanel": "Admin Panel",
-    "adminPanelSubtitle": "Manage application content and settings.",
+    "adminPanelSubtitle": "Manage application content, users, and settings.",
     "projectStructure": "Project Structure",
     "systemPrompt": "System Prompt",
     "promptCopied": "System prompt copied to clipboard!",
     "promptCopyError": "Failed to copy prompt.",
-    
+    "userManagementTitle": "User Management",
+    "userManagementSubtitle": "View, manage, and communicate with all registered users.",
     "usersTab": "Users",
     "emailTab": "Bulk Email",
-    "themeTab": "Theme",
-    "backupTab": "Backup/Restore",
-    "chatHistory": "Chat History",
-    "errorLogs": "Error Logs",
-
-    "userManagementTitle": "User Management",
-    "userManagementSubtitle": "View and manage all registered users.",
     "allUsersTitle": "All Users",
-    "allUsersDescription": "List of all users in the system.",
+    "allUsersDescription": "A list of all users in the system.",
     "userName": "Name",
     "userEmail": "Email",
     "userStatus": "Status",
@@ -195,82 +108,212 @@
     "userAdmin": "Admin",
     "actions": "Actions",
     "admin": "Admin",
-    "selectStatus": "Select Status",
+    "selectStatus": "Select status",
     "userStatusInteresado": "Interested",
     "userStatusCliente": "Client",
     "userStatusPendiente": "Pending",
-    "editUser": "Edit Profile",
+    "editUser": "Edit",
     "viewQuestionnaire": "View Answers",
     "invite": "Invite",
     "roleUpdatedSuccess": "User role updated successfully.",
-    "roleUpdatedError": "Error updating user role.",
+    "roleUpdatedError": "Failed to update user role.",
     "statusUpdatedSuccess": "User status updated successfully.",
-    "statusUpdatedError": "Error updating user status.",
-    "errorFetchUsers": "Failed to fetch users.",
+    "statusUpdatedError": "Failed to update user status.",
     "error": "Error",
-    
+    "errorFetchUsers": "Failed to fetch user list.",
+    "sendEmailTitle": "Send Bulk Email",
+    "sendEmailDescription": "Compose and send an email to all registered users.",
+    "emailSubject": "Subject",
+    "emailSubjectPlaceholder": "An important announcement",
+    "emailBody": "Body (HTML is supported)",
+    "emailBodyPlaceholder": "Dear user, we would like to inform you that...",
+    "sendEmailButton": "Send to All Users",
+    "sending": "Sending...",
+    "errorRequired": "{{field}} is required.",
+    "emailsSentSuccess": "Email sent successfully.",
+    "emailsSentError": "Failed to send emails.",
+    "questionnaireResponsesFor": "Questionnaire Responses for {{name}}",
+    "questionnaireResponsesDescription": "Review the user's submitted answers.",
+    "noAnswersSubmitted": "This user has not submitted their questionnaire yet.",
+    "close": "Close",
+    "questionnaireMedicalConditions": "Do you have any significant medical conditions (e.g., heart problems, high blood pressure, respiratory issues)?",
+    "questionnaireMedicalConditionsDetails": "Please provide details about your medical conditions.",
+    "questionnaireMedication": "Are you currently taking any prescription medication, supplements, or regular over-the-counter drugs?",
+    "questionnaireMedicationDetails": "Please list all medications and supplements you are taking.",
+    "questionnaireMentalHealth": "Do you have a personal or family history of mental health conditions (e.g., schizophrenia, bipolar disorder, psychosis)?",
+    "questionnaireMentalHealthDetails": "Please provide details about your mental health history.",
+    "questionnaireExperience": "Have you participated in an Ayahuasca ceremony or worked with other psychoactive substances before?",
+    "questionnaireExperienceDetails": "Please describe your previous experiences.",
+    "questionnaireIntention": "What is your main intention for participating in this ceremony?",
+    "questionnaireIntentionPlaceholder": "Describe what you hope to heal, understand, or achieve...",
+    "errorRequiredSimple": "This field is required.",
+    "errorRequiredDetails": "Details are required if you answered 'yes'.",
+    "yes": "Yes",
+    "no": "No",
+    "noDetailsProvided": "No details provided.",
     "editProfileTitle": "Edit Profile",
     "editProfileDescription": "Update your personal information.",
     "saveChanges": "Save Changes",
-    "formCodePlaceholder": "Code",
-    "registerPhoneLabel": "Phone (Optional)",
-    "registerPhonePlaceholder": "8888-8888",
-    "errorCountryCodeRequired": "Please select a country code if you provide a phone number.",
     "profileUpdatedSuccess": "Profile updated successfully.",
-    "profileUpdatedError": "Error updating profile.",
+    "profileUpdatedError": "Failed to update profile.",
+    "updateEmail": "Update Email",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
-    "updateEmail": "Update Email",
     "updatePassword": "Update Password",
     "emailUpdatedSuccess": "Email updated successfully.",
     "emailUpdatedSuccessDesc": "Please check your new email address for a verification link.",
-    "emailUpdatedError": "Error updating email.",
+    "emailUpdatedError": "Failed to update email.",
     "passwordUpdatedSuccess": "Password updated successfully.",
-    "passwordUpdatedError": "Error updating password.",
-    "passwordRequired": "Password required for this action.",
-    "enterPasswordToConfirm": "Please enter your password to confirm this change.",
-
-    "sendEmailTitle": "Send Bulk Email",
-    "sendEmailDescription": "Send an email to all registered users.",
-    "emailSubject": "Subject",
-    "emailSubjectPlaceholder": "News about our next ceremony...",
-    "emailBody": "Body (HTML is supported)",
-    "emailBodyPlaceholder": "<h1>Hello everyone!</h1><p>We invite you to...</p>",
-    "sendEmailButton": "Send Email to All Users",
-    "sending": "Sending...",
-    "emailsSentSuccess": "Emails sent successfully!",
-    "emailsSentError": "Error sending emails",
-
+    "passwordUpdatedError": "Failed to update password.",
+    "enterPasswordToConfirm": "Please enter your current password to confirm this change.",
+    "passwordRequired": "Password is required for this action.",
     "invitationTabTitle": "Invitation Templates",
-    "invitationTabDescription": "Manage the WhatsApp messages used to invite users to complete the questionnaire.",
+    "invitationTabDescription": "Manage the WhatsApp message templates used to invite users to complete the questionnaire.",
     "templateName": "Template Name",
+    "newTemplateName": "New Template {{count}}",
     "templateMessageES": "Message (Spanish)",
     "templateMessageEN": "Message (English)",
-    "newTemplateName": "New Template {{count}}",
-    "newTemplateMessageES": "Hello! We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar. You can do it here: https://artedesanar.vercel.app/questionnaire",
-    "newTemplateMessageEN": "Hello! We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar. You can do it here: https://artedesanar.vercel.app/questionnaire",
-    "defaultInvitationName": "Default Invitation",
-    "addTemplate": "Add Template",
+    "newTemplateMessageES": "Hola, te invitamos a completar tu cuestionario para la ceremonia.",
+    "newTemplateMessageEN": "Hello, we invite you to complete your questionnaire for the ceremony.",
     "deleteTemplate": "Delete Template",
-    "saving": "Saving...",
-    "messagesUpdatedSuccess": "Templates updated successfully.",
-    "messagesUpdatedError": "Error updating templates.",
+    "addTemplate": "Add Template",
+    "messagesUpdatedSuccess": "Message templates updated successfully.",
+    "messagesUpdatedError": "Failed to update message templates.",
     "templateDeleted": "Template deleted.",
     "errorDeletingTemplate": "Error deleting template.",
     "selectInvitationTemplate": "Select Invitation Template",
-    "selectInvitationTemplateDescription": "Choose a message to send to {{name}}.",
-    "invitationSent": "WhatsApp opened with the message.",
-    
-    "questionnaireResponsesFor": "Questionnaire Responses for {{name}}",
-    "questionnaireResponsesDescription": "This are the responses submitted by the user.",
-
+    "selectInvitationTemplateDescription": "Choose a message to send to {{name}} via WhatsApp.",
+    "invitationSent": "WhatsApp chat opened with the invitation message.",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "delete": "Delete",
+    "editCeremony": "Edit Ceremony",
+    "addCeremonyTitle": "Add a New Ceremony",
+    "editCeremonyDescription": "Make changes to this ceremony's details.",
+    "addCeremonyDescription": "Fill in the details for the new ceremony.",
+    "formTitle": "Title",
+    "formDescription": "Description",
+    "formDate": "Date (e.g., July 26, 2024)",
+    "formSchedule": "Schedule (e.g., 4:00 p.m. – 7:00 a.m.)",
+    "formPrice": "Price (in CRC)",
+    "formPriceType": "Price Type",
+    "formSelectType": "Select a type",
+    "priceTypeExact": "Exact Price",
+    "priceTypeFrom": "Starting From Price",
+    "formContributionText": "Contribution Text (e.g., 'Reserve with 20%')",
+    "formLink": "WhatsApp Link",
+    "formMediaUrl": "Media URL (YouTube, TikTok, Facebook, etc.)",
+    "formOrUpload": "OR UPLOAD A FILE",
+    "formMediaType": "Media Type",
+    "formSelectFit": "Select fit",
+    "formImageType": "Image",
+    "formVideoType": "Video",
+    "formVideoFit": "Video Fit",
+    "videoFitCover": "Cover (Fills the container)",
+    "videoFitContain": "Contain (Fits within the container)",
+    "formFeatures": "Features",
+    "formAddFeature": "Add Feature",
+    "featureFood": "Food",
+    "featureLodging": "Lodging",
+    "plansTitle": "Pricing Plans",
+    "planName": "Plan Name",
+    "planDescription": "Plan Description",
+    "planPriceFrom": "Price From (CRC)",
+    "planPriceUntil": "Price Until (CRC, optional)",
+    "addPlan": "Add Plan",
+    "formFeatured": "Featured Ceremony",
+    "formRegisterRequired": "Login required to reserve",
+    "mediaRequired": "Media is required",
+    "mediaRequiredDescription": "Please provide a media URL or upload a file.",
+    "ceremonyUpdated": "Ceremony updated successfully.",
+    "ceremonyCreated": "Ceremony created successfully.",
+    "errorUpdatingCeremony": "Failed to update the ceremony.",
+    "errorCreatingCeremony": "Failed to create the ceremony.",
+    "saving": "Saving...",
+    "uploadingFile": "Uploading file...",
+    "ceremonyDeleted": "Ceremony deleted successfully.",
+    "errorDeletingCeremony": "Failed to delete ceremony.",
+    "deleteCeremonyConfirmTitle": "Are you sure?",
+    "deleteCeremonyConfirmDescription": "This action cannot be undone. This will permanently delete the ceremony.",
+    "duplicate": "Duplicate",
+    "ceremonyDuplicated": "Ceremony duplicated successfully.",
+    "errorDuplicatingCeremony": "Failed to duplicate ceremony.",
+    "markAsFinished": "Mark as Finished",
+    "finishCeremonyConfirmTitle": "Finish Ceremony?",
+    "finishCeremonyConfirmDescription": "This will move the ceremony to the 'Previous Events' section. This action can be reversed.",
+    "ceremonyFinishedSuccess": "Ceremony marked as finished.",
+    "ceremonyMovedToPast": "It will now appear in the 'Previous Events' section.",
+    "errorFinishingCeremony": "Failed to mark ceremony as finished.",
+    "markAsInactive": "Mark as Inactive",
+    "inactivateCeremonyConfirmTitle": "Deactivate Ceremony?",
+    "inactivateCeremonyConfirmDescription": "This will hide the ceremony from all users except admins. This action can be reversed.",
+    "ceremonyInactivatedSuccess": "Ceremony deactivated successfully.",
+    "errorInactivatingCeremony": "Failed to deactivate ceremony.",
+    "reactivateCeremony": "Reactivate Ceremony",
+    "ceremonyReactivatedSuccess": "Ceremony reactivated successfully.",
+    "errorReactivatingCeremony": "Failed to reactivate ceremony.",
+    "resetCounters": "Reset Counters",
+    "resetCountersConfirmTitle": "Reset Counters?",
+    "resetCountersConfirmDescription": "This will reset the view, reserve, and WhatsApp click counts for this ceremony to zero.",
+    "countersResetSuccess": "Counters reset successfully.",
+    "countersResetError": "Failed to reset counters.",
+    "defaultContributionText": "You can reserve your space with a 20% deposit",
+    "errorInvalidUrl": "Please enter a valid URL.",
+    "authRequiredTitle": "Login Required",
+    "authRequiredDescription": "Please sign in to continue with your reservation.",
+    "selectAPlan": "Select a Plan",
+    "includes": "Includes:",
+    "reserveWhatsapp": "Reserve via WhatsApp",
+    "authRequiredJourneyTitle": "Start Your Healing Journey",
+    "authRequiredJourneyDescription": "Please sign in or create an account to view this content and continue your journey with us.",
+    "authRequiredCeremoniesDescription": "Please sign in or create an account to view our upcoming ceremonies and reserve your spot.",
+    "registerButton": "Sign Up",
+    "editGuideTitle": "Edit Guide",
+    "editGuideDescription": "Update the guide's information.",
+    "formName": "Name",
+    "formImage": "Image",
+    "formImageUrl": "Image URL",
+    "formUploadFile": "Upload a file",
+    "guideUpdated": "Guide updated successfully.",
+    "errorUpdatingGuide": "Failed to update guide.",
+    "deleteGuideConfirmTitle": "Delete Guide?",
+    "deleteGuideConfirmDescription": "This will permanently remove this guide from the list.",
+    "guideDeleted": "Guide deleted.",
+    "errorDeletingGuide": "Failed to delete guide.",
+    "heroVideoTitle": "El Arte de Sanar",
+    "editHeroVideoTitle": "Edit Hero Video",
+    "editHeroVideoDescription": "Change the main video on the homepage.",
+    "videoUrlLabel": "Video URL",
+    "selectNewVideo": "Select new video",
+    "or": "or",
+    "errorInvalidFileType": "Invalid File Type",
+    "errorSelectVideo": "Please select a video file.",
+    "errorNoFileOrUrl": "No File or URL Provided",
+    "errorSelectVideoOrUrl": "Please either select a video file or enter a video URL.",
+    "videoUpdatedSuccessfully": "Video updated successfully!",
+    "errorUploadingVideo": "Error Uploading Video",
+    "errorUnexpected": "An unexpected error occurred.",
+    "videoFormSelected": "Selected: {{fileName}}",
+    "headerMenuTitle": "Menu",
+    "changeLanguage": "Change language",
+    "toggleTheme": "Toggle theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "spiritualGuide": "Spiritual Guide",
+    "online": "Online",
+    "typeYourMessage": "Type your message...",
+    "chatbotWelcome": "Hello! I am the Spiritual Guide from 'El Arte de Sanar'. How can I help you on your healing journey today?",
+    "chatbotError": "I'm sorry, I'm having trouble connecting at the moment. Please try again in a moment.",
+    "adminTab": "Admin",
+    "themeTab": "Theme",
+    "backupTab": "Backup",
+    "chatHistory": "Chat History",
+    "errorLogs": "Error Logs",
     "themeCustomization": "Theme Customization",
-    "themeCustomizationDescription": "Customize the color palette for the entire application.",
+    "themeCustomizationDescription": "Customize the application's color palette. Changes are applied live for preview.",
     "predefinedThemes": "Predefined Themes",
     "themeDefault": "Default",
     "themeSunset": "Sunset",
-    "themeLight": "Light Mode",
-    "themeDark": "Dark Mode",
     "themePrimaryLabel": "Primary",
     "themePrimaryForegroundLabel": "Primary Foreground",
     "themeBackgroundLabel": "Background",
@@ -286,217 +329,4009 @@
     "themeInputLabel": "Input",
     "themeRingLabel": "Ring",
     "themeUpdatedSuccess": "Theme updated successfully!",
-    "themeUpdateReload": "The page will reload to apply the changes.",
-    "themeUpdatedError": "Error updating theme.",
-    
-    "backupTitle": "Backup and Restore",
+    "themeUpdateReload": "The page will now reload to apply the changes.",
+    "themeUpdatedError": "Failed to update theme.",
+    "backupTitle": "Backup & Restore",
     "backupSubtitle": "Manage your application's data.",
     "exportDataTitle": "Export Data",
-    "exportDataDescription": "Download a JSON file with all your Firestore data.",
-    "exportButton": "Export All Data",
+    "exportDataDescription": "Download a full backup of all your data in a JSON file.",
     "exporting": "Exporting...",
-    "exportSuccessTitle": "Data exported successfully!",
-    "exportErrorTitle": "Failed to export data.",
+    "exportButton": "Download Backup",
+    "exportSuccessTitle": "Export Successful!",
+    "exportErrorTitle": "Export Failed",
     "importDataTitle": "Import Data",
-    "importDataDescription": "Import data from a JSON file. This will overwrite existing data.",
-    "selectFileButton": "Select a .json file",
-    "importButton": "Import Data",
+    "importDataDescription": "Import data from a JSON backup file. This will overwrite existing data.",
+    "selectFileButton": "Select a file...",
     "importing": "Importing...",
-    "importSuccessTitle": "Data imported successfully!",
-    "importSuccessDescription": "The page will now reload.",
-    "importErrorTitle": "Failed to import data.",
-    "importWarningTitle": "Are you sure?",
-    "importWarningDescription": "This action will overwrite all current data in the database. This cannot be undone.",
-    "cancel": "Cancel",
+    "importButton": "Import Data",
+    "importWarningTitle": "Are you absolutely sure?",
+    "importWarningDescription": "This action will overwrite all current data in the application with the data from the selected file. This cannot be undone.",
+    "importSuccessTitle": "Import Successful!",
+    "importSuccessDescription": "Your data has been restored from the backup.",
+    "importErrorTitle": "Import Failed",
     "rollbackCardTitle": "Restore Previous Backup",
-    "rollbackCardDescription": "A backup was automatically created before your last import. You can restore it if something went wrong.",
-    "rollbackButton": "Rollback to Previous State",
+    "rollbackCardDescription": "Something wrong with the import? You can roll back to the state right before you imported.",
     "rollingBack": "Rolling back...",
-    "rollbackSuccessTitle": "Rollback successful!",
-    "rollbackSuccessDescription": "The previous data has been restored.",
-    "rollbackErrorTitle": "Rollback failed.",
+    "rollbackButton": "Roll Back Data",
     "rollbackWarningTitle": "Confirm Rollback",
-    "rollbackWarningDescription": "Are you sure you want to restore the data from before the last import? This will overwrite any changes made since.",
-    
+    "rollbackWarningDescription": "This will restore the data to the state it was in before the last import. This action cannot be undone.",
+    "rollbackSuccessTitle": "Rollback Successful!",
+    "rollbackSuccessDescription": "The data has been restored to its previous state.",
+    "rollbackErrorTitle": "Rollback Failed",
     "chatHistoryTitle": "Chat History",
-    "chatHistorySubtitle": "Review all conversations with the spiritual guide AI.",
+    "chatHistorySubtitle": "Review conversations between users and the AI guide.",
     "allConversationsTitle": "All Conversations",
-    "allConversationsDescription": "Click on a conversation to view the full chat.",
+    "allConversationsDescription": "Click on a conversation to view the full chat history.",
     "anonymousUser": "Anonymous User",
-    "noConversationsFound": "No conversations found yet.",
-    
-    "spiritualGuide": "Spiritual Guide",
-    "online": "Online",
-    "typeYourMessage": "Type your message...",
-    "chatbotWelcome": "Greetings, seeker of light. I am the Spiritual Guide from 'El Arte de Sanar'. How can I illuminate your path today?",
-    "chatbotError": "I'm sorry, I'm having trouble connecting at the moment. Please try again in a moment.",
-
+    "noConversationsFound": "No conversations have been recorded yet.",
     "errorLogsTitle": "System Error Logs",
-    "errorLogsSubtitle": "Review and manage system errors.",
+    "errorLogsSubtitle": "Review and manage system-generated error logs.",
     "systemLogs": "System Logs",
-    "systemLogsDescription": "List of all captured errors in the application.",
+    "systemLogsDescription": "A list of errors that have occurred in the application.",
     "logTimestamp": "Timestamp",
     "logMessage": "Message",
     "logStatus": "Status",
-    "logStatusNew": "New",
     "logStatusFixed": "Fixed",
+    "logStatusNew": "New",
     "viewDetails": "View Details",
     "markAsFixed": "Mark as Fixed",
-    "delete": "Delete",
+    "deleteLogConfirmTitle": "Delete Log?",
+    "deleteLogConfirmDescription": "Are you sure you want to delete this log? This action cannot be undone.",
     "logDetails": "Log Details",
-    "logDetailsDescription": "Detailed information about the captured error.",
+    "logDetailsDescription": "Detailed information about the recorded error.",
     "logStack": "Stack Trace",
     "logContext": "Context",
-    "fixWithAI": "Fix with AI (Coming Soon)",
+    "fixWithAI": "Attempt Fix with AI",
     "featureComingSoon": "This feature is coming soon!",
-    "deleteLogConfirmTitle": "Delete Log?",
-    "deleteLogConfirmDescription": "Are you sure you want to permanently delete this error log?",
-    "logStatusUpdated": "Log status updated.",
-    "errorUpdatingLog": "Error updating log status.",
-    "logDeleted": "Log deleted.",
-    "errorDeletingLog": "Error deleting log.",
     "errorFetchLogs": "Failed to fetch error logs.",
-
-    "editGuideTitle": "Edit Guide",
-    "editGuideDescription": "Modify the information for this guide.",
-    "formName": "Name",
-    "formDescription": "Description",
-    "formImage": "Profile Image",
-    "formImageUrl": "Image URL",
-    "formUploadFile": "Or upload a file",
-    "or": "OR",
-    "mediaRequired": "Image required",
-    "mediaRequiredDescription": "Please provide an image URL or upload a file.",
-    "uploadingFile": "Uploading file...",
-    "saving": "Saving...",
-    "guideUpdated": "Guide updated successfully!",
-    "errorUpdatingGuide": "Error updating guide.",
-    "deleteGuideConfirmTitle": "Delete Guide?",
-    "deleteGuideConfirmDescription": "Are you sure you want to permanently delete this guide? This action cannot be undone.",
-    "guideDeleted": "Guide deleted successfully.",
-    "errorDeletingGuide": "Error deleting guide.",
-    
-    "allCeremoniesTitle": "Our Ceremonies",
-    "allCeremoniesSubtitle": "Explore our upcoming events and find the one that resonates with your path.",
-    "addCeremony": "Add New Ceremony",
-    "noUpcomingCeremonies": "There are no upcoming ceremonies at the moment. Please check back later.",
-    "editCeremony": "Edit Ceremony",
-    "addCeremonyTitle": "Add New Ceremony",
-    "editCeremonyDescription": "Modify the details of this ceremony.",
-    "addCeremonyDescription": "Create a new ceremony for your users.",
-    "formTitle": "Title",
-    "formDate": "Date Text (e.g., July 24, 2024)",
-    "formSchedule": "Schedule",
-    "formPrice": "Price (Base)",
-    "formPriceType": "Price Type",
-    "formSelectType": "Select a type",
-    "priceTypeExact": "Exact",
-    "priceTypeFrom": "From",
-    "formContributionText": "Contribution Text (e.g., Reserve with 20%)",
-    "formLink": "WhatsApp Link",
-    "formMediaUrl": "Media URL (YouTube, TikTok, Facebook, MP4, etc.)",
-    "formOrUpload": "or upload a file...",
-    "formMediaType": "Media Type",
-    "formSelectFit": "Select fit",
-    "videoFitCover": "Cover",
-    "videoFitContain": "Contain",
-    "formImageType": "Image",
-    "formVideoType": "Video",
-    "formFeatures": "Features",
-    "formAddFeature": "Add Feature",
-    "featureFood": "Food",
-    "featureLodging": "Lodging",
-    "plansTitle": "Pricing Plans",
-    "addPlan": "Add Plan",
-    "planName": "Plan Name",
-    "planDescription": "Plan Description",
-    "planPriceFrom": "Price From",
-    "planPriceUntil": "Price Until (Optional)",
-    "formFeatured": "Featured Ceremony",
-    "formRegisterRequired": "Require login to view details",
-    "ceremonyUpdated": "Ceremony updated successfully!",
-    "ceremonyCreated": "Ceremony created successfully!",
-    "errorUpdatingCeremony": "Error updating the ceremony.",
-    "errorCreatingCeremony": "Error creating the ceremony.",
-    "deleteCeremonyConfirmTitle": "Delete Ceremony?",
-    "deleteCeremonyConfirmDescription": "This will permanently delete the ceremony and all its data. This action cannot be undone.",
-    "ceremonyDeleted": "Ceremony deleted.",
-    "errorDeletingCeremony": "Error deleting ceremony.",
-    "duplicate": "Duplicate",
-    "ceremonyDuplicated": "Ceremony duplicated successfully!",
-    "errorDuplicatingCeremony": "Error duplicating ceremony.",
-    "markAsFinished": "Mark as Finished",
-    "finishCeremonyConfirmTitle": "Finish Ceremony?",
-    "finishCeremonyConfirmDescription": "This will move the ceremony to the 'Past Events' section. Are you sure?",
-    "ceremonyFinishedSuccess": "Ceremony marked as finished.",
-    "ceremonyMovedToPast": "It will now appear in the 'Past Events' section.",
-    "errorFinishingCeremony": "Error marking ceremony as finished.",
-    "markAsInactive": "Mark as Inactive",
-    "inactivateCeremonyConfirmTitle": "Inactivate Ceremony?",
-    "inactivateCeremonyConfirmDescription": "Inactive ceremonies are hidden from non-admin users. Are you sure?",
-    "ceremonyInactivatedSuccess": "Ceremony marked as inactive.",
-    "errorInactivatingCeremony": "Error marking ceremony as inactive.",
-    "reactivateCeremony": "Reactivate",
-    "ceremonyReactivatedSuccess": "Ceremony reactivated successfully!",
-    "errorReactivatingCeremony": "Error reactivating ceremony.",
-    "resetCounters": "Reset Counters",
-    "resetCountersConfirmTitle": "Reset Counters?",
-    "resetCountersConfirmDescription": "This will reset the view, reserve, and WhatsApp click counts for this ceremony to zero. Are you sure?",
-    "countersResetSuccess": "Counters reset successfully.",
-    "countersResetError": "Error resetting counters.",
-    "defaultContributionText": "You can reserve with 20%",
+    "logStatusUpdated": "Log status updated.",
+    "errorUpdatingLog": "Failed to update log.",
+    "logDeleted": "Log deleted.",
+    "errorDeletingLog": "Failed to delete log.",
+    "preparationPageTitle": "Your Guide to Preparation",
+    "preparationGuideFullSubtitle": "Follow these steps to prepare your body, mind, and spirit for a profound and transformative experience.",
+    "preparationProcessTitle": "The 4 Stages of the Process",
+    "preparationProcessDescription": "From intention to integration, each phase is crucial for your journey.",
+    "ceremonyProcessTitle": "The Ceremony",
+    "ceremonyProcessDescription": "The central experience where the connection with the medicine takes place.",
+    "experienceProcessTitle": "The Experience",
+    "experienceProcessDescription": "A journey of introspection, visions, and emotional and physical cleansing.",
+    "integrationProcessTitle": "The Integration",
+    "integrationProcessDescription": "The process of applying the teachings received in your daily life.",
+    "dietTitle": "The Diet: Purifying the Body",
+    "dietSubtitle": "Three days before and after the ceremony, we recommend a diet to cleanse your body and enhance your connection with the medicine.",
+    "allowedFoodsTitle": "Allowed Foods",
+    "allowedFoodsList": "Vegetables, fruits, cereals (rice, quinoa), legumes, and water.",
+    "prohibitedFoodsTitle": "Foods to Avoid",
+    "prohibitedFoodsList": "Red meat, pork, spicy food, fermented foods, alcohol, and drugs.",
+    "mentalPrepTitle": "Mental Preparation: Setting the Intention",
+    "mentalPrepSubtitle": "Your mental state is fundamental. We suggest these practices:",
+    "meditationTitle": "Meditation",
+    "meditationDescription": "Practice daily meditation to calm the mind and open the heart.",
+    "intentionsTitle": "Clear Intentions",
+    "intentionsDescription": "Define what you want to heal or understand. Write it down and reflect on it.",
+    "reflectionTitle": "Journaling",
+    "reflectionDescription": "Write about your fears, hopes, and expectations before the ceremony.",
+    "emotionalHealingTitle": "Openness to Emotional Healing",
+    "emotionalHealingDescription": "Be prepared to face and release deep emotions. The medicine is a mirror that reflects what needs to be healed. Trust the process and the guides who will accompany you with love and respect.",
+    "whatToBringTitle": "What to Bring to the Ceremony",
+    "whatToBringSubtitle": "To ensure your comfort and well-being during the experience:",
+    "comfortItemsTitle": "Comfort Items",
+    "comfortItemsList": "Comfortable clothing (white, if possible), blanket, pillow, and a change of clothes.",
+    "essentialsTitle": "Essentials",
+    "essentialsList": "Water, a notebook and pen, and personal hygiene items.",
+    "preparationGuideTitle": "Preparation Guide",
+    "preparationGuideSubtitle": "Follow these steps to prepare for your journey.",
+    "previous": "Previous",
+    "saveAndContinue": "Save & Continue",
+    "preparationCompleteTitle": "Congratulations! You are ready.",
+    "preparationCompleteDescription": "You have completed all the preparation steps. This guide will remain available for you to consult at any time. We look forward to seeing you at the ceremony to begin this transformative journey together.",
+    "backToHome": "Back to Home",
+    "viewPreparationGuide": "View Full Preparation Guide",
+    "viewMyAnswers": "View My Answers",
+    "myQuestionnaireAnswers": "My Questionnaire Answers",
+    "myQuestionnaireAnswersDescription": "A summary of the answers you provided.",
+    "questionnaireErrorTitle": "Submission Error",
+    "questionnaireErrorDescription": "There was a problem saving your answers. Please try again.",
     "statusactive": "Active",
-    "statusinactive": "Inactive",
     "statusfinished": "Finished",
-    
-    "authRequiredTitle": "Registration Required",
-    "authRequiredDescription": "Please sign in to view the details and reserve your spot.",
-
-    "editHeroVideoTitle": "Edit Hero Video",
-    "editHeroVideoDescription": "Change the main video on the homepage.",
-    "videoUrlLabel": "Video URL",
-    "selectNewVideo": "Or select a new video to upload",
-    "videoFormSelected": "Selected: {{fileName}}",
-    "errorInvalidFileType": "Invalid File Type",
-    "errorSelectVideo": "Please select a video file.",
-    "errorNoFileOrUrl": "No file or URL provided",
-    "errorSelectVideoOrUrl": "Please select a video file to upload or enter a URL.",
-    "videoUpdatedSuccessfully": "Video updated successfully!",
-    "errorUploadingVideo": "Error uploading video.",
-    "errorUnexpected": "An unexpected error occurred.",
-    
-    "includes": "Includes",
-    "reserveWhatsapp": "Reserve on WhatsApp",
-    "selectAPlan": "Select a Plan",
-    "fullPlanUpTo": "Full plan, you can reserve up to...",
-
-    "editableSuccess": "Content updated successfully",
-    "editableError": "Failed to update content",
-    
-    "analyticsTab": "Analytics",
-    "analyticsTitle": "Click Analytics",
-    "analyticsDescription": "Track user interactions with different sections of the page.",
-    "sectionId": "Section",
-    "clickCount": "Click Count",
-    "noAnalyticsData": "No analytics data available yet.",
-    "resetAnalytics": "Reset All Analytics Data",
-    "resetAnalyticsConfirmTitle": "Reset Analytics?",
-    "resetAnalyticsConfirmDescription": "Are you sure you want to delete all click tracking data? This action cannot be undone.",
-    "analyticsResetSuccess": "Analytics data has been reset.",
-    "analyticsResetError": "Error resetting analytics data.",
-    
+    "statusinactive": "Inactive",
     "myCeremoniesTitle": "My Ceremonies",
-    "myCeremoniesSubtitle": "Here are the ceremonies you are registered for.",
+    "myCeremoniesSubtitle": "Here are the ceremonies you are registered for. You can review the details for each one.",
     "noAssignedCeremoniesTitle": "No Assigned Ceremonies",
     "noAssignedCeremoniesDescription": "You are not yet registered for any ceremonies. Explore our upcoming events to find your next journey.",
     "exploreCeremonies": "Explore Ceremonies",
-    "viewDetails": "View Details",
-    "registeredCount": "{{count}} people registered",
-    
     "assignCeremony": "Assign Ceremony",
     "assignCeremonyTo": "Assign Ceremonies to {{name}}",
-    "assignCeremonyDescriptionAdmin": "Select the ceremonies this user will have access to.",
+    "assignCeremonyDescriptionAdmin": "Select the ceremonies this user should be enrolled in.",
     "assignmentsUpdatedSuccess": "Assignments updated successfully.",
-    "errorUpdatingAssignments": "Error updating assignments.",
-    "noActiveCeremonies": "There are no active ceremonies to assign."
-}
+    "errorUpdatingAssignments": "Failed to update assignments.",
+    "noActiveCeremonies": "There are no active ceremonies available to assign.",
+    "registeredCount_one": "{{count}} person registered",
+    "registeredCount_other": "{{count}} people registered"
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-....
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+--
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-'
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-...
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-....
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-....
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-..
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-....
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+...
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+..
+-
+..
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-...
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+..
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+..
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-..
+-
+-
+-
+-
+..
+-
+..
+-
+-
+..
+-
+-..
+...
+-
+-...
+-
+-
+-
+-
+..
+-
+-
+-
+-
+...
+..
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+..
+-d..
+-!>
+-
+..
+-
+..
+-
+..
+..
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-..
+-`
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-
+..
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+..
+-
+-..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-...
+-
+..
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+..
+..
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-…
+-
+-..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-..
+-..
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-_..
+-
+-
+-
+-
+-
+-
+-
+..
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+..
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-..
+-
+-..
+-
+-
+-
+..
+-
+-
+..
+-
+..
+-
+-
+..
+..
+..
+-
+..
+-..
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+..
+-
+..
+..
+-
+..
+-
+..
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+..
+..
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+..
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-..
+..
+-
+-
+-
+-
+..
+-
+-
+-..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+..
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+..
+-
+..
+..
+-
+-
+..
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+..
+..
+..
+-
+..
+..
+-
+..
+-
+-
+-
+-
+..
+..
+-
+-
+-
+-
+-
+..
+..
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+..
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-'
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-'
+...
+-
+-_..
+-
+-
+-
+-
+-_..
+-
+-
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-..
+-
+-
+-
+-
+..
+-
+..
+..
+-~-
+..
+..
+..
+-..
+-..
+-
+..
+-
+..
+-
+-
+-
+-
+..
+-
+..
+-
+-
+..
+-_..
+-
+-
+-_..
+-
+..
+..
+-
+..
+-
+..
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+..
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-’
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+..
+-
+-
+-
+..
+-
+..
+-
+-
+-
+..
+-
+-
+-'
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-_..
+-
+-
+-
+--
+-_..
+-
+..
+-
+-
+..
+-
+-
+-
+..
+-
+..
+-
+..
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-_..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+..
+..
+-
+-..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-_..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+..
+..
+-
+-
+..
+-
+..
+..
+-
+-
+-
+..
+-
+-
+-
+..
+-
+..
+..
+-
+..
+-
+..
+-
+..
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+..
+..
+-
+-
+-
+-
+-
+..
+..
+-
+-
+-
+-
+-
+..
+..
+..
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+..
+-
+..
+..
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+..
+-
+-
+-
+-
+-
+..
+-_..
+-
+-
+-
+-
+-
+..
+-
+..
+..
+-
+..
+-
+..
+-
+..
+-
+-
+-
+-
+..
+..
+-
+-
+-_..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-_..
+-
+-
+-....
+-
+-_..
+-
+-
+-
+-
+..
+-
+..
+-
+..
+-
+..
+-
+..
+-
+-
+-
+..
+-'
+-
+-
+-
+..
+-
+-
+-
+-
+-....
+-
+..
+-
+-
+-
+-
+..
+-
+..
+-
+..
+-
+-
+-
+..
+-
+-
+..
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+..
+-
+..
+-
+-
+..
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+..
+-
+-
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-
+-
+-
+..
+-
+..
+-
+-
+-_..
+-
+-
+-_..
+..
+-
+-
+-..
+-
+-
+..
+-
+..
+-
+-
+..
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-
+-_..
+-
+-
+-
+-
+..
+-
+..
+-
+..
+-
+-
+-
+..
+..
+-
+..
+-
+-
+-
+..
+..
+..
+-
+-
+-
+-
+-
+-
+-
+..
+-
+..
+-
+..
+-
+..
+-
+..
+-
+..
+-'
+-Tengo una duda, cambié la versión de la app a 1.13 en `src/components/layout/Header.tsx` ¿puedes asegurarte que los cambios se hayan aplicado correctamente?
+Claro, actualicé la versión de la aplicación a 1.13 en el archivo `src/components/layout/Header.tsx`. He verificado los cambios y parece que todo está correcto.
+
+Dime si necesitas algo más.
