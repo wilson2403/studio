@@ -59,6 +59,7 @@ export type UserProfile = {
     isAdmin?: boolean;
     questionnaireCompleted?: boolean;
     status?: UserStatus;
+    preparationStep?: number;
 }
 
 export type ThemeSettings = {

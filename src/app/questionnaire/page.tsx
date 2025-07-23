@@ -1,26 +1,26 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile } from '@/lib/firebase/firestore';
-import { ArrowRight, Save, Sprout } from 'lucide-react';
+import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
+import { ArrowRight, Check, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind, CheckCircle, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { Progress } from '@/components/ui/progress';
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -46,94 +46,130 @@ const questionnaireSchema = (t: (key: string, options?: any) => string) => z.obj
     path: ['previousExperienceDetails'],
 });
 
-export default function QuestionnairePage() {
+type FormData = z.infer<ReturnType<typeof questionnaireSchema>>;
+
+export default function PreparationGuidePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [api, setApi] = useState<CarouselApi>()
+  const [currentStep, setCurrentStep] = useState(0)
+  const [totalSteps, setTotalSteps] = useState(1)
+
   const router = useRouter();
   const { t } = useTranslation();
   const { toast } = useToast();
 
-  const form = useForm<z.infer<ReturnType<typeof questionnaireSchema>>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(questionnaireSchema(t)),
-    defaultValues: {
-      medicalConditionsDetails: '',
-      medicationDetails: '',
-      mentalHealthDetails: '',
-      mainIntention: '',
-      previousExperienceDetails: '',
-    },
+    mode: 'onChange',
   });
 
+  // Content for the steps
+  const processSteps = [
+      { id: "preparation", title: "preparationProcessTitle", description: "preparationProcessDescription", Icon: Sprout },
+      { id: "ceremony", title: "ceremonyProcessTitle", description: "ceremonyProcessDescription", Icon: Sparkles },
+      { id: "experience", title: "experienceProcessTitle", description: "experienceProcessDescription", Icon: Wind },
+      { id: "integration", title: "integrationProcessTitle", description: "integrationProcessDescription", Icon: HeartHandshake },
+  ];
+  const mentalPrepSteps = [
+      { title: "meditationTitle", description: "meditationDescription" },
+      { title: "intentionsTitle", description: "intentionsDescription" },
+      { title: "reflectionTitle", description: "reflectionDescription" },
+  ];
+  const comfortItems = Array.isArray(t('comfortItemsList', { returnObjects: true })) ? t('comfortItemsList', { returnObjects: true }) as string[] : [];
+  const essentialItems = Array.isArray(t('essentialsList', { returnObjects: true })) ? t('essentialsList', { returnObjects: true }) as string[] : [];
+  const allowedFoods = Array.isArray(t('allowedFoodsList', { returnObjects: true })) ? t('allowedFoodsList', { returnObjects: true }) as string[] : [];
+  const prohibitedFoods = Array.isArray(t('prohibitedFoodsList', { returnObjects: true })) ? t('prohibitedFoodsList', { returnObjects: true }) as string[] : [];
+  
+  const allSteps = [
+    { type: 'question', id: 'hasMedicalConditions' },
+    { type: 'question', id: 'isTakingMedication' },
+    { type: 'question', id: 'hasMentalHealthHistory' },
+    { type: 'question', id: 'hasPreviousExperience' },
+    { type: 'question', id: 'mainIntention' },
+    { type: 'info', id: 'process', content: processSteps },
+    { type: 'info', id: 'diet', content: { allowed: allowedFoods, prohibited: prohibitedFoods } },
+    { type: 'info', id: 'mentalPrep', content: mentalPrepSteps },
+    { type: 'info', id: 'emotionalHealing', content: null },
+    { type: 'info', id: 'whatToBring', content: { comfort: comfortItems, essentials: essentialItems } },
+    { type: 'final', id: 'final' }
+  ];
+
+  const updateUserProgress = useCallback(async (step: number) => {
+    if (user) {
+      await updatePreparationProgress(user.uid, step);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!api) return;
+
+    setTotalSteps(api.scrollSnapList().length);
+    
+    const handleSelect = () => {
+      const newStep = api.selectedScrollSnap();
+      setCurrentStep(newStep);
+      if (newStep > 0) {
+        updateUserProgress(newStep);
+      }
+    };
+    
+    api.on("select", handleSelect);
+    
+    return () => {
+      api.off("select", handleSelect);
+    };
+  }, [api, updateUserProgress]);
+  
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        const profile = await getUserProfile(currentUser.uid);
-        const completed = !!profile?.questionnaireCompleted;
-        setIsCompleted(completed);
-
-        const answers = await getQuestionnaire(currentUser.uid);
-        if (answers) {
-          form.reset(answers);
+        try {
+          const profile = await getUserProfile(currentUser.uid);
+          const savedAnswers = await getQuestionnaire(currentUser.uid);
+          if (savedAnswers) {
+            form.reset(savedAnswers);
+          }
+          if (api && profile?.preparationStep) {
+            api.scrollTo(profile.preparationStep, true);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
         }
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
-  }, [form]);
+  }, [api, form]);
 
-  const onSubmit = async (values: z.infer<ReturnType<typeof questionnaireSchema>>) => {
-    if (!user) return;
-    try {
-      await saveQuestionnaire(user.uid, values);
-      toast({
-        title: t('questionnaireSuccessTitle'),
-        description: t('questionnaireSuccessDescription'),
-      });
-      setIsSuccessDialogOpen(true);
-      setIsCompleted(true);
-    } catch (error) {
-      toast({
-        title: t('questionnaireErrorTitle'),
-        description: t('questionnaireErrorDescription'),
-        variant: 'destructive',
-      });
+  const goToNextStep = async () => {
+    const questionId = allSteps[currentStep].id as keyof FormData;
+    const isValid = await form.trigger(questionId);
+
+    if (isValid && api?.canScrollNext()) {
+      api.scrollNext();
+    } else if (api?.canScrollNext()) {
+      // For info steps
+      api.scrollNext();
     }
   };
-  
-  const handleGoToPreparation = () => {
-    setIsSuccessDialogOpen(false);
-    router.push('/preparation');
-  }
 
-  const renderDetailsField = (name: keyof QuestionnaireAnswers, conditionName: keyof QuestionnaireAnswers, label: string) => {
-      const detailsFieldName = name as "medicalConditionsDetails" | "medicationDetails" | "mentalHealthDetails" | "previousExperienceDetails";
-      const conditionFieldName = conditionName as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
-      
-      if (form.watch(conditionFieldName) === 'yes') {
-          return (
-             <FormField
-                control={form.control}
-                name={detailsFieldName}
-                render={({ field }) => (
-                  <FormItem className="mt-4">
-                    <FormLabel>{label}</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} disabled={isCompleted} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-          )
-      }
-      return null;
-  }
-  
-  const renderRadioGroup = (name: keyof QuestionnaireAnswers, label: string) => {
+  const onQuestionnaireSubmit = async () => {
+    if (!user) return;
+    try {
+        await saveQuestionnaire(user.uid, form.getValues());
+        goToNextStep();
+    } catch (error) {
+        toast({
+            title: t('questionnaireErrorTitle'),
+            description: t('questionnaireErrorDescription'),
+            variant: 'destructive',
+        });
+    }
+  };
+
+  const renderRadioGroup = (name: keyof FormData, label: string) => {
       const fieldName = name as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
       return (
          <FormField
@@ -141,25 +177,15 @@ export default function QuestionnairePage() {
           name={fieldName}
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>{label}</FormLabel>
+              <FormLabel className="text-xl">{label}</FormLabel>
               <FormControl>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex flex-col space-y-1"
-                  value={field.value}
-                  disabled={isCompleted}
-                >
+                <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-2">
                   <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="yes" />
-                    </FormControl>
+                    <FormControl><RadioGroupItem value="yes" /></FormControl>
                     <FormLabel className="font-normal">{t('yes')}</FormLabel>
                   </FormItem>
                   <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="no" />
-                    </FormControl>
+                    <FormControl><RadioGroupItem value="no" /></FormControl>
                     <FormLabel className="font-normal">{t('no')}</FormLabel>
                   </FormItem>
                 </RadioGroup>
@@ -171,18 +197,51 @@ export default function QuestionnairePage() {
       )
   }
 
+  const renderDetailsField = (name: keyof FormData, conditionName: keyof FormData, label: string) => {
+      const detailsFieldName = name as "medicalConditionsDetails" | "medicationDetails" | "mentalHealthDetails" | "previousExperienceDetails";
+      const conditionFieldName = conditionName as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
+      
+      if (form.watch(conditionFieldName) === 'yes') {
+          return (
+             <FormField
+                control={form.control}
+                name={detailsFieldName}
+                render={({ field }) => (
+                  <FormItem className="mt-4">
+                    <FormLabel>{label}</FormLabel>
+                    <FormControl><Textarea {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+          )
+      }
+      return null;
+  }
+  
+  const getQuestionStepComponent = (id: string) => {
+    switch(id) {
+      case 'hasMedicalConditions':
+        return <div>{renderRadioGroup('hasMedicalConditions', t('questionnaireMedicalConditions'))}{renderDetailsField('medicalConditionsDetails', 'hasMedicalConditions', t('questionnaireMedicalConditionsDetails'))}</div>;
+      case 'isTakingMedication':
+        return <div>{renderRadioGroup('isTakingMedication', t('questionnaireMedication'))}{renderDetailsField('medicationDetails', 'isTakingMedication', t('questionnaireMedicationDetails'))}</div>;
+      case 'hasMentalHealthHistory':
+        return <div>{renderRadioGroup('hasMentalHealthHistory', t('questionnaireMentalHealth'))}{renderDetailsField('mentalHealthDetails', 'hasMentalHealthHistory', t('questionnaireMentalHealthDetails'))}</div>;
+      case 'hasPreviousExperience':
+        return <div>{renderRadioGroup('hasPreviousExperience', t('questionnaireExperience'))}{renderDetailsField('previousExperienceDetails', 'hasPreviousExperience', t('questionnaireExperienceDetails'))}</div>;
+      case 'mainIntention':
+        return <FormField control={form.control} name="mainIntention" render={({ field }) => (
+                  <FormItem><FormLabel className="text-xl">{t('questionnaireIntention')}</FormLabel><FormControl><Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+                )}/>;
+      default: return null;
+    }
+  }
+
   if (loading) {
     return (
       <div className="container py-12 md:py-16">
         <div className="mx-auto max-w-2xl">
-          <Skeleton className="h-10 w-3/4" />
-          <Skeleton className="h-6 w-full mt-2" />
-          <div className="mt-8 space-y-8">
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
-          </div>
+          <Skeleton className="h-96 w-full" />
         </div>
       </div>
     );
@@ -192,97 +251,103 @@ export default function QuestionnairePage() {
     return (
         <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
             <Card className="w-full max-w-md text-center">
-                <CardHeader>
-                    <CardTitle>{t('accessDenied')}</CardTitle>
-                    <CardDescription>{t('mustBeLoggedIn')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button asChild>
-                        <Link href="/login?redirect=/questionnaire">{t('signIn')}</Link>
-                    </Button>
-                </CardContent>
+                <CardHeader><CardTitle>{t('accessDenied')}</CardTitle><CardDescription>{t('mustBeLoggedIn')}</CardDescription></CardHeader>
+                <CardContent><Button asChild><Link href="/login?redirect=/questionnaire">{t('signIn')}</Link></Button></CardContent>
             </Card>
         </div>
     )
   }
 
   return (
-    <>
     <div className="container py-12 md:py-16">
-      <Card className="mx-auto max-w-3xl">
-        <CardHeader>
-          <CardTitle className="text-3xl font-headline">{isCompleted ? t('questionnaireCompletedTitle') : t('questionnaireTitle')}</CardTitle>
-          <CardDescription className="font-body">{isCompleted ? t('questionnaireCompletedDescription') : t('questionnaireDescription')}</CardDescription>
+      <Card className="mx-auto max-w-4xl shadow-2xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-headline">{t('preparationGuideTitle')}</CardTitle>
+          <CardDescription className="font-body">{t('preparationGuideSubtitle')}</CardDescription>
+          <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mt-4" />
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div>
-                  {renderRadioGroup('hasMedicalConditions', t('questionnaireMedicalConditions'))}
-                  {renderDetailsField('medicalConditionsDetails', 'hasMedicalConditions', t('questionnaireMedicalConditionsDetails'))}
-                </div>
-                <div>
-                  {renderRadioGroup('isTakingMedication', t('questionnaireMedication'))}
-                  {renderDetailsField('medicationDetails', 'isTakingMedication', t('questionnaireMedicationDetails'))}
-                </div>
-                <div>
-                  {renderRadioGroup('hasMentalHealthHistory', t('questionnaireMentalHealth'))}
-                  {renderDetailsField('mentalHealthDetails', 'hasMentalHealthHistory', t('questionnaireMentalHealthDetails'))}
-                </div>
-                <div>
-                    {renderRadioGroup('hasPreviousExperience', t('questionnaireExperience'))}
-                    {renderDetailsField('previousExperienceDetails', 'hasPreviousExperience', t('questionnaireExperienceDetails'))}
-                </div>
-              <FormField
-                control={form.control}
-                name="mainIntention"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('questionnaireIntention')}</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} disabled={isCompleted} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, align: "start" }}>
+              <CarouselContent>
+                {allSteps.map((step, index) => (
+                  <CarouselItem key={index} className="min-h-[400px] flex flex-col justify-between p-6">
+                    {step.type === 'question' ? (
+                      <div className="space-y-6">
+                        {getQuestionStepComponent(step.id)}
+                      </div>
+                    ) : step.type === 'info' && step.id === 'process' ? (
+                       <div>
+                          <h2 className="text-2xl font-headline text-primary text-center mb-6">{t('preparationPageTitle')}</h2>
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {(step.content as typeof processSteps).map(({ id, title, description, Icon }) => (
+                                  <div key={id} className="flex flex-col items-center text-center gap-3 p-4">
+                                      <div className="p-3 bg-primary/10 rounded-full"><Icon className="h-8 w-8 text-primary" /></div>
+                                      <h3 className="text-xl font-bold">{t(title)}</h3>
+                                      <p className="text-muted-foreground">{t(description)}</p>
+                                  </div>
+                              ))}
+                           </div>
+                       </div>
+                    ) : step.type === 'info' && step.id === 'diet' ? (
+                      <div>
+                        <h2 className="text-2xl font-headline text-primary text-center mb-6">{t('dietTitle')}</h2>
+                        <p className="text-muted-foreground text-center mb-6">{t('dietSubtitle')}</p>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <Card className="bg-green-950/20 border-green-500/30 p-4"><CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-green-400"><Leaf/>{t('allowedFoodsTitle')}</CardTitle></CardHeader><CardContent className="p-2"><ul className="space-y-2">{((step.content as any).allowed as string[]).map((item, i) => <li key={i} className="flex gap-2"><Check className="h-5 w-5 text-green-400 mt-0.5 shrink-0"/>{item}</li>)}</ul></CardContent></Card>
+                            <Card className="bg-red-950/20 border-red-500/30 p-4"><CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-red-400"><Minus/>{t('prohibitedFoodsTitle')}</CardTitle></CardHeader><CardContent className="p-2"><ul className="space-y-2">{((step.content as any).prohibited as string[]).map((item, i) => <li key={i} className="flex gap-2"><Minus className="h-5 w-5 text-red-400 mt-0.5 shrink-0"/>{item}</li>)}</ul></CardContent></Card>
+                        </div>
+                      </div>
+                    ) : step.type === 'info' && step.id === 'mentalPrep' ? (
+                      <div>
+                        <h2 className="text-2xl font-headline text-primary text-center mb-6">{t('mentalPrepTitle')}</h2>
+                        <p className="text-muted-foreground text-center mb-6">{t('mentalPrepSubtitle')}</p>
+                        <div className="grid md:grid-cols-3 gap-6">
+                          {(step.content as typeof mentalPrepSteps).map(item => (<Card key={item.title} className="p-4 text-center"><CardTitle className="font-bold text-lg mb-2">{t(item.title)}</CardTitle><p className="text-muted-foreground">{t(item.description)}</p></Card>))}
+                        </div>
+                      </div>
+                    ) : step.type === 'info' && step.id === 'emotionalHealing' ? (
+                       <div className="text-center max-w-2xl mx-auto">
+                           <h2 className="text-2xl font-headline text-primary mb-4">{t('emotionalHealingTitle')}</h2>
+                           <p className="text-muted-foreground">{t('emotionalHealingDescription')}</p>
+                       </div>
+                    ) : step.type === 'info' && step.id === 'whatToBring' ? (
+                       <div>
+                          <h2 className="text-2xl font-headline text-primary text-center mb-6">{t('whatToBringTitle')}</h2>
+                          <p className="text-muted-foreground text-center mb-6">{t('whatToBringSubtitle')}</p>
+                          <div className="grid md:grid-cols-2 gap-6">
+                              <div><h3 className="font-bold text-lg mb-2">{t('comfortItemsTitle')}</h3><ul className="space-y-2">{((step.content as any).comfort as string[]).map((item, i) => <li key={i} className="flex gap-2"><CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0"/>{item}</li>)}</ul></div>
+                              <div><h3 className="font-bold text-lg mb-2">{t('essentialsTitle')}</h3><ul className="space-y-2">{((step.content as any).essentials as string[]).map((item, i) => <li key={i} className="flex gap-2"><CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0"/>{item}</li>)}</ul></div>
+                          </div>
+                       </div>
+                    ) : step.type === 'final' ? (
+                       <div className="text-center flex flex-col items-center gap-4">
+                            <PartyPopper className="h-16 w-16 text-primary" />
+                            <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
+                            <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
+                            <Button asChild><Link href="/">{t('backToHome')}</Link></Button>
+                       </div>
+                    ) : null}
 
-              {!isCompleted ? (
-                 <Button type="submit" disabled={form.formState.isSubmitting}>
-                    <Save className="mr-2 h-4 w-4" />
-                    {form.formState.isSubmitting ? t('saving') : t('saveAnswers')}
-                 </Button>
-              ) : (
-                <Button onClick={() => router.push('/preparation')}>
-                    {t('dialogSuccessButton')}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              )}
-            </form>
+                    <div className="mt-8 flex justify-end">
+                      {allSteps[currentStep].type === 'question' && allSteps[currentStep].id === 'mainIntention' ? (
+                          <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
+                              {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                      ) : allSteps[currentStep].type !== 'final' ? (
+                          <Button onClick={goToNextStep}>
+                              {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                      ) : null}
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
           </Form>
         </CardContent>
       </Card>
     </div>
-    <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
-        <DialogContent>
-          <DialogHeader className="items-center text-center">
-            <div className="p-3 bg-primary/10 rounded-full mb-4">
-              <Sprout className="h-8 w-8 text-primary" />
-            </div>
-            <DialogTitle className="text-2xl font-headline">{t('dialogSuccessTitle')}</DialogTitle>
-            <DialogDescription>
-              {t('dialogSuccessDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex-col sm:flex-col sm:space-x-0 gap-2">
-            <Button onClick={handleGoToPreparation}>
-              {t('dialogSuccessButton')}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            <Button variant="ghost" onClick={() => setIsSuccessDialogOpen(false)}>{t('close')}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
   );
 }
+

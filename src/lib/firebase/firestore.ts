@@ -637,7 +637,7 @@ export const getAllChats = async (): Promise<Chat[]> => {
 };
 
 
-// --- Questionnaire ---
+// --- Questionnaire & Preparation ---
 
 export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswers): Promise<void> => {
     const batch = writeBatch(db);
@@ -649,7 +649,10 @@ export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswe
     }, { merge: true });
 
     const userRef = doc(db, 'users', uid);
-    batch.update(userRef, { questionnaireCompleted: true });
+    batch.update(userRef, { 
+      questionnaireCompleted: true,
+      preparationStep: 5 // Set to the step after the last question
+    });
 
     try {
         await batch.commit();
@@ -672,6 +675,17 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
         return null;
     }
 };
+
+export const updatePreparationProgress = async (uid: string, step: number): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, { preparationStep: step });
+    } catch (error) {
+        console.error("Error updating preparation progress:", error);
+        // Do not throw, this is a background update
+    }
+};
+
 
 // --- Error Logs ---
 export const getErrorLogs = async (): Promise<ErrorLog[]> => {

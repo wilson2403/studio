@@ -272,10 +272,11 @@ export default function AdminUsersPage() {
             </div>
 
             <Tabs defaultValue="users" className="w-full">
-                <TabsList className="grid w-full grid-cols-1 md:grid-cols-3 h-auto md:h-10">
+                <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 h-auto md:h-10">
                     <TabsTrigger value="users"><Users className="mr-2 h-4 w-4" />{t('usersTab')}</TabsTrigger>
                     <TabsTrigger value="email"><Mail className="mr-2 h-4 w-4" />{t('emailTab')}</TabsTrigger>
                     <TabsTrigger value="invitation"><MessageSquare className="mr-2 h-4 w-4"/>{t('invitationTabTitle')}</TabsTrigger>
+                    <TabsTrigger value="analytics"><BarChart3 className="mr-2 h-4 w-4"/>{t('analyticsTab')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="users">
                     <Card className="bg-card/50 backdrop-blur-sm">
@@ -487,6 +488,63 @@ export default function AdminUsersPage() {
                         </CardContent>
                     </Card>
                 </TabsContent>
+                 <TabsContent value="analytics">
+                    <Card className="bg-card/50 backdrop-blur-sm">
+                        <CardHeader>
+                            <CardTitle>{t('analyticsTitle')}</CardTitle>
+                            <CardDescription>{t('analyticsDescription')}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {loadingAnalytics ? (
+                                <Skeleton className="h-64 w-full" />
+                            ) : (
+                                <>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>{t('sectionId')}</TableHead>
+                                            <TableHead className='text-right'>{t('clickCount')}</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {analytics.map((analytic) => (
+                                            <TableRow key={analytic.sectionId}>
+                                                <TableCell className="font-medium capitalize">{analytic.sectionId}</TableCell>
+                                                <TableCell className="text-right">{analytic.clickCount}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                {analytics.length === 0 && (
+                                    <p className="text-center text-muted-foreground py-8">{t('noAnalyticsData')}</p>
+                                )}
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="destructive" className="mt-6">
+                                            <History className="mr-2 h-4 w-4" />
+                                            {t('resetAnalytics')}
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>{t('resetAnalyticsConfirmTitle')}</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                {t('resetAnalyticsConfirmDescription')}
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handleResetAnalytics}>
+                                                {t('continue')}
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                                </>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
             </Tabs>
             {viewingUser && (
                 <QuestionnaireDialog 
@@ -532,7 +590,5 @@ export default function AdminUsersPage() {
         </div>
     );
 }
-
-    
 
     
