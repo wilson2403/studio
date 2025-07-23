@@ -239,7 +239,7 @@ export default function Ceremonies({
             className="w-full"
         >
             <CarouselContent className="-ml-2 md:-ml-4">
-            {ceremonies.map((ceremony) => (
+            {ceremonies.map((ceremony, index) => (
                 <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-0 px-5">
                   <div className="p-1 h-full">
                     <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
@@ -270,7 +270,7 @@ export default function Ceremonies({
                           title={ceremony.title}
                           isActivated={true}
                           inCarousel
-                          defaultMuted={false}
+                          defaultMuted={index !== 0}
                        />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none transition-colors duration-300"></div>
                       <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">
@@ -303,7 +303,7 @@ export default function Ceremonies({
             <CarouselPrevious className="hidden md:flex left-2 sm:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
             <CarouselNext className="hidden md:flex right-2 sm:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
         </Carousel>
-        <div className="mt-8 md:mt-8 text-center">
+        <div className="mt-8 md:mt-16 text-center">
             <Button asChild variant="outline">
                 <Link href="/ceremonies">
                     {t('viewAllEvents')}

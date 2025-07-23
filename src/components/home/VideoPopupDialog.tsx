@@ -25,6 +25,7 @@ export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType,
         <DialogTitle className="sr-only">{title}</DialogTitle>
          <div className="w-full h-full">
           <VideoPlayer
+            ceremonyId="" // Not needed for popup analytics
             videoUrl={videoUrl}
             mediaType={mediaType}
             title={title}
@@ -32,6 +33,7 @@ export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType,
             inCarousel={true}
             videoFit="contain"
             className="w-full h-full"
+            defaultMuted={false} // Always play sound in popup
           />
         </div>
       </DialogContent>
