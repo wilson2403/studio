@@ -35,6 +35,7 @@ import { ThemeSwitcher } from './ThemeSwitcher';
 import { getUserProfile, logSectionClick } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
+import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const APP_VERSION = '1.10';
@@ -246,9 +247,9 @@ export default function Header() {
                   <span className="sr-only">Toggle Navigation</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right">
+              <SheetContent side="right" className="flex flex-col">
                 <SheetHeader>
-                  <SheetTitle className="sr-only">{t('headerMenuTitle')}</SheetTitle>
+                   <SheetTitle className="sr-only">{t('headerMenuTitle')}</SheetTitle>
                    {user && (
                     <div className="flex items-center gap-4 border-b pb-4">
                        <Avatar className="h-12 w-12">
@@ -273,57 +274,59 @@ export default function Header() {
                     </div>
                    )}
                 </SheetHeader>
-                <div className="flex flex-col h-full">
-                  <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
-                    {user && (
-                        <SheetClose asChild>
-                            <button onClick={() => setIsProfileDialogOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
-                                <UserIcon className="h-5 w-5" />
-                                {t('editProfile')}
-                            </button>
+                <ScrollArea className="flex-1 -mr-6">
+                  <div className="pr-6">
+                    <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
+                      {user && (
+                          <SheetClose asChild>
+                              <button onClick={() => setIsProfileDialogOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
+                                  <UserIcon className="h-5 w-5" />
+                                  {t('editProfile')}
+                              </button>
+                          </SheetClose>
+                      )}
+                      {isAdmin && (
+                        <>
+                          <DropdownMenuSeparator />
+                          {adminNavLinks.map((link) => (
+                              <SheetClose asChild key={link.href}>
+                                  <Link href={link.href} className="transition-colors hover:text-primary flex items-center gap-2 w-full">
+                                      <link.icon className="h-5 w-5" />
+                                      <span>{link.label}</span>
+                                      {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
+                                  </Link>
+                              </SheetClose>
+                          ))}
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      {navLinks.map((link) => (
+                        <SheetClose asChild key={link.href}>
+                          <Link
+                            href={link.href}
+                            onClick={() => handleLinkClick(link.sectionId)}
+                            className="transition-colors hover:text-primary"
+                          >
+                            {link.label}
+                          </Link>
                         </SheetClose>
-                    )}
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuSeparator />
-                        {adminNavLinks.map((link) => (
-                            <SheetClose asChild key={link.href}>
-                                <Link href={link.href} className="transition-colors hover:text-primary flex items-center gap-2 w-full">
-                                    <link.icon className="h-5 w-5" />
-                                    <span>{link.label}</span>
-                                    {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
-                                </Link>
-                            </SheetClose>
-                        ))}
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    {navLinks.map((link) => (
-                      <SheetClose asChild key={link.href}>
-                        <Link
-                          href={link.href}
-                          onClick={() => handleLinkClick(link.sectionId)}
-                          className="transition-colors hover:text-primary"
-                        >
-                          {link.label}
-                        </Link>
-                      </SheetClose>
-                    ))}
-                    {user && userNavLinks.map((link) => (
-                      <SheetClose asChild key={link.href}>
-                        <Link
-                          href={link.href}
-                          onClick={() => handleLinkClick(link.sectionId)}
-                          className="transition-colors hover:text-primary"
-                        >
-                          {link.label}
-                        </Link>
-                      </SheetClose>
-                    ))}
-                  </nav>
-                  <div className="mt-auto pb-4">
-                    <MobileAuthContent />
+                      ))}
+                      {user && userNavLinks.map((link) => (
+                        <SheetClose asChild key={link.href}>
+                          <Link
+                            href={link.href}
+                            onClick={() => handleLinkClick(link.sectionId)}
+                            className="transition-colors hover:text-primary"
+                          >
+                            {link.label}
+                          </Link>
+                        </SheetClose>
+                      ))}
+                    </nav>
                   </div>
+                </ScrollArea>
+                <div className="mt-auto pb-4">
+                  <MobileAuthContent />
                 </div>
               </SheetContent>
             </Sheet>
