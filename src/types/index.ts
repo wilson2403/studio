@@ -26,6 +26,7 @@ export type Ceremony = {
   contributionText?: string;
   status: 'active' | 'finished' | 'inactive';
   registerRequired?: boolean;
+  showParticipantCount?: boolean;
   viewCount?: number;
   reserveClickCount?: number;
   whatsappClickCount?: number;

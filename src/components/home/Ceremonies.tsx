@@ -199,10 +199,12 @@ export default function Ceremonies({
                            <p className="font-mono text-xl font-bold text-white mb-2">
                               {ceremony.title}
                           </p>
-                          <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
-                              <Users className="h-4 w-4" />
-                              <span>{t('registeredCount', { count: registeredCount })}</span>
-                          </div>
+                          {ceremony.showParticipantCount && (
+                            <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
+                                <Users className="h-4 w-4" />
+                                <span>{t('registeredCount', { count: registeredCount })}</span>
+                            </div>
+                          )}
                           <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                             {t('reserveNow')}
                           </Button>
@@ -228,7 +230,7 @@ export default function Ceremonies({
   );
 
   const renderFinishedCeremonies = () => (
-     <div className="w-full">
+     <div className="w-full relative">
         <Carousel
             opts={{
               align: 'center',
@@ -294,10 +296,14 @@ export default function Ceremonies({
                 </CarouselItem>
             ))}
             </CarouselContent>
-            <CarouselPrevious className="left-2 sm:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-            <CarouselNext className="right-2 sm:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+            <div className="md:hidden absolute -bottom-12 left-1/2 -translate-x-1/2 flex gap-4">
+              <CarouselPrevious className="static translate-y-0 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+              <CarouselNext className="static translate-y-0 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+            </div>
+            <CarouselPrevious className="hidden md:flex left-2 sm:-left-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+            <CarouselNext className="hidden md:flex right-2 sm:-right-8 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
         </Carousel>
-        <div className="mt-8 text-center">
+        <div className="mt-8 md:mt-8 text-center">
             <Button asChild variant="outline">
                 <Link href="/ceremonies">
                     {t('viewAllEvents')}
@@ -354,7 +360,7 @@ export default function Ceremonies({
     <>
     <section
       id={id}
-      className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500"
+      className={cn("container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500", status === 'finished' && 'pb-24')}
     >
       <div className="flex flex-col items-center text-center space-y-4 mb-12">
         <EditableTitle
