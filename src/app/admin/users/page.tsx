@@ -27,7 +27,7 @@ import { WhatsappIcon } from '@/components/icons/WhatsappIcon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserStatus } from '@/types';
 import EditProfileDialog from '@/components/auth/EditProfileDialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -36,11 +36,11 @@ const emailFormSchema = (t: (key: string) => string) => z.object({
     body: z.string().min(1, t('errorRequired', { field: t('emailBody') })),
 });
 
-const messageTemplateSchema = (t: (key: string) => string) => z.object({
+const messageTemplateSchema = (t: (key: string, options?: any) => string) => z.object({
     id: z.string(),
-    name: z.string().min(1, t('errorRequired', { field: 'Nombre de la plantilla' })),
-    es: z.string().min(1, t('errorRequired', { field: 'Mensaje ES' })),
-    en: z.string().min(1, t('errorRequired', { field: 'Message EN' })),
+    name: z.string().min(1, t('errorRequired', { field: t('templateName') })),
+    es: z.string().min(1, t('errorRequired', { field: t('templateMessageES') })),
+    en: z.string().min(1, t('errorRequired', { field: t('templateMessageEN') })),
 });
 
 const messagesFormSchema = (t: (key: string) => string) => z.object({
@@ -53,33 +53,11 @@ type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 
-const defaultInvitationMessage: Omit<InvitationMessage, 'id'> = {
-    name: 'Invitación Principal',
-    es: `🌿✨ Preparación Ceremonia de Ayahuasca ✨🌿
-La ayahuasca es una medicina ancestral amazónica que actúa como una gran maestra espiritual 🌀
-Su propósito es ayudarte a limpiar el cuerpo, liberar emociones estancadas y reconectar con tu verdadera esencia 💫💖
-
-Cuando tengas tiempos nos ayudas con este formulario, te puedes registrar con tu cuenta de Gmail y nos queda de registro con tus datos. Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar.
-
-Puedes hacerlo aquí: https://artedesanar.vercel.app/questionnaire 📘
-
-Así podrás ver la guía completa de preparación y dieta previa 7 días antes para que te prepares correctamente: https://artedesanar.vercel.app/preparation
-
-Con amor, respeto y presencia 🙏
-El Arte de Sanar 🌿🤍`,
-    en: `🌿✨ Ayahuasca Ceremony Preparation ✨🌿
-Ayahuasca is an ancestral Amazonian medicine that acts as a great spiritual teacher 🌀
-Its purpose is to help you cleanse your body, release stagnant emotions, and reconnect with your true essence 💫💖
-
-When you have time, please help us with this form. You can register with your Gmail account, and your data will be saved. We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar.
-
-You can do it here: https://artedesanar.vercel.app/questionnaire 📘
-
-You will also be able to see the complete preparation guide and pre-ceremony diet for the 7 days prior to prepare correctly: https://artedesanar.vercel.app/preparation
-
-With love, respect, and presence 🙏
-El Arte de Sanar 🌿🤍`
-};
+const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMessage, 'id'> => ({
+    name: t('defaultInvitationName'),
+    es: t('defaultInvitationMessageES'),
+    en: t('defaultInvitationMessageEN'),
+});
 
 
 export default function AdminUsersPage() {
@@ -105,7 +83,7 @@ export default function AdminUsersPage() {
         defaultValues: { templates: [] },
     });
     
-    const { fields: templateFields, append: appendTemplate, remove: removeTemplate, update: updateTemplate } = useFieldArray({
+    const { fields: templateFields, append: appendTemplate, remove: removeTemplate } = useFieldArray({
         control: messagesForm.control,
         name: "templates",
     });
@@ -127,7 +105,7 @@ export default function AdminUsersPage() {
             if(templates.length === 0) {
                 // Seed with default message if none exist
                 const newId = uuidv4();
-                const defaultTemplate = { id: newId, ...defaultInvitationMessage };
+                const defaultTemplate = { id: newId, ...defaultInvitationMessage(t) };
                 await addInvitationMessage(defaultTemplate);
                 templates = [defaultTemplate];
             }
@@ -151,7 +129,7 @@ export default function AdminUsersPage() {
         });
 
         return () => unsubscribe();
-    }, [router, toast]);
+    }, [router, toast, t]);
 
 
     const handleRoleChange = async (uid: string, isAdmin: boolean) => {
@@ -232,9 +210,9 @@ export default function AdminUsersPage() {
     const handleAddTemplate = async () => {
         const newTemplate: InvitationMessage = {
             id: uuidv4(),
-            name: `Nueva Plantilla ${templateFields.length + 1}`,
-            es: 'Escribe tu mensaje en español aquí.',
-            en: 'Write your message in English here.',
+            name: t('newTemplateName', { count: templateFields.length + 1 }),
+            es: t('newTemplateMessageES'),
+            en: t('newTemplateMessageEN'),
         }
         await addInvitationMessage(newTemplate);
         appendTemplate(newTemplate);
@@ -428,7 +406,7 @@ export default function AdminUsersPage() {
                                                     name={`templates.${index}.name`}
                                                     render={({ field }) => (
                                                         <FormItem className='mb-4'>
-                                                            <FormLabel>Nombre de la Plantilla</FormLabel>
+                                                            <FormLabel>{t('templateName')}</FormLabel>
                                                             <FormControl>
                                                                 <Input {...field} />
                                                             </FormControl>
@@ -441,7 +419,7 @@ export default function AdminUsersPage() {
                                                     name={`templates.${index}.es`}
                                                     render={({ field }) => (
                                                         <FormItem className='mb-2'>
-                                                            <FormLabel>Mensaje en Español</FormLabel>
+                                                            <FormLabel>{t('templateMessageES')}</FormLabel>
                                                             <FormControl>
                                                                 <Textarea {...field} rows={8}/>
                                                             </FormControl>
@@ -454,7 +432,7 @@ export default function AdminUsersPage() {
                                                     name={`templates.${index}.en`}
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel>Message in English</FormLabel>
+                                                            <FormLabel>{t('templateMessageEN')}</FormLabel>
                                                             <FormControl>
                                                                 <Textarea {...field} rows={8} />
                                                             </FormControl>
