@@ -37,7 +37,7 @@ const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null =>
     loop: '1',
     controls: '1',
     playlist: videoId,
-    mute: '1',
+    mute: '0',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };

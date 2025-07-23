@@ -127,7 +127,7 @@ export default function CoursesPage() {
         <div className="space-y-8">
             <h2 className="text-3xl font-headline text-primary">{title}</h2>
             {list.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-8 max-w-4xl">
+                <div className="grid md:grid-cols-2 gap-8 max-w-2xl">
                     {list.map(course => {
                         const isCompleted = userProfile?.completedCourses?.includes(course.id) || false;
                         return (
