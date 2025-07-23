@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -37,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.13';
+const APP_VERSION = '1.12';
 
 export default function Header() {
   const pathname = usePathname();
@@ -58,7 +59,7 @@ export default function Header() {
      { href: '/ceremonies', label: t('navAllCeremonies'), sectionId: 'ceremonies' },
      { href: '/my-ceremonies', label: t('navMyCeremonies'), sectionId: 'my-ceremonies' },
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
-     { href: '/questionnaire', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
+     { href: '/sanacion', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
 
   const adminNavLinks = [
