@@ -169,8 +169,8 @@ export default function AllCeremoniesPage() {
                 <div className="text-center">
                     <EditableTitle
                         tag="h1"
-                        id="allCeremoniesTitle"
-                        initialValue={t('allCeremoniesTitle')}
+                        id="ceremonies"
+                        initialValue={t('ceremonies')}
                         className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                     />
                      <EditableTitle
@@ -308,5 +308,7 @@ export default function AllCeremoniesPage() {
     );
 }
 
+
+    
 
     
