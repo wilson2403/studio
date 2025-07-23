@@ -138,7 +138,7 @@ export default function AdminUsersPage() {
         });
 
         return () => unsubscribe();
-    }, [router, toast, t]);
+    }, [router, toast, t, messagesForm]);
 
 
     const handleRoleChange = async (uid: string, isAdmin: boolean) => {
