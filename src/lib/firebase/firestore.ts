@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -731,6 +731,63 @@ export const deleteInvitationMessage = async (id: string): Promise<void> => {
     }
 }
 
+// --- Backup & Restore ---
+export const exportAllData = async (): Promise<BackupData> => {
+  const usersSnapshot = await getDocs(usersCollection);
+  const users = usersSnapshot.docs.map(d => d.data() as UserProfile);
+
+  const ceremoniesSnapshot = await getDocs(ceremoniesCollection);
+  const ceremonies = ceremoniesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Ceremony));
+
+  const guidesSnapshot = await getDocs(guidesCollection);
+  const guides = guidesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Guide));
+
+  const contentSnapshot = await getDocs(contentCollection);
+  const content = contentSnapshot.docs.map(d => ({ id: d.id, value: d.data().value }));
+
+  const settingsSnapshot = await getDocs(settingsCollection);
+  const settings = settingsSnapshot.docs.map(d => ({ id: d.id, value: d.data() }));
+
+  return { users, ceremonies, guides, content, settings };
+};
+
+export const importAllData = async (data: BackupData): Promise<void> => {
+  const batch = writeBatch(db);
+
+  // Clear existing data (optional, but recommended for a clean import)
+  // Note: This is a destructive action. Consider your use case.
+  // For this implementation, we will overwrite based on IDs.
+
+  data.users.forEach(user => {
+    const docRef = doc(db, 'users', user.uid);
+    batch.set(docRef, user);
+  });
+
+  data.ceremonies.forEach(ceremony => {
+    const docRef = doc(db, 'ceremonies', ceremony.id);
+    const { id, ...ceremonyData } = ceremony;
+    batch.set(docRef, ceremonyData);
+  });
+  
+  data.guides.forEach(guide => {
+    const docRef = doc(db, 'guides', guide.id);
+    const { id, ...guideData } = guide;
+    batch.set(docRef, guideData);
+  });
+  
+  data.content.forEach(contentItem => {
+    const docRef = doc(db, 'content', contentItem.id);
+    batch.set(docRef, { value: contentItem.value });
+  });
+
+  data.settings.forEach(setting => {
+    const docRef = doc(db, 'settings', setting.id);
+    batch.set(docRef, setting.value);
+  });
+
+  await batch.commit();
+};
+
 
 export type { Chat };
 export type { UserProfile };
@@ -748,3 +805,6 @@ export type { UserProfile };
 
 
 
+
+
+    

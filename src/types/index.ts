@@ -155,6 +155,8 @@ export type BackupData = {
     users: UserProfile[];
     ceremonies: Ceremony[];
     guides: Guide[];
-    content: { id: string, value: any }[];
-    settings: { id: string, value: any }[];
-}
+    content: { id: string; value: any }[];
+    settings: { id: string; value: any }[];
+};
+
+    
