@@ -14,10 +14,11 @@ import { Button } from '../ui/button';
 import { useEffect, useState, useCallback } from 'react';
 import { getUserProfile, updateUserProfile, getThemeSettings, setThemeSettings, ThemeSettings } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { User as UserIcon, Palette, Save } from 'lucide-react';
+import { User as UserIcon, Palette, Save, History } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { Separator } from '../ui/separator';
 import { ColorPicker } from './ColorPicker';
+import { useRouter, usePathname } from 'next/navigation';
 
 
 const profileFormSchema = (t: (key: string) => string) => z.object({
@@ -198,6 +199,12 @@ export default function SettingsTabs({ user }: { user: User }) {
   const { toast } = useToast();
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingTheme, setLoadingTheme] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const handleTabChange = (value: string) => {
+    router.push(`/admin${value === 'profile' ? '' : `/${value}`}`);
+  };
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema(t)),
@@ -307,136 +314,12 @@ export default function SettingsTabs({ user }: { user: User }) {
   ];
 
   return (
-    <Tabs defaultValue="profile" className="w-full">
-      <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="profile"><UserIcon className="mr-2 h-4 w-4"/>{t('profileTab')}</TabsTrigger>
-        <TabsTrigger value="theme"><Palette className="mr-2 h-4 w-4"/>{t('themeTab')}</TabsTrigger>
+    <Tabs defaultValue={pathname.replace('/admin', '') || 'profile'} onValueChange={handleTabChange} className="w-full">
+      <TabsList className="grid w-full grid-cols-3">
+        <TabsTrigger value=""><UserIcon className="mr-2 h-4 w-4"/>{t('profileTab')}</TabsTrigger>
+        <TabsTrigger value="/theme"><Palette className="mr-2 h-4 w-4"/>{t('themeTab')}</TabsTrigger>
+        <TabsTrigger value="/backup"><History className="mr-2 h-4 w-4"/>{t('backupTab')}</TabsTrigger>
       </TabsList>
-      <TabsContent value="profile">
-        <Card className="bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>{t('profileTabTitle')}</CardTitle>
-            <CardDescription>{t('profileTabDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-             {loadingProfile ? (
-                 <div className="space-y-4">
-                     <Skeleton className="h-10 w-full" />
-                     <Skeleton className="h-10 w-full" />
-                     <Skeleton className="h-10 w-1/4" />
-                 </div>
-             ) : (
-                <Form {...profileForm}>
-                    <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
-                        <FormField
-                            control={profileForm.control}
-                            name="phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('profilePhoneLabel')}</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="+506 8888-8888" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={profileForm.control}
-                            name="address"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>{t('profileAddressLabel')}</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder={t('profileAddressPlaceholder')} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" disabled={profileForm.formState.isSubmitting}>
-                            <Save className="mr-2 h-4 w-4"/>
-                            {profileForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                        </Button>
-                    </form>
-                </Form>
-             )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-      <TabsContent value="theme">
-        <Form {...themeForm}>
-            <form 
-                onSubmit={themeForm.handleSubmit(onThemeSubmit)} 
-                className="space-y-6"
-            >
-            <Card className="bg-card/50 backdrop-blur-sm">
-            <CardHeader>
-                <CardTitle>{t('themeTabTitle')}</CardTitle>
-                <CardDescription>{t('themeTabDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                {loadingTheme ? (
-                    <div className="space-y-4">
-                        {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
-                        <Skeleton className="h-10 w-1/4" />
-                    </div>
-                ) : (
-                  <>
-                    <div className="mb-8">
-                        <h3 className="text-lg font-medium mb-4">{t('predefinedThemes')}</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                            {predefinedThemes.map(theme => (
-                                <div key={theme.name}>
-                                    <Card className="overflow-hidden">
-                                        <div className="h-16 flex">
-                                            <div style={{ backgroundColor: `hsl(${theme.colors.light.primary})`}} className="w-1/2"></div>
-                                            <div style={{ backgroundColor: `hsl(${theme.colors.dark.primary})`}} className="w-1/2"></div>
-                                        </div>
-                                        <CardContent className="p-3">
-                                            <p className="font-semibold text-sm truncate">{t(theme.name)}</p>
-                                        </CardContent>
-                                    </Card>
-                                     <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full mt-2"
-                                        onClick={() => handleApplyTheme(theme.colors)}
-                                    >
-                                        {t('applyTheme')}
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <Separator className="my-8" />
-                    <div className='space-y-8'>
-                        <div>
-                            <h3 className="text-lg font-medium mb-4">{t('themeLight')}</h3>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                {colorFields.map(cf => renderColorField(`light-${cf.name}`, cf.name, cf.label, 'light'))}
-                            </div>
-                        </div>
-                        <Separator />
-                        <div>
-                            <h3 className="text-lg font-medium mb-4">{t('themeDark')}</h3>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                {colorFields.map(cf => renderColorField(`dark-${cf.name}`, cf.name, cf.label, 'dark'))}
-                            </div>
-                        </div>
-                    </div>
-                  </>
-                )}
-            </CardContent>
-            </Card>
-            <Button type="submit" disabled={themeForm.formState.isSubmitting}>
-                <Save className="mr-2 h-4 w-4"/>
-                {themeForm.formState.isSubmitting ? t('saving') : t('saveAndReload')}
-            </Button>
-            </form>
-        </Form>
-      </TabsContent>
     </Tabs>
   );
 }

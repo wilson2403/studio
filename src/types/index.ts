@@ -150,3 +150,11 @@ export type InvitationMessage = {
     es: string;
     en: string;
 }
+
+export type BackupData = {
+    users: UserProfile[];
+    ceremonies: Ceremony[];
+    guides: Guide[];
+    content: { id: string, value: any }[];
+    settings: { id: string, value: any }[];
+}

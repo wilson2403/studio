@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, User as UserIcon, Terminal } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, Users, MessageSquare, FileText, User as UserIcon, Terminal, History } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -139,6 +139,10 @@ export default function Header() {
                 <DropdownMenuItem onClick={() => router.push('/admin/logs')}>
                   <Terminal className="mr-2 h-4 w-4" />
                   <span>{t('errorLogs')}</span>
+                </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => router.push('/admin/backup')}>
+                  <History className="mr-2 h-4 w-4" />
+                  <span>{t('backup')}</span>
                 </DropdownMenuItem>
               </>
             )}
@@ -280,6 +284,12 @@ export default function Header() {
                           <Link href="/admin/logs" className="transition-colors hover:text-primary flex items-center gap-2">
                             <Terminal className="h-5 w-5" />
                             {t('errorLogs')}
+                          </Link>
+                        </SheetClose>
+                        <SheetClose asChild>
+                          <Link href="/admin/backup" className="transition-colors hover:text-primary flex items-center gap-2">
+                            <History className="h-5 w-5" />
+                            {t('backup')}
                           </Link>
                         </SheetClose>
                       </>
