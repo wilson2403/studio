@@ -18,21 +18,17 @@ export default function PreparationPage() {
     const [loading, setLoading] = useState(true);
 
     const processSteps = [
-        { id: "preparation", title: "preparationProcessTitle", description: "preparationProcessDescription", Icon: Sprout },
-        { id: "ceremony", title: "ceremonyProcessTitle", description: "ceremonyProcessDescription", Icon: Sparkles },
-        { id: "experience", title: "experienceProcessTitle", description: "experienceProcessDescription", Icon: Wind },
-        { id: "integration", title: "integrationProcessTitle", description: "integrationProcessDescription", Icon: HeartHandshake },
+        { id: "preparationProcess", titleId: "preparationProcessTitle", descriptionId: "preparationProcessDescription", Icon: Sprout },
+        { id: "ceremonyProcess", titleId: "ceremonyProcessTitle", descriptionId: "ceremonyProcessDescription", Icon: Sparkles },
+        { id: "experienceProcess", titleId: "experienceProcessTitle", descriptionId: "experienceProcessDescription", Icon: Wind },
+        { id: "integrationProcess", titleId: "integrationProcessTitle", descriptionId: "integrationProcessDescription", Icon: HeartHandshake },
     ];
     const mentalPrepSteps = [
-        { title: "meditationTitle", description: "meditationDescription" },
-        { title: "intentionsTitle", description: "intentionsDescription" },
-        { title: "reflectionTitle", description: "reflectionDescription" },
+        { titleId: "meditationTitle", descriptionId: "meditationDescription" },
+        { titleId: "intentionsTitle", descriptionId: "intentionsDescription" },
+        { titleId: "reflectionTitle", descriptionId: "reflectionDescription" },
     ];
-    const comfortItems = Array.isArray(t('comfortItemsList', { returnObjects: true })) ? t('comfortItemsList', { returnObjects: true }) as string[] : [];
-    const essentialItems = Array.isArray(t('essentialsList', { returnObjects: true })) ? t('essentialsList', { returnObjects: true }) as string[] : [];
-    const allowedFoods = Array.isArray(t('allowedFoodsList', { returnObjects: true })) ? t('allowedFoodsList', { returnObjects: true }) as string[] : [];
-    const prohibitedFoods = Array.isArray(t('prohibitedFoodsList', { returnObjects: true })) ? t('prohibitedFoodsList', { returnObjects: true }) as string[] : [];
-
+   
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
@@ -83,51 +79,82 @@ export default function PreparationPage() {
                     <EditableTitle
                         tag="p"
                         id="preparationGuideFullSubtitle"
-                        initialValue="Aquí puedes consultar toda la información de tu guía de preparación en cualquier momento."
+                        initialValue={t('preparationGuideFullSubtitle')}
                         className="text-lg text-foreground/80 font-body"
                     />
                 </div>
                 
                 <section>
-                    <h2 className="text-3xl font-headline text-primary text-center mb-8">{t('preparationProcessTitle')}</h2>
+                    <EditableTitle tag="h2" id="preparationProcessTitle" initialValue={t('preparationProcessTitle')} className="text-3xl font-headline text-primary text-center mb-8" />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {processSteps.map(({ id, title, description, Icon }) => (
+                        {processSteps.map(({ id, titleId, descriptionId, Icon }) => (
                             <div key={id} className="flex flex-col items-center text-center gap-3 p-4">
                                 <div className="p-3 bg-primary/10 rounded-full"><Icon className="h-10 w-10 text-primary" /></div>
-                                <h3 className="text-xl font-bold">{t(title)}</h3>
-                                <p className="text-muted-foreground">{t(description)}</p>
+                                <EditableTitle tag="h3" id={titleId} initialValue={t(titleId)} className="text-xl font-bold" />
+                                <EditableTitle tag="p" id={descriptionId} initialValue={t(descriptionId)} className="text-muted-foreground" />
                             </div>
                         ))}
                     </div>
                 </section>
 
                 <section>
-                    <h2 className="text-3xl font-headline text-primary text-center mb-4">{t('dietTitle')}</h2>
-                    <p className="text-muted-foreground text-center mb-8">{t('dietSubtitle')}</p>
+                    <EditableTitle tag="h2" id="dietTitle" initialValue={t('dietTitle')} className="text-3xl font-headline text-primary text-center mb-4" />
+                    <EditableTitle tag="p" id="dietSubtitle" initialValue={t('dietSubtitle')} className="text-muted-foreground text-center mb-8" />
                     <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                        <Card className="bg-green-950/20 border-green-500/30 p-6"><CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-green-400"><Leaf/>{t('allowedFoodsTitle')}</CardTitle></CardHeader><CardContent className="p-2"><ul className="space-y-2">{allowedFoods.map((item, i) => <li key={i} className="flex gap-2"><Check className="h-5 w-5 text-green-400 mt-0.5 shrink-0"/>{item}</li>)}</ul></CardContent></Card>
-                        <Card className="bg-red-950/20 border-red-500/30 p-6"><CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-red-400"><Minus/>{t('prohibitedFoodsTitle')}</CardTitle></CardHeader><CardContent className="p-2"><ul className="space-y-2">{prohibitedFoods.map((item, i) => <li key={i} className="flex gap-2"><Minus className="h-5 w-5 text-red-400 mt-0.5 shrink-0"/>{item}</li>)}</ul></CardContent></Card>
+                        <Card className="bg-green-950/20 border-green-500/30 p-6">
+                            <CardHeader className="p-2">
+                                <CardTitle className="flex items-center gap-2 text-green-400">
+                                    <Leaf/>
+                                    <EditableTitle tag="p" id="allowedFoodsTitle" initialValue={t('allowedFoodsTitle')} />
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="p-2">
+                                 <EditableTitle tag="p" id="allowedFoodsList" initialValue={t('allowedFoodsList')} className="space-y-2" />
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-red-950/20 border-red-500/30 p-6">
+                            <CardHeader className="p-2">
+                                <CardTitle className="flex items-center gap-2 text-red-400">
+                                    <Minus/>
+                                    <EditableTitle tag="p" id="prohibitedFoodsTitle" initialValue={t('prohibitedFoodsTitle')} />
+                                </CardTitle>
+                            </CardHeader>
+                             <CardContent className="p-2">
+                                <EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} className="space-y-2" />
+                            </CardContent>
+                        </Card>
                     </div>
                 </section>
                 
                 <section>
-                    <h2 className="text-3xl font-headline text-primary text-center mb-4">{t('mentalPrepTitle')}</h2>
-                    <p className="text-muted-foreground text-center mb-8">{t('mentalPrepSubtitle')}</p>
+                    <EditableTitle tag="h2" id="mentalPrepTitle" initialValue={t('mentalPrepTitle')} className="text-3xl font-headline text-primary text-center mb-4" />
+                    <EditableTitle tag="p" id="mentalPrepSubtitle" initialValue={t('mentalPrepSubtitle')} className="text-muted-foreground text-center mb-8" />
                     <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                        {mentalPrepSteps.map(item => (<Card key={item.title} className="p-6 text-center"><CardTitle className="font-bold text-xl mb-2">{t(item.title)}</CardTitle><p className="text-muted-foreground">{t(item.description)}</p></Card>))}
+                        {mentalPrepSteps.map(item => (
+                            <Card key={item.titleId} className="p-6 text-center">
+                                <EditableTitle tag="h3" id={item.titleId} initialValue={t(item.titleId)} className="font-bold text-xl mb-2" />
+                                <EditableTitle tag="p" id={item.descriptionId} initialValue={t(item.descriptionId)} className="text-muted-foreground" />
+                            </Card>
+                        ))}
                     </div>
                 </section>
                 
                 <section className="text-center max-w-3xl mx-auto">
-                    <h2 className="text-3xl font-headline text-primary mb-4">{t('emotionalHealingTitle')}</h2>
-                    <p className="text-muted-foreground text-lg">{t('emotionalHealingDescription')}</p>
+                    <EditableTitle tag="h2" id="emotionalHealingTitle" initialValue={t('emotionalHealingTitle')} className="text-3xl font-headline text-primary mb-4" />
+                    <EditableTitle tag="p" id="emotionalHealingDescription" initialValue={t('emotionalHealingDescription')} className="text-muted-foreground text-lg" />
                 </section>
 
                 <section>
-                     <h2 className="text-3xl font-headline text-primary text-center mb-8">{t('whatToBringTitle')}</h2>
+                     <EditableTitle tag="h2" id="whatToBringTitle" initialValue={t('whatToBringTitle')} className="text-3xl font-headline text-primary text-center mb-8" />
                      <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-                        <div><h3 className="font-bold text-xl mb-4 text-center">{t('comfortItemsTitle')}</h3><ul className="space-y-2">{comfortItems.map((item, i) => <li key={i} className="flex gap-3 items-center"><CheckCircle className="h-5 w-5 text-primary shrink-0"/>{item}</li>)}</ul></div>
-                        <div><h3 className="font-bold text-xl mb-4 text-center">{t('essentialsTitle')}</h3><ul className="space-y-2">{essentialItems.map((item, i) => <li key={i} className="flex gap-3 items-center"><CheckCircle className="h-5 w-5 text-primary shrink-0"/>{item}</li>)}</ul></div>
+                        <div>
+                            <EditableTitle tag="h3" id="comfortItemsTitle" initialValue={t('comfortItemsTitle')} className="font-bold text-xl mb-4 text-center" />
+                            <EditableTitle tag="p" id="comfortItemsList" initialValue={t('comfortItemsList')} className="space-y-2" />
+                        </div>
+                        <div>
+                            <EditableTitle tag="h3" id="essentialsTitle" initialValue={t('essentialsTitle')} className="font-bold text-xl mb-4 text-center" />
+                             <EditableTitle tag="p" id="essentialsList" initialValue={t('essentialsList')} className="space-y-2" />
+                        </div>
                     </div>
                 </section>
             </div>

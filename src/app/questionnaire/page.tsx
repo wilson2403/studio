@@ -22,6 +22,8 @@ import Link from 'next/link';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Progress } from '@/components/ui/progress';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
+import { EditableProvider } from '@/components/home/EditableProvider';
+import { EditableTitle } from '@/components/home/EditableTitle';
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -68,20 +70,16 @@ export default function PreparationGuidePage() {
 
   // Content for the steps
   const processSteps = [
-      { id: "preparation", title: "preparationProcessTitle", description: "preparationProcessDescription", Icon: Sprout },
-      { id: "ceremony", title: "ceremonyProcessTitle", description: "ceremonyProcessDescription", Icon: Sparkles },
-      { id: "experience", title: "experienceProcessTitle", description: "experienceProcessDescription", Icon: Wind },
-      { id: "integration", title: "integrationProcessTitle", description: "integrationProcessDescription", Icon: HeartHandshake },
+      { id: "preparationProcess", titleId: "preparationProcessTitle", descriptionId: "preparationProcessDescription", Icon: Sprout },
+      { id: "ceremonyProcess", titleId: "ceremonyProcessTitle", descriptionId: "ceremonyProcessDescription", Icon: Sparkles },
+      { id: "experienceProcess", titleId: "experienceProcessTitle", descriptionId: "experienceProcessDescription", Icon: Wind },
+      { id: "integrationProcess", titleId: "integrationProcessTitle", descriptionId: "integrationProcessDescription", Icon: HeartHandshake },
   ];
   const mentalPrepSteps = [
-      { title: "meditationTitle", description: "meditationDescription" },
-      { title: "intentionsTitle", description: "intentionsDescription" },
-      { title: "reflectionTitle", description: "reflectionDescription" },
+      { titleId: "meditationTitle", descriptionId: "meditationDescription" },
+      { titleId: "intentionsTitle", descriptionId: "intentionsDescription" },
+      { titleId: "reflectionTitle", descriptionId: "reflectionDescription" },
   ];
-  const comfortItems = Array.isArray(t('comfortItemsList', { returnObjects: true })) ? t('comfortItemsList', { returnObjects: true }) as string[] : [];
-  const essentialItems = Array.isArray(t('essentialsList', { returnObjects: true })) ? t('essentialsList', { returnObjects: true }) as string[] : [];
-  const allowedFoods = Array.isArray(t('allowedFoodsList', { returnObjects: true })) ? t('allowedFoodsList', { returnObjects: true }) as string[] : [];
-  const prohibitedFoods = Array.isArray(t('prohibitedFoodsList', { returnObjects: true })) ? t('prohibitedFoodsList', { returnObjects: true }) as string[] : [];
   
   const allSteps = [
     { type: 'question', id: 'hasMedicalConditions' },
@@ -90,10 +88,10 @@ export default function PreparationGuidePage() {
     { type: 'question', id: 'hasPreviousExperience' },
     { type: 'question', id: 'mainIntention' },
     { type: 'info', id: 'process', content: processSteps },
-    { type: 'info', id: 'diet', content: { allowed: allowedFoods, prohibited: prohibitedFoods } },
+    { type: 'info', id: 'diet', content: null },
     { type: 'info', id: 'mentalPrep', content: mentalPrepSteps },
     { type: 'info', id: 'emotionalHealing', content: null },
-    { type: 'info', id: 'whatToBring', content: { comfort: comfortItems, essentials: essentialItems } },
+    { type: 'info', id: 'whatToBring', content: null },
     { type: 'final', id: 'final' }
   ];
 
@@ -261,7 +259,7 @@ export default function PreparationGuidePage() {
   }
 
   return (
-    <>
+    <EditableProvider>
     <div className="container py-12 md:py-16">
       <Card className="mx-auto max-w-4xl shadow-2xl">
         <CardHeader className="text-center">
@@ -281,46 +279,77 @@ export default function PreparationGuidePage() {
                       </div>
                     ) : step.type === 'info' && step.id === 'process' ? (
                        <div>
-                          <h2 className="text-2xl font-headline text-primary text-center mb-6">{t('preparationPageTitle')}</h2>
+                          <EditableTitle tag="h2" id="preparationProcessTitle" initialValue={t('preparationProcessTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                              {(step.content as typeof processSteps).map(({ id, title, description, Icon }) => (
+                              {(step.content as typeof processSteps).map(({ id, titleId, descriptionId, Icon }) => (
                                   <div key={id} className="flex flex-col items-center text-center gap-3 p-4">
                                       <div className="p-3 bg-primary/10 rounded-full"><Icon className="h-8 w-8 text-primary" /></div>
-                                      <h3 className="text-xl font-bold">{t(title)}</h3>
-                                      <p className="text-muted-foreground">{t(description)}</p>
+                                      <EditableTitle tag="h3" id={titleId} initialValue={t(titleId)} className="text-xl font-bold" />
+                                      <EditableTitle tag="p" id={descriptionId} initialValue={t(descriptionId)} className="text-muted-foreground" />
                                   </div>
                               ))}
                            </div>
                        </div>
                     ) : step.type === 'info' && step.id === 'diet' ? (
                       <div>
-                        <h2 className="text-2xl font-headline text-primary text-center mb-6">{t('dietTitle')}</h2>
-                        <p className="text-muted-foreground text-center mb-6">{t('dietSubtitle')}</p>
+                        <EditableTitle tag="h2" id="dietTitle" initialValue={t('dietTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
+                        <EditableTitle tag="p" id="dietSubtitle" initialValue={t('dietSubtitle')} className="text-muted-foreground text-center mb-6" />
                         <div className="grid md:grid-cols-2 gap-6">
-                            <Card className="bg-green-950/20 border-green-500/30 p-4"><CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-green-400"><Leaf/>{t('allowedFoodsTitle')}</CardTitle></CardHeader><CardContent className="p-2"><ul className="space-y-2">{((step.content as any).allowed as string[]).map((item, i) => <li key={i} className="flex gap-2"><Check className="h-5 w-5 text-green-400 mt-0.5 shrink-0"/>{item}</li>)}</ul></CardContent></Card>
-                            <Card className="bg-red-950/20 border-red-500/30 p-4"><CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-red-400"><Minus/>{t('prohibitedFoodsTitle')}</CardTitle></CardHeader><CardContent className="p-2"><ul className="space-y-2">{((step.content as any).prohibited as string[]).map((item, i) => <li key={i} className="flex gap-2"><Minus className="h-5 w-5 text-red-400 mt-0.5 shrink-0"/>{item}</li>)}</ul></CardContent></Card>
+                            <Card className="bg-green-950/20 border-green-500/30 p-4">
+                               <CardHeader className="p-2">
+                                  <CardTitle className="flex items-center gap-2 text-green-400">
+                                      <Leaf/>
+                                      <EditableTitle tag="p" id="allowedFoodsTitle" initialValue={t('allowedFoodsTitle')} />
+                                  </CardTitle>
+                               </CardHeader>
+                               <CardContent className="p-2">
+                                   <EditableTitle tag="p" id="allowedFoodsList" initialValue={t('allowedFoodsList')} />
+                               </CardContent>
+                            </Card>
+                            <Card className="bg-red-950/20 border-red-500/30 p-4">
+                                <CardHeader className="p-2">
+                                  <CardTitle className="flex items-center gap-2 text-red-400">
+                                    <Minus/>
+                                    <EditableTitle tag="p" id="prohibitedFoodsTitle" initialValue={t('prohibitedFoodsTitle')} />
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-2">
+                                  <EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} />
+                                </CardContent>
+                            </Card>
                         </div>
                       </div>
                     ) : step.type === 'info' && step.id === 'mentalPrep' ? (
                       <div>
-                        <h2 className="text-2xl font-headline text-primary text-center mb-6">{t('mentalPrepTitle')}</h2>
-                        <p className="text-muted-foreground text-center mb-6">{t('mentalPrepSubtitle')}</p>
+                        <EditableTitle tag="h2" id="mentalPrepTitle" initialValue={t('mentalPrepTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
+                        <EditableTitle tag="p" id="mentalPrepSubtitle" initialValue={t('mentalPrepSubtitle')} className="text-muted-foreground text-center mb-6" />
                         <div className="grid md:grid-cols-3 gap-6">
-                          {(step.content as typeof mentalPrepSteps).map(item => (<Card key={item.title} className="p-4 text-center"><CardTitle className="font-bold text-lg mb-2">{t(item.title)}</CardTitle><p className="text-muted-foreground">{t(item.description)}</p></Card>))}
+                          {(step.content as typeof mentalPrepSteps).map(item => (
+                            <Card key={item.titleId} className="p-4 text-center">
+                                <EditableTitle tag="h3" id={item.titleId} initialValue={t(item.titleId)} className="font-bold text-lg mb-2" />
+                                <EditableTitle tag="p" id={item.descriptionId} initialValue={t(item.descriptionId)} className="text-muted-foreground" />
+                            </Card>
+                          ))}
                         </div>
                       </div>
                     ) : step.type === 'info' && step.id === 'emotionalHealing' ? (
                        <div className="text-center max-w-2xl mx-auto">
-                           <h2 className="text-2xl font-headline text-primary mb-4">{t('emotionalHealingTitle')}</h2>
-                           <p className="text-muted-foreground">{t('emotionalHealingDescription')}</p>
+                           <EditableTitle tag="h2" id="emotionalHealingTitle" initialValue={t('emotionalHealingTitle')} className="text-2xl font-headline text-primary mb-4" />
+                           <EditableTitle tag="p" id="emotionalHealingDescription" initialValue={t('emotionalHealingDescription')} className="text-muted-foreground" />
                        </div>
                     ) : step.type === 'info' && step.id === 'whatToBring' ? (
                        <div>
-                          <h2 className="text-2xl font-headline text-primary text-center mb-6">{t('whatToBringTitle')}</h2>
-                          <p className="text-muted-foreground text-center mb-6">{t('whatToBringSubtitle')}</p>
+                          <EditableTitle tag="h2" id="whatToBringTitle" initialValue={t('whatToBringTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
+                          <EditableTitle tag="p" id="whatToBringSubtitle" initialValue={t('whatToBringSubtitle')} className="text-muted-foreground text-center mb-6" />
                           <div className="grid md:grid-cols-2 gap-6">
-                              <div><h3 className="font-bold text-lg mb-2">{t('comfortItemsTitle')}</h3><ul className="space-y-2">{((step.content as any).comfort as string[]).map((item, i) => <li key={i} className="flex gap-2"><CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0"/>{item}</li>)}</ul></div>
-                              <div><h3 className="font-bold text-lg mb-2">{t('essentialsTitle')}</h3><ul className="space-y-2">{((step.content as any).essentials as string[]).map((item, i) => <li key={i} className="flex gap-2"><CheckCircle className="h-5 w-5 text-primary mt-0.5 shrink-0"/>{item}</li>)}</ul></div>
+                              <div>
+                                <EditableTitle tag="h3" id="comfortItemsTitle" initialValue={t('comfortItemsTitle')} className="font-bold text-lg mb-2" />
+                                <EditableTitle tag="p" id="comfortItemsList" initialValue={t('comfortItemsList')} />
+                              </div>
+                              <div>
+                                <EditableTitle tag="h3" id="essentialsTitle" initialValue={t('essentialsTitle')} className="font-bold text-lg mb-2" />
+                                <EditableTitle tag="p" id="essentialsList" initialValue={t('essentialsList')} />
+                              </div>
                           </div>
                        </div>
                     ) : step.type === 'final' ? (
@@ -362,6 +391,6 @@ export default function PreparationGuidePage() {
             onClose={() => setIsAnswersDialogOpen(false)}
         />
     )}
-    </>
+    </EditableProvider>
   );
 }
