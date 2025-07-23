@@ -52,11 +52,11 @@ export default function Header() {
   const navLinks = [
     { href: '/', label: t('navHome'), sectionId: 'home' },
     { href: '/ayahuasca', label: t('navAyahuasca'), sectionId: 'ayahuasca' },
-    { href: '/ceremonies', label: t('navAllCeremonies'), sectionId: 'ceremonies' },
     { href: '/guides', label: t('navGuides'), sectionId: 'guides' },
   ];
   
   const userNavLinks = [
+     { href: '/ceremonies', label: t('navAllCeremonies'), sectionId: 'ceremonies' },
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
      { href: '/questionnaire', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
