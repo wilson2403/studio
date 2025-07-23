@@ -2,7 +2,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, initializeFirestore, persistentLocalCache, memoryLocalCache } from "firebase/firestore";
+import { getFirestore, initializeFirestore, persistentLocalCache, memoryLocalCache, enableIndexedDbPersistence } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
@@ -22,11 +22,24 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 
 // Initialize Firestore with persistence settings
-const db = initializeFirestore(app, {
-    localCache: persistentLocalCache(/*{size: CACHE_SIZE_UNLIMITED}*/)
-    // For multi-tab support, you could use memoryLocalCache()
-    // localCache: memoryLocalCache()
-});
+let db: any;
+try {
+    db = getFirestore(app);
+    enableIndexedDbPersistence(db).catch((err) => {
+        if (err.code == 'failed-precondition') {
+            // Multiple tabs open, persistence can only be enabled
+            // in one tab at a a time.
+            console.warn('Firestore persistence failed: multiple tabs open.');
+        } else if (err.code == 'unimplemented') {
+            // The current browser does not support all of the
+            // features required to enable persistence
+            console.warn('Firestore persistence failed: browser does not support it.');
+        }
+    });
+} catch(e) {
+    console.error("Error initializing Firestore", e);
+    db = getFirestore(app); // Fallback to default initialization
+}
 
 
 export { app, auth, db, storage };
