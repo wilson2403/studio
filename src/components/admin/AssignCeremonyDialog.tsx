@@ -27,16 +27,16 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate }
   const [selectedCeremonies, setSelectedCeremonies] = useState<string[]>([]);
 
   useEffect(() => {
-    async function fetchActiveCeremonies() {
+    async function fetchAllCeremonies() {
       if (isOpen) {
         setLoading(true);
-        const activeCeremonies = await getCeremonies('active');
-        setCeremonies(activeCeremonies);
+        const allCeremonies = await getCeremonies(); // Fetch all ceremonies regardless of status
+        setCeremonies(allCeremonies);
         setSelectedCeremonies(user.assignedCeremonies || []);
         setLoading(false);
       }
     }
-    fetchActiveCeremonies();
+    fetchAllCeremonies();
   }, [isOpen, user]);
 
   const handleCheckboxChange = (ceremonyId: string, checked: boolean) => {
@@ -81,12 +81,13 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate }
                   />
                   <Label htmlFor={`ceremony-${ceremony.id}`} className="flex flex-col gap-1 w-full cursor-pointer">
                     <span className="font-semibold">{ceremony.title}</span>
+                    <span className="text-xs text-muted-foreground capitalize">({t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`)})</span>
                     {ceremony.date && <span className="text-xs text-muted-foreground">{ceremony.date}</span>}
                   </Label>
                 </div>
               ))
             ) : (
-              <p className="text-center text-muted-foreground py-8">{t('noActiveCeremonies')}</p>
+              <p className="text-center text-muted-foreground py-8">{t('noCeremoniesFound')}</p>
             )}
           </div>
         </ScrollArea>
@@ -100,4 +101,3 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate }
     </Dialog>
   );
 }
-
