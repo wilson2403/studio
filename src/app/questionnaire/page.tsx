@@ -205,7 +205,7 @@ export default function PreparationGuidePage() {
 
   const renderRadioGroup = (name: keyof FormData, label: string) => {
       const fieldName = name as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
-      if (isCompleted || currentStep < form.getValues().preparationStep || 0) {
+      if (isCompleted || currentStep < (form.getValues().preparationStep || 0)) {
         return renderReadOnlyAnswer(label, form.getValues(fieldName), form.getValues(fieldName.replace('has', 'details').replace('is', 'details') as keyof FormData));
       }
 
@@ -292,8 +292,18 @@ export default function PreparationGuidePage() {
     return (
         <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
             <Card className="w-full max-w-md text-center">
-                <CardHeader><CardTitle>{t('accessDenied')}</CardTitle><CardDescription>{t('mustBeLoggedIn')}</CardDescription></CardHeader>
-                <CardContent><Button asChild><Link href="/login?redirect=/questionnaire">{t('signIn')}</Link></Button></CardContent>
+                <CardHeader>
+                  <CardTitle>{t('authRequiredJourneyTitle')}</CardTitle>
+                  <CardDescription>{t('authRequiredJourneyDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col sm:flex-row gap-2">
+                    <Button asChild className="w-full">
+                        <Link href="/login?redirect=/questionnaire">{t('signIn')}</Link>
+                    </Button>
+                    <Button asChild variant="secondary" className="w-full">
+                        <Link href="/register?redirect=/questionnaire">{t('registerButton')}</Link>
+                    </Button>
+                </CardContent>
             </Card>
         </div>
     )
@@ -439,3 +449,5 @@ export default function PreparationGuidePage() {
     </EditableProvider>
   );
 }
+
+    

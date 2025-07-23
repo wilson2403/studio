@@ -53,12 +53,15 @@ export default function PreparationPage() {
             <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
                 <Card className="w-full max-w-md text-center">
                     <CardHeader>
-                        <CardTitle>{t('accessDenied')}</CardTitle>
-                        <CardDescription>{t('mustBeLoggedInToView')}</CardDescription>
+                        <CardTitle>{t('authRequiredJourneyTitle')}</CardTitle>
+                        <CardDescription>{t('authRequiredJourneyDescription')}</CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <Button asChild>
+                    <CardContent className="flex flex-col sm:flex-row gap-2">
+                        <Button asChild className="w-full">
                             <Link href="/login?redirect=/preparation">{t('signIn')}</Link>
+                        </Button>
+                         <Button asChild variant="secondary" className="w-full">
+                            <Link href="/register?redirect=/preparation">{t('registerButton')}</Link>
                         </Button>
                     </CardContent>
                 </Card>
@@ -161,3 +164,5 @@ export default function PreparationPage() {
         </EditableProvider>
     )
 }
+
+    
