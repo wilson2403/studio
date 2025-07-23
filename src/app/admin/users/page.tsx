@@ -6,10 +6,10 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getContent } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getContent, setContent } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -33,10 +33,45 @@ const emailFormSchema = (t: (key: string) => string) => z.object({
     body: z.string().min(1, t('errorRequired', { field: t('emailBody') })),
 });
 
+const messagesFormSchema = (t: (key: string) => string) => z.object({
+    es: z.string().min(1, t('errorRequired', { field: 'Mensaje ES' })),
+    en: z.string().min(1, t('errorRequired', { field: 'Message EN' })),
+});
+
+
 type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
+type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
+
+const defaultInvitationMessage = {
+    es: `🌿✨ Preparación Ceremonia de Ayahuasca ✨🌿
+La ayahuasca es una medicina ancestral amazónica que actúa como una gran maestra espiritual 🌀
+Su propósito es ayudarte a limpiar el cuerpo, liberar emociones estancadas y reconectar con tu verdadera esencia 💫💖
+
+Cuando tengas tiempos nos ayudas con este formulario, te puedes registrar con tu cuenta de Gmail y nos queda de registro con tus datos. Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar.
+
+Puedes hacerlo aquí: https://artedesanar.vercel.app/questionnaire 📘
+
+Así podrás ver la guía completa de preparación y dieta previa 7 días antes para que te prepares correctamente: https://artedesanar.vercel.app/preparation
+
+Con amor, respeto y presencia 🙏
+El Arte de Sanar 🌿🤍`,
+    en: `🌿✨ Ayahuasca Ceremony Preparation ✨🌿
+Ayahuasca is an ancestral Amazonian medicine that acts as a great spiritual teacher 🌀
+Its purpose is to help you cleanse your body, release stagnant emotions, and reconnect with your true essence 💫💖
+
+When you have time, please help us with this form. You can register with your Gmail account, and your data will be saved. We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar.
+
+You can do it here: https://artedesanar.vercel.app/questionnaire 📘
+
+You will also be able to see the complete preparation guide and pre-ceremony diet for the 7 days prior to prepare correctly: https://artedesanar.vercel.app/preparation
+
+With love, respect, and presence 🙏
+El Arte de Sanar 🌿🤍`
+};
+
 
 export default function AdminUsersPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -44,7 +79,8 @@ export default function AdminUsersPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [viewingUser, setViewingUser] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-    const [invitationMessage, setInvitationMessage] = useState<{es: string, en: string} | null>(null);
+    const [invitationMessage, setInvitationMessage] = useState<{es: string, en: string}>(defaultInvitationMessage);
+    const [loadingMessages, setLoadingMessages] = useState(true);
     const router = useRouter();
     const { t, i18n } = useTranslation();
     const { toast } = useToast();
@@ -56,6 +92,12 @@ export default function AdminUsersPage() {
             body: '',
         },
     });
+
+     const messagesForm = useForm<MessagesFormValues>({
+        resolver: zodResolver(messagesFormSchema(t)),
+        defaultValues: defaultInvitationMessage,
+    });
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -69,10 +111,17 @@ export default function AdminUsersPage() {
         };
 
         const fetchInvitationMessage = async () => {
+            setLoadingMessages(true);
             const content = await getContent('invitationMessage');
             if(content && typeof content === 'object') {
-                setInvitationMessage(content as {es: string, en: string});
+                const message = content as {es: string, en: string};
+                setInvitationMessage(message);
+                messagesForm.reset(message);
+            } else {
+                setInvitationMessage(defaultInvitationMessage);
+                messagesForm.reset(defaultInvitationMessage);
             }
+            setLoadingMessages(false);
         }
 
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -95,7 +144,7 @@ export default function AdminUsersPage() {
         });
 
         return () => unsubscribe();
-    }, [router, toast]);
+    }, [router, toast, messagesForm]);
 
 
     const handleRoleChange = async (uid: string, isAdmin: boolean) => {
@@ -127,7 +176,7 @@ export default function AdminUsersPage() {
 
     const handleInvite = (phone?: string) => {
         const lang = i18n.language as 'es' | 'en';
-        const message = invitationMessage?.[lang] || invitationMessage?.es || 'Te invitamos a completar el cuestionario: https://artedesanar.vercel.app/questionnaire';
+        const message = invitationMessage?.[lang] || invitationMessage?.es;
         const encodedMessage = encodeURIComponent(message);
         let url = `https://wa.me/`
 
@@ -159,6 +208,16 @@ export default function AdminUsersPage() {
              emailForm.control.disabled = false;
         }
     };
+    
+    const onMessagesSubmit = async (data: MessagesFormValues) => {
+        try {
+            await setContent('invitationMessage', data);
+            setInvitationMessage(data);
+            toast({ title: t('messagesUpdatedSuccess') });
+        } catch (error) {
+            toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
+        }
+    };
 
     if (loading) {
         return (
@@ -182,9 +241,10 @@ export default function AdminUsersPage() {
             </div>
 
             <Tabs defaultValue="users" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="users"><Users className="mr-2 h-4 w-4" />{t('usersTab')}</TabsTrigger>
                     <TabsTrigger value="email"><Mail className="mr-2 h-4 w-4" />{t('emailTab')}</TabsTrigger>
+                    <TabsTrigger value="invitation"><MessageSquare className="mr-2 h-4 w-4"/>{t('invitationTabTitle')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="users">
                     <Card className="bg-card/50 backdrop-blur-sm">
@@ -311,6 +371,58 @@ export default function AdminUsersPage() {
                         </CardContent>
                     </Card>
                 </TabsContent>
+                 <TabsContent value="invitation">
+                    <Card className="bg-card/50 backdrop-blur-sm">
+                        <CardHeader>
+                            <CardTitle>{t('invitationTabTitle')}</CardTitle>
+                            <CardDescription>{t('invitationTabDescription')}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {loadingMessages ? (
+                                <div className="space-y-4">
+                                    <Skeleton className="h-24 w-full" />
+                                    <Skeleton className="h-24 w-full" />
+                                    <Skeleton className="h-10 w-1/4" />
+                                </div>
+                            ) : (
+                                <Form {...messagesForm}>
+                                    <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-6">
+                                        <FormField
+                                            control={messagesForm.control}
+                                            name="es"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Mensaje en Español</FormLabel>
+                                                    <FormControl>
+                                                        <Textarea {...field} rows={12}/>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={messagesForm.control}
+                                            name="en"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Message in English</FormLabel>
+                                                    <FormControl>
+                                                        <Textarea {...field} rows={12} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <Button type="submit" disabled={messagesForm.formState.isSubmitting}>
+                                            <Save className="mr-2 h-4 w-4"/>
+                                            {messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
+                                        </Button>
+                                    </form>
+                                </Form>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
             </Tabs>
             {viewingUser && (
                 <QuestionnaireDialog 
@@ -331,3 +443,4 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+

@@ -12,23 +12,17 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { useEffect, useState, useCallback } from 'react';
-import { getUserProfile, updateUserProfile, getThemeSettings, setThemeSettings, ThemeSettings, setContent, getContent } from '@/lib/firebase/firestore';
+import { getUserProfile, updateUserProfile, getThemeSettings, setThemeSettings, ThemeSettings } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { User as UserIcon, Palette, Save, MessageSquare } from 'lucide-react';
+import { User as UserIcon, Palette, Save } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { Separator } from '../ui/separator';
 import { ColorPicker } from './ColorPicker';
-import { Textarea } from '../ui/textarea';
 
 
 const profileFormSchema = (t: (key: string) => string) => z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
-});
-
-const messagesFormSchema = (t: (key: string) => string) => z.object({
-    es: z.string().min(1, t('errorRequired', { field: 'Mensaje ES' })),
-    en: z.string().min(1, t('errorRequired', { field: 'Message EN' })),
 });
 
 const colorThemeSchema = z.object({
@@ -60,7 +54,6 @@ const themeFormSchema = z.object({
 
 type ProfileFormValues = z.infer<ReturnType<typeof profileFormSchema>>;
 type ThemeFormValues = z.infer<typeof themeFormSchema>;
-type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 
 
 const defaultTheme: ThemeSettings = {
@@ -107,34 +100,6 @@ const defaultTheme: ThemeSettings = {
         ring: '150 40% 45%',
     }
 };
-
-const defaultInvitationMessage = {
-    es: `🌿✨ Preparación Ceremonia de Ayahuasca ✨🌿
-La ayahuasca es una medicina ancestral amazónica que actúa como una gran maestra espiritual 🌀
-Su propósito es ayudarte a limpiar el cuerpo, liberar emociones estancadas y reconectar con tu verdadera esencia 💫💖
-
-Cuando tengas tiempos nos ayudas con este formulario, te puedes registrar con tu cuenta de Gmail y nos queda de registro con tus datos. Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar.
-
-Puedes hacerlo aquí: https://artedesanar.vercel.app/questionnaire 📘
-
-Así podrás ver la guía completa de preparación y dieta previa 7 días antes para que te prepares correctamente: https://artedesanar.vercel.app/preparation
-
-Con amor, respeto y presencia 🙏
-El Arte de Sanar 🌿🤍`,
-    en: `🌿✨ Ayahuasca Ceremony Preparation ✨🌿
-Ayahuasca is an ancestral Amazonian medicine that acts as a great spiritual teacher 🌀
-Its purpose is to help you cleanse your body, release stagnant emotions, and reconnect with your true essence 💫💖
-
-When you have time, please help us with this form. You can register with your Gmail account, and your data will be saved. We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar.
-
-You can do it here: https://artedesanar.vercel.app/questionnaire 📘
-
-You will also be able to see the complete preparation guide and pre-ceremony diet for the 7 days prior to prepare correctly: https://artedesanar.vercel.app/preparation
-
-With love, respect, and presence 🙏
-El Arte de Sanar 🌿🤍`
-};
-
 
 const predefinedThemes: { name: string; colors: ThemeSettings }[] = [
     { name: 'themeDefault', colors: defaultTheme },
@@ -233,7 +198,6 @@ export default function SettingsTabs({ user }: { user: User }) {
   const { toast } = useToast();
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [loadingTheme, setLoadingTheme] = useState(true);
-  const [loadingMessages, setLoadingMessages] = useState(true);
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema(t)),
@@ -243,11 +207,6 @@ export default function SettingsTabs({ user }: { user: User }) {
   const themeForm = useForm<ThemeFormValues>({
     resolver: zodResolver(themeFormSchema),
     defaultValues: defaultTheme,
-  });
-  
-  const messagesForm = useForm<MessagesFormValues>({
-    resolver: zodResolver(messagesFormSchema(t)),
-    defaultValues: defaultInvitationMessage,
   });
 
   const handleApplyTheme = (theme: ThemeSettings) => {
@@ -270,18 +229,6 @@ export default function SettingsTabs({ user }: { user: User }) {
     loadProfile();
   }, [user.uid, profileForm]);
   
-  useEffect(() => {
-    async function loadMessages() {
-        setLoadingMessages(true);
-        const content = await getContent('invitationMessage');
-        if (content && typeof content === 'object') {
-            messagesForm.reset(content as MessagesFormValues);
-        }
-        setLoadingMessages(false);
-    }
-    loadMessages();
-  }, [messagesForm])
-
   useEffect(() => {
     async function loadTheme() {
         setLoadingTheme(true);
@@ -311,15 +258,6 @@ export default function SettingsTabs({ user }: { user: User }) {
       setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       toast({ title: t('themeUpdatedError'), variant: 'destructive' });
-    }
-  };
-
-  const onMessagesSubmit = async (data: MessagesFormValues) => {
-    try {
-        await setContent('invitationMessage', data);
-        toast({ title: t('messagesUpdatedSuccess') });
-    } catch (error) {
-        toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
     }
   };
   
@@ -370,10 +308,9 @@ export default function SettingsTabs({ user }: { user: User }) {
 
   return (
     <Tabs defaultValue="profile" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="profile"><UserIcon className="mr-2 h-4 w-4"/>{t('profileTab')}</TabsTrigger>
         <TabsTrigger value="theme"><Palette className="mr-2 h-4 w-4"/>{t('themeTab')}</TabsTrigger>
-        <TabsTrigger value="messages"><MessageSquare className="mr-2 h-4 w-4"/>{t('messagesTab')}</TabsTrigger>
       </TabsList>
       <TabsContent value="profile">
         <Card className="bg-card/50 backdrop-blur-sm">
@@ -420,58 +357,6 @@ export default function SettingsTabs({ user }: { user: User }) {
                         <Button type="submit" disabled={profileForm.formState.isSubmitting}>
                             <Save className="mr-2 h-4 w-4"/>
                             {profileForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                        </Button>
-                    </form>
-                </Form>
-             )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-       <TabsContent value="messages">
-        <Card className="bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle>{t('messagesTabTitle')}</CardTitle>
-            <CardDescription>{t('messagesTabDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-             {loadingMessages ? (
-                 <div className="space-y-4">
-                     <Skeleton className="h-24 w-full" />
-                     <Skeleton className="h-24 w-full" />
-                     <Skeleton className="h-10 w-1/4" />
-                 </div>
-             ) : (
-                <Form {...messagesForm}>
-                    <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-6">
-                        <FormField
-                            control={messagesForm.control}
-                            name="es"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Mensaje en Español</FormLabel>
-                                    <FormControl>
-                                        <Textarea {...field} rows={12}/>
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={messagesForm.control}
-                            name="en"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Message in English</FormLabel>
-                                    <FormControl>
-                                        <Textarea {...field} rows={12} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" disabled={messagesForm.formState.isSubmitting}>
-                            <Save className="mr-2 h-4 w-4"/>
-                            {messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
                         </Button>
                     </form>
                 </Form>
