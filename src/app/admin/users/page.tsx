@@ -6,16 +6,16 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getContent, setContent } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -27,25 +27,34 @@ import { WhatsappIcon } from '@/components/icons/WhatsappIcon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserStatus } from '@/types';
 import EditProfileDialog from '@/components/auth/EditProfileDialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { v4 as uuidv4 } from 'uuid';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
     body: z.string().min(1, t('errorRequired', { field: t('emailBody') })),
 });
 
-const messagesFormSchema = (t: (key: string) => string) => z.object({
+const messageTemplateSchema = (t: (key: string) => string) => z.object({
+    id: z.string(),
+    name: z.string().min(1, t('errorRequired', { field: 'Nombre de la plantilla' })),
     es: z.string().min(1, t('errorRequired', { field: 'Mensaje ES' })),
     en: z.string().min(1, t('errorRequired', { field: 'Message EN' })),
 });
 
+const messagesFormSchema = (t: (key: string) => string) => z.object({
+    templates: z.array(messageTemplateSchema(t)),
+});
 
 type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
-type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
+type MessagesFormValues = z.infer<typeof messagesFormSchema>>;
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 
-const defaultInvitationMessage = {
+const defaultInvitationMessage: Omit<InvitationMessage, 'id'> = {
+    name: 'Invitación Principal',
     es: `🌿✨ Preparación Ceremonia de Ayahuasca ✨🌿
 La ayahuasca es una medicina ancestral amazónica que actúa como una gran maestra espiritual 🌀
 Su propósito es ayudarte a limpiar el cuerpo, liberar emociones estancadas y reconectar con tu verdadera esencia 💫💖
@@ -79,7 +88,8 @@ export default function AdminUsersPage() {
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [viewingUser, setViewingUser] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-    const [invitationMessage, setInvitationMessage] = useState<{es: string, en: string}>(defaultInvitationMessage);
+    const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
+    const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
     const router = useRouter();
     const { t, i18n } = useTranslation();
@@ -87,17 +97,18 @@ export default function AdminUsersPage() {
 
     const emailForm = useForm<EmailFormValues>({
         resolver: zodResolver(emailFormSchema(t)),
-        defaultValues: {
-            subject: '',
-            body: '',
-        },
+        defaultValues: { subject: '', body: '' },
     });
 
-     const messagesForm = useForm<MessagesFormValues>({
+    const messagesForm = useForm<MessagesFormValues>({
         resolver: zodResolver(messagesFormSchema(t)),
-        defaultValues: defaultInvitationMessage,
+        defaultValues: { templates: [] },
     });
-
+    
+    const { fields: templateFields, append: appendTemplate, remove: removeTemplate, update: updateTemplate } = useFieldArray({
+        control: messagesForm.control,
+        name: "templates",
+    });
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -110,41 +121,37 @@ export default function AdminUsersPage() {
             }
         };
 
-        const fetchInvitationMessage = async () => {
+        const fetchInvitationMessages = async () => {
             setLoadingMessages(true);
-            const content = await getContent('invitationMessage');
-            if(content && typeof content === 'object') {
-                const message = content as {es: string, en: string};
-                setInvitationMessage(message);
-                messagesForm.reset(message);
-            } else {
-                setInvitationMessage(defaultInvitationMessage);
-                messagesForm.reset(defaultInvitationMessage);
+            let templates = await getInvitationMessages();
+            if(templates.length === 0) {
+                // Seed with default message if none exist
+                const newId = uuidv4();
+                const defaultTemplate = { id: newId, ...defaultInvitationMessage };
+                await addInvitationMessage(defaultTemplate);
+                templates = [defaultTemplate];
             }
+            setInvitationTemplates(templates);
+            messagesForm.reset({ templates });
             setLoadingMessages(false);
         }
 
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
-                router.push('/');
-                return;
+                router.push('/'); return;
             }
-
             const profile = await getUserProfile(currentUser.uid);
             const isAdmin = profile?.isAdmin || currentUser.email === ADMIN_EMAIL;
-            
             if (!isAdmin) {
-                router.push('/');
-                return;
+                router.push('/'); return;
             }
-
             setUser(currentUser);
-            await Promise.all([fetchUsers(), fetchInvitationMessage()]);
+            await Promise.all([fetchUsers(), fetchInvitationMessages()]);
             setLoading(false);
         });
 
         return () => unsubscribe();
-    }, [router, toast, messagesForm]);
+    }, [router, toast]);
 
 
     const handleRoleChange = async (uid: string, isAdmin: boolean) => {
@@ -174,22 +181,22 @@ export default function AdminUsersPage() {
         }
     };
 
-    const handleInvite = (phone?: string) => {
+    const handleSendInvite = (template: InvitationMessage) => {
+        if (!invitingUser) return;
         const lang = i18n.language as 'es' | 'en';
-        const message = invitationMessage?.[lang] || invitationMessage?.es;
+        const message = template?.[lang] || template?.es;
         const encodedMessage = encodeURIComponent(message);
         let url = `https://wa.me/`
 
-        if(phone) {
-            url += `${phone.replace(/\D/g, '')}?text=${encodedMessage}`
+        if(invitingUser.phone) {
+            url += `${invitingUser.phone.replace(/\D/g, '')}?text=${encodedMessage}`
         } else {
             url += `?text=${encodedMessage}`
         }
         
         window.open(url, '_blank');
-        toast({
-            title: t('invitationSent')
-        });
+        toast({ title: t('invitationSent') });
+        setInvitingUser(null);
     }
 
     const onEmailSubmit = async (data: EmailFormValues) => {
@@ -211,13 +218,40 @@ export default function AdminUsersPage() {
     
     const onMessagesSubmit = async (data: MessagesFormValues) => {
         try {
-            await setContent('invitationMessage', data);
-            setInvitationMessage(data);
+            // This will batch update all templates
+            for (const template of data.templates) {
+                await updateInvitationMessage(template);
+            }
+            setInvitationTemplates(data.templates);
             toast({ title: t('messagesUpdatedSuccess') });
         } catch (error) {
             toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
         }
     };
+    
+    const handleAddTemplate = async () => {
+        const newTemplate: InvitationMessage = {
+            id: uuidv4(),
+            name: `Nueva Plantilla ${templateFields.length + 1}`,
+            es: 'Escribe tu mensaje en español aquí.',
+            en: 'Write your message in English here.',
+        }
+        await addInvitationMessage(newTemplate);
+        appendTemplate(newTemplate);
+        setInvitationTemplates(prev => [...prev, newTemplate]);
+    }
+    
+    const handleDeleteTemplate = async (templateId: string, index: number) => {
+        try {
+            await deleteInvitationMessage(templateId);
+            removeTemplate(index);
+            setInvitationTemplates(prev => prev.filter(t => t.id !== templateId));
+            toast({ title: t('templateDeleted') });
+        } catch(error) {
+             toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
+        }
+    }
+
 
     if (loading) {
         return (
@@ -314,7 +348,7 @@ export default function AdminUsersPage() {
                                                     </Button>
                                                 )}
                                                 {!u.questionnaireCompleted && (
-                                                    <Button variant="outline" size="sm" onClick={() => handleInvite(u.phone)}>
+                                                    <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
                                                         <WhatsappIcon className="mr-2 h-4 w-4"/>
                                                         {t('invite')}
                                                     </Button>
@@ -380,43 +414,71 @@ export default function AdminUsersPage() {
                         <CardContent>
                             {loadingMessages ? (
                                 <div className="space-y-4">
-                                    <Skeleton className="h-24 w-full" />
-                                    <Skeleton className="h-24 w-full" />
+                                    <Skeleton className="h-40 w-full" />
                                     <Skeleton className="h-10 w-1/4" />
                                 </div>
                             ) : (
                                 <Form {...messagesForm}>
                                     <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-6">
-                                        <FormField
-                                            control={messagesForm.control}
-                                            name="es"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Mensaje en Español</FormLabel>
-                                                    <FormControl>
-                                                        <Textarea {...field} rows={12}/>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={messagesForm.control}
-                                            name="en"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>Message in English</FormLabel>
-                                                    <FormControl>
-                                                        <Textarea {...field} rows={12} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <Button type="submit" disabled={messagesForm.formState.isSubmitting}>
-                                            <Save className="mr-2 h-4 w-4"/>
-                                            {messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                                        </Button>
+                                        <div className='space-y-4'>
+                                        {templateFields.map((field, index) => (
+                                            <Card key={field.id} className="p-4 bg-muted/30">
+                                                 <FormField
+                                                    control={messagesForm.control}
+                                                    name={`templates.${index}.name`}
+                                                    render={({ field }) => (
+                                                        <FormItem className='mb-4'>
+                                                            <FormLabel>Nombre de la Plantilla</FormLabel>
+                                                            <FormControl>
+                                                                <Input {...field} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={messagesForm.control}
+                                                    name={`templates.${index}.es`}
+                                                    render={({ field }) => (
+                                                        <FormItem className='mb-2'>
+                                                            <FormLabel>Mensaje en Español</FormLabel>
+                                                            <FormControl>
+                                                                <Textarea {...field} rows={8}/>
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={messagesForm.control}
+                                                    name={`templates.${index}.en`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Message in English</FormLabel>
+                                                            <FormControl>
+                                                                <Textarea {...field} rows={8} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <Button type="button" variant="destructive" size="sm" className="mt-4" onClick={() => handleDeleteTemplate(field.id, index)}>
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    {t('deleteTemplate')}
+                                                </Button>
+                                            </Card>
+                                        ))}
+                                        </div>
+                                        <div className='flex gap-2'>
+                                            <Button type="button" variant="outline" onClick={handleAddTemplate}>
+                                                <PlusCircle className="mr-2 h-4 w-4" />
+                                                {t('addTemplate')}
+                                            </Button>
+                                            <Button type="submit" disabled={messagesForm.formState.isSubmitting}>
+                                                <Save className="mr-2 h-4 w-4"/>
+                                                {messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
+                                            </Button>
+                                        </div>
                                     </form>
                                 </Form>
                             )}
@@ -440,7 +502,31 @@ export default function AdminUsersPage() {
                     onAdminUpdate={handleProfileUpdate}
                 />
             )}
+             {invitingUser && (
+                <Dialog open={!!invitingUser} onOpenChange={(open) => !open && setInvitingUser(null)}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>{t('selectInvitationTemplate')}</DialogTitle>
+                            <DialogDescription>{t('selectInvitationTemplateDescription', { name: invitingUser.displayName || invitingUser.email })}</DialogDescription>
+                        </DialogHeader>
+                        <ScrollArea className="max-h-80 my-4">
+                            <div className="space-y-2 pr-6">
+                                {invitationTemplates.map(template => (
+                                    <button key={template.id} onClick={() => handleSendInvite(template)} className="w-full text-left p-3 rounded-md border hover:bg-muted">
+                                        <p className="font-semibold">{template.name}</p>
+                                        <p className="text-sm text-muted-foreground truncate">{template[i18n.language as 'es' | 'en'] || template.es}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                        <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="ghost">{t('cancel')}</Button>
+                            </DialogClose>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     );
 }
-

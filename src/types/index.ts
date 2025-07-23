@@ -140,3 +140,10 @@ export type ErrorLog = {
     timestamp: Timestamp;
     status: 'new' | 'fixed';
 }
+
+export type InvitationMessage = {
+    id: string;
+    name: string;
+    es: string;
+    en: string;
+}

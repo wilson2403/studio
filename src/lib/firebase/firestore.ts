@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -12,6 +12,7 @@ const settingsCollection = collection(db, 'settings');
 const chatsCollection = collection(db, 'chats');
 const questionnairesCollection = collection(db, 'questionnaires');
 const errorLogsCollection = collection(db, 'error_logs');
+const invitationMessagesCollection = collection(db, 'invitationMessages');
 
 
 // --- Page Content ---
@@ -644,6 +645,48 @@ export const deleteErrorLog = async (id: string): Promise<void> => {
     }
 }
 
+// --- Invitation Messages ---
+export const getInvitationMessages = async (): Promise<InvitationMessage[]> => {
+    try {
+        const snapshot = await getDocs(invitationMessagesCollection);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InvitationMessage));
+    } catch (error) {
+        console.error("Error getting invitation messages:", error);
+        return [];
+    }
+}
+
+export const addInvitationMessage = async (message: InvitationMessage): Promise<void> => {
+    try {
+        const docRef = doc(db, 'invitationMessages', message.id);
+        await setDoc(docRef, message);
+    } catch (error) {
+        console.error("Error adding invitation message:", error);
+        throw error;
+    }
+}
+
+export const updateInvitationMessage = async (message: InvitationMessage): Promise<void> => {
+    try {
+        const docRef = doc(db, 'invitationMessages', message.id);
+        await updateDoc(docRef, message);
+    } catch (error) {
+        console.error("Error updating invitation message:", error);
+        throw error;
+    }
+}
+
+export const deleteInvitationMessage = async (id: string): Promise<void> => {
+    try {
+        const docRef = doc(db, 'invitationMessages', id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error("Error deleting invitation message:", error);
+        throw error;
+    }
+}
+
+
 export type { Chat };
 export type { UserProfile };
 
@@ -657,4 +700,5 @@ export type { UserProfile };
 
 
     
+
 
