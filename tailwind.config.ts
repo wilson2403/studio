@@ -14,6 +14,11 @@ function addVariablesForColors({ addBase, theme }: any) {
   });
 }
 
+function svgToDataUri(svg: string) {
+  const dataUri = 'data:image/svg+xml;base64,' + btoa(svg);
+  return dataUri;
+}
+
 export default {
   darkMode: ['class'],
   content: [
@@ -126,10 +131,3 @@ export default {
     },
   ],
 } satisfies Config;
-
-function svgToDataUri(svg: string) {
-  const
-    utf8 = Buffer.from(svg).toString('utf-8');
-    const dataUri = 'data:image/svg+xml;base64,' + Buffer.from(utf8).toString('base64');
-  return dataUri;
-}
