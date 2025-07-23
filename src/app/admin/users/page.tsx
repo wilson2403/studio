@@ -95,7 +95,7 @@ export default function AdminUsersPage() {
             try {
                 const allUsers = await getAllUsers();
                 setUsers(allUsers);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Failed to fetch users:", error);
                 toast({ title: t('error'), description: t('errorFetchUsers'), variant: "destructive" });
             }
@@ -146,7 +146,7 @@ export default function AdminUsersPage() {
             await updateUserRole(uid, isAdmin);
             setUsers(users.map(u => u.uid === uid ? { ...u, isAdmin } : u));
             toast({ title: t('roleUpdatedSuccess') });
-        } catch (error) {
+        } catch (error: any) {
             toast({ title: t('roleUpdatedError'), variant: 'destructive' });
         }
     };
@@ -156,7 +156,7 @@ export default function AdminUsersPage() {
             await updateUserStatus(uid, status);
             setUsers(users.map(u => u.uid === uid ? { ...u, status } : u));
             toast({ title: t('statusUpdatedSuccess') });
-        } catch (error) => {
+        } catch (error: any) {
             toast({ title: t('statusUpdatedError'), variant: 'destructive' });
         }
     };
@@ -211,7 +211,7 @@ export default function AdminUsersPage() {
             }
             setInvitationTemplates(data.templates);
             toast({ title: t('messagesUpdatedSuccess') });
-        } catch (error) {
+        } catch (error: any) {
             toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
         }
     };
@@ -234,7 +234,7 @@ export default function AdminUsersPage() {
             removeTemplate(index);
             setInvitationTemplates(prev => prev.filter(t => t.id !== templateId));
             toast({ title: t('templateDeleted') });
-        } catch(error) {
+        } catch(error: any) {
              toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
         }
     }
@@ -244,7 +244,7 @@ export default function AdminUsersPage() {
             await resetSectionAnalytics();
             setAnalytics([]);
             toast({ title: t('analyticsResetSuccess') });
-        } catch (error) {
+        } catch (error: any) {
             toast({ title: t('analyticsResetError'), variant: 'destructive' });
         }
     }
