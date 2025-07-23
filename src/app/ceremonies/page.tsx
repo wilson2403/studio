@@ -96,9 +96,8 @@ export default function AllCeremoniesPage() {
     }
 
     const handleViewPlans = (ceremony: Ceremony) => {
-        if (isAdmin) {
+        if (!isAdmin) {
             incrementCeremonyReserveClick(ceremony.id);
-            setCeremonies(prev => prev.map(c => c.id === ceremony.id ? { ...c, reserveClickCount: (c.reserveClickCount || 0) + 1 } : c));
         }
 
         if (ceremony.registerRequired && !user) {
