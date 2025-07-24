@@ -288,7 +288,7 @@ export default function QuestionnairePage() {
                                             )}
                                         </div>
                                         <div className="mt-6 flex w-full items-center justify-between">
-                                            <Button onClick={goToPrevStep} variant="ghost" disabled={!canGoBack}>{t('previous')}</Button>
+                                            <Button onClick={goToPrevStep} variant="secondary" disabled={!canGoBack}>Anterior</Button>
                                             
                                             {!isFinalScreen && (
                                                 isFinalQuestion ? (
