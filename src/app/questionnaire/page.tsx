@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -24,8 +24,6 @@ import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -236,7 +234,7 @@ export default function QuestionnairePage() {
 
 
   if (pageLoading || !i18n.isInitialized) {
-    return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[85vh] w-full rounded-2xl" /></div></div>;
+    return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[70vh] w-full rounded-2xl" /></div></div>;
   }
   
   if (!user) {
@@ -253,74 +251,70 @@ export default function QuestionnairePage() {
     )
   }
 
-  const isFinalQuestion = allSteps[currentStep]?.id === 'mainIntention';
-  const isFinalScreen = allSteps[currentStep]?.type === 'final';
-
   return (
     <EditableProvider>
       <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-8">
         <Form {...form}>
-            <Card className="w-full max-w-md h-full flex flex-col rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 overflow-hidden">
-                <Carousel setApi={setApi} className="w-full flex-1" opts={{ watchDrag: false, duration: 20 }}>
-                    <CarouselContent className="h-full">
-                    {allSteps.map((step) => {
+            <Card className="w-full max-w-md rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
+                <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, duration: 20 }}>
+                    <CarouselContent>
+                    {allSteps.map((step, index) => {
                         const Icon = step.icon;
+                        const isFinalQuestion = step.id === 'mainIntention';
+                        const isFinalScreen = step.type === 'final';
                         return(
-                            <CarouselItem key={step.id} className="h-full">
-                               <div className="flex flex-col h-full p-6">
-                                    <ScrollArea className="flex-1 -mx-6">
-                                        <div className="flex flex-col items-center justify-center text-center h-full px-6">
-                                            {dataLoading ? (
-                                                <div className='w-full space-y-4'>
-                                                    <Skeleton className='h-20 w-20 rounded-full mx-auto' />
-                                                    <Skeleton className='h-8 w-3/4 mx-auto' />
-                                                    <Skeleton className='h-24 w-full mx-auto' />
+                            <CarouselItem key={step.id}>
+                               <div className="p-6">
+                                    <div className="flex flex-col items-center justify-center text-center">
+                                        {dataLoading ? (
+                                            <div className='w-full space-y-4'>
+                                                <Skeleton className='h-20 w-20 rounded-full mx-auto' />
+                                                <Skeleton className='h-8 w-3/4 mx-auto' />
+                                                <Skeleton className='h-24 w-full mx-auto' />
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="p-4 bg-primary/10 rounded-full mb-6">
+                                                    <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
                                                 </div>
-                                            ) : (
-                                                <>
-                                                    <div className="p-4 bg-primary/10 rounded-full mb-6">
-                                                        <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
-                                                    </div>
-                                                    <div className="flex items-center justify-center gap-1.5 mb-6">
-                                                        {allSteps.map((_, i) => (
-                                                            <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
-                                                        ))}
-                                                    </div>
-                                                    <h2 className="text-2xl font-headline font-bold mb-2">{t(step.titleKey)}</h2>
-                                                    <p className="text-muted-foreground mb-4">{t(step.descriptionKey)}</p>
-                                                    
-                                                    <div className="p-1 w-full">
-                                                        {step.type === 'question' ? getQuestionStepComponent(step) 
-                                                        : step.type === 'info' ? getInfoStepComponent(step.id) 
-                                                        : (
-                                                            <div className="flex flex-col items-center gap-4">
-                                                                <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
-                                                                <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
-                                                                <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
-                                                            </div>
+                                                <div className="flex items-center justify-center gap-1.5 mb-6">
+                                                    {allSteps.map((_, i) => (
+                                                        <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
+                                                    ))}
+                                                </div>
+                                                <h2 className="text-2xl font-headline font-bold mb-2">{t(step.titleKey)}</h2>
+                                                <p className="text-muted-foreground mb-4">{t(step.descriptionKey)}</p>
+                                                
+                                                <div className="p-1 w-full">
+                                                    {step.type === 'question' ? getQuestionStepComponent(step) 
+                                                    : step.type === 'info' ? getInfoStepComponent(step.id) 
+                                                    : (
+                                                        <div className="flex flex-col items-center gap-4">
+                                                            <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
+                                                            <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                                            <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                {!isFinalScreen && !dataLoading && (
+                                                    <div className="mt-6 flex w-full items-center justify-between">
+                                                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('previous')}</Button>
+                                                        {isFinalQuestion ? (
+                                                            <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
+                                                        ) : (
+                                                            <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>{t('continue')}</Button>
                                                         )}
                                                     </div>
-                                                </>
-                                            )}
-                                        </div>
-                                    </ScrollArea>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
                                </div>
                             </CarouselItem>
                         )
                     })}
                     </CarouselContent>
                 </Carousel>
-                
-                {!isFinalScreen && !dataLoading && (
-                    <CardFooter className="px-6 pb-6 mt-auto flex items-center justify-between bg-card border-t pt-4">
-                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('skip')}</Button>
-                        {isFinalQuestion ? (
-                            <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
-                        ) : (
-                            <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>{t('continue')}</Button>
-                        )}
-                    </CardFooter>
-                )}
             </Card>
         </Form>
       </div>
