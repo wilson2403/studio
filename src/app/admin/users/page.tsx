@@ -314,7 +314,7 @@ export default function AdminUsersPage() {
 
             <Tabs defaultValue="users" className="w-full">
                 <TabsList className="grid w-full grid-cols-1 md:grid-cols-4 h-auto md:h-10">
-                    <TabsTrigger value="users"><Users className="mr-2 h-4 w-4" />{t('usersTab')}</TabsTrigger>
+                    <TabsTrigger value="users"><Users className="mr-2 h-4 w-4" />{t('userManagementTitle')}</TabsTrigger>
                     <TabsTrigger value="email"><Mail className="mr-2 h-4 w-4" />{t('emailTab')}</TabsTrigger>
                     <TabsTrigger value="invitation"><MessageSquare className="mr-2 h-4 w-4"/>{t('invitationTabTitle')}</TabsTrigger>
                     <TabsTrigger value="analytics"><BarChart3 className="mr-2 h-4 w-4"/>{t('analyticsTab')}</TabsTrigger>
@@ -693,3 +693,4 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+

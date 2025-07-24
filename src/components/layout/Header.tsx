@@ -63,11 +63,11 @@ export default function Header() {
 
   const adminNavLinks = [
       { href: '/admin', label: t('adminPanel'), icon: ShieldCheck },
-      { href: '/admin/users', label: t('usersTab'), icon: UserIcon },
-      { href: '/admin/theme', label: t('navTheme'), icon: Palette },
-      { href: '/admin/backup', label: t('navBackup'), icon: History },
-      { href: '/admin/chat', label: t('navChatHistory'), icon: MessageSquare },
-      { href: '/admin/logs', label: t('navLogs'), icon: Terminal }
+      { href: '/admin/users', label: t('userManagementTitle'), icon: UserIcon },
+      { href: '/admin/theme', label: t('themeTab'), icon: Palette },
+      { href: '/admin/backup', label: t('backupTitle'), icon: History },
+      { href: '/admin/chat', label: t('chatHistoryTitle'), icon: MessageSquare },
+      { href: '/admin/logs', label: t('errorLogsTitle'), icon: Terminal }
   ];
 
   useEffect(() => {
