@@ -17,14 +17,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
-import { ArrowLeft, ArrowRight, PartyPopper, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PartyPopper, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Progress } from '@/components/ui/progress';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { Leaf, Minus, Sparkles, Sprout, Wind, HeartHandshake } from 'lucide-react';
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -342,13 +342,12 @@ export default function QuestionnairePage() {
               <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mx-auto mt-4" />
             </CardHeader>
 
-            <CardContent className="flex-1 min-h-0 p-0">
+            <CardContent className="flex-1 overflow-auto p-0">
                 <Carousel setApi={setApi} className="w-full h-full" opts={{ align: "center", watchDrag: false }}>
                   <CarouselContent className="h-full">
                     {allSteps.map((step, index) => (
                       <CarouselItem key={index} className="h-full">
-                        <ScrollArea className="h-full w-full">
-                           <div className="p-6">
+                           <div className="p-6 h-full overflow-y-auto">
                               {step.type === 'question' ? (
                                 getQuestionStepComponent(step.id)
                               ) : step.type === 'info' && step.id === 'process' ? (
@@ -427,7 +426,7 @@ export default function QuestionnairePage() {
                                   </div>
                                 </div>
                               ) : step.type === 'final' ? (
-                                <div className="text-center flex flex-col items-center gap-4 py-8">
+                                <div className="text-center flex flex-col items-center justify-center gap-4 py-8 h-full">
                                     <PartyPopper className="h-16 w-16 text-primary" />
                                     <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
                                     <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
@@ -445,7 +444,6 @@ export default function QuestionnairePage() {
                                 </div>
                               ) : null}
                             </div>
-                        </ScrollArea>
                       </CarouselItem>
                     ))}
                   </CarouselContent>
@@ -458,8 +456,8 @@ export default function QuestionnairePage() {
               </Button>
               
               {allSteps[currentStep]?.type === 'final' ? (
-                 <Button onClick={() => router.push('/')}>
-                   {t('finish')}
+                 <Button asChild>
+                    <Link href="/">{t('finish')}</Link>
                  </Button>
               ) : allSteps[currentStep]?.id === 'mainIntention' && !isCompleted ? (
                 <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
@@ -484,3 +482,4 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
