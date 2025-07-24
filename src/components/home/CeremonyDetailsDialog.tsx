@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Ceremony, Plan } from '@/types';
@@ -183,13 +182,15 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                 </ul>
             </div>
         </ScrollArea>
-        <DialogFooter>
-           <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
-            <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
-              {t('reserveWhatsapp')}
-            </a>
-          </Button>
-        </DialogFooter>
+        {ceremony.status === 'active' && (
+          <div className="pt-4">
+            <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
+              <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
+                {t('reserveWhatsapp')}
+              </a>
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
