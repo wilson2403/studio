@@ -333,7 +333,7 @@ export default function PreparationGuidePage() {
 
   return (
     <EditableProvider>
-      <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
+      <div className="container flex items-center justify-center py-6 md:py-12">
         <Form {...form}>
           <Card className="w-full max-w-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 flex flex-col">
             <CardHeader>
@@ -341,7 +341,7 @@ export default function PreparationGuidePage() {
               <CardDescription className="text-center font-body text-sm md:text-base">{t('preparationGuideSubtitle')}</CardDescription>
               <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mx-auto mt-4" />
             </CardHeader>
-            <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false }}>
+            <Carousel setApi={setApi} className="w-full" opts={{ align: "center", watchDrag: true }}>
               <CarouselContent>
                 {allSteps.map((step, index) => (
                   <CarouselItem key={index}>
@@ -451,14 +451,14 @@ export default function PreparationGuidePage() {
               </CarouselContent>
             </Carousel>
             
-            <CardFooter className="p-6 border-t mt-auto">
+            <CardFooter className="p-4 border-t mt-auto">
               <div className="flex justify-between items-center w-full">
                 <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
                   <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
                 </Button>
                 
                 {allSteps[currentStep]?.type === 'final' ? (
-                   <Button onClick={onClose} asChild>
+                   <Button asChild>
                       <Link href="/">{t('finish')}</Link>
                    </Button>
                 ) : allSteps[currentStep]?.type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
@@ -485,5 +485,3 @@ export default function PreparationGuidePage() {
     </EditableProvider>
   );
 }
-
-    
