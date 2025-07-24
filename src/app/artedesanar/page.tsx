@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
@@ -51,7 +51,19 @@ const questionnaireSchema = (t: (key: string, options?: any) => string) => z.obj
 
 type FormData = z.infer<ReturnType<typeof questionnaireSchema>>;
 
-const allSteps = [
+export default function QuestionnairePage() {
+  const [user, setUser] = useState<User | null>(null);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [api, setApi] = useState<CarouselApi>()
+  const [currentStep, setCurrentStep] = useState(0)
+  const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  
+  const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const { toast } = useToast();
+
+  const allSteps = useMemo(() => [
     { type: 'question', id: 'hasMedicalConditions', icon: HeartPulse, titleKey: 'questionnaireMedicalConditions', descriptionKey: 'questionnaireMedicalConditionsDesc', detailsLabelKey: 'questionnaireMedicalConditionsDetails' },
     { type: 'question', id: 'isTakingMedication', icon: Pill, titleKey: 'questionnaireMedication', descriptionKey: 'questionnaireMedicationDesc', detailsLabelKey: 'questionnaireMedicationDetails' },
     { type: 'question', id: 'hasMentalHealthHistory', icon: Brain, titleKey: 'questionnaireMentalHealth', descriptionKey: 'questionnaireMentalHealthDesc', detailsLabelKey: 'questionnaireMentalHealthDetails' },
@@ -60,22 +72,10 @@ const allSteps = [
     { type: 'info', id: 'process', icon: Wind, titleKey: 'preparationProcessTitle', descriptionKey: 'preparationGuideFullSubtitle' },
     { type: 'info', id: 'diet', icon: Leaf, titleKey: 'dietTitle', descriptionKey: 'dietSubtitle' },
     { type: 'info', id: 'mentalPrep', icon: Sparkles, titleKey: 'mentalPrepTitle', descriptionKey: 'mentalPrepSubtitle' },
-    { type: 'info', id: 'emotionalHealing', icon: HeartHandshake, titleKey: 'emotionalHealingTitle', descriptionKey: 'emotionalHealingSubtitle' },
+    { type: 'info', id: 'emotionalHealing', icon: HeartHandshake, titleKey: 'emotionalHealingTitle', descriptionKey: 'emotionalHealingDescription' },
     { type: 'info', id: 'whatToBring', icon: CheckCircle, titleKey: 'whatToBringTitle', descriptionKey: 'whatToBringSubtitle' },
     { type: 'final', id: 'final', icon: PartyPopper, titleKey: 'preparationCompleteTitle', descriptionKey: 'preparationCompleteDescription' }
-];
-
-export default function QuestionnairePage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [api, setApi] = useState<CarouselApi>()
-  const [currentStep, setCurrentStep] = useState(0)
-  const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
-  
-  const router = useRouter();
-  const { t } = useTranslation();
-  const { toast } = useToast();
+  ], []);
 
   const form = useForm<FormData>({
     resolver: zodResolver(questionnaireSchema(t)),
@@ -117,20 +117,21 @@ export default function QuestionnairePage() {
             form.reset(savedAnswers);
           }
           
-          if (api) {
-            const targetStep = profile?.questionnaireCompleted ? allSteps.length - 1 : (profile?.preparationStep || 0);
+          const targetStep = profile?.questionnaireCompleted ? allSteps.length - 1 : (profile?.preparationStep || 0);
+          
+          if(api) {
             api.scrollTo(targetStep, true);
-            setCurrentStep(targetStep);
           }
+          setCurrentStep(targetStep);
 
         } catch (error) { console.error("Error fetching user data:", error); }
-        finally { setLoading(false); }
+        finally { setPageLoading(false); }
       } else {
         router.push('/login?redirect=/artedesanar');
       }
     });
     return () => unsubscribe();
-  }, [api, form, router]);
+  }, [api, form, router, allSteps]);
 
 
  const goToNextStep = async () => {
@@ -228,12 +229,11 @@ export default function QuestionnairePage() {
     return <div className="text-center">{t(step.descriptionKey)}</div>;
   }
 
-
-  if (loading) {
+  if (pageLoading) {
     return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[70vh] w-full rounded-2xl" /></div></div>;
   }
   
-  if (!user) {
+  if (!user && !pageLoading) {
     return (
         <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
             <Card className="w-full max-w-md text-center">
@@ -252,7 +252,7 @@ export default function QuestionnairePage() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-8">
         <Form {...form}>
             <Card className="w-full max-w-md rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
-                <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, duration: 20 }}>
+                <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, duration: 20, startIndex: currentStep }}>
                     <CarouselContent>
                     {allSteps.map((step, index) => {
                         const Icon = step.icon;
@@ -318,4 +318,3 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
-
