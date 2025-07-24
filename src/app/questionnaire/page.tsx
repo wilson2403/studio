@@ -11,7 +11,7 @@ import * as z from 'zod';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,6 +24,7 @@ import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
 
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
@@ -251,58 +252,62 @@ export default function QuestionnairePage() {
   }
 
   const isFinalQuestion = allSteps[currentStep]?.id === 'mainIntention';
+  const isFinalScreen = allSteps[currentStep]?.type === 'final';
 
   return (
     <EditableProvider>
       <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-8">
         <Form {...form}>
-            <div className="w-full max-w-md h-[85vh] flex flex-col bg-card rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 overflow-hidden">
+            <Card className="w-full max-w-md h-[85vh] flex flex-col rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 overflow-hidden">
                 <Carousel setApi={setApi} className="w-full flex-1" opts={{ watchDrag: false, duration: 20 }}>
                     <CarouselContent className="h-full">
                     {allSteps.map((step, index) => {
                         const Icon = step.icon;
                         return(
                             <CarouselItem key={index} className="h-full">
-                                <div className="flex flex-col items-center justify-center text-center p-6 md:p-8 h-full">
-                                    <div className="p-4 bg-primary/10 rounded-full mb-6">
-                                        <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
+                               <div className="flex flex-col h-full">
+                                    <div className="flex-1 p-6 flex flex-col items-center justify-center text-center">
+                                        <div className="p-4 bg-primary/10 rounded-full mb-6">
+                                            <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
+                                        </div>
+                                        <div className="flex items-center justify-center gap-1.5 mb-6">
+                                            {allSteps.map((_, i) => (
+                                                <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
+                                            ))}
+                                        </div>
+                                        <h2 className="text-2xl font-headline font-bold mb-2">{step.title}</h2>
+                                        <p className="text-muted-foreground mb-8">{step.description}</p>
+                                        
+                                        <div className="flex-1 w-full flex items-center justify-center">
+                                            {step.type === 'question' ? getQuestionStepComponent(step.id, step.title) 
+                                            : step.type === 'info' ? getInfoStepComponent(step.id) 
+                                            : ( // Final Step
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
+                                                    <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                                    <Button variant="ghost" onClick={() => router.push('/')}>{t('goHome')}</Button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center justify-center gap-1.5 mb-6">
-                                        {allSteps.map((_, i) => (
-                                            <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
-                                        ))}
-                                    </div>
-                                    <h2 className="text-2xl font-headline font-bold mb-2">{step.title}</h2>
-                                    <p className="text-muted-foreground mb-8">{step.description}</p>
-
-                                    <div className="flex-1 w-full flex items-center justify-center">
-                                      {step.type === 'question' ? getQuestionStepComponent(step.id, step.title) 
-                                      : step.type === 'info' ? getInfoStepComponent(step.id) 
-                                      : ( // Final Step
-                                          <div className="flex flex-col items-center gap-4">
-                                              <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
-                                              <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
-                                          </div>
-                                      )}
-                                    </div>
-                                </div>
+                               </div>
                             </CarouselItem>
                         )
                     })}
                     </CarouselContent>
                 </Carousel>
                 
-                {currentStep < allSteps.length - 1 && (
-                    <div className="px-6 pb-6 mt-auto flex items-center justify-between">
-                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('previous')}</Button>
+                {!isFinalScreen && (
+                    <CardFooter className="px-6 pb-6 mt-auto flex items-center justify-between">
+                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('skip')}</Button>
                         {isFinalQuestion ? (
                             <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
                         ) : (
                             <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>{t('continue')}</Button>
                         )}
-                    </div>
+                    </CardFooter>
                 )}
-            </div>
+            </Card>
         </Form>
       </div>
       {user && (
@@ -315,5 +320,3 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
-
-    
