@@ -50,7 +50,14 @@ export const signInWithGoogle = async () => {
     }
     
     return user;
-  } catch (error) {
+  } catch (error: any) {
+    // This error code means the user closed the popup. It's not a critical error.
+    if (error.code === 'auth/popup-closed-by-user') {
+      console.log('Google Sign-In popup closed by user.');
+      // We can return null or rethrow a more specific, non-critical error
+      // For now, we'll just not throw, which will prevent the error toast.
+      return null;
+    }
     console.error("Error signing in with Google: ", error);
     await logError(error, { function: 'signInWithGoogle' });
     throw error;
@@ -167,3 +174,4 @@ export const updateUserPassword = async (currentPassword: string, newPassword: s
         throw error;
     }
 };
+
