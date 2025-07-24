@@ -67,8 +67,7 @@ const allSteps = [
 
 export default function QuestionnairePage() {
   const [user, setUser] = useState<User | null>(null);
-  const [pageLoading, setPageLoading] = useState(true);
-  const [dataLoading, setDataLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [api, setApi] = useState<CarouselApi>()
   const [currentStep, setCurrentStep] = useState(0)
   const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
@@ -108,7 +107,6 @@ export default function QuestionnairePage() {
       if (currentUser) {
         setUser(currentUser);
         try {
-          setDataLoading(true);
           const profile = await getUserProfile(currentUser.uid);
           const savedAnswers = await getQuestionnaire(currentUser.uid);
           
@@ -119,7 +117,6 @@ export default function QuestionnairePage() {
             form.reset(savedAnswers);
           }
           
-          // This needs to be called after data is fetched.
           if (api) {
             const targetStep = profile?.questionnaireCompleted ? allSteps.length - 1 : (profile?.preparationStep || 0);
             api.scrollTo(targetStep, true);
@@ -127,11 +124,10 @@ export default function QuestionnairePage() {
           }
 
         } catch (error) { console.error("Error fetching user data:", error); }
-        finally { setDataLoading(false); }
+        finally { setLoading(false); }
       } else {
         router.push('/login?redirect=/artedesanar');
       }
-      setPageLoading(false);
     });
     return () => unsubscribe();
   }, [api, form, router]);
@@ -167,7 +163,6 @@ export default function QuestionnairePage() {
         return;
     };
     
-    // Trigger validation for the last question before submitting
     const isFinalQuestionValid = await form.trigger('mainIntention');
     if (!isFinalQuestionValid) {
         toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
@@ -234,7 +229,7 @@ export default function QuestionnairePage() {
   }
 
 
-  if (pageLoading) {
+  if (loading) {
     return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[70vh] w-full rounded-2xl" /></div></div>;
   }
   
@@ -257,65 +252,59 @@ export default function QuestionnairePage() {
       <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-8">
         <Form {...form}>
             <Card className="w-full max-w-md rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
-                {dataLoading ? (
-                    <div className='p-6 min-h-[60vh] flex items-center justify-center'>
-                        <Skeleton className='h-48 w-full' />
-                    </div>
-                ) : (
-                    <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, duration: 20 }}>
-                        <CarouselContent>
-                        {allSteps.map((step, index) => {
-                            const Icon = step.icon;
-                            const isFinalQuestion = step.id === 'mainIntention';
-                            const isFinalScreen = step.type === 'final';
-                            const canGoBack = isCompleted ? true : api?.canScrollPrev();
-                            const canGoForward = isCompleted ? true : api?.canScrollNext();
+                <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, duration: 20 }}>
+                    <CarouselContent>
+                    {allSteps.map((step, index) => {
+                        const Icon = step.icon;
+                        const isFinalQuestion = step.id === 'mainIntention';
+                        const isFinalScreen = step.type === 'final';
+                        const canGoBack = isCompleted ? true : api?.canScrollPrev();
+                        const canGoForward = isCompleted ? true : api?.canScrollNext();
 
-                            return(
-                                <CarouselItem key={step.id}>
-                                   <div className="p-6">
-                                        <div className="flex flex-col items-center justify-center text-center">
-                                            <div className="p-4 bg-primary/10 rounded-full mb-6">
-                                                <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
-                                            </div>
-                                            <div className="flex items-center justify-center gap-1.5 mb-6">
-                                                {allSteps.map((_, i) => (
-                                                    <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
-                                                ))}
-                                            </div>
-                                            <h2 className="text-2xl font-headline font-bold mb-2">{t(step.titleKey)}</h2>
-                                            <p className="text-muted-foreground mb-4">{t(step.descriptionKey)}</p>
-                                            
-                                            <div className="p-1 w-full min-h-[150px] flex items-center justify-center">
-                                                {step.type === 'question' ? getQuestionStepComponent(step) 
-                                                : step.type === 'info' ? getInfoStepComponent(step) 
-                                                : (
-                                                    <div className="flex flex-col items-center gap-4">
-                                                        <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
-                                                        <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
-                                                        <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="mt-6 flex w-full items-center justify-between">
-                                                <Button onClick={goToPrevStep} variant="ghost" disabled={!canGoBack}>{t('previous')}</Button>
-                                                
-                                                {!isFinalScreen && (
-                                                    isFinalQuestion ? (
-                                                        <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
-                                                    ) : (
-                                                        <Button onClick={goToNextStep} disabled={!canGoForward}>{t('continue')}</Button>
-                                                    )
-                                                )}
-                                            </div>
+                        return(
+                            <CarouselItem key={step.id}>
+                                <div className="p-6">
+                                    <div className="flex flex-col items-center justify-center text-center">
+                                        <div className="p-4 bg-primary/10 rounded-full mb-6">
+                                            <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
                                         </div>
-                                   </div>
-                                </CarouselItem>
-                            )
-                        })}
-                        </CarouselContent>
-                    </Carousel>
-                )}
+                                        <div className="flex items-center justify-center gap-1.5 mb-6">
+                                            {allSteps.map((_, i) => (
+                                                <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
+                                            ))}
+                                        </div>
+                                        <h2 className="text-2xl font-headline font-bold mb-2">{t(step.titleKey)}</h2>
+                                        <p className="text-muted-foreground mb-4">{t(step.descriptionKey)}</p>
+                                        
+                                        <div className="p-1 w-full min-h-[150px] flex items-center justify-center">
+                                            {step.type === 'question' ? getQuestionStepComponent(step) 
+                                            : step.type === 'info' ? getInfoStepComponent(step) 
+                                            : (
+                                                <div className="flex flex-col items-center gap-4">
+                                                    <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
+                                                    <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                                    <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="mt-6 flex w-full items-center justify-between">
+                                            <Button onClick={goToPrevStep} variant="ghost" disabled={!canGoBack}>{t('previous')}</Button>
+                                            
+                                            {!isFinalScreen && (
+                                                isFinalQuestion ? (
+                                                    <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
+                                                ) : (
+                                                    <Button onClick={goToNextStep} disabled={!canGoForward}>{t('continue')}</Button>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </CarouselItem>
+                        )
+                    })}
+                    </CarouselContent>
+                </Carousel>
             </Card>
         </Form>
       </div>
@@ -329,3 +318,4 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
