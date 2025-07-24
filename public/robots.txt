@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://artedesanar.vercel.app/sitemap.xml

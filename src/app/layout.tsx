@@ -12,9 +12,10 @@ import { EditableProvider } from '@/components/home/EditableProvider';
 import LoadingScreen from '@/components/layout/LoadingScreen';
 
 export const metadata: Metadata = {
-  title: 'El Arte de Sanar',
+  title: 'El Arte de Sanar - Un Encuentro Sagrado con Medicinas Ancestrales',
   description:
-    'Un espacio de sanación profunda, cuidado y transformación con medicinas ancestrales.',
+    'Descubre cómo la Ayahuasca puede transformar tu vida. Únete a nuestras ceremonias guiadas por expertos para una sanación profunda y una renovada conexión espiritual.',
+  keywords: 'ayahuasca, ceremonia de ayahuasca, medicina ancestral, sanación espiritual, retiro espiritual, el arte de sanar',
 };
 
 export default function RootLayout({
