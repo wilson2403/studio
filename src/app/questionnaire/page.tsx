@@ -52,7 +52,7 @@ const questionnaireSchema = (t: (key: string, options?: any) => string) => z.obj
 
 type FormData = z.infer<ReturnType<typeof questionnaireSchema>>;
 
-export default function PreparationGuidePage() {
+export default function QuestionnairePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [api, setApi] = useState<CarouselApi>()
@@ -333,21 +333,21 @@ export default function PreparationGuidePage() {
 
   return (
     <EditableProvider>
-      <div className="container flex h-[calc(100vh-8rem)] items-center justify-center py-4">
+      <div className="container flex items-center justify-center h-[calc(100vh-8rem)] py-4">
         <Form {...form}>
-          <Card className="w-full max-w-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 flex flex-col h-full">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl md:text-3xl font-headline">{t('preparationGuideTitle')}</CardTitle>
-              <CardDescription className="font-body text-sm md:text-base">{t('preparationGuideSubtitle')}</CardDescription>
+          <Card className="w-full max-w-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 flex flex-col h-full overflow-hidden">
+            <CardHeader className="p-6">
+              <CardTitle className="text-2xl md:text-3xl font-headline text-center">{t('preparationGuideTitle')}</CardTitle>
+              <CardDescription className="font-body text-sm md:text-base text-center">{t('preparationGuideSubtitle')}</CardDescription>
               <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mx-auto mt-4" />
             </CardHeader>
-            <Carousel setApi={setApi} className="w-full flex-grow" opts={{ align: "center", watchDrag: false }}>
-              <CarouselContent>
+
+            <Carousel setApi={setApi} className="flex-1 w-full min-h-0" opts={{ align: "center", watchDrag: false }}>
+              <CarouselContent className="h-full">
                 {allSteps.map((step, index) => (
-                  <CarouselItem key={index}>
-                    <CardContent className="h-full">
-                      <ScrollArea className="h-full w-full">
-                        <div className="p-1">
+                  <CarouselItem key={index} className="h-full">
+                    <ScrollArea className="h-full w-full">
+                        <div className="p-6 pt-0">
                           {step.type === 'question' ? (
                             getQuestionStepComponent(step.id)
                           ) : step.type === 'info' && step.id === 'process' ? (
@@ -446,14 +446,13 @@ export default function PreparationGuidePage() {
                             </div>
                           ) : null}
                         </div>
-                      </ScrollArea>
-                    </CardContent>
+                    </ScrollArea>
                   </CarouselItem>
                 ))}
               </CarouselContent>
             </Carousel>
             
-            <CardFooter className="border-t mt-auto">
+            <CardFooter className="p-6 border-t mt-auto">
               <div className="flex justify-between items-center w-full">
                 <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
                   <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
@@ -487,3 +486,5 @@ export default function PreparationGuidePage() {
     </EditableProvider>
   );
 }
+
+    
