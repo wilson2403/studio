@@ -51,12 +51,12 @@ export default function Header() {
 
   const navLinks = [
     { href: '/', label: t('navHome'), sectionId: 'home' },
-    { href: '/ayahuasca', label: "Medicina", sectionId: 'medicine' },
+    { href: '/ayahuasca', label: t('navMedicine'), sectionId: 'medicine' },
     { href: '/guides', label: t('navGuides'), sectionId: 'guides' },
   ];
   
   const userNavLinks = [
-     { href: '/ceremonies', label: "Ceremonias", sectionId: 'ceremonies' },
+     { href: '/ceremonies', label: t('navCeremonies'), sectionId: 'ceremonies' },
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
      { href: '/artedesanar', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
@@ -64,10 +64,10 @@ export default function Header() {
   const adminNavLinks = [
       { href: '/admin', label: t('adminPanel'), icon: ShieldCheck },
       { href: '/admin/users', label: t('usersTab'), icon: UserIcon },
-      { href: '/admin/theme', label: t('Tema'), icon: Palette },
-      { href: '/admin/backup', label: t('backupTab'), icon: History },
-      { href: '/admin/chat', label: t('chatHistory'), icon: MessageSquare },
-      { href: '/admin/logs', label: t('errorLogs'), icon: Terminal }
+      { href: '/admin/theme', label: t('navTheme'), icon: Palette },
+      { href: '/admin/backup', label: t('navBackup'), icon: History },
+      { href: '/admin/chat', label: t('navChatHistory'), icon: MessageSquare },
+      { href: '/admin/logs', label: t('navLogs'), icon: Terminal }
   ];
 
   useEffect(() => {
@@ -363,5 +363,7 @@ export default function Header() {
     </>
   );
 }
+
+    
 
     
