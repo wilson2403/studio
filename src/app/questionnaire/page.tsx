@@ -19,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
 import { ArrowLeft, ArrowRight, PartyPopper, HeartHandshake, Leaf, Minus, Sparkles, Sprout, Wind, BookOpen } from 'lucide-react';
 import Link from 'next/link';
-import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Progress } from '@/components/ui/progress';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
@@ -345,19 +345,19 @@ export default function PreparationGuidePage() {
   return (
     <EditableProvider>
     <div className="container py-12 md:py-16">
-      <Card className="mx-auto max-w-4xl shadow-2xl">
+      <Card className="mx-auto max-w-4xl shadow-2xl flex flex-col">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-headline">{t('preparationGuideTitle')}</CardTitle>
           <CardDescription className="font-body">{t('preparationGuideSubtitle')}</CardDescription>
           <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mt-4" />
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-grow flex flex-col p-0">
           <Form {...form}>
-            <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: true, align: "start" }}>
+            <Carousel setApi={setApi} className="w-full flex-grow" opts={{ watchDrag: true, align: "start" }}>
               <CarouselContent>
                 {allSteps.map((step, index) => (
-                  <CarouselItem key={index} className="flex flex-col">
-                    <div className="space-y-6 p-6 flex-grow">
+                  <CarouselItem key={index}>
+                    <div className="space-y-6 p-6">
                         {step.type === 'question' ? (
                             getQuestionStepComponent(step.id)
                         ) : step.type === 'info' && step.id === 'process' ? (
@@ -456,27 +456,27 @@ export default function PreparationGuidePage() {
                         </div>
                         ) : null}
                     </div>
-                     <div className="mt-auto flex justify-between p-6 pt-0">
-                        <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
-                                <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
-                        </Button>
-
-                        {allSteps[currentStep].type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
-                            <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
-                                {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        ) : allSteps[currentStep].type !== 'final' ? (
-                            <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
-                                {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                        ) : null}
-                    </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
             </Carousel>
           </Form>
         </CardContent>
+        <div className="mt-auto flex justify-between p-6">
+            <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
+                    <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
+            </Button>
+
+            {allSteps[currentStep].type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
+                <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
+                    {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            ) : allSteps[currentStep].type !== 'final' ? (
+                <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
+                    {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            ) : null}
+        </div>
       </Card>
     </div>
     {user && (
@@ -489,10 +489,5 @@ export default function PreparationGuidePage() {
     </EditableProvider>
   );
 }
-
-
-
-    
-
 
     
