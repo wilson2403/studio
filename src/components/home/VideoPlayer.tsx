@@ -257,7 +257,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     );
 };
 
-export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false, defaultMuted = true, trackProgress = false }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false, defaultMuted, trackProgress = false }: VideoPlayerProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -309,7 +309,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, 
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} />;
+      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted === undefined ? !isActivated : defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} />;
     }
     
     // Fallback for any other URL or invalid URL
