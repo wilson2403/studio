@@ -328,7 +328,7 @@ export default function PreparationGuidePage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, align: "start" }}>
+            <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: true, align: "start" }}>
               <CarouselContent>
                 {allSteps.map((step, index) => (
                   <CarouselItem key={index} className="min-h-[400px] flex flex-col justify-between p-6">
@@ -466,3 +466,6 @@ export default function PreparationGuidePage() {
   );
 }
 
+
+
+    
