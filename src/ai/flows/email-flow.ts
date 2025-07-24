@@ -7,7 +7,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { getAllUsers } from '@/lib/firebase/firestore';
+import { getAllUsers, logError } from '@/lib/firebase/firestore';
 import { z } from 'zod';
 import { Resend } from 'resend';
 
@@ -93,6 +93,7 @@ export const sendEmailToAllUsers = ai.defineFlow(
 
       if (error) {
         console.error('Resend API Error:', error);
+        await logError(error, { function: 'sendEmailToAllUsers - Resend' });
         throw new Error(`Failed to send emails: ${error.message}`);
       }
       
@@ -101,6 +102,7 @@ export const sendEmailToAllUsers = ai.defineFlow(
 
     } catch (error: any) {
       console.error('Flow Error:', error);
+      await logError(error, { function: 'sendEmailToAllUsers - Flow' });
       throw new Error(`An unexpected error occurred: ${error.message}`);
     }
   }

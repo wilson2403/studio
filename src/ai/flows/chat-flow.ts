@@ -9,7 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { getChat, saveChatMessage } from '@/lib/firebase/firestore';
+import { getChat, saveChatMessage, logError } from '@/lib/firebase/firestore';
 
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -92,6 +92,7 @@ async function runContinueChatFlow(input: ChatInput): Promise<ChatOutput> {
         await saveChatMessage(chatId, updatedHistory, user);
     } catch (error) {
         console.error("Failed to save chat message:", error);
+        await logError(error, { function: 'runContinueChatFlow - saveChatMessage' });
         // We don't throw here because we still want to return the answer to the user
     }
 

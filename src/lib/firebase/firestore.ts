@@ -16,7 +16,7 @@ const invitationMessagesCollection = collection(db, 'invitationMessages');
 const analyticsCollection = collection(db, 'analytics');
 const coursesCollection = collection(db, 'courses');
 
-const logError = async (error: any, context?: Record<string, any>) => {
+export const logError = async (error: any, context?: Record<string, any>) => {
     try {
         await addDoc(errorLogsCollection, {
             message: error.message,

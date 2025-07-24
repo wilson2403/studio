@@ -60,9 +60,7 @@ export default function PreparationGuidePage() {
   const [totalSteps, setTotalSteps] = useState(1)
   const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [canDrag, setCanDrag] = useState(true);
-  const previousStep = useRef(0);
-
+  
   const router = useRouter();
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -104,61 +102,24 @@ export default function PreparationGuidePage() {
     }
   }, [user, isCompleted]);
 
-  const validateCurrentStep = useCallback(async (stepIndex: number): Promise<boolean> => {
-    const isQuestionStep = allSteps[stepIndex]?.type === 'question';
-    if (isQuestionStep && !isCompleted) {
-        const questionId = allSteps[stepIndex].id as keyof FormData;
-        const isValid = await form.trigger(questionId);
-        if (!isValid) {
-            toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
-        }
-        return isValid;
-    }
-    return true;
-  }, [allSteps, form, isCompleted, t, toast]);
-
   useEffect(() => {
     if (!api) return;
 
     setTotalSteps(api.scrollSnapList().length);
-
-    const onSelect = async (emblaApi: CarouselApi) => {
-        const newStep = emblaApi.selectedScrollSnap();
-        if (newStep > previousStep.current) {
-            const isPrevStepValid = await validateCurrentStep(previousStep.current);
-            if (!isPrevStepValid) {
-                emblaApi.scrollTo(previousStep.current, true);
-                return;
-            }
-        }
-        
-        setCurrentStep(newStep);
-        if (newStep !== previousStep.current) {
-            updateUserProgress(newStep);
-            previousStep.current = newStep;
-        }
-
-        const isCurrentStepValid = await validateCurrentStep(newStep);
-        setCanDrag(isCurrentStepValid);
-    };
     
-    api.on("select", onSelect);
-    api.on("settle", (emblaApi) => {
-        // Re-check validation when carousel settles, in case form state changed
-        validateCurrentStep(emblaApi.selectedScrollSnap()).then(setCanDrag);
-    });
+    const onSelect = () => {
+      const newStep = api.selectedScrollSnap();
+      setCurrentStep(newStep);
+      updateUserProgress(newStep);
+    }
 
+    api.on("select", onSelect);
+    
     return () => {
       api.off("select", onSelect);
-      api.off("settle");
     };
-  }, [api, updateUserProgress, validateCurrentStep]);
+  }, [api, updateUserProgress]);
   
-  const formValues = form.watch();
-  useEffect(() => {
-      validateCurrentStep(currentStep).then(setCanDrag);
-  }, [formValues, currentStep, validateCurrentStep]);
-
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -179,7 +140,6 @@ export default function PreparationGuidePage() {
             const targetStep = profile?.questionnaireCompleted ? allSteps.length - 1 : (profile?.preparationStep || 0);
             api.scrollTo(targetStep, true);
             setCurrentStep(targetStep);
-            previousStep.current = targetStep;
           }
 
         } catch (error) {
@@ -192,8 +152,15 @@ export default function PreparationGuidePage() {
   }, [api, form]);
 
   const goToNextStep = async () => {
-    const isValid = await validateCurrentStep(currentStep);
-    if (!isValid) return;
+    const stepInfo = allSteps[currentStep];
+    if (stepInfo.type === 'question' && !isCompleted) {
+      const questionId = stepInfo.id as keyof FormData;
+      const isValid = await form.trigger(questionId);
+      if (!isValid) {
+        toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive'});
+        return;
+      }
+    }
 
     if (api?.canScrollNext()) {
       api.scrollNext();
@@ -337,22 +304,22 @@ export default function PreparationGuidePage() {
   
   if (!user) {
     return (
-      <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
-        <Card className="w-full max-w-md text-center">
-            <CardHeader>
-                <CardTitle>{t('authRequiredJourneyTitle')}</CardTitle>
-                <CardDescription>{t('authRequiredJourneyDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col sm:flex-row gap-2">
-                <Button asChild className="w-full">
-                    <Link href="/login?redirect=/questionnaire">{t('signIn')}</Link>
-                </Button>
-                <Button asChild variant="secondary" className="w-full">
-                    <Link href="/register?redirect=/questionnaire">{t('registerButton')}</Link>
-                </Button>
-            </CardContent>
-        </Card>
-      </div>
+        <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
+            <Card className="w-full max-w-md text-center">
+                  <CardHeader>
+                      <CardTitle>{t('authRequiredJourneyTitle')}</CardTitle>
+                      <CardDescription>{t('authRequiredJourneyDescription')}</CardDescription>
+                  </CardHeader>
+                <CardContent className="flex flex-col sm:flex-row gap-2">
+                    <Button asChild className="w-full">
+                        <Link href="/login?redirect=/questionnaire">{t('signIn')}</Link>
+                    </Button>
+                    <Button asChild variant="secondary" className="w-full">
+                        <Link href="/register?redirect=/questionnaire">{t('registerButton')}</Link>
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
     )
   }
 
@@ -366,12 +333,12 @@ export default function PreparationGuidePage() {
           </div>
 
           <Form {...form}>
-              <Carousel setApi={setApi} className="w-full flex-grow py-4" opts={{ watchDrag: canDrag, align: "center" }}>
+              <Carousel setApi={setApi} className="w-full flex-grow py-4" opts={{ align: "center", watchDrag: true }}>
                 <CarouselContent>
                   {allSteps.map((step, index) => (
                     <CarouselItem key={index} className="flex items-center justify-center">
-                      <div className="w-full max-w-4xl flex flex-col justify-between p-6 md:p-8 rounded-2xl shadow-2xl bg-card">
-                          <div className="flex-grow min-h-[50vh] flex flex-col justify-center">
+                        <div className="w-full max-w-4xl flex flex-col justify-between p-6 md:p-8 rounded-2xl shadow-2xl bg-card min-h-[55vh]">
+                          <div className="flex-grow flex flex-col justify-center">
                             {step.type === 'question' ? (
                                 getQuestionStepComponent(step.id)
                             ) : step.type === 'info' && step.id === 'process' ? (
@@ -470,28 +437,28 @@ export default function PreparationGuidePage() {
                             </div>
                             ) : null}
                           </div>
+                          
+                          <div className="flex justify-between items-center pt-6 mt-6 border-t">
+                              <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
+                                  <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
+                              </Button>
+
+                              {allSteps[currentStep]?.type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
+                                  <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
+                                      {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
+                                  </Button>
+                              ) : allSteps[currentStep]?.type !== 'final' ? (
+                                  <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
+                                      {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
+                                  </Button>
+                              ) : <div></div>}
+                          </div>
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
               </Carousel>
           </Form>
-
-          <div className="flex justify-between items-center pt-6 mt-6 border-t fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-sm px-4">
-              <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
-                  <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
-              </Button>
-
-              {allSteps[currentStep]?.type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
-                  <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
-                      {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-              ) : allSteps[currentStep]?.type !== 'final' ? (
-                  <Button onClick={goToNextStep} disabled={!api?.canScrollNext() || !canDrag}>
-                      {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-              ) : <div></div>}
-          </div>
       </div>
       {user && (
           <ViewAnswersDialog
@@ -504,3 +471,4 @@ export default function PreparationGuidePage() {
   );
 }
 
+    

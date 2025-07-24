@@ -1,9 +1,7 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    unoptimized: true,
-  },
+  swcMinify: true,
   typescript: {
     ignoreBuildErrors: true,
   },

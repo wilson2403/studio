@@ -17,6 +17,7 @@ import {
 } from 'firebase/auth';
 import { auth, db } from './config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { logError } from './firestore';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -51,6 +52,7 @@ export const signInWithGoogle = async () => {
     return user;
   } catch (error) {
     console.error("Error signing in with Google: ", error);
+    await logError(error, { function: 'signInWithGoogle' });
     throw error;
   }
 };
@@ -88,6 +90,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     return user;
   } catch (error) {
     console.error("Error signing up with email: ", error);
+    await logError(error, { function: 'signUpWithEmail' });
     throw error;
   }
 };
@@ -100,6 +103,7 @@ export const signInWithEmail = async (email: string, password: string) => {
         return userCredential.user;
     } catch (error) {
         console.error("Error signing in with email: ", error);
+        await logError(error, { function: 'signInWithEmail' });
         throw error;
     }
 }
@@ -110,6 +114,7 @@ export const signOut = async () => {
     sessionStorage.clear();
   } catch (error) {
     console.error("Error signing out: ", error);
+    await logError(error, { function: 'signOut' });
     throw error;
   }
 };
@@ -143,6 +148,7 @@ export const updateUserEmail = async (newEmail: string, currentPassword?: string
 
     } catch (error) {
         console.error("Error updating email:", error);
+        await logError(error, { function: 'updateUserEmail' });
         throw error;
     }
 };
@@ -157,6 +163,7 @@ export const updateUserPassword = async (currentPassword: string, newPassword: s
         await firebaseUpdatePassword(user, newPassword);
     } catch (error) {
         console.error("Error updating password:", error);
+        await logError(error, { function: 'updateUserPassword' });
         throw error;
     }
 };
