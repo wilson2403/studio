@@ -216,6 +216,8 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
       }
       
       if (status === 'finished') {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
         return dateB.localeCompare(dateA);
       }
 
