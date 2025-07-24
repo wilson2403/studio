@@ -38,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.20';
+const APP_VERSION = '1.21';
 
 export default function Header() {
   const pathname = usePathname();
@@ -64,7 +64,7 @@ export default function Header() {
   const adminNavLinks = [
       { href: '/admin', label: t('adminPanel'), icon: ShieldCheck },
       { href: '/admin/users', label: t('usersTab'), icon: UserIcon },
-      { href: '/admin/theme', label: t('themeTab'), icon: Palette },
+      { href: '/admin/theme', label: t('Tema'), icon: Palette },
       { href: '/admin/backup', label: t('backupTab'), icon: History },
       { href: '/admin/chat', label: t('chatHistory'), icon: MessageSquare },
       { href: '/admin/logs', label: t('errorLogs'), icon: Terminal }
