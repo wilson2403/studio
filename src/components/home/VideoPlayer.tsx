@@ -78,7 +78,7 @@ const getStreamableEmbedUrl = (url: string, isActivated: boolean): string | null
 
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
-    return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]);
+    return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
 };
 
 const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: string, className?: string, onPlay: () => void }) => {
@@ -160,14 +160,14 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     useEffect(() => {
       const video = videoRef.current;
       if (video) {
-        if (isActivated && !inCarousel) {
+        if (isActivated) {
           video.play().catch(console.error);
-        } else if (!isActivated && !inCarousel) {
+        } else {
           video.pause();
           video.currentTime = 0;
         }
       }
-    }, [isActivated, inCarousel]);
+    }, [isActivated]);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -186,11 +186,12 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
             }
             video.addEventListener('play', handlePlay);
             video.addEventListener('pause', handlePause);
-
-            if (inCarousel) {
-                video.play().catch(e => console.log("Autoplay blocked for carousel"));
-            }
             
+            // Set initial playing state
+            if (!video.paused) {
+                handlePlay();
+            }
+
             // Fetch and set initial progress
             if (trackProgress && userId && videoId) {
                 getVideoProgress(userId, videoId).then(time => {
@@ -214,17 +215,40 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
       }
     }, [isMuted])
 
+    const togglePlay = () => {
+        const video = videoRef.current;
+        if (video) {
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+    }
+
     return (
         <div className={cn("relative w-full h-full group/video", className)}>
             <video
                 ref={videoRef}
                 src={src}
-                autoPlay={inCarousel || isActivated}
+                autoPlay={isActivated}
                 loop={true}
                 playsInline
                 muted={isMuted}
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
+             {(inCarousel) && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={togglePlay}
+                        className="h-14 w-14 rounded-full text-white bg-black/50 hover:bg-black/70 hover:text-white"
+                    >
+                        {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };
