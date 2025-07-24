@@ -12,21 +12,6 @@ import { auth } from '@/lib/firebase/config';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
-interface VideoPlayerProps {
-  ceremonyId: string;
-  videoUrl?: string;
-  mediaType?: 'image' | 'video';
-  videoFit?: 'cover' | 'contain';
-  autoplay?: boolean;
-  title: string;
-  className?: string;
-  isActivated?: boolean;
-  inCarousel?: boolean;
-  defaultMuted?: boolean;
-  trackProgress?: boolean;
-  userId?: string | null;
-}
-
 const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null => {
   if (!url) return null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -155,8 +140,10 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
         if (!video) return;
 
         if (isIntersecting) {
-            video.play().then(handlePlay).catch(console.error);
-            setIsMuted(false);
+            if (autoplay) {
+                video.play().then(handlePlay).catch(console.error);
+                setIsMuted(false);
+            }
         } else {
             if (!autoplay) {
                 video.pause();
@@ -265,16 +252,18 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
                 muted={isMuted}
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={togglePlay}
-                    className="h-14 w-14 rounded-full text-white bg-black/50 hover:bg-black/70 hover:text-white"
-                >
-                    {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
-                </Button>
-            </div>
+            {!autoplay && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
+                  <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={togglePlay}
+                      className="h-14 w-14 rounded-full text-white bg-black/50 hover:bg-black/70 hover:text-white"
+                  >
+                      {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+                  </Button>
+              </div>
+            )}
              <div className="absolute bottom-2 right-2 flex items-center gap-2 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
                 <Button
                     variant="ghost"
@@ -289,7 +278,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
     );
 };
 
-export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, isActivated = false, defaultMuted, trackProgress = false }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, defaultMuted, trackProgress = false }: VideoPlayerProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -331,10 +320,10 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     const url = videoUrl || '';
 
     const embedUrl = 
-        getYoutubeEmbedUrl(url, isActivated) ||
-        getTikTokEmbedUrl(url, isActivated) ||
-        getFacebookEmbedUrl(url, isActivated) ||
-        getStreamableEmbedUrl(url, isActivated);
+        getYoutubeEmbedUrl(url, !!autoplay) ||
+        getTikTokEmbedUrl(url, !!autoplay) ||
+        getFacebookEmbedUrl(url, !!autoplay) ||
+        getStreamableEmbedUrl(url, !!autoplay);
 
     if (embedUrl) {
        return <IframePlayer src={embedUrl} title={title} className={className} onPlay={handlePlay} />;
@@ -370,3 +359,16 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     </div>
   );
 };
+
+interface VideoPlayerProps {
+  ceremonyId: string;
+  videoUrl?: string;
+  mediaType?: 'image' | 'video';
+  videoFit?: 'cover' | 'contain';
+  autoplay?: boolean;
+  title: string;
+  className?: string;
+  defaultMuted?: boolean;
+  trackProgress?: boolean;
+  userId?: string | null;
+}

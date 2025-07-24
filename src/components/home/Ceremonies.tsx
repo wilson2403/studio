@@ -40,7 +40,6 @@ export default function Ceremonies({
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
   const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
-  const [activeVideo, setActiveVideo] = useState<string | null>(null);
   const { t } = useTranslation();
   const router = useRouter();
   const { toast } = useToast();
@@ -147,7 +146,6 @@ export default function Ceremonies({
 
   const handleExpandVideo = (e: React.MouseEvent, ceremony: Ceremony) => {
     e.stopPropagation();
-    setActiveVideo(null); // Stop the background video
     setExpandedVideo(ceremony);
   };
   
@@ -190,7 +188,6 @@ export default function Ceremonies({
                               videoFit={ceremony.videoFit}
                               title={ceremony.title}
                               autoplay={ceremony.autoplay}
-                              inCarousel={false}
                               defaultMuted={false}
                            />
                       </div>
@@ -268,7 +265,6 @@ export default function Ceremonies({
                           videoFit={ceremony.videoFit}
                           title={ceremony.title}
                           autoplay={ceremony.autoplay}
-                          inCarousel
                           defaultMuted={index !== 0}
                        />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none transition-colors duration-300"></div>
@@ -432,16 +428,3 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
-
-
-    
-
-
-    
-
-    
-
-
-
-
-
