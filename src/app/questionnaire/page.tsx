@@ -179,7 +179,7 @@ export default function QuestionnairePage() {
                         render={({ field }) => (
                             <FormItem className="space-y-3">
                             <FormControl>
-                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex justify-center gap-4">
+                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex justify-center gap-4" disabled={isCompleted}>
                                 <FormItem>
                                     <FormControl><RadioGroupItem value="yes" id={`${stepInfo.id}-yes`} className="sr-only peer" /></FormControl>
                                     <Label htmlFor={`${stepInfo.id}-yes`} className="px-6 py-3 border rounded-lg cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10">{t('yes')}</Label>
@@ -196,14 +196,14 @@ export default function QuestionnairePage() {
                         />
                         {form.watch(fieldName) === 'yes' && (
                             <FormField control={form.control} name={detailsFieldName} render={({ field }) => (
-                                <FormItem className="mt-4"><Label>{t(stepInfo.detailsLabelKey || '')}</Label><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem className="mt-4"><Label>{t(stepInfo.detailsLabelKey || '')}</Label><FormControl><Textarea {...field} disabled={isCompleted} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         )}
                 </div>
             );
         case 'mainIntention':
             return <FormField control={form.control} name="mainIntention" render={({ field }) => (
-                    <FormItem className="w-full"><FormControl><Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem className="w-full"><FormControl><Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} disabled={isCompleted} /></FormControl><FormMessage /></FormItem>
                 )}/>;
       default: return null;
     }
@@ -296,13 +296,16 @@ export default function QuestionnairePage() {
                                                         </div>
                                                     )}
                                                 </div>
-                                                {!isFinalScreen && !dataLoading && (
+                                                {!dataLoading && (
                                                     <div className="mt-6 flex w-full items-center justify-between">
                                                         <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('previous')}</Button>
-                                                        {isFinalQuestion ? (
-                                                            <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
-                                                        ) : (
-                                                            <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>{t('continue')}</Button>
+                                                        
+                                                        {!isFinalScreen && (
+                                                            isFinalQuestion ? (
+                                                                <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
+                                                            ) : (
+                                                                <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>{t('continue')}</Button>
+                                                            )
                                                         )}
                                                     </div>
                                                 )}
@@ -328,7 +331,3 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
-
-    
-
-    
