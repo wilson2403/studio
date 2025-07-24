@@ -38,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.21';
+const APP_VERSION = '1.22';
 
 export default function Header() {
   const pathname = usePathname();
@@ -290,7 +290,7 @@ export default function Header() {
                           <SheetClose asChild>
                               <button onClick={() => setIsProfileDialogOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
                                   <UserIcon className="h-5 w-5" />
-                                  {t('editProfile')}
+                                  <span>{t('editProfile')}</span>
                               </button>
                           </SheetClose>
                            <SheetClose asChild>
