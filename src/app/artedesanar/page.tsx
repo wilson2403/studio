@@ -227,6 +227,33 @@ export default function QuestionnairePage() {
   }
 
   const getInfoStepComponent = (step: (typeof allSteps)[number]) => {
+    if (step.id === 'process') {
+      const processSteps = [
+          { id: "preparationProcess", titleId: "preparationProcessTitle", descriptionId: "preparationProcessDescription", Icon: Sprout },
+          { id: "ceremonyProcess", titleId: "ceremonyProcessTitle", descriptionId: "ceremonyProcessDescription", Icon: Sparkles },
+          { id: "experienceProcess", titleId: "experienceProcessTitle", descriptionId: "experienceProcessDescription", Icon: Wind },
+          { id: "integrationProcess", titleId: "integrationProcessTitle", descriptionId: "integrationProcessDescription", Icon: HeartHandshake },
+      ];
+       return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-w-lg mx-auto">
+              {processSteps.map(({ id, titleId, descriptionId, Icon }) => (
+                  <div key={id} className="flex flex-col items-center text-center gap-1 p-1">
+                      <div className="p-2 bg-primary/10 rounded-full"><Icon className="h-6 w-6 text-primary" /></div>
+                      <EditableTitle tag="h3" id={titleId} initialValue={t(titleId)} className="text-sm font-bold" />
+                      <EditableTitle tag="p" id={descriptionId} initialValue={t(descriptionId)} className="text-xs text-muted-foreground" />
+                  </div>
+              ))}
+          </div>
+      );
+    }
+    if (step.id === 'emotionalHealing') {
+        return (
+             <div className="text-center max-w-sm">
+                <EditableTitle tag="h3" id="emotionalHealingTitle" initialValue={t('emotionalHealingTitle')} className="font-bold text-xl mb-2" />
+                <EditableTitle tag="p" id="emotionalHealingDescription" initialValue={t('emotionalHealingDescription')} className="text-muted-foreground" />
+            </div>
+        )
+    }
     if (step.id === 'whatToBring') {
       return (
         <div className="grid grid-cols-1 gap-6 text-left text-sm max-w-xs">
