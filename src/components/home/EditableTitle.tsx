@@ -22,9 +22,10 @@ interface EditableTitleProps {
 export const EditableTitle = ({ tag: Tag, id, initialValue, className }: EditableTitleProps) => {
   const { isAdmin, content, updateContent, fetchContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
-  const lang = i18n.language;
+  const lang = i18n.language as 'es' | 'en';
 
   useEffect(() => {
     if (id) {
@@ -43,11 +44,19 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
       displayValue = initialValue;
   }
   
-  const [editValues, setEditValues] = useState({ es: '', en: '' });
-
   const handleSave = async () => {
+    if (!contentValue) return;
+
+    let newContentValue: { [key: string]: string; };
+
+    if (typeof contentValue === 'object' && contentValue !== null) {
+        newContentValue = { ...(contentValue as object), [lang]: editValue };
+    } else {
+        newContentValue = { [lang]: editValue };
+    }
+    
     try {
-        await updateContent(id, editValues);
+        await updateContent(id, newContentValue);
         toast({ title: t('editableSuccess'), description: '' });
         setIsEditing(false);
     } catch (error) {
@@ -57,47 +66,26 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   const handleCancel = () => {
     setIsEditing(false);
+    setEditValue(displayValue);
   };
   
   const handleEditClick = () => {
-    if (typeof contentValue === 'object' && contentValue !== null) {
-        setEditValues({ es: (contentValue as any).es || '', en: (contentValue as any).en || '' });
-    } else if (typeof contentValue === 'string') {
-        const defaultValues = { es: '', en: '' };
-        (defaultValues as any)[lang] = contentValue;
-        setEditValues(defaultValues);
-    } else {
-        const defaultValues = { es: '', en: '' };
-        (defaultValues as any)[lang] = initialValue;
-        setEditValues(defaultValues);
-    }
+    setEditValue(displayValue);
     setIsEditing(true);
-  }
-
-  const handleInputChange = (lang: 'es' | 'en', value: string) => {
-    setEditValues(prev => ({ ...prev, [lang]: value }));
   }
 
   if (isEditing) {
     const InputComponent = Tag === 'p' || Tag === 'h3' ? Textarea : Input;
+    const currentLanguageName = lang === 'es' ? 'Español' : 'English';
 
     return (
       <div className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">
         <div className='w-full space-y-2'>
-            <Label htmlFor={`${id}-es`}>Español</Label>
+            <Label htmlFor={`${id}-${lang}`}>{currentLanguageName}</Label>
             <InputComponent 
-                id={`${id}-es`}
-                value={editValues.es} 
-                onChange={(e) => handleInputChange('es', e.target.value)} 
-                className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
-            />
-        </div>
-        <div className='w-full space-y-2'>
-            <Label htmlFor={`${id}-en`}>English</Label>
-             <InputComponent 
-                id={`${id}-en`}
-                value={editValues.en} 
-                onChange={(e) => handleInputChange('en', e.target.value)} 
+                id={`${id}-${lang}`}
+                value={editValue} 
+                onChange={(e) => setEditValue(e.target.value)} 
                 className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
             />
         </div>
@@ -125,3 +113,4 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     </div>
   );
 };
+
