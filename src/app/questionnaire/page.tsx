@@ -331,8 +331,8 @@ export default function PreparationGuidePage() {
             <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, align: "start" }}>
               <CarouselContent>
                 {allSteps.map((step, index) => (
-                  <CarouselItem key={index} className="min-h-[400px] flex flex-col justify-between p-6">
-                    <div className="space-y-6 flex-grow">
+                  <CarouselItem key={index} className="p-6">
+                    <div className="space-y-6">
                         {step.type === 'question' ? (
                             getQuestionStepComponent(step.id)
                         ) : step.type === 'info' && step.id === 'process' ? (
@@ -431,25 +431,25 @@ export default function PreparationGuidePage() {
                         </div>
                         ) : null}
                     </div>
+                     <div className="mt-8 flex justify-between">
+                        <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
+                                <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
+                        </Button>
+
+                        {allSteps[currentStep].type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
+                            <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
+                                {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        ) : allSteps[currentStep].type !== 'final' ? (
+                            <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
+                                {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        ) : null}
+                    </div>
                   </CarouselItem>
                 ))}
               </CarouselContent>
             </Carousel>
-            <div className="mt-8 flex justify-between">
-                <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
-                </Button>
-
-                {allSteps[currentStep].type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
-                    <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
-                        {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                ) : allSteps[currentStep].type !== 'final' ? (
-                    <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
-                        {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                ) : null}
-            </div>
           </Form>
         </CardContent>
       </Card>
@@ -465,6 +465,9 @@ export default function PreparationGuidePage() {
   );
 }
 
+
+
+    
 
 
     
