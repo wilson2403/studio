@@ -218,7 +218,8 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
       }
     }, [isMuted])
 
-    const togglePlay = () => {
+    const togglePlay = (e: React.MouseEvent) => {
+        e.stopPropagation();
         const video = videoRef.current;
         if (video) {
             if (video.paused) {
@@ -227,6 +228,11 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
                 video.pause();
             }
         }
+    }
+    
+    const toggleMute = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setIsMuted(prev => !prev);
     }
 
     return (
@@ -240,18 +246,26 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
                 muted={isMuted}
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
-             {(inCarousel) && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={togglePlay}
-                        className="h-14 w-14 rounded-full text-white bg-black/50 hover:bg-black/70 hover:text-white"
-                    >
-                        {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
-                    </Button>
-                </div>
-            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={togglePlay}
+                    className="h-14 w-14 rounded-full text-white bg-black/50 hover:bg-black/70 hover:text-white"
+                >
+                    {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+                </Button>
+            </div>
+             <div className="absolute bottom-2 right-2 flex items-center gap-2 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleMute}
+                    className="h-8 w-8 rounded-full text-white bg-black/50 hover:bg-black/70 hover:text-white"
+                >
+                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </Button>
+            </div>
         </div>
     );
 };
