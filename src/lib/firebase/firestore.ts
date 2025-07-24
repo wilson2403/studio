@@ -805,6 +805,20 @@ export const deleteErrorLog = async (id: string): Promise<void> => {
     }
 }
 
+export const deleteAllErrorLogs = async (): Promise<void> => {
+    try {
+        const snapshot = await getDocs(errorLogsCollection);
+        const batch = writeBatch(db);
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+    } catch (error) {
+        console.error("Error deleting all error logs:", error);
+        throw error;
+    }
+}
+
 // --- Invitation Messages ---
 export const getInvitationMessages = async (): Promise<InvitationMessage[]> => {
     try {
@@ -1057,22 +1071,3 @@ export const getVideoProgress = async (uid: string, videoId: string): Promise<nu
 
 export type { Chat };
 export type { UserProfile };
-
-    
-
-    
-
-    
-
-
-
-
-    
-
-
-
-
-
-    
-
-

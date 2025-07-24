@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CheckCircle, Eye, Terminal, Trash2, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getErrorLogs, updateErrorLogStatus, deleteErrorLog, ErrorLog } from '@/lib/firebase/firestore';
+import { getErrorLogs, updateErrorLogStatus, deleteErrorLog, deleteAllErrorLogs, ErrorLog } from '@/lib/firebase/firestore';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -71,6 +71,16 @@ export default function AdminLogsPage() {
             toast({ title: t('errorDeletingLog'), variant: 'destructive' });
         }
     };
+    
+    const handleDeleteAll = async () => {
+        try {
+            await deleteAllErrorLogs();
+            setLogs([]);
+            toast({ title: t('allLogsDeleted') });
+        } catch (error) {
+            toast({ title: t('errorDeletingAllLogs'), variant: 'destructive' });
+        }
+    }
 
     if (loading) {
         return (
@@ -94,9 +104,28 @@ export default function AdminLogsPage() {
             </div>
             
             <Card className="bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle>{t('systemLogs')}</CardTitle>
-                    <CardDescription>{t('systemLogsDescription')}</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>{t('systemLogs')}</CardTitle>
+                        <CardDescription>{t('systemLogsDescription')}</CardDescription>
+                    </div>
+                     <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive" disabled={logs.length === 0}>
+                                <Trash2 className="mr-2 h-4 w-4" /> {t('deleteAll')}
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>{t('deleteAllLogsConfirmTitle')}</AlertDialogTitle>
+                                <AlertDialogDescription>{t('deleteAllLogsConfirmDescription')}</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDeleteAll}>{t('continue')}</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </CardHeader>
                 <CardContent>
                     <Table>
@@ -196,4 +225,3 @@ export default function AdminLogsPage() {
         </div>
     );
 }
-
