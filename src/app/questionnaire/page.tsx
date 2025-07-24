@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -130,18 +131,28 @@ export default function QuestionnairePage() {
  const goToNextStep = async () => {
     const currentStepInfo = allSteps[currentStep];
     if (currentStepInfo.type === 'question' && !isCompleted) {
-        const fieldsToValidate = [currentStepInfo.id] as (keyof FormData)[];
-        if (currentStepInfo.id === 'hasMedicalConditions' && form.getValues('hasMedicalConditions') === 'yes') fieldsToValidate.push('medicalConditionsDetails');
-        if (currentStepInfo.id === 'isTakingMedication' && form.getValues('isTakingMedication') === 'yes') fieldsToValidate.push('medicationDetails');
-        if (currentStepInfo.id === 'hasMentalHealthHistory' && form.getValues('hasMentalHealthHistory') === 'yes') fieldsToValidate.push('mentalHealthDetails');
-        if (currentStepInfo.id === 'hasPreviousExperience' && form.getValues('hasPreviousExperience') === 'yes') fieldsToValidate.push('previousExperienceDetails');
+        const fieldName = currentStepInfo.id as keyof FormData;
         
+        // Define fields to validate for the current step
+        const fieldsToValidate: (keyof FormData)[] = [fieldName];
+        if (fieldName === 'hasMedicalConditions' && form.getValues('hasMedicalConditions') === 'yes') {
+            fieldsToValidate.push('medicalConditionsDetails');
+        } else if (fieldName === 'isTakingMedication' && form.getValues('isTakingMedication') === 'yes') {
+            fieldsToValidate.push('medicationDetails');
+        } else if (fieldName === 'hasMentalHealthHistory' && form.getValues('hasMentalHealthHistory') === 'yes') {
+            fieldsToValidate.push('mentalHealthDetails');
+        } else if (fieldName === 'hasPreviousExperience' && form.getValues('hasPreviousExperience') === 'yes') {
+            fieldsToValidate.push('previousExperienceDetails');
+        }
+        
+        // Trigger validation for the current step's fields
         const isValid = await form.trigger(fieldsToValidate);
         if (!isValid) {
             toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
             return;
         }
     }
+    
     if (api?.canScrollNext()) api.scrollNext();
   };
   
@@ -150,13 +161,13 @@ export default function QuestionnairePage() {
   const onQuestionnaireSubmit = async () => {
     if (!user) return;
     if (isCompleted) {
-        goToNextStep();
+        if (api?.canScrollNext()) api.scrollNext();
         return;
     };
     try {
         await saveQuestionnaire(user.uid, form.getValues());
         setIsCompleted(true);
-        goToNextStep();
+        if (api?.canScrollNext()) api.scrollNext();
     } catch (error) {
         toast({ title: t('questionnaireErrorTitle'), description: t('questionnaireErrorDescription'), variant: 'destructive' });
     }
@@ -278,7 +289,7 @@ export default function QuestionnairePage() {
                                                 </div>
                                                 {!dataLoading && (
                                                     <div className="mt-6 flex w-full items-center justify-between">
-                                                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || (currentStep === 0 && !isCompleted)}>{t('previous')}</Button>
+                                                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev()}>{t('previous')}</Button>
                                                         
                                                         {!isFinalScreen && (
                                                             isFinalQuestion ? (
