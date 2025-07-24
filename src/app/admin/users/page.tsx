@@ -403,23 +403,25 @@ export default function AdminUsersPage() {
                                                             {t('viewQuestionnaire')} {u.questionnaireCompleted ? '' : `(${getPreparationPercentage(u)}%)`}
                                                         </Button>
                                                         {!u.questionnaireCompleted && <Progress value={getPreparationPercentage(u)} className='h-1 w-full' />}
-                                                         <AlertDialog>
-                                                            <AlertDialogTrigger asChild>
-                                                                <Button variant="destructive" size="sm">
-                                                                    <RotateCcw className="mr-2 h-4 w-4" /> {t('reset')}
-                                                                </Button>
-                                                            </AlertDialogTrigger>
-                                                            <AlertDialogContent>
-                                                                <AlertDialogHeader>
-                                                                    <AlertDialogTitle>{t('resetQuestionnaireConfirmTitle')}</AlertDialogTitle>
-                                                                    <AlertDialogDescription>{t('resetQuestionnaireConfirmDescription', { name: u.displayName || u.email })}</AlertDialogDescription>
-                                                                </AlertDialogHeader>
-                                                                <AlertDialogFooter>
-                                                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                                    <AlertDialogAction onClick={() => handleResetQuestionnaire(u.uid)}>{t('continue')}</AlertDialogAction>
-                                                                </AlertDialogFooter>
-                                                            </AlertDialogContent>
-                                                        </AlertDialog>
+                                                        {(!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button variant="destructive" size="sm">
+                                                                        <RotateCcw className="mr-2 h-4 w-4" /> {t('reset')}
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>{t('resetQuestionnaireConfirmTitle')}</AlertDialogTitle>
+                                                                        <AlertDialogDescription>{t('resetQuestionnaireConfirmDescription', { name: u.displayName || u.email })}</AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                        <AlertDialogAction onClick={() => handleResetQuestionnaire(u.uid)}>{t('continue')}</AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+                                                        )}
                                                     </div>
                                                 ) : (
                                                     <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
