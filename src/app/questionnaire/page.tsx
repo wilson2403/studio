@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
@@ -17,15 +17,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
-import { BookOpen, PartyPopper, HeartPulse, Pill, Brain, History, Sprout, Wind, HeartHandshake, Leaf, Minus, Sparkles, Check, CheckCircle } from 'lucide-react';
+import { BookOpen, PartyPopper, HeartPulse, Pill, Brain, History, Sprout, Wind, HeartHandshake, Leaf, Minus, Sparkles, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
-import { EditableTitle } from '@/components/home/EditableTitle';
 import { cn } from '@/lib/utils';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
@@ -70,7 +69,7 @@ const allSteps = [
 
 export default function QuestionnairePage() {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
   const [api, setApi] = useState<CarouselApi>()
   const [currentStep, setCurrentStep] = useState(0)
   const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
@@ -124,7 +123,7 @@ export default function QuestionnairePage() {
 
         } catch (error) { console.error("Error fetching user data:", error); }
       }
-      setLoading(false);
+      setPageLoading(false);
     });
     return () => unsubscribe();
   }, [api, form]);
@@ -164,7 +163,7 @@ export default function QuestionnairePage() {
     }
   };
 
-  const getQuestionStepComponent = (id: string, label: string) => {
+  const getQuestionStepComponent = (id: string) => {
     switch(id) {
         case 'hasMedicalConditions':
         case 'isTakingMedication':
@@ -216,12 +215,12 @@ export default function QuestionnairePage() {
       case 'diet': return (
         <div className="grid md:grid-cols-2 gap-4">
             <Card className="bg-green-950/20 border-green-500/30 p-4">
-                <CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-green-400"><Leaf/><EditableTitle tag="p" id="allowedFoodsTitle" initialValue={t('allowedFoodsTitle')} /></CardTitle></CardHeader>
-                <CardContent className="p-2"><EditableTitle tag="p" id="allowedFoodsList" initialValue={t('allowedFoodsList')} className="text-sm"/></CardContent>
+                <CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-green-400"><Leaf/>{t('allowedFoodsTitle')}</CardTitle></CardHeader>
+                <CardContent className="p-2"><p className="text-sm">{t('allowedFoodsList')}</p></CardContent>
             </Card>
             <Card className="bg-red-950/20 border-red-500/30 p-4">
-                <CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-red-400"><Minus/><EditableTitle tag="p" id="prohibitedFoodsTitle" initialValue={t('prohibitedFoodsTitle')} /></CardTitle></CardHeader>
-                <CardContent className="p-2"><EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} className="text-sm"/></CardContent>
+                <CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-red-400"><Minus/>{t('prohibitedFoodsTitle')}</CardTitle></CardHeader>
+                <CardContent className="p-2"><p className="text-sm">{t('prohibitedFoodsList')}</p></CardContent>
             </Card>
         </div>
       );
@@ -234,8 +233,8 @@ export default function QuestionnairePage() {
   }
 
 
-  if (loading) {
-    return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[80vh] w-full" /></div></div>;
+  if (pageLoading) {
+    return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[85vh] w-full rounded-2xl" /></div></div>;
   }
   
   if (!user) {
@@ -262,10 +261,10 @@ export default function QuestionnairePage() {
             <Card className="w-full max-w-md h-[85vh] flex flex-col rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 overflow-hidden">
                 <Carousel setApi={setApi} className="w-full flex-1" opts={{ watchDrag: false, duration: 20 }}>
                     <CarouselContent className="h-full">
-                    {allSteps.map((step, index) => {
+                    {allSteps.map((step) => {
                         const Icon = step.icon;
                         return(
-                            <CarouselItem key={index} className="h-full">
+                            <CarouselItem key={step.id} className="h-full">
                                <div className="flex flex-col h-full p-6">
                                     <div className="flex-1 flex flex-col items-center justify-center text-center">
                                         <div className="p-4 bg-primary/10 rounded-full mb-6">
@@ -277,23 +276,21 @@ export default function QuestionnairePage() {
                                             ))}
                                         </div>
                                         <h2 className="text-2xl font-headline font-bold mb-2">{t(step.titleKey)}</h2>
-                                        <p className="text-muted-foreground mb-8">{t(step.descriptionKey)}</p>
+                                        <p className="text-muted-foreground mb-4">{t(step.descriptionKey)}</p>
                                         
-                                        <CardContent className="flex-1 w-full flex items-center justify-center p-0 overflow-auto">
-                                            <ScrollArea className="h-full w-full">
-                                                <div className="py-4 px-1">
-                                                {step.type === 'question' ? getQuestionStepComponent(step.id, t(step.titleKey)) 
+                                        <ScrollArea className="flex-1 w-full overflow-y-auto">
+                                            <div className="p-1">
+                                                {step.type === 'question' ? getQuestionStepComponent(step.id) 
                                                 : step.type === 'info' ? getInfoStepComponent(step.id) 
-                                                : ( // Final Step
+                                                : (
                                                     <div className="flex flex-col items-center gap-4">
                                                         <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
                                                         <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
                                                         <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
                                                     </div>
                                                 )}
-                                                </div>
-                                            </ScrollArea>
-                                        </CardContent>
+                                            </div>
+                                        </ScrollArea>
                                     </div>
                                </div>
                             </CarouselItem>
@@ -303,7 +300,7 @@ export default function QuestionnairePage() {
                 </Carousel>
                 
                 {!isFinalScreen && (
-                    <CardFooter className="px-6 pb-6 mt-auto flex items-center justify-between">
+                    <CardFooter className="px-6 pb-6 mt-auto flex items-center justify-between bg-card">
                         <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('skip')}</Button>
                         {isFinalQuestion ? (
                             <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
