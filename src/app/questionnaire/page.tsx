@@ -11,7 +11,7 @@ import * as z from 'zod';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,6 +25,7 @@ import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Label } from '@/components/ui/label';
 
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
@@ -196,7 +197,7 @@ export default function QuestionnairePage() {
                         />
                         {form.watch(fieldName) === 'yes' && (
                             <FormField control={form.control} name={detailsFieldName} render={({ field }) => (
-                                <FormItem className="mt-4"><FormLabel>{t('questionnaireMedicalConditionsDetails')}</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem className="mt-4"><Label>{t('questionnaireMedicalConditionsDetails')}</Label><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         )}
                 </div>
@@ -278,16 +279,20 @@ export default function QuestionnairePage() {
                                         <h2 className="text-2xl font-headline font-bold mb-2">{step.title}</h2>
                                         <p className="text-muted-foreground mb-8">{step.description}</p>
                                         
-                                        <CardContent className="flex-1 w-full flex items-center justify-center p-0">
-                                            {step.type === 'question' ? getQuestionStepComponent(step.id, step.title) 
-                                            : step.type === 'info' ? getInfoStepComponent(step.id) 
-                                            : ( // Final Step
-                                                <div className="flex flex-col items-center gap-4">
-                                                    <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
-                                                    <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
-                                                    <Button variant="ghost" onClick={() => router.push('/')}>{t('goHome')}</Button>
+                                        <CardContent className="flex-1 w-full flex items-center justify-center p-0 overflow-auto">
+                                            <ScrollArea className="h-full w-full">
+                                                <div className="py-4 px-1">
+                                                {step.type === 'question' ? getQuestionStepComponent(step.id, step.title) 
+                                                : step.type === 'info' ? getInfoStepComponent(step.id) 
+                                                : ( // Final Step
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
+                                                        <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                                        <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
+                                                    </div>
+                                                )}
                                                 </div>
-                                            )}
+                                            </ScrollArea>
                                         </CardContent>
                                     </div>
                                </div>
@@ -320,3 +325,5 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
+    
