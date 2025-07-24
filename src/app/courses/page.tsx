@@ -168,7 +168,7 @@ export default function CoursesPage() {
     );
 
     return (
-        <div className="container py-12 md:py-16 space-y-12 pl-5">
+        <div className="container py-12 md:py-16 space-y-12">
             <div className="text-center space-y-4">
                 <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">{t('navCourses')}</h1>
                 <p className="text-lg text-foreground/80 font-body max-w-2xl mx-auto">{t('coursesDescription')}</p>
