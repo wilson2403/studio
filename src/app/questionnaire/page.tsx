@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
@@ -59,6 +59,7 @@ export default function PreparationGuidePage() {
   const [totalSteps, setTotalSteps] = useState(1)
   const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const previousStep = useRef(0);
 
   const router = useRouter();
   const { t } = useTranslation();
@@ -105,19 +106,38 @@ export default function PreparationGuidePage() {
     if (!api) return;
 
     setTotalSteps(api.scrollSnapList().length);
-    
-    const handleSelect = () => {
-      const newStep = api.selectedScrollSnap();
-      setCurrentStep(newStep);
-      updateUserProgress(newStep);
+
+    const handleSettle = async (emblaApi: CarouselApi) => {
+        const newStep = emblaApi.selectedScrollSnap();
+        const prevStepIndex = previousStep.current;
+        const isTryingToAdvance = newStep > prevStepIndex;
+        
+        if (isTryingToAdvance) {
+            const isQuestionStep = allSteps[prevStepIndex].type === 'question';
+            if (isQuestionStep && !isCompleted) {
+                const questionId = allSteps[prevStepIndex].id as keyof FormData;
+                const isValid = await form.trigger(questionId);
+
+                if (!isValid) {
+                    emblaApi.scrollTo(prevStepIndex, true); // Snap back
+                    toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
+                    setCurrentStep(prevStepIndex);
+                    return;
+                }
+            }
+        }
+        
+        setCurrentStep(newStep);
+        updateUserProgress(newStep);
+        previousStep.current = newStep;
     };
-    
-    api.on("select", handleSelect);
+
+    api.on("settle", handleSettle);
     
     return () => {
-      api.off("select", handleSelect);
+      api.off("settle", handleSettle);
     };
-  }, [api, updateUserProgress]);
+  }, [api, updateUserProgress, form, allSteps, isCompleted, t, toast]);
   
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -137,6 +157,8 @@ export default function PreparationGuidePage() {
           if (api) {
             const targetStep = profile?.questionnaireCompleted ? allSteps.length - 1 : (profile?.preparationStep || 0);
             api.scrollTo(targetStep, true);
+            setCurrentStep(targetStep);
+            previousStep.current = targetStep;
           }
 
         } catch (error) {
@@ -153,7 +175,10 @@ export default function PreparationGuidePage() {
     if (isQuestionStep && !isCompleted) {
         const questionId = allSteps[currentStep].id as keyof FormData;
         const isValid = await form.trigger(questionId);
-        if (!isValid) return;
+        if (!isValid) {
+          toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
+          return;
+        }
     }
 
     if (api?.canScrollNext()) {
@@ -328,11 +353,11 @@ export default function PreparationGuidePage() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: false, align: "start" }}>
+            <Carousel setApi={setApi} className="w-full" opts={{ watchDrag: true, align: "start" }}>
               <CarouselContent>
                 {allSteps.map((step, index) => (
-                  <CarouselItem key={index} className="p-6">
-                    <div className="space-y-6">
+                  <CarouselItem key={index} className="flex flex-col">
+                    <div className="space-y-6 p-6 flex-grow">
                         {step.type === 'question' ? (
                             getQuestionStepComponent(step.id)
                         ) : step.type === 'info' && step.id === 'process' ? (
@@ -431,7 +456,7 @@ export default function PreparationGuidePage() {
                         </div>
                         ) : null}
                     </div>
-                     <div className="mt-8 flex justify-between">
+                     <div className="mt-auto flex justify-between p-6 pt-0">
                         <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
                                 <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
                         </Button>
