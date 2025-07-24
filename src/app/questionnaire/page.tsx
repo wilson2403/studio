@@ -75,7 +75,7 @@ export default function QuestionnairePage() {
   const [isCompleted, setIsCompleted] = useState(false);
   
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -126,7 +126,7 @@ export default function QuestionnairePage() {
       setPageLoading(false);
     });
     return () => unsubscribe();
-  }, [api, form, i18n.isInitialized]);
+  }, [api, form]);
 
  const goToNextStep = async () => {
     const currentStepInfo = allSteps[currentStep];
@@ -209,31 +209,12 @@ export default function QuestionnairePage() {
     }
   }
 
-  const getInfoStepComponent = (id: string) => {
-    switch(id) {
-      case 'process': return <div className="text-center">{t('preparationProcessDescription')}</div>;
-      case 'diet': return (
-        <div className="grid md:grid-cols-2 gap-4">
-            <Card className="bg-green-950/20 border-green-500/30 p-4">
-                <CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-green-400"><Leaf/>{t('allowedFoodsTitle')}</CardTitle></CardHeader>
-                <CardContent className="p-2"><p className="text-sm">{t('allowedFoodsList')}</p></CardContent>
-            </Card>
-            <Card className="bg-red-950/20 border-red-500/30 p-4">
-                <CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-red-400"><Minus/>{t('prohibitedFoodsTitle')}</CardTitle></CardHeader>
-                <CardContent className="p-2"><p className="text-sm">{t('prohibitedFoodsList')}</p></CardContent>
-            </Card>
-        </div>
-      );
-      case 'mentalPrep':
-      case 'emotionalHealing':
-      case 'whatToBring':
-        return <div className="text-center">{t(`${id}Description`)}</div>;
-      default: return null;
-    }
+  const getInfoStepComponent = (step: (typeof allSteps)[number]) => {
+    return <div className="text-center">{t(step.descriptionKey)}</div>;
   }
 
 
-  if (pageLoading || !i18n.isInitialized) {
+  if (pageLoading) {
     return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[70vh] w-full rounded-2xl" /></div></div>;
   }
   
@@ -287,7 +268,7 @@ export default function QuestionnairePage() {
                                                 
                                                 <div className="p-1 w-full">
                                                     {step.type === 'question' ? getQuestionStepComponent(step) 
-                                                    : step.type === 'info' ? getInfoStepComponent(step.id) 
+                                                    : step.type === 'info' ? getInfoStepComponent(step) 
                                                     : (
                                                         <div className="flex flex-col items-center gap-4">
                                                             <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
@@ -298,7 +279,7 @@ export default function QuestionnairePage() {
                                                 </div>
                                                 {!dataLoading && (
                                                     <div className="mt-6 flex w-full items-center justify-between">
-                                                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('previous')}</Button>
+                                                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || (currentStep === 0 && !isCompleted)}>{t('previous')}</Button>
                                                         
                                                         {!isFinalScreen && (
                                                             isFinalQuestion ? (
