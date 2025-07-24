@@ -38,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.35';
+const APP_VERSION = '1.36';
 
 export default function Header() {
   const pathname = usePathname();
@@ -134,7 +134,7 @@ export default function Header() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setIsProfileDialogOpen(true)}>
                 <UserIcon className="mr-2 h-4 w-4" />
-                <span>Editar Perfil</span>
+                <span>{t('editProfileTitle')}</span>
             </DropdownMenuItem>
              <DropdownMenuItem onMouseDown={() => router.push('/my-ceremonies')}>
                 <Briefcase className="mr-2 h-4 w-4" />
@@ -290,7 +290,7 @@ export default function Header() {
                           <SheetClose asChild>
                               <button onClick={() => setIsProfileDialogOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
                                   <UserIcon className="h-5 w-5" />
-                                  <span>Editar Perfil</span>
+                                  <span>{t('editProfileTitle')}</span>
                               </button>
                           </SheetClose>
                            <SheetClose asChild>
