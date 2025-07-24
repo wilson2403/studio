@@ -427,23 +427,25 @@ export default function AdminUsersPage() {
                                                         {t('invite')}
                                                     </Button>
                                                 )}
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="destructive" size="icon" className='h-9 w-9'>
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>{t('deleteUserConfirmTitle')}</AlertDialogTitle>
-                                                            <AlertDialogDescription>{t('deleteUserConfirmDescription', { name: u.displayName || u.email })}</AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteUser(u.uid)}>{t('delete')}</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
+                                                {!u.questionnaireCompleted && (!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="destructive" size="icon" className='h-9 w-9'>
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>{t('deleteUserConfirmTitle')}</AlertDialogTitle>
+                                                                <AlertDialogDescription>{t('deleteUserConfirmDescription', { name: u.displayName || u.email })}</AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleDeleteUser(u.uid)}>{t('delete')}</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -693,4 +695,3 @@ export default function AdminUsersPage() {
         </div>
     );
 }
-
