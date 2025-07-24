@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
@@ -16,15 +17,14 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
-import { ArrowLeft, ArrowRight, PartyPopper, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, PartyPopper, BookOpen, HeartPulse, Pill, Brain, History, Sprout, Wind, HeartHandshake, Leaf, Minus, Sparkles, Check } from 'lucide-react';
 import Link from 'next/link';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import { Progress } from '@/components/ui/progress';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
-import { Leaf, Minus, Sparkles, Sprout, Wind, HeartHandshake } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
+
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -57,7 +57,6 @@ export default function QuestionnairePage() {
   const [loading, setLoading] = useState(true);
   const [api, setApi] = useState<CarouselApi>()
   const [currentStep, setCurrentStep] = useState(0)
-  const [totalSteps, setTotalSteps] = useState(1)
   const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   
@@ -69,31 +68,19 @@ export default function QuestionnairePage() {
     resolver: zodResolver(questionnaireSchema(t)),
     mode: 'onChange',
   });
-
-  const processSteps = [
-      { id: "preparationProcess", titleId: "preparationProcessTitle", descriptionId: "preparationProcessDescription", Icon: Sprout },
-      { id: "ceremonyProcess", titleId: "ceremonyProcessTitle", descriptionId: "ceremonyProcessDescription", Icon: Sparkles },
-      { id: "experienceProcess", titleId: "experienceProcessTitle", descriptionId: "experienceProcessDescription", Icon: Wind },
-      { id: "integrationProcess", titleId: "ceremonyProcessDescription", descriptionId: "ceremonyProcessDescription", Icon: HeartHandshake },
-  ];
-  const mentalPrepSteps = [
-      { titleId: "meditationTitle", descriptionId: "meditationDescription" },
-      { titleId: "intentionsTitle", descriptionId: "intentionsDescription" },
-      { titleId: "reflectionTitle", descriptionId: "reflectionDescription" },
-  ];
   
   const allSteps = [
-    { type: 'question', id: 'hasMedicalConditions' },
-    { type: 'question', id: 'isTakingMedication' },
-    { type: 'question', id: 'hasMentalHealthHistory' },
-    { type: 'question', id: 'hasPreviousExperience' },
-    { type: 'question', id: 'mainIntention' },
-    { type: 'info', id: 'process', content: processSteps },
-    { type: 'info', id: 'diet', content: null },
-    { type: 'info', id: 'mentalPrep', content: mentalPrepSteps },
-    { type: 'info', id: 'emotionalHealing', content: null },
-    { type: 'info', id: 'whatToBring', content: null },
-    { type: 'final', id: 'final' }
+    { type: 'question', id: 'hasMedicalConditions', icon: HeartPulse, title: t('questionnaireMedicalConditions'), description: t('questionnaireMedicalConditionsDesc') },
+    { type: 'question', id: 'isTakingMedication', icon: Pill, title: t('questionnaireMedication'), description: t('questionnaireMedicationDesc') },
+    { type: 'question', id: 'hasMentalHealthHistory', icon: Brain, title: t('questionnaireMentalHealth'), description: t('questionnaireMentalHealthDesc') },
+    { type: 'question', id: 'hasPreviousExperience', icon: History, title: t('questionnaireExperience'), description: t('questionnaireExperienceDesc') },
+    { type: 'question', id: 'mainIntention', icon: Sprout, title: t('questionnaireIntention'), description: t('questionnaireIntentionDesc') },
+    { type: 'info', id: 'process', icon: Wind, title: t('preparationProcessTitle'), description: t('preparationGuideFullSubtitle') },
+    { type: 'info', id: 'diet', icon: Leaf, title: t('dietTitle'), description: t('dietSubtitle') },
+    { type: 'info', id: 'mentalPrep', icon: Sparkles, title: t('mentalPrepTitle'), description: t('mentalPrepSubtitle') },
+    { type: 'info', id: 'emotionalHealing', icon: HeartHandshake, title: t('emotionalHealingTitle'), description: t('emotionalHealingSubtitle') },
+    { type: 'info', id: 'whatToBring', icon: Check, title: t('whatToBringTitle'), description: t('whatToBringSubtitle') },
+    { type: 'final', id: 'final', icon: PartyPopper, title: t('preparationCompleteTitle'), description: t('preparationCompleteDescription') }
   ];
 
   const updateUserProgress = useCallback(async (step: number) => {
@@ -104,9 +91,6 @@ export default function QuestionnairePage() {
 
   useEffect(() => {
     if (!api) return;
-
-    setTotalSteps(api.scrollSnapList().length);
-
     const onSelect = () => {
         const newStep = api.selectedScrollSnap();
         if (newStep !== currentStep) {
@@ -114,12 +98,8 @@ export default function QuestionnairePage() {
             updateUserProgress(newStep);
         }
     };
-
     api.on("select", onSelect);
-
-    return () => {
-        api.off("select", onSelect);
-    };
+    return () => { api.off("select", onSelect); };
   }, [api, updateUserProgress, currentStep]);
 
   
@@ -131,22 +111,16 @@ export default function QuestionnairePage() {
           const profile = await getUserProfile(currentUser.uid);
           const savedAnswers = await getQuestionnaire(currentUser.uid);
           
-          if (profile?.questionnaireCompleted) {
-            setIsCompleted(true);
-          }
-
-          if (savedAnswers) {
-            form.reset(savedAnswers);
-          }
+          if (profile?.questionnaireCompleted) setIsCompleted(true);
+          if (savedAnswers) form.reset(savedAnswers);
+          
           if (api) {
             const targetStep = profile?.questionnaireCompleted ? allSteps.length - 1 : (profile?.preparationStep || 0);
             api.scrollTo(targetStep, true);
             setCurrentStep(targetStep);
           }
 
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
+        } catch (error) { console.error("Error fetching user data:", error); }
       }
       setLoading(false);
     });
@@ -168,21 +142,14 @@ export default function QuestionnairePage() {
             return;
         }
     }
-    
-    if (api?.canScrollNext()) {
-        api.scrollNext();
-    }
-};
-
+    if (api?.canScrollNext()) api.scrollNext();
+  };
   
-  const goToPrevStep = () => {
-      if(api?.canScrollPrev()) {
-          api.scrollPrev();
-      }
-  }
+  const goToPrevStep = () => { if(api?.canScrollPrev()) api.scrollPrev(); }
 
   const onQuestionnaireSubmit = async () => {
-    if (!user || isCompleted) {
+    if (!user) return;
+    if (isCompleted) {
         goToNextStep();
         return;
     };
@@ -191,288 +158,151 @@ export default function QuestionnairePage() {
         setIsCompleted(true);
         goToNextStep();
     } catch (error) {
-        toast({
-            title: t('questionnaireErrorTitle'),
-            description: t('questionnaireErrorDescription'),
-            variant: 'destructive',
-        });
+        toast({ title: t('questionnaireErrorTitle'), description: t('questionnaireErrorDescription'), variant: 'destructive' });
     }
   };
 
-  const renderReadOnlyAnswer = (label: string, value?: string, details?: string) => {
-    if (value === undefined && details === undefined) return null;
-
-    let displayValue: React.ReactNode;
-    if (value) {
-        displayValue = <span className={`font-medium ${value === 'yes' ? 'text-destructive' : 'text-primary'}`}>{t(value)}</span>;
-    } else {
-        displayValue = <p className="mt-1 text-sm whitespace-pre-wrap">{details || t('noDetailsProvided')}</p>;
-    }
-    return (
-        <div className="space-y-2">
-            <h3 className="text-xl font-semibold">{label}</h3>
-            <div className="text-muted-foreground">{displayValue}</div>
-             {value && details && <p className="text-sm text-muted-foreground whitespace-pre-wrap">{details}</p>}
-        </div>
-    );
-  };
-
-  const renderRadioGroup = (name: keyof FormData, label: string) => {
-      const fieldName = name as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
-      const profile = form.getValues();
-      const isReadOnly = isCompleted || currentStep < (profile.preparationStep || 0);
-
-      if (isReadOnly) {
-        return renderReadOnlyAnswer(label, form.getValues(fieldName), form.getValues((fieldName.replace('has', 'details').replace('is', 'details') + 'Details') as keyof FormData));
-      }
-
-      return (
-         <FormField
-          control={form.control}
-          name={fieldName}
-          render={({ field }) => (
-            <FormItem className="space-y-3">
-              <FormLabel className="text-xl">{label}</FormLabel>
-              <FormControl>
-                <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-2">
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl><RadioGroupItem value="yes" /></FormControl>
-                    <FormLabel className="font-normal">{t('yes')}</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl><RadioGroupItem value="no" /></FormControl>
-                    <FormLabel className="font-normal">{t('no')}</FormLabel>
-                  </FormItem>
-                </RadioGroup>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      )
-  }
-
-  const renderDetailsField = (name: keyof FormData, conditionName: keyof FormData, label: string) => {
-      const detailsFieldName = name as "medicalConditionsDetails" | "medicationDetails" | "mentalHealthDetails" | "previousExperienceDetails";
-      const conditionFieldName = conditionName as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
-      const profile = form.getValues();
-      const isReadOnly = isCompleted || currentStep < (profile.preparationStep || 0);
-      
-      if (form.watch(conditionFieldName) === 'yes' && !isReadOnly) {
-          return (
-             <FormField
-                control={form.control}
-                name={detailsFieldName}
-                render={({ field }) => (
-                  <FormItem className="mt-4">
-                    <FormLabel>{label}</FormLabel>
-                    <FormControl><Textarea {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-          )
-      }
-      return null;
-  }
-  
-  const getQuestionStepComponent = (id: string) => {
+  const getQuestionStepComponent = (id: string, label: string) => {
     switch(id) {
-      case 'hasMedicalConditions':
-        return <div>{renderRadioGroup('hasMedicalConditions', t('questionnaireMedicalConditions'))}{renderDetailsField('medicalConditionsDetails', 'hasMedicalConditions', t('questionnaireMedicalConditionsDetails'))}</div>;
-      case 'isTakingMedication':
-        return <div>{renderRadioGroup('isTakingMedication', t('questionnaireMedication'))}{renderDetailsField('medicationDetails', 'isTakingMedication', t('questionnaireMedicationDetails'))}</div>;
-      case 'hasMentalHealthHistory':
-        return <div>{renderRadioGroup('hasMentalHealthHistory', t('questionnaireMentalHealth'))}{renderDetailsField('mentalHealthDetails', 'hasMentalHealthHistory', t('questionnaireMentalHealthDetails'))}</div>;
-      case 'hasPreviousExperience':
-        return <div>{renderRadioGroup('hasPreviousExperience', t('questionnaireExperience'))}{renderDetailsField('previousExperienceDetails', 'hasPreviousExperience', t('questionnaireExperienceDetails'))}</div>;
-      case 'mainIntention':
-        const profile = form.getValues();
-        const isReadOnly = isCompleted || currentStep < (profile.preparationStep || 0);
-
-         if (isReadOnly) {
-             return renderReadOnlyAnswer(t('questionnaireIntention'), undefined, form.getValues('mainIntention'));
-         }
-        return <FormField control={form.control} name="mainIntention" render={({ field }) => (
-                  <FormItem><FormLabel className="text-xl">{t('questionnaireIntention')}</FormLabel><FormControl><Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+        case 'hasMedicalConditions':
+        case 'isTakingMedication':
+        case 'hasMentalHealthHistory':
+        case 'hasPreviousExperience':
+            const fieldName = id as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
+            const detailsFieldName = fieldName.replace(/has|is/, '').charAt(0).toLowerCase() + fieldName.replace(/has|is/, '').slice(1) + 'Details' as keyof FormData;
+            return (
+                <div className="w-full">
+                    <FormField
+                        control={form.control}
+                        name={fieldName}
+                        render={({ field }) => (
+                            <FormItem className="space-y-3">
+                            <FormControl>
+                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex justify-center gap-4">
+                                <FormItem>
+                                    <FormControl><RadioGroupItem value="yes" id={`${id}-yes`} className="sr-only peer" /></FormControl>
+                                    <Label htmlFor={`${id}-yes`} className="px-6 py-3 border rounded-lg cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10">{t('yes')}</Label>
+                                </FormItem>
+                                <FormItem>
+                                    <FormControl><RadioGroupItem value="no" id={`${id}-no`} className="sr-only peer"/></FormControl>
+                                    <Label htmlFor={`${id}-no`} className="px-6 py-3 border rounded-lg cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10">{t('no')}</Label>
+                                </FormItem>
+                                </RadioGroup>
+                            </FormControl>
+                            <FormMessage className="text-center"/>
+                            </FormItem>
+                        )}
+                        />
+                        {form.watch(fieldName) === 'yes' && (
+                            <FormField control={form.control} name={detailsFieldName} render={({ field }) => (
+                                <FormItem className="mt-4"><FormLabel>{t('questionnaireMedicalConditionsDetails')}</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                        )}
+                </div>
+            );
+        case 'mainIntention':
+            return <FormField control={form.control} name="mainIntention" render={({ field }) => (
+                    <FormItem className="w-full"><FormControl><Textarea placeholder={t('questionnaireIntentionPlaceholder')} rows={5} {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>;
       default: return null;
     }
   }
 
-  if (loading) {
-    return (
-      <div className="container py-12 md:py-16">
-        <div className="mx-auto max-w-2xl">
-          <Skeleton className="h-96 w-full" />
+  const getInfoStepComponent = (id: string) => {
+    switch(id) {
+      case 'process': return <div className="text-center">{t('preparationProcessDescription')}</div>;
+      case 'diet': return (
+        <div className="grid md:grid-cols-2 gap-4">
+            <Card className="bg-green-950/20 border-green-500/30 p-4">
+                <CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-green-400"><Leaf/><EditableTitle tag="p" id="allowedFoodsTitle" initialValue={t('allowedFoodsTitle')} /></CardTitle></CardHeader>
+                <CardContent className="p-2"><EditableTitle tag="p" id="allowedFoodsList" initialValue={t('allowedFoodsList')} className="text-sm"/></CardContent>
+            </Card>
+            <Card className="bg-red-950/20 border-red-500/30 p-4">
+                <CardHeader className="p-2"><CardTitle className="flex items-center gap-2 text-red-400"><Minus/><EditableTitle tag="p" id="prohibitedFoodsTitle" initialValue={t('prohibitedFoodsTitle')} /></CardTitle></CardHeader>
+                <CardContent className="p-2"><EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} className="text-sm"/></CardContent>
+            </Card>
         </div>
-      </div>
-    );
+      );
+      case 'mentalPrep':
+      case 'emotionalHealing':
+      case 'whatToBring':
+        return <div className="text-center">{t(`${id}Description`)}</div>;
+      default: return null;
+    }
+  }
+
+
+  if (loading) {
+    return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[80vh] w-full" /></div></div>;
   }
   
   if (!user) {
     return (
         <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
             <Card className="w-full max-w-md text-center">
-                <CardHeader>
-                  <CardTitle>{t('authRequiredJourneyTitle')}</CardTitle>
-                  <CardDescription>{t('authRequiredJourneyDescription')}</CardDescription>
-                </CardHeader>
+                <CardHeader><CardTitle>{t('authRequiredJourneyTitle')}</CardTitle><CardDescription>{t('authRequiredJourneyDescription')}</CardDescription></CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-2">
-                    <Button asChild className="w-full">
-                        <Link href="/login?redirect=/questionnaire">{t('signIn')}</Link>
-                    </Button>
-                    <Button asChild variant="secondary" className="w-full">
-                        <Link href="/register?redirect=/questionnaire">{t('registerButton')}</Link>
-                    </Button>
+                    <Button asChild className="w-full"><Link href="/login?redirect=/questionnaire">{t('signIn')}</Link></Button>
+                    <Button asChild variant="secondary" className="w-full"><Link href="/register?redirect=/questionnaire">{t('registerButton')}</Link></Button>
                 </CardContent>
             </Card>
         </div>
     )
   }
 
+  const isFinalQuestion = allSteps[currentStep]?.id === 'mainIntention';
+
   return (
     <EditableProvider>
-      <div className="container py-4 md:py-8 h-[calc(100vh-8rem)]">
+      <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-8">
         <Form {...form}>
-          <Card className="w-full max-w-2xl mx-auto h-full flex flex-col shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
-            <CardHeader className="p-4 border-b">
-              <CardTitle className="text-2xl md:text-3xl font-headline text-center">{t('preparationGuideTitle')}</CardTitle>
-              <CardDescription className="font-body text-sm md:text-base text-center">{t('preparationGuideSubtitle')}</CardDescription>
-              <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mx-auto mt-4" />
-            </CardHeader>
-
-            <CardContent className="flex-1 overflow-auto p-0">
-                <Carousel setApi={setApi} className="w-full h-full" opts={{ align: "start", watchDrag: false, duration: 20 }}>
+            <div className="w-full max-w-md h-[85vh] flex flex-col bg-card rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 overflow-hidden">
+                <Carousel setApi={setApi} className="w-full flex-1" opts={{ watchDrag: false, duration: 20 }}>
                     <CarouselContent className="h-full">
-                    {allSteps.map((step, index) => (
-                        <CarouselItem key={index} className="h-full">
-                           <ScrollArea className="h-full w-full">
-                            <div className="p-6">
-                            {step.type === 'question' ? (
-                                getQuestionStepComponent(step.id)
-                            ) : step.type === 'info' && step.id === 'process' ? (
-                                <div>
-                                <EditableTitle tag="h2" id="preparationProcessTitle" initialValue={t('preparationProcessTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {(step.content as typeof processSteps).map(({ id, titleId, descriptionId, Icon }) => (
-                                    <div key={id} className="flex flex-col items-center text-center gap-3 p-4">
-                                        <div className="p-3 bg-primary/10 rounded-full"><Icon className="h-8 w-8 text-primary" /></div>
-                                        <EditableTitle tag="h3" id={titleId} initialValue={t(titleId)} className="text-xl font-bold" />
-                                        <EditableTitle tag="p" id={descriptionId} initialValue={t(descriptionId)} className="text-muted-foreground" />
+                    {allSteps.map((step, index) => {
+                        const Icon = step.icon;
+                        return(
+                            <CarouselItem key={index} className="h-full">
+                                <div className="flex flex-col items-center justify-center text-center p-6 md:p-8 h-full">
+                                    <div className="p-4 bg-primary/10 rounded-full mb-6">
+                                        <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
                                     </div>
-                                    ))}
-                                </div>
-                                </div>
-                            ) : step.type === 'info' && step.id === 'diet' ? (
-                                <div>
-                                <EditableTitle tag="h2" id="dietTitle" initialValue={t('dietTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
-                                <EditableTitle tag="p" id="dietSubtitle" initialValue={t('dietSubtitle')} className="text-muted-foreground text-center mb-6" />
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <Card className="bg-green-950/20 border-green-500/30 p-4">
-                                    <CardHeader className="p-2">
-                                        <CardTitle className="flex items-center gap-2 text-green-400">
-                                        <Leaf />
-                                        <EditableTitle tag="p" id="allowedFoodsTitle" initialValue={t('allowedFoodsTitle')} />
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-2">
-                                        <EditableTitle tag="p" id="allowedFoodsList" initialValue={t('allowedFoodsList')} />
-                                    </CardContent>
-                                    </Card>
-                                    <Card className="bg-red-950/20 border-red-500/30 p-4">
-                                    <CardHeader className="p-2">
-                                        <CardTitle className="flex items-center gap-2 text-red-400">
-                                        <Minus />
-                                        <EditableTitle tag="p" id="prohibitedFoodsTitle" initialValue={t('prohibitedFoodsTitle')} />
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-2">
-                                        <EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} />
-                                    </CardContent>
-                                    </Card>
-                                </div>
-                                </div>
-                            ) : step.type === 'info' && step.id === 'mentalPrep' ? (
-                                <div>
-                                <EditableTitle tag="h2" id="mentalPrepTitle" initialValue={t('mentalPrepTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
-                                <EditableTitle tag="p" id="mentalPrepSubtitle" initialValue={t('mentalPrepSubtitle')} className="text-muted-foreground text-center mb-6" />
-                                <div className="grid md:grid-cols-3 gap-6">
-                                    {(step.content as typeof mentalPrepSteps).map(item => (
-                                    <Card key={item.titleId} className="p-4 text-center">
-                                        <EditableTitle tag="h3" id={item.titleId} initialValue={t(item.titleId)} className="font-bold text-lg mb-2" />
-                                        <EditableTitle tag="p" id={item.descriptionId} initialValue={t(item.descriptionId)} className="text-muted-foreground" />
-                                    </Card>
-                                    ))}
-                                </div>
-                                </div>
-                            ) : step.type === 'info' && step.id === 'emotionalHealing' ? (
-                                <div className="text-center max-w-2xl mx-auto">
-                                <EditableTitle tag="h2" id="emotionalHealingTitle" initialValue={t('emotionalHealingTitle')} className="text-2xl font-headline text-primary mb-4" />
-                                <EditableTitle tag="p" id="emotionalHealingDescription" initialValue={t('emotionalHealingDescription')} className="text-muted-foreground" />
-                                </div>
-                            ) : step.type === 'info' && step.id === 'whatToBring' ? (
-                                <div>
-                                <EditableTitle tag="h2" id="whatToBringTitle" initialValue={t('whatToBringTitle')} className="text-2xl font-headline text-primary text-center mb-6" />
-                                <EditableTitle tag="p" id="whatToBringSubtitle" initialValue={t('whatToBringSubtitle')} className="text-muted-foreground text-center mb-6" />
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                    <EditableTitle tag="h3" id="comfortItemsTitle" initialValue={t('comfortItemsTitle')} className="font-bold text-lg mb-2" />
-                                    <EditableTitle tag="p" id="comfortItemsList" initialValue={t('comfortItemsList')} />
+                                    <div className="flex items-center justify-center gap-1.5 mb-6">
+                                        {allSteps.map((_, i) => (
+                                            <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
+                                        ))}
                                     </div>
-                                    <div>
-                                    <EditableTitle tag="h3" id="essentialsTitle" initialValue={t('essentialsTitle')} className="font-bold text-lg mb-2" />
-                                    <EditableTitle tag="p" id="essentialsList" initialValue={t('essentialsList')} />
+                                    <h2 className="text-2xl font-headline font-bold mb-2">{step.title}</h2>
+                                    <p className="text-muted-foreground mb-8">{step.description}</p>
+
+                                    <div className="flex-1 w-full flex items-center justify-center">
+                                      {step.type === 'question' ? getQuestionStepComponent(step.id, step.title) 
+                                      : step.type === 'info' ? getInfoStepComponent(step.id) 
+                                      : ( // Final Step
+                                          <div className="flex flex-col items-center gap-4">
+                                              <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
+                                              <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                          </div>
+                                      )}
                                     </div>
                                 </div>
-                                </div>
-                            ) : step.type === 'final' ? (
-                                <div className="text-center flex flex-col items-center justify-center gap-4 py-8 h-full">
-                                    <PartyPopper className="h-16 w-16 text-primary" />
-                                    <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
-                                    <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
-                                    <div className='flex flex-col items-stretch gap-3 mt-4 w-full max-w-xs'>
-                                        <Button asChild variant="default" size="lg">
-                                            <Link href="/courses">
-                                                <BookOpen className="mr-2 h-4 w-4" />
-                                                {t('viewCoursesRecommendation')}
-                                            </Link>
-                                        </Button>
-                                        <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>
-                                            {t('viewMyAnswers')}
-                                        </Button>
-                                        <Button asChild variant="ghost">
-                                             <Link href="/">{t('goHome')}</Link>
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : null}
-                            </div>
-                           </ScrollArea>
-                        </CarouselItem>
-                    ))}
+                            </CarouselItem>
+                        )
+                    })}
                     </CarouselContent>
-              </Carousel>
-            </CardContent>
-            
-            <CardFooter className="flex justify-between items-center p-4 border-t">
-              <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
-              </Button>
-              
-              {currentStep < allSteps.length - 1 ? (
-                allSteps[currentStep]?.id === 'mainIntention' && !isCompleted ? (
-                    <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
-                        {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                ) : (
-                    <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
-                        {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                )
-              ) : null}
-            </CardFooter>
-          </Card>
+                </Carousel>
+                
+                {currentStep < allSteps.length - 1 && (
+                    <div className="px-6 pb-6 mt-auto flex items-center justify-between">
+                        <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('previous')}</Button>
+                        {isFinalQuestion ? (
+                            <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
+                        ) : (
+                            <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>{t('continue')}</Button>
+                        )}
+                    </div>
+                )}
+            </div>
         </Form>
       </div>
       {user && (
@@ -485,3 +315,5 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
+    
