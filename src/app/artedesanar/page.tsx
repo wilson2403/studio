@@ -75,7 +75,7 @@ export default function QuestionnairePage() {
     { type: 'info', id: 'emotionalHealing', icon: HeartHandshake, titleKey: 'emotionalHealingTitle', descriptionKey: 'emotionalHealingDescription' },
     { type: 'info', id: 'whatToBring', icon: CheckCircle, titleKey: 'whatToBringTitle', descriptionKey: 'whatToBringSubtitle' },
     { type: 'final', id: 'final', icon: PartyPopper, titleKey: 'preparationCompleteTitle', descriptionKey: 'preparationCompleteDescription' }
-  ], []);
+  ], [t]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(questionnaireSchema(t)),
@@ -288,7 +288,7 @@ export default function QuestionnairePage() {
                                             )}
                                         </div>
                                         <div className="mt-6 flex w-full items-center justify-between">
-                                            <Button onClick={goToPrevStep} variant="secondary" disabled={!canGoBack}>Anterior</Button>
+                                          <Button onClick={goToPrevStep} variant="secondary" disabled={!canGoBack} className={cn(currentStep === 0 && 'invisible')}>{t('previous')}</Button>
                                             
                                             {!isFinalScreen && (
                                                 isFinalQuestion ? (
@@ -318,3 +318,5 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
+    
