@@ -17,6 +17,7 @@ interface VideoPlayerProps {
   videoUrl?: string;
   mediaType?: 'image' | 'video';
   videoFit?: 'cover' | 'contain';
+  autoplay?: boolean;
   title: string;
   className?: string;
   controls?: boolean;
@@ -164,10 +165,12 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
           video.play().catch(console.error);
         } else {
           video.pause();
-          video.currentTime = 0;
+          if (!trackProgress) {
+             video.currentTime = 0;
+          }
         }
       }
-    }, [isActivated]);
+    }, [isActivated, trackProgress]);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -253,7 +256,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     );
 };
 
-export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, title, className, controls = false, isActivated = false, inCarousel = false, defaultMuted, trackProgress = false }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, controls = false, isActivated = false, inCarousel = false, defaultMuted, trackProgress = false }: VideoPlayerProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
