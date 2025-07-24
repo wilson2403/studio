@@ -190,7 +190,6 @@ export default function AllCeremoniesPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
                     {ceremonies.map((ceremony) => {
                         const registeredCount = ceremony.assignedUsers?.length || 0;
-                        const statusTextKey = `status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
                         return (
                             <div key={ceremony.id} className="px-5">
@@ -208,7 +207,7 @@ export default function AllCeremoniesPage() {
                                     )}
                                     <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
                                         <Badge variant={statusVariant} className="capitalize">
-                                            {t(statusTextKey)}
+                                            {t(ceremony.status)}
                                         </Badge>
                                         <div className='flex gap-2'>
                                             {ceremony.mediaUrl && (
