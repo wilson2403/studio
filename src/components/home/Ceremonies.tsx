@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw, Users } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw, Users, Calendar, Clock } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -276,7 +276,9 @@ export default function Ceremonies({
                       <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">
                           <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
                           {ceremony.date && (
-                             <p className="font-mono text-sm opacity-90 mt-1">{ceremony.date}</p>
+                            <p className="absolute bottom-4 right-4 text-white/90 text-sm font-mono bg-black/30 p-1.5 rounded-md">
+                                {ceremony.date}
+                            </p>
                            )}
                       </div>
                        {isAdmin && (
