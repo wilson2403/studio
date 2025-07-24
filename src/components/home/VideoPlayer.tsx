@@ -210,7 +210,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
                 stopProgressTracking();
             }
         }
-    }, [inCarousel, onPlay, trackProgress, userId, videoId]);
+    }, [onPlay, trackProgress, userId, videoId]);
 
     useEffect(() => {
       if(videoRef.current) {
@@ -224,6 +224,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
         if (video) {
             if (video.paused) {
                 video.play();
+                setIsMuted(false);
             } else {
                 video.pause();
             }
