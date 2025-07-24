@@ -157,22 +157,17 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
         }
     };
     
-    const togglePlay = (e?: React.MouseEvent) => {
-        e?.stopPropagation(); 
-        if (videoRef.current) {
-            if (videoRef.current.paused) {
-                videoRef.current.play().catch(console.error);
-                setIsMuted(false);
-            } else {
-                videoRef.current.pause();
-            }
+    useEffect(() => {
+      const video = videoRef.current;
+      if (video) {
+        if (isActivated && !inCarousel) {
+          video.play().catch(console.error);
+        } else if (!isActivated && !inCarousel) {
+          video.pause();
+          video.currentTime = 0;
         }
-    };
-    
-    const toggleMute = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setIsMuted(prev => !prev);
-    };
+      }
+    }, [isActivated, inCarousel]);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -230,20 +225,6 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
                 muted={isMuted}
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
-             <div 
-                className="absolute inset-x-0 bottom-0 flex items-center justify-center p-2 bg-gradient-to-t from-black/50 to-transparent transition-opacity duration-300 opacity-100"
-            >
-                 <Button variant="ghost" size="icon" onClick={toggleMute} className="text-white bg-black/30 hover:bg-black/50 rounded-full h-8 w-8">
-                    {isMuted ? <VolumeX className="h-4 w-4 fill-white" /> : <Volume2 className="h-4 w-4 fill-white" />}
-                </Button>
-                <button onClick={togglePlay} className="h-12 w-12 text-white bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center mx-4">
-                    {isPlaying ? (
-                        <Pause className="h-6 w-6 fill-white" />
-                    ) : (
-                        <Play className="h-6 w-6 fill-white" />
-                    )}
-                </button>
-            </div>
         </div>
     );
 };

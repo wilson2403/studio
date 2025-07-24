@@ -159,6 +159,8 @@ export default function Ceremonies({
               return (
                 <div key={ceremony.id} className="px-5">
                   <Card 
+                      onMouseEnter={() => setActiveVideo(ceremony.id)}
+                      onMouseLeave={() => setActiveVideo(null)}
                       className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50"
                   >
                       {isAdmin && (
@@ -189,7 +191,7 @@ export default function Ceremonies({
                               mediaType={ceremony.mediaType}
                               videoFit={ceremony.videoFit}
                               title={ceremony.title}
-                              isActivated={true}
+                              isActivated={activeVideo === ceremony.id && !expandedVideo}
                               inCarousel={false}
                            />
                       </div>
@@ -438,4 +440,5 @@ interface CeremoniesProps {
     
 
     
+
 
