@@ -341,21 +341,7 @@ export default function PreparationGuidePage() {
           </div>
 
           <Form {...form}>
-              <Carousel setApi={setApi} className="w-full flex-grow py-4" opts={{ align: "center", watchDrag: (e, emblaApi) => {
-                 const engine = emblaApi.internalEngine();
-                 if (engine.dragHandler.pointerDown()) {
-                    const currentStepInfo = allSteps[currentStep];
-                    if (currentStepInfo.type === 'question' && !isCompleted) {
-                      const fieldsToValidate = [currentStepInfo.id] as (keyof FormData)[];
-                      form.trigger(fieldsToValidate).then(isValid => {
-                        if(!isValid) {
-                          toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
-                        }
-                      });
-                    }
-                 }
-                 return true;
-              } }}>
+              <Carousel setApi={setApi} className="w-full flex-grow py-4" opts={{ align: "center", watchDrag: false }}>
                 <CarouselContent>
                   {allSteps.map((step, index) => (
                     <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
