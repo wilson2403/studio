@@ -184,7 +184,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
             </div>
         </ScrollArea>
         {ceremony.status === 'active' && (
-          <DialogFooter>
+          <DialogFooter className="flex-col-reverse sm:flex-row">
             <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
               <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
                 {t('reserveWhatsapp')}
@@ -196,3 +196,5 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
     </Dialog>
   );
 }
+
+    
