@@ -54,10 +54,10 @@ const questionnaireSchema = (t: (key: string, options?: any) => string) => z.obj
 type FormData = z.infer<ReturnType<typeof questionnaireSchema>>;
 
 const allSteps = [
-    { type: 'question', id: 'hasMedicalConditions', icon: HeartPulse, titleKey: 'questionnaireMedicalConditions', descriptionKey: 'questionnaireMedicalConditionsDesc' },
-    { type: 'question', id: 'isTakingMedication', icon: Pill, titleKey: 'questionnaireMedication', descriptionKey: 'questionnaireMedicationDesc' },
-    { type: 'question', id: 'hasMentalHealthHistory', icon: Brain, titleKey: 'questionnaireMentalHealth', descriptionKey: 'questionnaireMentalHealthDesc' },
-    { type: 'question', id: 'hasPreviousExperience', icon: History, titleKey: 'questionnaireExperience', descriptionKey: 'questionnaireExperienceDesc' },
+    { type: 'question', id: 'hasMedicalConditions', icon: HeartPulse, titleKey: 'questionnaireMedicalConditions', descriptionKey: 'questionnaireMedicalConditionsDesc', detailsLabelKey: 'questionnaireMedicalConditionsDetails' },
+    { type: 'question', id: 'isTakingMedication', icon: Pill, titleKey: 'questionnaireMedication', descriptionKey: 'questionnaireMedicationDesc', detailsLabelKey: 'questionnaireMedicationDetails' },
+    { type: 'question', id: 'hasMentalHealthHistory', icon: Brain, titleKey: 'questionnaireMentalHealth', descriptionKey: 'questionnaireMentalHealthDesc', detailsLabelKey: 'questionnaireMentalHealthDetails' },
+    { type: 'question', id: 'hasPreviousExperience', icon: History, titleKey: 'questionnaireExperience', descriptionKey: 'questionnaireExperienceDesc', detailsLabelKey: 'questionnaireExperienceDetails' },
     { type: 'question', id: 'mainIntention', icon: Sprout, titleKey: 'questionnaireIntention', descriptionKey: 'questionnaireIntentionDesc' },
     { type: 'info', id: 'process', icon: Wind, titleKey: 'preparationProcessTitle', descriptionKey: 'preparationGuideFullSubtitle' },
     { type: 'info', id: 'diet', icon: Leaf, titleKey: 'dietTitle', descriptionKey: 'dietSubtitle' },
@@ -70,13 +70,14 @@ const allSteps = [
 export default function QuestionnairePage() {
   const [user, setUser] = useState<User | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
   const [api, setApi] = useState<CarouselApi>()
   const [currentStep, setCurrentStep] = useState(0)
   const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -109,6 +110,7 @@ export default function QuestionnairePage() {
       setUser(currentUser);
       if (currentUser) {
         try {
+          setDataLoading(true);
           const profile = await getUserProfile(currentUser.uid);
           const savedAnswers = await getQuestionnaire(currentUser.uid);
           
@@ -120,13 +122,13 @@ export default function QuestionnairePage() {
             api.scrollTo(targetStep, true);
             setCurrentStep(targetStep);
           }
-
         } catch (error) { console.error("Error fetching user data:", error); }
+        finally { setDataLoading(false); }
       }
       setPageLoading(false);
     });
     return () => unsubscribe();
-  }, [api, form]);
+  }, [api, form, i18n.isInitialized]);
 
  const goToNextStep = async () => {
     const currentStepInfo = allSteps[currentStep];
@@ -163,14 +165,14 @@ export default function QuestionnairePage() {
     }
   };
 
-  const getQuestionStepComponent = (id: string) => {
-    switch(id) {
+  const getQuestionStepComponent = (stepInfo: (typeof allSteps)[number]) => {
+    switch(stepInfo.id) {
         case 'hasMedicalConditions':
         case 'isTakingMedication':
         case 'hasMentalHealthHistory':
         case 'hasPreviousExperience':
-            const fieldName = id as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
-            const detailsFieldName = fieldName.replace(/has|is/, '').charAt(0).toLowerCase() + fieldName.replace(/has|is/, '').slice(1) + 'Details' as keyof FormData;
+            const fieldName = stepInfo.id as "hasMedicalConditions" | "isTakingMedication" | "hasMentalHealthHistory" | "hasPreviousExperience";
+            const detailsFieldName = stepInfo.id.replace(/has|is/, '').charAt(0).toLowerCase() + stepInfo.id.replace(/has|is/, '').slice(1) + 'Details' as keyof FormData;
             return (
                 <div className="w-full">
                     <FormField
@@ -181,12 +183,12 @@ export default function QuestionnairePage() {
                             <FormControl>
                                 <RadioGroup onValueChange={field.onChange} value={field.value} className="flex justify-center gap-4">
                                 <FormItem>
-                                    <FormControl><RadioGroupItem value="yes" id={`${id}-yes`} className="sr-only peer" /></FormControl>
-                                    <Label htmlFor={`${id}-yes`} className="px-6 py-3 border rounded-lg cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10">{t('yes')}</Label>
+                                    <FormControl><RadioGroupItem value="yes" id={`${stepInfo.id}-yes`} className="sr-only peer" /></FormControl>
+                                    <Label htmlFor={`${stepInfo.id}-yes`} className="px-6 py-3 border rounded-lg cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10">{t('yes')}</Label>
                                 </FormItem>
                                 <FormItem>
-                                    <FormControl><RadioGroupItem value="no" id={`${id}-no`} className="sr-only peer"/></FormControl>
-                                    <Label htmlFor={`${id}-no`} className="px-6 py-3 border rounded-lg cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10">{t('no')}</Label>
+                                    <FormControl><RadioGroupItem value="no" id={`${stepInfo.id}-no`} className="sr-only peer"/></FormControl>
+                                    <Label htmlFor={`${stepInfo.id}-no`} className="px-6 py-3 border rounded-lg cursor-pointer peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/10">{t('no')}</Label>
                                 </FormItem>
                                 </RadioGroup>
                             </FormControl>
@@ -196,7 +198,7 @@ export default function QuestionnairePage() {
                         />
                         {form.watch(fieldName) === 'yes' && (
                             <FormField control={form.control} name={detailsFieldName} render={({ field }) => (
-                                <FormItem className="mt-4"><Label>{t('questionnaireMedicalConditionsDetails')}</Label><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem className="mt-4"><Label>{t(stepInfo.detailsLabelKey || '')}</Label><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                         )}
                 </div>
@@ -233,7 +235,7 @@ export default function QuestionnairePage() {
   }
 
 
-  if (pageLoading) {
+  if (pageLoading || !i18n.isInitialized) {
     return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[85vh] w-full rounded-2xl" /></div></div>;
   }
   
@@ -258,7 +260,7 @@ export default function QuestionnairePage() {
     <EditableProvider>
       <div className="container flex items-center justify-center min-h-[calc(100vh-8rem)] py-8">
         <Form {...form}>
-            <Card className="w-full max-w-md h-[85vh] flex flex-col rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 overflow-hidden">
+            <Card className="w-full max-w-md h-full flex flex-col rounded-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 overflow-hidden">
                 <Carousel setApi={setApi} className="w-full flex-1" opts={{ watchDrag: false, duration: 20 }}>
                     <CarouselContent className="h-full">
                     {allSteps.map((step) => {
@@ -266,32 +268,42 @@ export default function QuestionnairePage() {
                         return(
                             <CarouselItem key={step.id} className="h-full">
                                <div className="flex flex-col h-full p-6">
-                                    <div className="flex-1 flex flex-col items-center justify-center text-center">
-                                        <div className="p-4 bg-primary/10 rounded-full mb-6">
-                                            <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
-                                        </div>
-                                        <div className="flex items-center justify-center gap-1.5 mb-6">
-                                            {allSteps.map((_, i) => (
-                                                <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
-                                            ))}
-                                        </div>
-                                        <h2 className="text-2xl font-headline font-bold mb-2">{t(step.titleKey)}</h2>
-                                        <p className="text-muted-foreground mb-4">{t(step.descriptionKey)}</p>
-                                        
-                                        <ScrollArea className="flex-1 w-full overflow-y-auto">
-                                            <div className="p-1">
-                                                {step.type === 'question' ? getQuestionStepComponent(step.id) 
-                                                : step.type === 'info' ? getInfoStepComponent(step.id) 
-                                                : (
-                                                    <div className="flex flex-col items-center gap-4">
-                                                        <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
-                                                        <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
-                                                        <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
+                                    <ScrollArea className="flex-1 -mx-6">
+                                        <div className="flex flex-col items-center justify-center text-center h-full px-6">
+                                            {dataLoading ? (
+                                                <div className='w-full space-y-4'>
+                                                    <Skeleton className='h-20 w-20 rounded-full mx-auto' />
+                                                    <Skeleton className='h-8 w-3/4 mx-auto' />
+                                                    <Skeleton className='h-24 w-full mx-auto' />
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div className="p-4 bg-primary/10 rounded-full mb-6">
+                                                        <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
                                                     </div>
-                                                )}
-                                            </div>
-                                        </ScrollArea>
-                                    </div>
+                                                    <div className="flex items-center justify-center gap-1.5 mb-6">
+                                                        {allSteps.map((_, i) => (
+                                                            <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
+                                                        ))}
+                                                    </div>
+                                                    <h2 className="text-2xl font-headline font-bold mb-2">{t(step.titleKey)}</h2>
+                                                    <p className="text-muted-foreground mb-4">{t(step.descriptionKey)}</p>
+                                                    
+                                                    <div className="p-1 w-full">
+                                                        {step.type === 'question' ? getQuestionStepComponent(step) 
+                                                        : step.type === 'info' ? getInfoStepComponent(step.id) 
+                                                        : (
+                                                            <div className="flex flex-col items-center gap-4">
+                                                                <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
+                                                                <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                                                <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </ScrollArea>
                                </div>
                             </CarouselItem>
                         )
@@ -299,8 +311,8 @@ export default function QuestionnairePage() {
                     </CarouselContent>
                 </Carousel>
                 
-                {!isFinalScreen && (
-                    <CardFooter className="px-6 pb-6 mt-auto flex items-center justify-between bg-card">
+                {!isFinalScreen && !dataLoading && (
+                    <CardFooter className="px-6 pb-6 mt-auto flex items-center justify-between bg-card border-t pt-4">
                         <Button onClick={goToPrevStep} variant="ghost" disabled={!api?.canScrollPrev() || currentStep === 0}>{t('skip')}</Button>
                         {isFinalQuestion ? (
                             <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>{t('finish')}</Button>
