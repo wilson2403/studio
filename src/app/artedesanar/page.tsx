@@ -227,48 +227,6 @@ export default function QuestionnairePage() {
   }
 
   const getInfoStepComponent = (step: (typeof allSteps)[number]) => {
-    if (step.id === 'whatToBring') {
-      return (
-        <div className="grid grid-cols-1 gap-6 text-left text-sm max-w-xs">
-          <div>
-            <EditableTitle tag="h3" id="comfortItemsTitle" initialValue={t('comfortItemsTitle')} className="font-bold mb-2 text-primary text-center" />
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground" dangerouslySetInnerHTML={{ __html: t('comfortItemsList') }}></ul>
-          </div>
-          <div>
-            <EditableTitle tag="h3" id="essentialsTitle" initialValue={t('essentialsTitle')} className="font-bold mb-2 text-primary text-center" />
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground" dangerouslySetInnerHTML={{ __html: t('essentialsList') }}></ul>
-          </div>
-        </div>
-      )
-    }
-    if (step.id === 'diet') {
-        return (
-            <div className="grid md:grid-cols-2 gap-4 max-w-sm text-left">
-                <Card className="bg-green-950/20 border-green-500/30 p-4">
-                    <CardHeader className="p-1">
-                        <CardTitle className="flex items-center gap-2 text-green-400 text-base">
-                            <Leaf className="h-4 w-4"/>
-                            <EditableTitle tag="p" id="allowedFoodsTitle" initialValue={t('allowedFoodsTitle')} />
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-1 text-xs">
-                        <EditableTitle tag="p" id="allowedFoodsList" initialValue={t('allowedFoodsList')} className="space-y-1 text-muted-foreground" />
-                    </CardContent>
-                </Card>
-                <Card className="bg-red-950/20 border-red-500/30 p-4">
-                    <CardHeader className="p-1">
-                        <CardTitle className="flex items-center gap-2 text-red-400 text-base">
-                            <Minus className="h-4 w-4"/>
-                            <EditableTitle tag="p" id="prohibitedFoodsTitle" initialValue={t('prohibitedFoodsTitle')} />
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-1 text-xs">
-                        <EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} className="space-y-1 text-muted-foreground" />
-                    </CardContent>
-                </Card>
-            </div>
-        )
-    }
     return <div className="text-center">{t(step.descriptionKey)}</div>;
   }
 
@@ -361,3 +319,5 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
+    
