@@ -126,7 +126,7 @@ export default function QuestionnairePage() {
       setPageLoading(false);
     });
     return () => unsubscribe();
-  }, [api, form, i18n.isInitialized]);
+  }, [api, form]);
 
  const goToNextStep = async () => {
     const currentStepInfo = allSteps[currentStep];
