@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics, resetQuestionnaire, deleteUser } from '@/lib/firebase/firestore';
@@ -69,6 +69,7 @@ export default function AdminUsersPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserProfile[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [viewingUserQuestionnaire, setViewingUserQuestionnaire] = useState<UserProfile | null>(null);
     const [viewingUserCourses, setViewingUserCourses] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
@@ -289,6 +290,15 @@ export default function AdminUsersPage() {
         // The +1 is because steps are 0-indexed, but a user on step 0 has completed 1 step.
         return Math.floor(((progress + 1) / TOTAL_PREPARATION_STEPS) * 100);
     }
+    
+    const filteredUsers = users.filter(u => {
+        const search = searchTerm.toLowerCase();
+        return (
+            u.displayName?.toLowerCase().includes(search) ||
+            u.email.toLowerCase().includes(search) ||
+            u.phone?.includes(search)
+        );
+    });
 
 
     if (loading) {
@@ -324,6 +334,15 @@ export default function AdminUsersPage() {
                         <CardHeader>
                             <CardTitle>{t('allUsersTitle')}</CardTitle>
                             <CardDescription>{t('allUsersDescription')}</CardDescription>
+                            <div className="relative pt-4">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                                <Input 
+                                    placeholder={t('searchUserPlaceholder')}
+                                    className="pl-10"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <Table>
@@ -338,7 +357,7 @@ export default function AdminUsersPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {users.map((u) => (
+                                    {filteredUsers.map((u) => (
                                         <TableRow key={u.uid}>
                                             <TableCell>{u.displayName || 'N/A'}</TableCell>
                                             <TableCell>{u.email}</TableCell>
@@ -396,7 +415,7 @@ export default function AdminUsersPage() {
                                                     <Video className="mr-2 h-4 w-4" />
                                                     {t('viewCourses')}
                                                 </Button>
-                                                {u.preparationStep !== undefined && u.preparationStep > 0 || u.questionnaireCompleted ? (
+                                                {(u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted ? (
                                                     <div className='flex items-center flex-wrap gap-2'>
                                                         <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
                                                             <FileText className="mr-2 h-4 w-4"/>
