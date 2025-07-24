@@ -333,20 +333,20 @@ export default function PreparationGuidePage() {
 
   return (
     <EditableProvider>
-      <div className="container flex items-center justify-center py-6 md:py-12">
+      <div className="container flex items-center justify-center">
         <Form {...form}>
           <Card className="w-full max-w-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 flex flex-col">
-            <CardHeader>
-              <CardTitle className="text-center text-2xl md:text-3xl font-headline">{t('preparationGuideTitle')}</CardTitle>
-              <CardDescription className="text-center font-body text-sm md:text-base">{t('preparationGuideSubtitle')}</CardDescription>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl md:text-3xl font-headline">{t('preparationGuideTitle')}</CardTitle>
+              <CardDescription className="font-body text-sm md:text-base">{t('preparationGuideSubtitle')}</CardDescription>
               <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mx-auto mt-4" />
             </CardHeader>
-            <Carousel setApi={setApi} className="w-full" opts={{ align: "center", watchDrag: true }}>
+            <Carousel setApi={setApi} className="w-full flex-grow" opts={{ align: "center" }}>
               <CarouselContent>
                 {allSteps.map((step, index) => (
                   <CarouselItem key={index}>
-                    <CardContent className="p-2 md:p-6">
-                      <ScrollArea className="h-[50vh] p-4">
+                    <CardContent>
+                      <ScrollArea className="h-[50vh]">
                         {step.type === 'question' ? (
                           getQuestionStepComponent(step.id)
                         ) : step.type === 'info' && step.id === 'process' ? (
@@ -451,7 +451,7 @@ export default function PreparationGuidePage() {
               </CarouselContent>
             </Carousel>
             
-            <CardFooter className="p-4 border-t mt-auto">
+            <CardFooter className="border-t mt-auto">
               <div className="flex justify-between items-center w-full">
                 <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
                   <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
