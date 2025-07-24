@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Ceremony, Plan } from '@/types';
@@ -114,7 +115,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         }
         onClose();
     }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
           <div className="font-mono text-xs text-muted-foreground pt-1 space-y-1">
@@ -133,7 +134,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
             {ceremony.description}
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="max-h-[60vh] pr-6">
+        <ScrollArea className="max-h-[60vh] -mx-6 px-6">
             <div className="space-y-4 py-4">
                 {!hasPlans ? (
                     <div className="text-center">
@@ -183,13 +184,13 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
             </div>
         </ScrollArea>
         {ceremony.status === 'active' && (
-          <div className="pt-4">
+          <DialogFooter>
             <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
               <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
                 {t('reserveWhatsapp')}
               </a>
             </Button>
-          </div>
+          </DialogFooter>
         )}
       </DialogContent>
     </Dialog>
