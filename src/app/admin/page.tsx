@@ -15,133 +15,53 @@ import { useToast } from '@/hooks/use-toast';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
-const projectStructure = [
-  'README.md',
-  'apphosting.yaml',
-  'components.json',
-  'next.config.ts',
-  'package.json',
-  'public/locales/en/common.json',
-  'public/locales/es/common.json',
-  'src/ai/dev.ts',
-  'src/ai/genkit.ts',
-  'src/app/(auth)/login/page.tsx',
-  'src/app/(auth)/register/page.tsx',
-  'src/app/admin/backup/page.tsx',
-  'src/app/admin/chat/page.tsx',
-  'src/app/admin/logs/page.tsx',
-  'src/app/admin/page.tsx',
-  'src/app/admin/users/page.tsx',
-  'src/app/ayahuasca/page.tsx',
-  'src/app/ceremonies/page.tsx',
-  'src/app/globals.css',
-  'src/app/guides/page.tsx',
-  'src/app/layout.tsx',
-  'src/app/page.tsx',
-  'src/app/preparation/page.tsx',
-  'src/app/questionnaire/page.tsx',
-  'src/components/admin/ColorPicker.tsx',
-  'src/components/admin/QuestionnaireDialog.tsx',
-  'src/components/admin/SettingsTabs.tsx',
-  'src/components/auth/EditProfileDialog.tsx',
-  'src/components/chat/Chatbot.tsx',
-  'src/components/guides/EditGuideDialog.tsx',
-  'src/components/home/Ceremonies.tsx',
-  'src/components/home/CeremonyDetailsDialog.tsx',
-  'src/components/home/Contact.tsx',
-  'src/components/home/EditCeremonyDialog.tsx',
-  'src/components/home/EditableProvider.tsx',
-  'src/components/home/EditableTitle.tsx',
-  'src/components/home/ExploreMore.tsx',
-  'src/components/home/Hero.tsx',
-  'src/components/home/VideoPlayer.tsx',
-  'src/components/home/VideoPopupDialog.tsx',
-  'src/components/icons/FacebookIcon.tsx',
-  'src/components/icons/GoogleIcon.tsx',
-  'src/components/icons/Logo.tsx',
-  'src/components/icons/WhatsappIcon.tsx',
-  'src/components/layout/Footer.tsx',
-  'src/components/layout/Header.tsx',
-  'src/components/layout/I18nProvider.tsx',
-  'src/components/layout/LanguageSwitcher.tsx',
-  'src/components/layout/LoadingScreen.tsx',
-  'src/components/layout/ThemeProvider.tsx',
-  'src/components/layout/ThemeSwitcher.tsx',
-  'src/hooks/use-mobile.tsx',
-  'src/hooks/use-toast.ts',
-  'src/lib/country-codes.ts',
-  'src/lib/firebase/auth.ts',
-  'src/lib/firebase/config.ts',
-  'src/lib/firebase/firestore.ts',
-  'src/lib/i18n.ts',
-  'src/lib/utils.ts',
-  'src/types/index.ts',
-  'tailwind.config.ts',
-  'tsconfig.json',
-];
+const projectStructure = {
+  "Frontend (Estilos, Componentes y Lógica)": [
+    'tailwind.config.ts',
+    'src/app/globals.css',
+    'components.json',
+    'src/components/ui',
+    'src/components/layout',
+    'src/components/home',
+    'src/components/admin',
+    'src/components/auth',
+    'src/components/chat',
+    'src/components/guides',
+    'src/app/(auth)/**/page.tsx',
+    'src/app/**/page.tsx',
+    'src/hooks/use-toast.ts',
+    'src/lib/i18n.ts',
+    'public/locales'
+  ],
+  "Backend (Firebase y Lógica de Servidor)": [
+    'src/lib/firebase/config.ts',
+    'src/lib/firebase/auth.ts',
+    'src/lib/firebase/firestore.ts',
+    'src/types/index.ts',
+    'src/ai/genkit.ts',
+    'src/ai/flows/chat-flow.ts',
+    'src/ai/flows/email-flow.ts',
+    'next.config.ts',
+    'package.json'
+  ]
+};
 
-const systemPrompt = `Eres un experto desarrollador de aplicaciones web full-stack especializado en el ecosistema de Next.js, Firebase y Tailwind CSS (con ShadCN). Estás creando una aplicación web para "El Arte de Sanar", un centro de sanación espiritual que ofrece ceremonias de Ayahuasca.
+const systemPrompt = `Eres un experto diseñador de UI/UX y arquitecto de software, especializado en la creación de experiencias de usuario atractivas y en la construcción de backends robustos. Tu tarea es dar forma a la apariencia visual y la estructura técnica de la aplicación "El Arte de Sanar".
 
-**Objetivo Principal:** Crear un sitio web visualmente atractivo, profesional y completamente editable para promocionar las ceremonias, guías y filosofía del centro, permitiendo a los administradores gestionar el contenido dinámico directamente desde la interfaz.
+**Enfoque Principal:**
 
-**Stack Tecnológico:**
-- **Framework:** Next.js 15+ con App Router.
-- **Lenguaje:** TypeScript.
-- **UI:** Componentes de ShadCN (copiados en \`src/components/ui\`).
-- **Estilos:** Tailwind CSS con un sistema de temas dinámico gestionado desde Firebase.
-- **Backend y Base de Datos:** Firebase (Firestore, Authentication, Storage).
-- **IA:** Genkit para flujos de chatbot y envío de correos.
-- **Internacionalización:** i18next para soportar español e inglés.
+- **Frontend (Diseño y Estilo):**
+  - **Paleta de Colores:** Define y aplica una paleta de colores cohesiva y profesional utilizando el sistema de temas dinámico en \`src/app/globals.css\` y \`tailwind.config.ts\`. Los colores deben evocar serenidad, naturaleza y espiritualidad.
+  - **Componentes:** Utiliza componentes de ShadCN para garantizar una UI moderna, consistente y accesible.
+  - **Diseño Visual:** Asegura que el diseño sea responsive y estético. Presta atención a los detalles como sombras, bordes redondeados, espaciado y tipografía para crear una experiencia de usuario pulida.
+  - **Tema Dinámico:** Gestiona los estilos globales y las variables de tema para los modos claro y oscuro, asegurando una transición fluida y una apariencia impecable en ambos.
 
----
+- **Backend (Estructura y Lógica):**
+  - **Firebase:** Utiliza Firebase (Firestore, Authentication, Storage) como el backend principal. Diseña estructuras de datos en Firestore que sean eficientes y escalables.
+  - **Lógica de Servidor (Genkit):** Implementa flujos de Genkit para funcionalidades de IA, como el chatbot y el envío de correos, asegurando que el código sea limpio y siga las mejores prácticas.
+  - **Tipos y Datos:** Mantén la integridad de los datos definiendo y utilizando los tipos de TypeScript en \`src/types/index.ts\` para todas las estructuras de datos.
 
-### **Estructura de Datos y Tipos (src/types/index.ts)**
-
-- **Ceremony**: Representa un evento.
-  - \`id: string\`, \`title: string\`, \`description: string\`, \`date?: string\`, \`horario?: string\`, \`price: number\`, \`priceType: 'exact' | 'from'\`, \`link: string\`, \`featured: boolean\`, \`mediaUrl?: string\`, \`mediaType?: 'image' | 'video'\`, \`status: 'active' | 'finished' | 'inactive'\`, \`plans?: Plan[]\`.
-- **Plan**: Define un plan de precios para una ceremonia.
-  - \`name: string\`, \`price: number\`, \`description: string\`.
-- **Guide**: Perfil de un guía espiritual.
-  - \`id: string\`, \`name: string\`, \`description: string\`, \`imageUrl: string\`.
-- **UserProfile**: Datos del usuario en Firestore.
-  - \`uid: string\`, \`email: string\`, \`displayName?: string\`, \`isAdmin?: boolean\`, \`status?: 'Interesado' | 'Cliente' | 'Pendiente'\`.
-- **ThemeSettings**: Objeto para almacenar los colores del tema. Contiene dos objetos, \`light\` y \`dark\`, cada uno con claves para los colores HSL (ej: \`primary\`, \`background\`, \`card\`, etc.).
-
----
-
-### **Controles y Funcionalidades Clave**
-
-1.  **Contenido Editable en Vivo (\`EditableTitle\` y \`EditableProvider\`):**
-    -   El \`EditableProvider\` gestiona el estado de edición y la comunicación con Firestore.
-    -   El componente \`EditableTitle\` envuelve el texto. Si el usuario es administrador, muestra un botón de edición.
-    -   Al hacer clic en "Editar", el texto se convierte en campos de entrada para español e inglés. Los cambios se guardan en la colección \`content\` de Firestore como un objeto \`{ es: '...', en: '...' }\`.
-    -   El contenido se recupera usando la clave \`id\` proporcionada a \`EditableTitle\`.
-
-2.  **Gestión de Ceremonias (Páginas \`/\`, \`/ceremonies\` y diálogos):**
-    -   Las ceremonias se obtienen de la colección \`ceremonies\` en Firestore.
-    -   Los administradores ven botones de "Editar" en cada tarjeta de ceremonia, que abren el diálogo \`EditCeremonyDialog\`.
-    -   Este diálogo permite modificar todos los campos de la ceremonia, incluyendo título, descripción, precio, estado (\`active\`, \`finished\`, \`inactive\`), y gestionar una lista de características (\`features\`).
-    -   Los medios (imagen/video) se pueden añadir subiendo un archivo (a Firebase Storage) o pegando una URL.
-    -   Se pueden añadir, duplicar y eliminar ceremonias.
-
-3.  **Gestión de Guías (Página \`/guides\`):**
-    -   Similar a las ceremonias, los administradores pueden editar los perfiles de los guías (nombre, descripción y foto de perfil) a través del diálogo \`EditGuideDialog\`.
-
-4.  **Autenticación y Roles:**
-    -   La autenticación se gestiona con Firebase Authentication (Google y correo/contraseña).
-    -   El rol de "administrador" se asigna a un correo específico (\`wilson2403@gmail.com\`) o a través de un booleano \`isAdmin\` en el perfil de usuario en Firestore.
-
-5.  **Personalización del Tema (Página \`/admin/theme\`):**
-    -   La pestaña "Tema" en el panel de administración permite cambiar la paleta de colores completa de la aplicación para los modos claro y oscuro.
-    -   Se utiliza un selector de color (\`ColorPicker\`) para facilitar la elección.
-    -   Los cambios se guardan en el documento \`theme\` dentro de la colección \`settings\` en Firestore.
-    -   El componente \`ThemeProvider\` carga estos ajustes y los inyecta como variables CSS en el documento.
-
-6.  **Chatbot con IA (\`Chatbot.tsx\`):**
-    -   Un chatbot flotante (visible solo para administradores) utiliza un flujo de Genkit (\`chat-flow.ts\`) para actuar como guía espiritual.
-    -   Mantiene el historial de la conversación en la colección \`chats\` de Firestore.
-
-Tu tarea es mantener y extender esta aplicación, asegurando que el código sea limpio, mantenible y siga las mejores prácticas del stack definido.
+Tu objetivo es crear una aplicación que no solo sea funcional, sino también visualmente hermosa y fácil de mantener, reflejando la misión de sanación y profesionalismo de "El Arte de Sanar".
 `;
 
 export default function AdminPage() {
@@ -204,8 +124,13 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent>
             <ScrollArea className="h-96 rounded-md border p-4 font-mono text-sm">
-              {projectStructure.map((file, index) => (
-                <div key={index}>{file}</div>
+              {Object.entries(projectStructure).map(([category, files]) => (
+                <div key={category}>
+                  <h3 className="font-bold text-primary mt-4 mb-2">{category}</h3>
+                  {files.map((file, index) => (
+                    <div key={index} className="ml-4">{file}</div>
+                  ))}
+                </div>
               ))}
             </ScrollArea>
           </CardContent>
