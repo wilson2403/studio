@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Pause, Play, Volume2, VolumeX, Loader } from 'lucide-react';
@@ -20,7 +20,6 @@ interface VideoPlayerProps {
   autoplay?: boolean;
   title: string;
   className?: string;
-  controls?: boolean;
   isActivated?: boolean;
   inCarousel?: boolean;
   defaultMuted?: boolean;
@@ -50,7 +49,7 @@ const getTikTokEmbedUrl = (url: string, isActivated: boolean): string | null => 
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
     const autoplay = isActivated ? '1' : '0';
-    const mute = '1'; // Always mute TikTok embeds on our side
+    const mute = '1';
     return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=1&mute=${mute}`;
 };
 
@@ -77,6 +76,7 @@ const getStreamableEmbedUrl = (url: string, isActivated: boolean): string | null
   return `https://streamable.com/e/${match[1]}?${params.toString()}`;
 };
 
+
 const isDirectVideoUrl = (url: string): boolean => {
     if (!url) return false;
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
@@ -88,7 +88,6 @@ const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: s
 
     const handleLoad = () => {
         setIsLoading(false);
-        // Attempt to detect play, though it's unreliable with iframes
         if (!hasPlayed.current) {
             onPlay();
             hasPlayed.current = true;
@@ -104,7 +103,7 @@ const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: s
             )}
             <div className='w-full h-full'>
               <iframe
-                  key={src} // Force re-render when src changes
+                  key={src}
                   src={src}
                   title={title}
                   frameBorder="0"
@@ -120,12 +119,51 @@ const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: s
 };
 
 
-const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit = 'cover', onPlay, defaultMuted = true, trackProgress, videoId, userId }: { src: string, videoId: string, className?: string, isActivated?: boolean, inCarousel?: boolean, videoFit?: 'cover' | 'contain', onPlay: () => void, defaultMuted?: boolean, trackProgress?: boolean, userId?: string | null }) => {
+const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay, defaultMuted = true, trackProgress, userId, autoplay }: { src: string, videoId: string, className?: string, videoFit?: 'cover' | 'contain', onPlay: () => void, defaultMuted?: boolean, trackProgress?: boolean, userId?: string | null, autoplay?: boolean }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(defaultMuted);
     const hasPlayed = useRef(false);
     const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [isIntersecting, setIntersecting] = useState(false);
+
+    const observer = useRef<IntersectionObserver | null>(null);
+
+    const handlePlay = useCallback(() => {
+        if (!hasPlayed.current) {
+            onPlay();
+            hasPlayed.current = true;
+        }
+    }, [onPlay]);
+
+    useEffect(() => {
+        observer.current = new IntersectionObserver(([entry]) => {
+            setIntersecting(entry.isIntersecting);
+        }, { threshold: 0.5 }); // Trigger when 50% of the video is visible
+
+        if (videoRef.current) {
+            observer.current.observe(videoRef.current);
+        }
+
+        return () => {
+            observer.current?.disconnect();
+        };
+    }, []);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        if (isIntersecting) {
+            video.play().then(handlePlay).catch(console.error);
+            setIsMuted(false);
+        } else {
+            if (!autoplay) {
+                video.pause();
+            }
+        }
+    }, [isIntersecting, autoplay, handlePlay]);
+
 
     if (!src) {
         return (
@@ -148,7 +186,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
             if (videoRef.current) {
                 updateVideoProgress(userId, videoId, videoRef.current.currentTime);
             }
-        }, 5000); // Save every 5 seconds
+        }, 5000);
     };
 
     const stopProgressTracking = () => {
@@ -159,43 +197,24 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     };
     
     useEffect(() => {
-      const video = videoRef.current;
-      if (video) {
-        if (isActivated) {
-          video.play().catch(console.error);
-        } else {
-          video.pause();
-          if (!trackProgress) {
-             video.currentTime = 0;
-          }
-        }
-      }
-    }, [isActivated, trackProgress]);
-
-    useEffect(() => {
         const video = videoRef.current;
         if(video) {
-            const handlePlay = () => {
+            const handlePlayEvent = () => {
                 setIsPlaying(true);
-                if (!hasPlayed.current) {
-                    onPlay();
-                    hasPlayed.current = true;
-                }
+                handlePlay();
                 startProgressTracking();
             };
-            const handlePause = () => {
+            const handlePauseEvent = () => {
                 setIsPlaying(false);
                 stopProgressTracking();
             }
-            video.addEventListener('play', handlePlay);
-            video.addEventListener('pause', handlePause);
+            video.addEventListener('play', handlePlayEvent);
+            video.addEventListener('pause', handlePauseEvent);
             
-            // Set initial playing state
             if (!video.paused) {
-                handlePlay();
+                handlePlayEvent();
             }
 
-            // Fetch and set initial progress
             if (trackProgress && userId && videoId) {
                 getVideoProgress(userId, videoId).then(time => {
                     if (time && videoRef.current) {
@@ -205,12 +224,12 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
             }
 
             return () => {
-                video.removeEventListener('play', handlePlay);
-                video.removeEventListener('pause', handlePause);
+                video.removeEventListener('play', handlePlayEvent);
+                video.removeEventListener('pause', handlePauseEvent);
                 stopProgressTracking();
             }
         }
-    }, [onPlay, trackProgress, userId, videoId]);
+    }, [handlePlay, trackProgress, userId, videoId]);
 
     useEffect(() => {
       if(videoRef.current) {
@@ -241,7 +260,6 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
             <video
                 ref={videoRef}
                 src={src}
-                autoPlay={isActivated}
                 loop={true}
                 playsInline
                 muted={isMuted}
@@ -271,7 +289,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     );
 };
 
-export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, controls = false, isActivated = false, inCarousel = false, defaultMuted, trackProgress = false }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, isActivated = false, defaultMuted, trackProgress = false }: VideoPlayerProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -288,11 +306,11 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     return () => unsubscribe();
   }, []);
 
-  const handlePlay = () => {
-    if (!isAdmin && !trackProgress) { // Don't count view for courses
+  const handlePlay = useCallback(() => {
+    if (!isAdmin && !trackProgress) {
       incrementCeremonyViewCount(ceremonyId);
     }
-  }
+  }, [isAdmin, trackProgress, ceremonyId]);
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -323,10 +341,9 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={className} isActivated={isActivated} inCarousel={inCarousel} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted === undefined ? !isActivated : defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} />;
+      return <DirectVideoPlayer src={url} className={className} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} autoplay={autoplay} />;
     }
     
-    // Fallback for any other URL or invalid URL
     return (
         <div className={cn("relative w-full h-full", className)}>
             <Image

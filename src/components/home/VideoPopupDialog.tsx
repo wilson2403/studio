@@ -10,6 +10,7 @@ import {
 import { VideoPlayer } from './VideoPlayer';
 
 interface VideoPopupDialogProps {
+  ceremonyId: string;
   isOpen: boolean;
   onClose: () => void;
   videoUrl?: string;
@@ -17,7 +18,7 @@ interface VideoPopupDialogProps {
   title: string;
 }
 
-export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType, title }: VideoPopupDialogProps) {
+export default function VideoPopupDialog({ ceremonyId, isOpen, onClose, videoUrl, mediaType, title }: VideoPopupDialogProps) {
   if (!isOpen) return null;
 
   return (
@@ -28,7 +29,7 @@ export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType,
         </DialogHeader>
         <div className="aspect-video relative">
           <VideoPlayer
-            ceremonyId={title} // Use title as a unique key for the player
+            ceremonyId={ceremonyId}
             videoUrl={videoUrl}
             mediaType={mediaType}
             title={title}
