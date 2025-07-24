@@ -74,7 +74,7 @@ export default function PreparationGuidePage() {
       { id: "preparationProcess", titleId: "preparationProcessTitle", descriptionId: "preparationProcessDescription", Icon: Sprout },
       { id: "ceremonyProcess", titleId: "ceremonyProcessTitle", descriptionId: "ceremonyProcessDescription", Icon: Sparkles },
       { id: "experienceProcess", titleId: "experienceProcessTitle", descriptionId: "experienceProcessDescription", Icon: Wind },
-      { id: "integrationProcess", titleId: "integrationProcessTitle", descriptionId: "integrationProcessDescription", Icon: HeartHandshake },
+      { id: "integrationProcess", titleId: "integrationProcessTitle", descriptionId: "ceremonyProcessDescription", Icon: HeartHandshake },
   ];
   const mentalPrepSteps = [
       { titleId: "meditationTitle", descriptionId: "meditationDescription" },
@@ -102,51 +102,25 @@ export default function PreparationGuidePage() {
     }
   }, [user, isCompleted]);
 
-    const validateAndProceed = useCallback(async (targetStep: number) => {
-        if (!api) return false;
+  useEffect(() => {
+    if (!api) return;
 
-        const currentStepInfo = allSteps[currentStep];
-        if (targetStep > currentStep && currentStepInfo.type === 'question' && !isCompleted) {
-            const questionId = currentStepInfo.id as keyof FormData;
-            const isValid = await form.trigger(questionId);
-            if (!isValid) {
-                toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
-                return false;
-            }
+    setTotalSteps(api.scrollSnapList().length);
+
+    const onSelect = () => {
+        const newStep = api.selectedScrollSnap();
+        if (newStep !== currentStep) {
+            setCurrentStep(newStep);
+            updateUserProgress(newStep);
         }
-        return true;
-    }, [api, currentStep, allSteps, isCompleted, form, toast, t]);
+    };
 
+    api.on("select", onSelect);
 
-    useEffect(() => {
-        if (!api) return;
-
-        setTotalSteps(api.scrollSnapList().length);
-
-        const onSelect = () => {
-            const newStep = api.selectedScrollSnap();
-            if (newStep !== currentStep) {
-                setCurrentStep(newStep);
-                updateUserProgress(newStep);
-            }
-        };
-
-        const onSettle = async () => {
-             const newStep = api.selectedScrollSnap();
-             const canProceed = await validateAndProceed(newStep);
-             if(!canProceed) {
-                 api.scrollTo(currentStep, true);
-             }
-        }
-
-        api.on("select", onSelect);
-        api.on("settle", onSettle)
-
-        return () => {
-            api.off("select", onSelect);
-            api.off("settle", onSettle);
-        };
-    }, [api, updateUserProgress, validateAndProceed, currentStep]);
+    return () => {
+        api.off("select", onSelect);
+    };
+  }, [api, updateUserProgress, currentStep]);
 
   
   useEffect(() => {
@@ -179,12 +153,27 @@ export default function PreparationGuidePage() {
     return () => unsubscribe();
   }, [api, form]);
 
-  const goToNextStep = async () => {
-    const canProceed = await validateAndProceed(currentStep + 1);
-    if(canProceed && api?.canScrollNext()) {
+ const goToNextStep = async () => {
+    const currentStepInfo = allSteps[currentStep];
+    if (currentStepInfo.type === 'question' && !isCompleted) {
+        const fieldsToValidate = [currentStepInfo.id] as (keyof FormData)[];
+        if (currentStepInfo.id === 'hasMedicalConditions') fieldsToValidate.push('medicalConditionsDetails');
+        if (currentStepInfo.id === 'isTakingMedication') fieldsToValidate.push('medicationDetails');
+        if (currentStepInfo.id === 'hasMentalHealthHistory') fieldsToValidate.push('mentalHealthDetails');
+        if (currentStepInfo.id === 'hasPreviousExperience') fieldsToValidate.push('previousExperienceDetails');
+        
+        const isValid = await form.trigger(fieldsToValidate);
+        if (!isValid) {
+            toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
+            return;
+        }
+    }
+    
+    if (api?.canScrollNext()) {
         api.scrollNext();
     }
-  };
+};
+
   
   const goToPrevStep = () => {
       if(api?.canScrollPrev()) {
@@ -344,19 +333,34 @@ export default function PreparationGuidePage() {
 
   return (
     <EditableProvider>
-      <div className="container py-8 md:py-12 flex flex-col h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)]">
+      <div className="container py-4 flex flex-col h-[calc(100vh-8rem)]">
           <div className="text-center mb-4">
-              <CardTitle className="text-3xl font-headline">{t('preparationGuideTitle')}</CardTitle>
-              <CardDescription className="font-body">{t('preparationGuideSubtitle')}</CardDescription>
+              <CardTitle className="text-2xl md:text-3xl font-headline">{t('preparationGuideTitle')}</CardTitle>
+              <CardDescription className="font-body text-sm md:text-base">{t('preparationGuideSubtitle')}</CardDescription>
               <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full max-w-4xl mx-auto mt-4" />
           </div>
 
           <Form {...form}>
-              <Carousel setApi={setApi} className="w-full flex-grow py-4" opts={{ align: "center", watchDrag: true }}>
+              <Carousel setApi={setApi} className="w-full flex-grow py-4" opts={{ align: "center", watchDrag: (e, emblaApi) => {
+                 const engine = emblaApi.internalEngine();
+                 if (engine.dragHandler.pointerDown()) {
+                    const currentStepInfo = allSteps[currentStep];
+                    if (currentStepInfo.type === 'question' && !isCompleted) {
+                      const fieldsToValidate = [currentStepInfo.id] as (keyof FormData)[];
+                      form.trigger(fieldsToValidate).then(isValid => {
+                        if(!isValid) {
+                          toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
+                        }
+                      });
+                    }
+                 }
+                 return true;
+              } }}>
                 <CarouselContent>
                   {allSteps.map((step, index) => (
-                    <CarouselItem key={index} className="flex items-center justify-center">
-                        <Card className="w-full max-w-4xl flex flex-col justify-center p-6 md:p-8 rounded-2xl shadow-2xl bg-card min-h-[55vh]">
+                    <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                      <div className="p-1 h-full">
+                        <Card className="w-full h-full flex flex-col justify-center p-6 rounded-2xl shadow-lg bg-card/80 backdrop-blur-sm">
                           {step.type === 'question' ? (
                               getQuestionStepComponent(step.id)
                           ) : step.type === 'info' && step.id === 'process' ? (
@@ -455,6 +459,7 @@ export default function PreparationGuidePage() {
                           </div>
                           ) : null}
                         </Card>
+                      </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -487,5 +492,7 @@ export default function PreparationGuidePage() {
     </EditableProvider>
   );
 }
+
+    
 
     
