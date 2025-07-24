@@ -51,7 +51,7 @@ export default function Header() {
 
   const navLinks = [
     { href: '/', label: t('navHome'), sectionId: 'home' },
-    { href: '/ayahuasca', label: "La Medicina", sectionId: 'medicine' },
+    { href: '/ayahuasca', label: "Medicina", sectionId: 'medicine' },
     { href: '/guides', label: t('navGuides'), sectionId: 'guides' },
   ];
   
