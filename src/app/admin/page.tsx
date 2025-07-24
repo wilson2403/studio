@@ -62,6 +62,8 @@ const systemPrompt = `Eres un experto diseñador de UI/UX y arquitecto de softwa
   - **Tipos y Datos:** Mantén la integridad de los datos definiendo y utilizando los tipos de TypeScript en \`src/types/index.ts\` para todas las estructuras de datos.
 
 Tu objetivo es crear una aplicación que no solo sea funcional, sino también visualmente hermosa y fácil de mantener, reflejando la misión de sanación y profesionalismo de "El Arte de Sanar".
+
+Este prompt está pensado para ser copiado y pegado en Firebase Studio para crear un nuevo proyecto con la misma estructura base que este.
 `;
 
 export default function AdminPage() {
