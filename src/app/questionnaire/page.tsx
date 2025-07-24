@@ -60,6 +60,7 @@ export default function PreparationGuidePage() {
   const [totalSteps, setTotalSteps] = useState(1)
   const [isAnswersDialogOpen, setIsAnswersDialogOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [canDrag, setCanDrag] = useState(true);
   const previousStep = useRef(0);
 
   const router = useRouter();
@@ -103,53 +104,62 @@ export default function PreparationGuidePage() {
     }
   }, [user, isCompleted]);
 
+  const validateCurrentStep = useCallback(async (stepIndex: number): Promise<boolean> => {
+    const isQuestionStep = allSteps[stepIndex]?.type === 'question';
+    if (isQuestionStep && !isCompleted) {
+        const questionId = allSteps[stepIndex].id as keyof FormData;
+        const isValid = await form.trigger(questionId);
+        if (!isValid) {
+            toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
+        }
+        return isValid;
+    }
+    return true;
+  }, [allSteps, form, isCompleted, t, toast]);
+
   useEffect(() => {
     if (!api) return;
 
     setTotalSteps(api.scrollSnapList().length);
 
-    const onSelect = (emblaApi: CarouselApi) => {
+    const onSelect = async (emblaApi: CarouselApi) => {
         const newStep = emblaApi.selectedScrollSnap();
-        if (newStep === previousStep.current) return;
-        
-        setCurrentStep(newStep);
-        updateUserProgress(newStep);
-        previousStep.current = newStep;
-    };
-    
-    const validateAndPreventScroll = async () => {
-        const prevStepIndex = previousStep.current;
-        const isTryingToAdvance = api.selectedScrollSnap() > prevStepIndex;
-        
-        if (isTryingToAdvance) {
-            const isQuestionStep = allSteps[prevStepIndex].type === 'question';
-            if (isQuestionStep && !isCompleted) {
-                const questionId = allSteps[prevStepIndex].id as keyof FormData;
-                const isValid = await form.trigger(questionId);
-
-                if (!isValid) {
-                    api.scrollTo(prevStepIndex, true);
-                    toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
-                    return false;
-                }
+        if (newStep > previousStep.current) {
+            const isPrevStepValid = await validateCurrentStep(previousStep.current);
+            if (!isPrevStepValid) {
+                emblaApi.scrollTo(previousStep.current, true);
+                return;
             }
         }
-        return true;
-    };
+        
+        setCurrentStep(newStep);
+        if (newStep !== previousStep.current) {
+            updateUserProgress(newStep);
+            previousStep.current = newStep;
+        }
 
-    const onPointerUp = async () => {
-        await validateAndPreventScroll();
+        const isCurrentStepValid = await validateCurrentStep(newStep);
+        setCanDrag(isCurrentStepValid);
     };
-
-    api.on("select", onSelect);
-    api.on("pointerUp", onPointerUp);
     
+    api.on("select", onSelect);
+    api.on("settle", (emblaApi) => {
+        // Re-check validation when carousel settles, in case form state changed
+        validateCurrentStep(emblaApi.selectedScrollSnap()).then(setCanDrag);
+    });
+
     return () => {
       api.off("select", onSelect);
-      api.off("pointerUp", onPointerUp);
+      api.off("settle");
     };
-  }, [api, updateUserProgress, form, allSteps, isCompleted, t, toast]);
+  }, [api, updateUserProgress, validateCurrentStep]);
   
+  const formValues = form.watch();
+  useEffect(() => {
+      validateCurrentStep(currentStep).then(setCanDrag);
+  }, [formValues, currentStep, validateCurrentStep]);
+
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
@@ -182,15 +192,8 @@ export default function PreparationGuidePage() {
   }, [api, form]);
 
   const goToNextStep = async () => {
-    const isQuestionStep = allSteps[currentStep].type === 'question';
-    if (isQuestionStep && !isCompleted) {
-        const questionId = allSteps[currentStep].id as keyof FormData;
-        const isValid = await form.trigger(questionId);
-        if (!isValid) {
-          toast({ title: t('pleaseCompleteThisStep'), variant: 'destructive' });
-          return;
-        }
-    }
+    const isValid = await validateCurrentStep(currentStep);
+    if (!isValid) return;
 
     if (api?.canScrollNext()) {
       api.scrollNext();
@@ -363,7 +366,7 @@ export default function PreparationGuidePage() {
           </div>
 
           <Form {...form}>
-              <Carousel setApi={setApi} className="w-full flex-grow py-4" opts={{ watchDrag: true, align: "center" }}>
+              <Carousel setApi={setApi} className="w-full flex-grow py-4" opts={{ watchDrag: canDrag, align: "center" }}>
                 <CarouselContent>
                   {allSteps.map((step, index) => (
                     <CarouselItem key={index} className="flex items-center justify-center">
@@ -484,7 +487,7 @@ export default function PreparationGuidePage() {
                       {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
               ) : allSteps[currentStep]?.type !== 'final' ? (
-                  <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
+                  <Button onClick={goToNextStep} disabled={!api?.canScrollNext() || !canDrag}>
                       {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
               ) : <div></div>}
@@ -500,3 +503,4 @@ export default function PreparationGuidePage() {
     </EditableProvider>
   );
 }
+
