@@ -230,13 +230,13 @@ export default function Ceremonies({
   );
 
   const renderFinishedCeremonies = () => (
-     <div className="w-full relative px-10 md:px-12">
+     <div className="w-full relative">
         <Carousel
             opts={{
               align: 'center',
               loop: false,
             }}
-            className="w-full"
+            className="w-full px-10 md:px-12"
         >
             <CarouselContent className="-ml-2 md:-ml-4">
             {ceremonies.map((ceremony, index) => (
@@ -275,12 +275,10 @@ export default function Ceremonies({
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none transition-colors duration-300"></div>
                       <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">
                           <h3 className="text-lg md:text-xl font-headline">{ceremony.title}</h3>
+                          {ceremony.date && (
+                             <p className="font-mono text-sm opacity-90 mt-1">{ceremony.date}</p>
+                           )}
                       </div>
-                      {ceremony.date && (
-                        <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm p-2 rounded-md pointer-events-none">
-                            <p className="font-mono text-sm md:text-base opacity-90">{ceremony.date}</p>
-                        </div>
-                       )}
                        {isAdmin && (
                         <div className="absolute bottom-16 right-4 flex-col justify-start gap-4 text-xs text-white/70 mt-3 pt-3">
                             <div className='flex items-center gap-1.5'>
@@ -298,15 +296,15 @@ export default function Ceremonies({
                 </CarouselItem>
             ))}
             </CarouselContent>
-            <CarouselPrevious className="hidden md:flex left-0 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-            <CarouselNext className="hidden md:flex right-0 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+            <CarouselPrevious className="hidden md:flex left-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
+            <CarouselNext className="hidden md:flex right-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
+            <div className="md:hidden mt-4 flex justify-center gap-4">
+              <CarouselPrevious className="static translate-y-0" />
+              <CarouselNext className="static translate-y-0" />
+            </div>
         </Carousel>
         <div className="mt-8 text-center">
-            <div className="md:hidden flex justify-center gap-4">
-              <CarouselPrevious className="static translate-y-0 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
-              <CarouselNext className="static translate-y-0 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
-            </div>
-            <Button asChild variant="outline" className='mt-8 md:mt-0'>
+            <Button asChild variant="outline">
                 <Link href="/ceremonies">
                     {t('viewAllEvents')}
                     <ArrowRight className="ml-2 h-4 w-4"/>
