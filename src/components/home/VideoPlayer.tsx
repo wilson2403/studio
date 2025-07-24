@@ -162,6 +162,7 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
         if (videoRef.current) {
             if (videoRef.current.paused) {
                 videoRef.current.play().catch(console.error);
+                setIsMuted(false);
             } else {
                 videoRef.current.pause();
             }
