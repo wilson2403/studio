@@ -11,20 +11,20 @@ import * as z from 'zod';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
-import { ArrowLeft, ArrowRight, PartyPopper, BookOpen, HeartPulse, Pill, Brain, History, Sprout, Wind, HeartHandshake, Leaf, Minus, Sparkles, Check } from 'lucide-react';
+import { BookOpen, PartyPopper, HeartPulse, Pill, Brain, History, Sprout, Wind, HeartHandshake, Leaf, Minus, Sparkles, Check, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { cn } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
@@ -80,7 +80,7 @@ export default function QuestionnairePage() {
     { type: 'info', id: 'diet', icon: Leaf, title: t('dietTitle'), description: t('dietSubtitle') },
     { type: 'info', id: 'mentalPrep', icon: Sparkles, title: t('mentalPrepTitle'), description: t('mentalPrepSubtitle') },
     { type: 'info', id: 'emotionalHealing', icon: HeartHandshake, title: t('emotionalHealingTitle'), description: t('emotionalHealingSubtitle') },
-    { type: 'info', id: 'whatToBring', icon: Check, title: t('whatToBringTitle'), description: t('whatToBringSubtitle') },
+    { type: 'info', id: 'whatToBring', icon: CheckCircle, title: t('whatToBringTitle'), description: t('whatToBringSubtitle') },
     { type: 'final', id: 'final', icon: PartyPopper, title: t('preparationCompleteTitle'), description: t('preparationCompleteDescription') }
   ];
 
@@ -265,8 +265,8 @@ export default function QuestionnairePage() {
                         const Icon = step.icon;
                         return(
                             <CarouselItem key={index} className="h-full">
-                               <div className="flex flex-col h-full">
-                                    <div className="flex-1 p-6 flex flex-col items-center justify-center text-center">
+                               <div className="flex flex-col h-full p-6">
+                                    <div className="flex-1 flex flex-col items-center justify-center text-center">
                                         <div className="p-4 bg-primary/10 rounded-full mb-6">
                                             <Icon className="h-10 w-10 text-primary" data-ai-hint="spiritual icon" />
                                         </div>
@@ -278,7 +278,7 @@ export default function QuestionnairePage() {
                                         <h2 className="text-2xl font-headline font-bold mb-2">{step.title}</h2>
                                         <p className="text-muted-foreground mb-8">{step.description}</p>
                                         
-                                        <div className="flex-1 w-full flex items-center justify-center">
+                                        <CardContent className="flex-1 w-full flex items-center justify-center p-0">
                                             {step.type === 'question' ? getQuestionStepComponent(step.id, step.title) 
                                             : step.type === 'info' ? getInfoStepComponent(step.id) 
                                             : ( // Final Step
@@ -288,7 +288,7 @@ export default function QuestionnairePage() {
                                                     <Button variant="ghost" onClick={() => router.push('/')}>{t('goHome')}</Button>
                                                 </div>
                                             )}
-                                        </div>
+                                        </CardContent>
                                     </div>
                                </div>
                             </CarouselItem>
