@@ -35,16 +35,16 @@ const questionnaireSchema = (t: (key: string, options?: any) => string) => z.obj
   mainIntention: z.string().min(10, { message: t('errorMinLength', { field: t('questionnaireIntention'), count: 10 }) }),
   hasPreviousExperience: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
   previousExperienceDetails: z.string().optional(),
-}).refine(data => data.hasMedicalConditions === 'no' || (data.hasMedicalConditions === 'yes' && data.medicalConditionsDetails && data.medicalConditionsDetails.trim() !== ''), {
+}).refine(data => data.hasMedicalConditions !== 'yes' || (data.medicalConditionsDetails && data.medicalConditionsDetails.trim().length > 0), {
   message: t('errorRequiredDetails'),
   path: ['medicalConditionsDetails'],
-}).refine(data => data.isTakingMedication === 'no' || (data.isTakingMedication === 'yes' && data.medicationDetails && data.medicationDetails.trim() !== ''), {
+}).refine(data => data.isTakingMedication !== 'yes' || (data.medicationDetails && data.medicationDetails.trim().length > 0), {
   message: t('errorRequiredDetails'),
   path: ['medicationDetails'],
-}).refine(data => data.hasMentalHealthHistory === 'no' || (data.hasMentalHealthHistory === 'yes' && data.mentalHealthDetails && data.mentalHealthDetails.trim() !== ''), {
+}).refine(data => data.hasMentalHealthHistory !== 'yes' || (data.mentalHealthDetails && data.mentalHealthDetails.trim().length > 0), {
   message: t('errorRequiredDetails'),
   path: ['mentalHealthDetails'],
-}).refine(data => data.hasPreviousExperience === 'no' || (data.hasPreviousExperience === 'yes' && data.previousExperienceDetails && data.previousExperienceDetails.trim() !== ''), {
+}).refine(data => data.hasPreviousExperience !== 'yes' || (data.previousExperienceDetails && data.previousExperienceDetails.trim().length > 0), {
     message: t('errorRequiredDetails'),
     path: ['previousExperienceDetails'],
 });
@@ -132,10 +132,10 @@ export default function QuestionnairePage() {
     const currentStepInfo = allSteps[currentStep];
     if (currentStepInfo.type === 'question' && !isCompleted) {
         const fieldsToValidate = [currentStepInfo.id] as (keyof FormData)[];
-        if (currentStepInfo.id === 'hasMedicalConditions') fieldsToValidate.push('medicalConditionsDetails');
-        if (currentStepInfo.id === 'isTakingMedication') fieldsToValidate.push('medicationDetails');
-        if (currentStepInfo.id === 'hasMentalHealthHistory') fieldsToValidate.push('mentalHealthDetails');
-        if (currentStepInfo.id === 'hasPreviousExperience') fieldsToValidate.push('previousExperienceDetails');
+        if (currentStepInfo.id === 'hasMedicalConditions' && form.getValues('hasMedicalConditions') === 'yes') fieldsToValidate.push('medicalConditionsDetails');
+        if (currentStepInfo.id === 'isTakingMedication' && form.getValues('isTakingMedication') === 'yes') fieldsToValidate.push('medicationDetails');
+        if (currentStepInfo.id === 'hasMentalHealthHistory' && form.getValues('hasMentalHealthHistory') === 'yes') fieldsToValidate.push('mentalHealthDetails');
+        if (currentStepInfo.id === 'hasPreviousExperience' && form.getValues('hasPreviousExperience') === 'yes') fieldsToValidate.push('previousExperienceDetails');
         
         const isValid = await form.trigger(fieldsToValidate);
         if (!isValid) {
@@ -328,5 +328,7 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
+    
 
     
