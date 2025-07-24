@@ -214,16 +214,6 @@ const DirectVideoPlayer = ({ src, className, isActivated, inCarousel, videoFit =
     }, [inCarousel, onPlay, trackProgress, userId, videoId]);
 
     useEffect(() => {
-        const video = videoRef.current;
-        if (video) {
-            video.pause();
-            if (isActivated && !inCarousel) {
-                video.play().catch(console.error);
-            }
-        }
-    }, [isActivated, inCarousel]);
-    
-    useEffect(() => {
       if(videoRef.current) {
         videoRef.current.muted = isMuted;
       }
