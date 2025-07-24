@@ -715,25 +715,35 @@ export const getAllChats = async (): Promise<Chat[]> => {
 
 export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswers): Promise<void> => {
     const batch = writeBatch(db);
-    
-    const questionnaireRef = doc(db, 'questionnaires', uid);
-    batch.set(questionnaireRef, {
+
+    const dataToSave: Partial<QuestionnaireAnswers> & { uid: string; updatedAt: any } = {
         ...answers,
         uid,
         updatedAt: serverTimestamp(),
-    }, { merge: true });
+    };
+
+    // Remove empty optional fields to avoid Firestore errors
+    Object.keys(dataToSave).forEach(key => {
+        const typedKey = key as keyof typeof dataToSave;
+        if (dataToSave[typedKey] === '' || dataToSave[typedKey] === undefined) {
+            delete dataToSave[typedKey];
+        }
+    });
+
+    const questionnaireRef = doc(db, 'questionnaires', uid);
+    batch.set(questionnaireRef, dataToSave, { merge: true });
 
     const userRef = doc(db, 'users', uid);
     batch.update(userRef, { 
-      questionnaireCompleted: true,
-      preparationStep: 11 // Set to final step
+        questionnaireCompleted: true,
+        preparationStep: 11 // Set to final step
     });
 
     try {
         await batch.commit();
     } catch (error) {
         console.error("Error saving questionnaire and updating user profile:", error);
-        logError(error, { function: 'saveQuestionnaire', uid });
+        logError(error, { function: 'saveQuestionnaire', uid, data: dataToSave });
         throw error;
     }
 };
@@ -1093,3 +1103,5 @@ export const getVideoProgress = async (uid: string, videoId: string): Promise<nu
 
 export type { Chat };
 export type { UserProfile };
+
+    
