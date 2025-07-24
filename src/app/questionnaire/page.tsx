@@ -348,7 +348,7 @@ export default function QuestionnairePage() {
                     {allSteps.map((step, index) => (
                       <CarouselItem key={index} className="h-full">
                         <ScrollArea className="h-full w-full">
-                            <div className="p-6">
+                           <div className="p-6">
                               {step.type === 'question' ? (
                                 getQuestionStepComponent(step.id)
                               ) : step.type === 'info' && step.id === 'process' ? (
@@ -427,22 +427,21 @@ export default function QuestionnairePage() {
                                   </div>
                                 </div>
                               ) : step.type === 'final' ? (
-                                <div className="text-center flex flex-col items-center gap-4 flex-grow justify-center h-full">
-                                  <PartyPopper className="h-16 w-16 text-primary" />
-                                  <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
-                                  <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
-                                  <div className='flex flex-col items-stretch gap-3 mt-4 w-full max-w-xs'>
-                                    <Button asChild variant="default" size="lg">
-                                      <Link href="/courses">
-                                        <BookOpen className="mr-2 h-4 w-4" />
-                                        {t('viewCoursesRecommendation')}
-                                      </Link>
-                                    </Button>
-                                    <div className='flex flex-col sm:flex-row justify-center gap-2'>
-                                      <Button asChild className='flex-1'><Link href="/">{t('backToHome')}</Link></Button>
-                                      <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)} className='flex-1'>{t('viewMyAnswers')}</Button>
+                                <div className="text-center flex flex-col items-center gap-4 py-8">
+                                    <PartyPopper className="h-16 w-16 text-primary" />
+                                    <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
+                                    <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
+                                    <div className='flex flex-col items-stretch gap-3 mt-4 w-full max-w-xs'>
+                                        <Button asChild variant="default" size="lg">
+                                            <Link href="/courses">
+                                                <BookOpen className="mr-2 h-4 w-4" />
+                                                {t('viewCoursesRecommendation')}
+                                            </Link>
+                                        </Button>
+                                        <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>
+                                            {t('viewMyAnswers')}
+                                        </Button>
                                     </div>
-                                  </div>
                                 </div>
                               ) : null}
                             </div>
@@ -485,5 +484,3 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
-
-    
