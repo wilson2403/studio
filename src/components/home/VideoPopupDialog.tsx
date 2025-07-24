@@ -4,6 +4,8 @@
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { VideoPlayer } from './VideoPlayer';
 
@@ -20,7 +22,10 @@ export default function VideoPopupDialog({ isOpen, onClose, videoUrl, mediaType,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl p-0 border-0 bg-transparent">
+      <DialogContent className="max-w-5xl p-0 border-0 bg-transparent">
+        <DialogHeader className="sr-only">
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
         <div className="aspect-video relative">
           <VideoPlayer
             ceremonyId={title} // Use title as a unique key for the player
