@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics, resetQuestionnaire } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics, resetQuestionnaire, deleteUser } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -272,6 +272,17 @@ export default function AdminUsersPage() {
         }
     }
 
+    const handleDeleteUser = async (uid: string) => {
+        try {
+            await deleteUser(uid);
+            setUsers(prev => prev.filter(u => u.uid !== uid));
+            toast({ title: t('userDeletedSuccess') });
+        } catch (error) {
+             console.error('Failed to delete user:', error);
+            toast({ title: t('userDeletedError'), description: (error as Error).message, variant: 'destructive' });
+        }
+    }
+
     const getPreparationPercentage = (user: UserProfile) => {
         if (user.questionnaireCompleted) return 100;
         const progress = user.preparationStep || 0;
@@ -416,6 +427,23 @@ export default function AdminUsersPage() {
                                                         {t('invite')}
                                                     </Button>
                                                 )}
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="destructive" size="icon" className='h-9 w-9'>
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>{t('deleteUserConfirmTitle')}</AlertDialogTitle>
+                                                            <AlertDialogDescription>{t('deleteUserConfirmDescription', { name: u.displayName || u.email })}</AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDeleteUser(u.uid)}>{t('delete')}</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </TableCell>
                                         </TableRow>
                                     ))}

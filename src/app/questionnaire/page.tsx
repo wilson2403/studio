@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -75,7 +74,7 @@ export default function QuestionnairePage() {
   const [isCompleted, setIsCompleted] = useState(false);
   
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
 
   const form = useForm<FormData>({
@@ -126,7 +125,7 @@ export default function QuestionnairePage() {
       setPageLoading(false);
     });
     return () => unsubscribe();
-  }, [api, form]);
+  }, [api, form, i18n.isInitialized]);
 
  const goToNextStep = async () => {
     const currentStepInfo = allSteps[currentStep];
@@ -214,7 +213,7 @@ export default function QuestionnairePage() {
   }
 
 
-  if (pageLoading) {
+  if (pageLoading || !i18n.isInitialized) {
     return <div className="container py-12 md:py-16"><div className="mx-auto max-w-md"><Skeleton className="h-[70vh] w-full rounded-2xl" /></div></div>;
   }
   

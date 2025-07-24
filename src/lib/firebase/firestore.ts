@@ -554,6 +554,17 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
     }
 };
 
+export const deleteUser = async (uid: string): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await deleteDoc(userRef);
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        logError(error, { function: 'deleteUser', uid });
+        throw error;
+    }
+};
+
 export const getUserProfile = async (uid: string): Promise<UserProfile | null> => {
     if (!uid) return null;
     try {
@@ -1103,5 +1114,3 @@ export const getVideoProgress = async (uid: string, videoId: string): Promise<nu
 
 export type { Chat };
 export type { UserProfile };
-
-    
