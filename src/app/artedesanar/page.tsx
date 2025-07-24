@@ -232,11 +232,11 @@ export default function QuestionnairePage() {
         <div className="grid grid-cols-1 gap-6 text-left text-sm max-w-xs">
           <div>
             <EditableTitle tag="h3" id="comfortItemsTitle" initialValue={t('comfortItemsTitle')} className="font-bold mb-2 text-primary text-center" />
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground" dangerouslySetInnerHTML={{ __html: t('comfortItemsList') }}></ul>
+            <EditableTitle tag="p" id="comfortItemsList" initialValue={t('comfortItemsList')} className="list-disc list-inside space-y-1 text-muted-foreground" />
           </div>
           <div>
             <EditableTitle tag="h3" id="essentialsTitle" initialValue={t('essentialsTitle')} className="font-bold mb-2 text-primary text-center" />
-            <ul className="list-disc list-inside space-y-1 text-muted-foreground" dangerouslySetInnerHTML={{ __html: t('essentialsList') }}></ul>
+            <EditableTitle tag="p" id="essentialsList" initialValue={t('essentialsList')} className="list-disc list-inside space-y-1 text-muted-foreground" />
           </div>
         </div>
       )
@@ -266,6 +266,23 @@ export default function QuestionnairePage() {
                         <EditableTitle tag="p" id="prohibitedFoodsList" initialValue={t('prohibitedFoodsList')} className="space-y-1 text-muted-foreground" />
                     </CardContent>
                 </Card>
+            </div>
+        )
+    }
+    if (step.id === 'mentalPrep') {
+        const mentalPrepSteps = [
+            { titleId: "meditationTitle", descriptionId: "meditationDescription" },
+            { titleId: "intentionsTitle", descriptionId: "intentionsDescription" },
+            { titleId: "reflectionTitle", descriptionId: "reflectionDescription" },
+        ];
+        return (
+            <div className="grid md:grid-cols-3 gap-2 max-w-5xl mx-auto">
+                {mentalPrepSteps.map(item => (
+                    <Card key={item.titleId} className="p-2 text-center bg-transparent border-none shadow-none">
+                        <EditableTitle tag="h3" id={item.titleId} initialValue={t(item.titleId)} className="font-bold text-base mb-1" />
+                        <EditableTitle tag="p" id={item.descriptionId} initialValue={t(item.descriptionId)} className="text-muted-foreground text-xs" />
+                    </Card>
+                ))}
             </div>
         )
     }
@@ -301,8 +318,8 @@ export default function QuestionnairePage() {
                         const Icon = step.icon;
                         const isFinalQuestion = step.id === 'mainIntention';
                         const isFinalScreen = step.type === 'final';
-                        const canGoBack = isCompleted ? true : api?.canScrollPrev();
-                        const canGoForward = isCompleted ? true : api?.canScrollNext();
+                        const canGoBack = api?.canScrollPrev();
+                        const canGoForward = api?.canScrollNext();
 
                         return(
                             <CarouselItem key={step.id}>
@@ -361,4 +378,5 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
 
