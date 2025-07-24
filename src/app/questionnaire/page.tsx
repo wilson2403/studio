@@ -25,6 +25,7 @@ import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { Leaf, Minus, Sparkles, Sprout, Wind, HeartHandshake } from 'lucide-react';
+import { ScrollArea } from '../ui/scroll-area';
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -347,7 +348,8 @@ export default function QuestionnairePage() {
                     <CarouselContent className="h-full">
                     {allSteps.map((step, index) => (
                         <CarouselItem key={index} className="h-full">
-                            <div className="h-full overflow-y-auto p-6">
+                           <ScrollArea className="h-full w-full">
+                            <div className="p-6">
                             {step.type === 'question' ? (
                                 getQuestionStepComponent(step.id)
                             ) : step.type === 'info' && step.id === 'process' ? (
@@ -441,12 +443,13 @@ export default function QuestionnairePage() {
                                             {t('viewMyAnswers')}
                                         </Button>
                                         <Button asChild variant="ghost">
-                                            <Link href="/">{t('goHome')}</Link>
+                                             <Link href="/">{t('goHome')}</Link>
                                         </Button>
                                     </div>
                                 </div>
                             ) : null}
                             </div>
+                           </ScrollArea>
                         </CarouselItem>
                     ))}
                     </CarouselContent>
@@ -458,19 +461,17 @@ export default function QuestionnairePage() {
                 <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
               </Button>
               
-              {currentStep === allSteps.length - 1 ? (
-                 <Button asChild>
-                  <Link href="/">{t('finish')}</Link>
-                </Button>
-              ) : allSteps[currentStep]?.id === 'mainIntention' && !isCompleted ? (
-                <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
-                  {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              ) : (
-                <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
-                  {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              )}
+              {currentStep < allSteps.length - 1 ? (
+                allSteps[currentStep]?.id === 'mainIntention' && !isCompleted ? (
+                    <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
+                        {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                ) : (
+                    <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
+                        {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                )
+              ) : null}
             </CardFooter>
           </Card>
         </Form>
