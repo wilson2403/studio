@@ -58,7 +58,7 @@ export default function Header() {
   const userNavLinks = [
      { href: '/ceremonies', label: "Ceremonias", sectionId: 'ceremonies' },
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
-     { href: '/questionnaire', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
+     { href: '/artedesanar', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
 
   const adminNavLinks = [
