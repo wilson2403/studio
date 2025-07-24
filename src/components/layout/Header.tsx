@@ -37,7 +37,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
-const APP_VERSION = '1.32';
+const APP_VERSION = '1.33';
 
 export default function Header() {
   const pathname = usePathname();
