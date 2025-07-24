@@ -333,22 +333,22 @@ export default function QuestionnairePage() {
 
   return (
     <EditableProvider>
-      <div className="container flex items-center justify-center py-4 h-[calc(100vh-8rem)]">
+      <div className="container flex items-center justify-center h-[calc(100vh-8rem)] py-4">
         <Form {...form}>
           <Card className="w-full max-w-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 flex flex-col h-full">
-            <CardHeader>
+            <CardHeader className="p-4">
               <CardTitle className="text-2xl md:text-3xl font-headline text-center">{t('preparationGuideTitle')}</CardTitle>
               <CardDescription className="font-body text-sm md:text-base text-center">{t('preparationGuideSubtitle')}</CardDescription>
               <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mx-auto mt-4" />
             </CardHeader>
 
-            <CardContent className="flex-1 min-h-0">
+            <CardContent className="flex-1 min-h-0 p-0">
                 <Carousel setApi={setApi} className="w-full h-full" opts={{ align: "center", watchDrag: false }}>
                   <CarouselContent className="h-full">
                     {allSteps.map((step, index) => (
                       <CarouselItem key={index} className="h-full">
                         <ScrollArea className="h-full w-full">
-                            <div className="p-1 pr-6 pb-6">
+                            <div className="p-6">
                               {step.type === 'question' ? (
                                 getQuestionStepComponent(step.id)
                               ) : step.type === 'info' && step.id === 'process' ? (
@@ -454,26 +454,24 @@ export default function QuestionnairePage() {
                 </Carousel>
             </CardContent>
             
-            <CardFooter>
-              <div className="flex justify-between items-center w-full">
-                <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
-                  <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
+            <CardFooter className="flex justify-between items-center p-4">
+              <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
+                <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
+              </Button>
+              
+              {allSteps[currentStep]?.type === 'final' ? (
+                 <Button asChild>
+                     <Link href="/">{t('finish')}</Link>
+                 </Button>
+              ) : allSteps[currentStep]?.id === 'mainIntention' && !isCompleted ? (
+                <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
+                  {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-                
-                {allSteps[currentStep]?.type === 'final' ? (
-                   <Button asChild>
-                       <Link href="/">{t('finish')}</Link>
-                   </Button>
-                ) : allSteps[currentStep]?.type === 'question' && allSteps[currentStep].id === 'mainIntention' && !isCompleted ? (
-                  <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
-                    {t('saveAndContinue')} <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
-                    {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                )}
-              </div>
+              ) : (
+                <Button onClick={goToNextStep} disabled={!api?.canScrollNext()}>
+                  {t('continue')} <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </Form>
@@ -488,4 +486,3 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
-
