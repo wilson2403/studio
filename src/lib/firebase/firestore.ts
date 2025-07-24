@@ -772,6 +772,28 @@ export const updatePreparationProgress = async (uid: string, step: number): Prom
     }
 };
 
+export const resetQuestionnaire = async (uid: string): Promise<void> => {
+    const batch = writeBatch(db);
+
+    const questionnaireRef = doc(db, 'questionnaires', uid);
+    batch.delete(questionnaireRef);
+
+    const userRef = doc(db, 'users', uid);
+    batch.update(userRef, {
+        questionnaireCompleted: false,
+        preparationStep: 0,
+    });
+
+    try {
+        await batch.commit();
+    } catch (error) {
+        console.error("Error resetting questionnaire for user:", error);
+        await logError(error, { function: 'resetQuestionnaire', uid });
+        throw error;
+    }
+};
+
+
 
 // --- Error Logs ---
 export const getErrorLogs = async (): Promise<ErrorLog[]> => {

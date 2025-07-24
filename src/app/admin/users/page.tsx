@@ -6,10 +6,10 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics, resetQuestionnaire } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -260,6 +260,17 @@ export default function AdminUsersPage() {
             toast({ title: t('analyticsResetError'), variant: 'destructive' });
         }
     }
+    
+    const handleResetQuestionnaire = async (uid: string) => {
+        try {
+            await resetQuestionnaire(uid);
+            setUsers(users.map(u => u.uid === uid ? { ...u, questionnaireCompleted: false, preparationStep: 0 } : u));
+            toast({ title: t('questionnaireResetSuccess') });
+        } catch (error: any) {
+            console.error('Failed to reset questionnaire:', error);
+            toast({ title: t('questionnaireResetError'), description: (error as Error).message, variant: 'destructive' });
+        }
+    }
 
     const getPreparationPercentage = (user: UserProfile) => {
         if (user.questionnaireCompleted) return 100;
@@ -375,12 +386,29 @@ export default function AdminUsersPage() {
                                                     {t('viewCourses')}
                                                 </Button>
                                                 {u.preparationStep !== undefined && u.preparationStep > 0 || u.questionnaireCompleted ? (
-                                                    <div className='flex flex-col gap-1'>
+                                                    <div className='flex items-center flex-wrap gap-2'>
                                                         <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
                                                             <FileText className="mr-2 h-4 w-4"/>
                                                             {t('viewQuestionnaire')} {u.questionnaireCompleted ? '' : `(${getPreparationPercentage(u)}%)`}
                                                         </Button>
-                                                        {!u.questionnaireCompleted && <Progress value={getPreparationPercentage(u)} className='h-1' />}
+                                                        {!u.questionnaireCompleted && <Progress value={getPreparationPercentage(u)} className='h-1 w-full' />}
+                                                         <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Button variant="destructive" size="sm">
+                                                                    <RotateCcw className="mr-2 h-4 w-4" /> {t('reset')}
+                                                                </Button>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>{t('resetQuestionnaireConfirmTitle')}</AlertDialogTitle>
+                                                                    <AlertDialogDescription>{t('resetQuestionnaireConfirmDescription', { name: u.displayName || u.email })}</AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleResetQuestionnaire(u.uid)}>{t('continue')}</AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
                                                     </div>
                                                 ) : (
                                                     <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
@@ -637,5 +665,3 @@ export default function AdminUsersPage() {
         </div>
     );
 }
-
-    
