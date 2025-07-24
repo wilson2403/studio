@@ -182,17 +182,13 @@ export default function AdminUsersPage() {
 
 
     const handleSendInvite = (template: InvitationMessage) => {
-        if (!invitingUser) return;
+        if (!invitingUser || !invitingUser.phone) return;
         const lang = i18n.language as 'es' | 'en';
         const message = template?.[lang] || template?.es;
         const encodedMessage = encodeURIComponent(message);
-        let url = `https://wa.me/`
-
-        if(invitingUser.phone) {
-            url += `${invitingUser.phone.replace(/\D/g, '')}?text=${encodedMessage}`
-        } else {
-            url += `?text=${encodedMessage}`
-        }
+        
+        const phoneNumber = invitingUser.phone.replace(/\D/g, '');
+        const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
         
         window.open(url, '_blank');
         toast({ title: t('invitationSent') });
@@ -443,10 +439,12 @@ export default function AdminUsersPage() {
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
-                                                        <WhatsappIcon className="mr-2 h-4 w-4"/>
-                                                        {t('invite')}
-                                                    </Button>
+                                                    u.phone && (
+                                                        <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
+                                                            <WhatsappIcon className="mr-2 h-4 w-4"/>
+                                                            {t('invite')}
+                                                        </Button>
+                                                    )
                                                 )}
                                                 {!u.questionnaireCompleted && (!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
                                                     <AlertDialog>
@@ -716,3 +714,4 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
