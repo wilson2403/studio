@@ -336,7 +336,7 @@ export default function QuestionnairePage() {
       <div className="container flex items-center justify-center h-[calc(100vh-8rem)] py-4">
         <Form {...form}>
           <Card className="w-full max-w-2xl shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500 flex flex-col h-full">
-            <CardHeader className="p-4">
+            <CardHeader className="p-4 border-b">
               <CardTitle className="text-2xl md:text-3xl font-headline text-center">{t('preparationGuideTitle')}</CardTitle>
               <CardDescription className="font-body text-sm md:text-base text-center">{t('preparationGuideSubtitle')}</CardDescription>
               <Progress value={(currentStep + 1) / totalSteps * 100} className="w-full mx-auto mt-4" />
@@ -431,17 +431,16 @@ export default function QuestionnairePage() {
                                   <PartyPopper className="h-16 w-16 text-primary" />
                                   <h2 className="text-2xl font-headline text-primary">{t('preparationCompleteTitle')}</h2>
                                   <p className="text-muted-foreground max-w-xl">{t('preparationCompleteDescription')}</p>
-                                  <div className='flex flex-col gap-3 mt-4'>
+                                  <div className='flex flex-col items-stretch gap-3 mt-4 w-full max-w-xs'>
                                     <Button asChild variant="default" size="lg">
                                       <Link href="/courses">
                                         <BookOpen className="mr-2 h-4 w-4" />
                                         {t('viewCoursesRecommendation')}
                                       </Link>
                                     </Button>
-                                    <div className='flex flex-wrap justify-center gap-2'>
-                                      <Button asChild><Link href="/">{t('backToHome')}</Link></Button>
-                                      <Button asChild variant="outline"><Link href="/preparation">{t('viewPreparationGuide')}</Link></Button>
-                                      <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
+                                    <div className='flex flex-col sm:flex-row justify-center gap-2'>
+                                      <Button asChild className='flex-1'><Link href="/">{t('backToHome')}</Link></Button>
+                                      <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)} className='flex-1'>{t('viewMyAnswers')}</Button>
                                     </div>
                                   </div>
                                 </div>
@@ -454,14 +453,14 @@ export default function QuestionnairePage() {
                 </Carousel>
             </CardContent>
             
-            <CardFooter className="flex justify-between items-center p-4">
+            <CardFooter className="flex justify-between items-center p-4 border-t">
               <Button onClick={goToPrevStep} variant="outline" disabled={!api?.canScrollPrev()}>
                 <ArrowLeft className="mr-2 h-4 w-4" /> {t('previous')}
               </Button>
               
               {allSteps[currentStep]?.type === 'final' ? (
-                 <Button asChild>
-                     <Link href="/">{t('finish')}</Link>
+                 <Button onClick={() => router.push('/')}>
+                   {t('finish')}
                  </Button>
               ) : allSteps[currentStep]?.id === 'mainIntention' && !isCompleted ? (
                 <Button onClick={onQuestionnaireSubmit} disabled={form.formState.isSubmitting}>
@@ -486,3 +485,5 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
+    
