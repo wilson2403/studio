@@ -134,7 +134,7 @@ export default function Header() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => setIsProfileDialogOpen(true)}>
                 <UserIcon className="mr-2 h-4 w-4" />
-                <span>{t('editProfile')}</span>
+                <span>Editar Perfil</span>
             </DropdownMenuItem>
              <DropdownMenuItem onMouseDown={() => router.push('/my-ceremonies')}>
                 <Briefcase className="mr-2 h-4 w-4" />
@@ -290,7 +290,7 @@ export default function Header() {
                           <SheetClose asChild>
                               <button onClick={() => setIsProfileDialogOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
                                   <UserIcon className="h-5 w-5" />
-                                  <span>{t('editProfile')}</span>
+                                  <span>Editar Perfil</span>
                               </button>
                           </SheetClose>
                            <SheetClose asChild>
