@@ -54,6 +54,20 @@ const questionnaireSchema = (t: (key: string, options?: any) => string) => z.obj
 
 type FormData = z.infer<ReturnType<typeof questionnaireSchema>>;
 
+const allSteps = [
+    { type: 'question', id: 'hasMedicalConditions', icon: HeartPulse, titleKey: 'questionnaireMedicalConditions', descriptionKey: 'questionnaireMedicalConditionsDesc' },
+    { type: 'question', id: 'isTakingMedication', icon: Pill, titleKey: 'questionnaireMedication', descriptionKey: 'questionnaireMedicationDesc' },
+    { type: 'question', id: 'hasMentalHealthHistory', icon: Brain, titleKey: 'questionnaireMentalHealth', descriptionKey: 'questionnaireMentalHealthDesc' },
+    { type: 'question', id: 'hasPreviousExperience', icon: History, titleKey: 'questionnaireExperience', descriptionKey: 'questionnaireExperienceDesc' },
+    { type: 'question', id: 'mainIntention', icon: Sprout, titleKey: 'questionnaireIntention', descriptionKey: 'questionnaireIntentionDesc' },
+    { type: 'info', id: 'process', icon: Wind, titleKey: 'preparationProcessTitle', descriptionKey: 'preparationGuideFullSubtitle' },
+    { type: 'info', id: 'diet', icon: Leaf, titleKey: 'dietTitle', descriptionKey: 'dietSubtitle' },
+    { type: 'info', id: 'mentalPrep', icon: Sparkles, titleKey: 'mentalPrepTitle', descriptionKey: 'mentalPrepSubtitle' },
+    { type: 'info', id: 'emotionalHealing', icon: HeartHandshake, titleKey: 'emotionalHealingTitle', descriptionKey: 'emotionalHealingSubtitle' },
+    { type: 'info', id: 'whatToBring', icon: CheckCircle, titleKey: 'whatToBringTitle', descriptionKey: 'whatToBringSubtitle' },
+    { type: 'final', id: 'final', icon: PartyPopper, titleKey: 'preparationCompleteTitle', descriptionKey: 'preparationCompleteDescription' }
+];
+
 export default function QuestionnairePage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,20 +84,6 @@ export default function QuestionnairePage() {
     resolver: zodResolver(questionnaireSchema(t)),
     mode: 'onChange',
   });
-  
-  const allSteps = [
-    { type: 'question', id: 'hasMedicalConditions', icon: HeartPulse, title: t('questionnaireMedicalConditions'), description: t('questionnaireMedicalConditionsDesc') },
-    { type: 'question', id: 'isTakingMedication', icon: Pill, title: t('questionnaireMedication'), description: t('questionnaireMedicationDesc') },
-    { type: 'question', id: 'hasMentalHealthHistory', icon: Brain, title: t('questionnaireMentalHealth'), description: t('questionnaireMentalHealthDesc') },
-    { type: 'question', id: 'hasPreviousExperience', icon: History, title: t('questionnaireExperience'), description: t('questionnaireExperienceDesc') },
-    { type: 'question', id: 'mainIntention', icon: Sprout, title: t('questionnaireIntention'), description: t('questionnaireIntentionDesc') },
-    { type: 'info', id: 'process', icon: Wind, title: t('preparationProcessTitle'), description: t('preparationGuideFullSubtitle') },
-    { type: 'info', id: 'diet', icon: Leaf, title: t('dietTitle'), description: t('dietSubtitle') },
-    { type: 'info', id: 'mentalPrep', icon: Sparkles, title: t('mentalPrepTitle'), description: t('mentalPrepSubtitle') },
-    { type: 'info', id: 'emotionalHealing', icon: HeartHandshake, title: t('emotionalHealingTitle'), description: t('emotionalHealingSubtitle') },
-    { type: 'info', id: 'whatToBring', icon: CheckCircle, title: t('whatToBringTitle'), description: t('whatToBringSubtitle') },
-    { type: 'final', id: 'final', icon: PartyPopper, title: t('preparationCompleteTitle'), description: t('preparationCompleteDescription') }
-  ];
 
   const updateUserProgress = useCallback(async (step: number) => {
     if (user && !isCompleted) {
@@ -276,13 +276,13 @@ export default function QuestionnairePage() {
                                                 <div key={i} className={cn("h-1.5 w-1.5 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
                                             ))}
                                         </div>
-                                        <h2 className="text-2xl font-headline font-bold mb-2">{step.title}</h2>
-                                        <p className="text-muted-foreground mb-8">{step.description}</p>
+                                        <h2 className="text-2xl font-headline font-bold mb-2">{t(step.titleKey)}</h2>
+                                        <p className="text-muted-foreground mb-8">{t(step.descriptionKey)}</p>
                                         
                                         <CardContent className="flex-1 w-full flex items-center justify-center p-0 overflow-auto">
                                             <ScrollArea className="h-full w-full">
                                                 <div className="py-4 px-1">
-                                                {step.type === 'question' ? getQuestionStepComponent(step.id, step.title) 
+                                                {step.type === 'question' ? getQuestionStepComponent(step.id, t(step.titleKey)) 
                                                 : step.type === 'info' ? getInfoStepComponent(step.id) 
                                                 : ( // Final Step
                                                     <div className="flex flex-col items-center gap-4">
@@ -325,3 +325,5 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
+    
