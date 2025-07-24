@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
@@ -25,7 +24,7 @@ import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { Leaf, Minus, Sparkles, Sprout, Wind, HeartHandshake } from 'lucide-react';
-import { ScrollArea } from '../ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const questionnaireSchema = (t: (key: string, options?: any) => string) => z.object({
   hasMedicalConditions: z.enum(['yes', 'no'], { required_error: t('errorRequiredSimple') }),
@@ -334,9 +333,9 @@ export default function QuestionnairePage() {
 
   return (
     <EditableProvider>
-      <div className="container flex h-[calc(100vh-8rem)] items-center justify-center py-4">
+      <div className="container py-4 md:py-8 h-[calc(100vh-8rem)]">
         <Form {...form}>
-          <Card className="flex h-full w-full max-w-2xl animate-in fade-in-0 zoom-in-95 duration-500 flex-col shadow-2xl">
+          <Card className="w-full max-w-2xl mx-auto h-full flex flex-col shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
             <CardHeader className="p-4 border-b">
               <CardTitle className="text-2xl md:text-3xl font-headline text-center">{t('preparationGuideTitle')}</CardTitle>
               <CardDescription className="font-body text-sm md:text-base text-center">{t('preparationGuideSubtitle')}</CardDescription>
