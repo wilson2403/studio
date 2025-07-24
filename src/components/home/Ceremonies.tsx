@@ -193,6 +193,7 @@ export default function Ceremonies({
                               title={ceremony.title}
                               isActivated={ceremony.autoplay || activeVideo === ceremony.id}
                               inCarousel={false}
+                              defaultMuted={false}
                            />
                       </div>
                       <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
@@ -440,6 +441,7 @@ interface CeremoniesProps {
     
 
     
+
 
 
 
