@@ -222,7 +222,7 @@ export default function SingleCeremonyPage() {
                                 <Clock className='w-4 h-4'/> {ceremony.horario}
                             </p>
                             )}
-                            {isAssignedToCeremony && ceremony.status === 'active' && ceremony.locationLink && (
+                            {user && ceremony.status === 'active' && isAssignedToCeremony && ceremony.locationLink && (
                                 <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
                                     <MapPin className='w-4 h-4'/> {t('viewLocation')}
                                 </a>
@@ -243,20 +243,20 @@ export default function SingleCeremonyPage() {
                             ))}
                         </ul>
                     </div>
-                    <div className="mt-12 text-center md:text-left">
-                        {isAssignedToCeremony ? (
-                             assignedPlan && (
-                                <div className='space-y-4 mb-4'>
-                                    <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
-                                    <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
-                                        <p className="font-semibold">{assignedPlan.name}</p>
-                                        <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
-                                        <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
-                                    </div>
+                    <div className="mt-12">
+                        {isAssignedToCeremony && assignedPlan && (
+                             <div className='space-y-4 mb-4'>
+                                <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
+                                <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
+                                    <p className="font-semibold">{assignedPlan.name}</p>
+                                    <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
+                                    <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
                                 </div>
-                             )
-                        ) : (
-                            <>
+                            </div>
+                        )}
+                        
+                        {!isAssignedToCeremony && ceremony.status === 'active' && (
+                            <div className='text-center md:text-left'>
                                 {!hasPlans ? (
                                     <div className="mb-4">
                                         <span className="text-5xl font-bold text-foreground">
@@ -290,21 +290,27 @@ export default function SingleCeremonyPage() {
                                         )}
                                     </div>
                                 )}
-                            </>
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                     <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
+                                        <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
+                                            {t('reserveWhatsapp')}
+                                        </a>
+                                    </Button>
+                                    <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
+                                        <Share2 className="mr-2 h-4 w-4" />
+                                        {t('share')}
+                                    </Button>
+                                </div>
+                            </div>
                         )}
-                        <div className="flex flex-col sm:flex-row gap-2">
-                            {ceremony.status === 'active' && !isAssignedToCeremony && (
-                                <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
-                                    <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
-                                        {t('reserveWhatsapp')}
-                                    </a>
+                         {isAssignedToCeremony && ceremony.status === 'active' && (
+                             <div className="flex flex-col sm:flex-row gap-2">
+                                <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
+                                    <Share2 className="mr-2 h-4 w-4" />
+                                    {t('share')}
                                 </Button>
-                            )}
-                            <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
-                                <Share2 className="mr-2 h-4 w-4" />
-                                {t('share')}
-                            </Button>
-                        </div>
+                             </div>
+                         )}
                     </div>
                 </div>
               </ScrollArea>
