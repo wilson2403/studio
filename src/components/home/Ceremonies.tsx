@@ -213,7 +213,7 @@ export default function Ceremonies({
                           <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                             {t('reserveNow')}
                           </Button>
-                          {isAuthorized && ceremony.showAnalytics && (
+                          {isAuthorized && (
                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                 <div className='flex items-center gap-1.5'>
                                     <Eye className="h-4 w-4" />
@@ -285,7 +285,7 @@ export default function Ceremonies({
                             </p>
                            )}
                       </div>
-                       {isAuthorized && ceremony.showAnalytics && (
+                       {isAuthorized && (
                         <div className="absolute bottom-16 right-4 flex-col justify-start gap-4 text-xs text-white/70 mt-3 pt-3">
                             <div className='flex items-center gap-1.5'>
                                 <Eye className="h-4 w-4" />

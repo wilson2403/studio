@@ -264,7 +264,7 @@ export default function AllCeremoniesPage() {
                                         ) : (
                                             ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
                                         )}
-                                        {isAuthorized && ceremony.showAnalytics && (
+                                        {isAuthorized && (
                                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                                 <div className='flex items-center gap-1.5'>
                                                     <Eye className="h-4 w-4" />
