@@ -60,7 +60,7 @@ export default function ViewUserChatsDialog({ user, isOpen, onClose }: ViewUserC
                                         <MessageSquare className="h-5 w-5 text-primary" />
                                         <div className='text-left'>
                                             <p className="font-semibold">
-                                                {t('conversationOn', { date: chat.createdAt ? format(chat.createdAt.toDate(), 'PPP p') : 'No date' })}
+                                                {t('conversationOnDate', { date: chat.createdAt ? format(chat.createdAt.toDate(), 'PPP p') : 'No date' })}
                                             </p>
                                         </div>
                                     </div>

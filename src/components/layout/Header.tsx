@@ -108,7 +108,7 @@ export default function Header() {
 
   useEffect(() => {
     if (pathname !== previousPathname && user) {
-        logUserAction('navigate_to_page');
+        logUserAction('navigate_to_page', { page: pathname });
     }
   }, [pathname, previousPathname, user]);
 
@@ -127,7 +127,7 @@ export default function Header() {
 
   const handleLinkMouseDown = (sectionId: string) => {
     if (userProfile?.role !== 'admin') {
-      logSectionClick(sectionId, user?.uid);
+      logUserAction('click_section', { targetId: sectionId });
     }
   }
 

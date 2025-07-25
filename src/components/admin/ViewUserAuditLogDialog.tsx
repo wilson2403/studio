@@ -11,6 +11,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
+import { Hand } from 'lucide-react';
 
 interface ViewUserAuditLogDialogProps {
   user: UserProfile;
@@ -76,8 +77,10 @@ export default function ViewUserAuditLogDialog({ user, isOpen, onClose }: ViewUs
                                     <div className="space-y-2 pt-2">
                                     {dateLogs.map(log => (
                                         <div key={log.id} className="text-sm p-3 rounded-md bg-background/50 border">
-                                            <p className="font-semibold">
-                                                <span className="text-primary">{format(log.timestamp.toDate(), 'p', { locale })}:</span> {t(`auditAction_${log.action}`, { defaultValue: log.action })}
+                                            <p className="font-semibold flex items-center gap-2">
+                                                <span className="text-primary">{format(log.timestamp.toDate(), 'p', { locale })}:</span> 
+                                                {log.action === 'navigate_to_page' && <Hand className="h-4 w-4 text-muted-foreground" />}
+                                                {t(`auditAction_${log.action}`, { defaultValue: log.action })}
                                             </p>
                                             <div className="text-xs text-muted-foreground mt-1 space-y-1">
                                                 {log.page && <p>{t('onPage')}: <code className="bg-muted px-1 py-0.5 rounded">{log.page}</code></p>}
