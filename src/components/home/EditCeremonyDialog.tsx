@@ -304,9 +304,9 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
             {isEditMode ? t('editCeremonyDescription') : t('addCeremonyDescription')}
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-grow overflow-y-auto -mr-6 pr-6">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
+                <div className="flex-grow overflow-y-auto pr-4 -mr-6 space-y-4">
                     
                     <FormField
                         control={form.control}
@@ -494,103 +494,87 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                         )}
                     />
                     
-                    <div className="flex flex-wrap gap-4 pt-2">
-                        <FormField
-                            control={form.control}
-                            name="featured"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                    <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                            disabled={isUploading}
-                                        />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel>{t('formFeatured')}</FormLabel>
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
-                        
-                        <FormField
-                            control={form.control}
-                            name="registerRequired"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                    <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                            disabled={isUploading}
-                                        />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel>{t('formRegisterRequired')}</FormLabel>
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
+                    <Separator/>
 
-                        <FormField
-                            control={form.control}
-                            name="showParticipantCount"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                    <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                            disabled={isUploading}
-                                        />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel>{t('formShowParticipantCount')}</FormLabel>
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="autoplay"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                    <FormControl>
-                                        <Checkbox
-                                            checked={field.value}
-                                            onCheckedChange={field.onChange}
-                                            disabled={isUploading}
-                                        />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel>{t('formAutoplay')}</FormLabel>
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
-
-                         <FormField
-                            control={form.control}
-                            name="defaultMuted"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                    <FormControl>
-                                        <Checkbox
-                                            checked={!field.value}
-                                            onCheckedChange={(checked) => field.onChange(!checked)}
-                                            disabled={isUploading}
-                                        />
-                                    </FormControl>
-                                    <div className="space-y-1 leading-none">
-                                        <FormLabel>{t('formDefaultAudio')}</FormLabel>
-                                    </div>
-                                </FormItem>
-                            )}
-                        />
+                    <div className="space-y-4">
+                        <Label>Configuración Adicional</Label>
+                        <div className="flex flex-wrap gap-4">
+                            <FormField
+                                control={form.control}
+                                name="featured"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                        <FormControl>
+                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none"><FormLabel>{t('formFeatured')}</FormLabel></div>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="registerRequired"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                        <FormControl>
+                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none"><FormLabel>{t('formRegisterRequired')}</FormLabel></div>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="showParticipantCount"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                        <FormControl>
+                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none"><FormLabel>{t('formShowParticipantCount')}</FormLabel></div>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="autoplay"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                        <FormControl>
+                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading}/>
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none"><FormLabel>{t('formAutoplay')}</FormLabel></div>
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="defaultMuted"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                        <FormControl>
+                                            <Checkbox checked={!field.value} onCheckedChange={(checked) => field.onChange(!checked)} disabled={isUploading}/>
+                                        </FormControl>
+                                        <div className="space-y-1 leading-none"><FormLabel>{t('formDefaultAudio')}</FormLabel></div>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                     </div>
                     
+                    <Separator/>
+
+                    <div className="flex justify-end gap-2 pt-2">
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
+                            {isUploading ? t('saving') : t('saveChanges')}
+                        </Button>
+                    </div>
+
+                    <Separator/>
+
                     <div>
                         <Label>{t('formFeatures')}</Label>
                         <div className="space-y-2 mt-2">
@@ -755,17 +739,9 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             </div>
                         </div>
                     )}
-                    <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end w-full pt-2">
-                        <DialogClose asChild>
-                            <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
-                        </DialogClose>
-                        <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
-                            {isUploading ? t('saving') : t('saveChanges')}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </Form>
-        </div>
+                </div>
+            </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
