@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
@@ -33,6 +33,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Progress } from '@/components/ui/progress';
 import AssignCeremonyDialog from '@/components/admin/AssignCeremonyDialog';
 import ViewUserCoursesDialog from '@/components/admin/ViewUserCoursesDialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -114,7 +116,6 @@ export default function AdminUsersPage() {
             setLoadingMessages(true);
             let templates = await getInvitationMessages();
             if(templates.length === 0) {
-                // Seed with default message if none exist
                 const newId = uuidv4();
                 const defaultTemplate = { id: newId, ...defaultInvitationMessage(t) };
                 await addInvitationMessage(defaultTemplate);
@@ -220,7 +221,6 @@ export default function AdminUsersPage() {
     
     const onMessagesSubmit = async (data: MessagesFormValues) => {
         try {
-            // This will batch update all templates
             for (const template of data.templates) {
                 await updateInvitationMessage(template);
             }
@@ -289,7 +289,6 @@ export default function AdminUsersPage() {
     const getPreparationPercentage = (user: UserProfile) => {
         if (user.questionnaireCompleted) return 100;
         const progress = user.preparationStep || 0;
-        // The +1 is because steps are 0-indexed, but a user on step 0 has completed 1 step.
         return Math.floor(((progress + 1) / TOTAL_PREPARATION_STEPS) * 100);
     }
 
@@ -357,89 +356,92 @@ export default function AdminUsersPage() {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>{t('userName')}</TableHead>
-                                        <TableHead>{t('userEmail')}</TableHead>
-                                        <TableHead>{t('userStatus')}</TableHead>
-                                        <TableHead>{t('userQuestionnaire')}</TableHead>
-                                        <TableHead>{t('userAdmin')}</TableHead>
-                                        <TableHead>{t('actions')}</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredUsers.map((u) => (
-                                        <TableRow key={u.uid}>
-                                            <TableCell>{u.displayName || 'N/A'}</TableCell>
-                                            <TableCell>{u.email}</TableCell>
-                                            <TableCell>
-                                                {(u.isAdmin || u.email === ADMIN_EMAIL) ? (
-                                                    <div className='flex items-center gap-2 font-semibold text-primary'>
-                                                        <ShieldCheck className="h-4 w-4" />
-                                                        {t('admin')}
+                            <Accordion type="single" collapsible className="w-full space-y-4">
+                                {filteredUsers.map((u) => (
+                                    <AccordionItem key={u.uid} value={u.uid} className="border rounded-lg bg-muted/20 px-4">
+                                        <AccordionTrigger className="w-full hover:no-underline">
+                                            <div className="flex items-center gap-4 w-full">
+                                                <Avatar>
+                                                    <AvatarImage src={u.photoURL || undefined} alt={u.displayName} />
+                                                    <AvatarFallback>{u.displayName?.charAt(0) || u.email.charAt(0)}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex-1 text-left">
+                                                    <p className="font-semibold">{u.displayName || t('anonymousUser')}</p>
+                                                    <p className="text-sm text-muted-foreground">{u.email}</p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant={u.questionnaireCompleted ? 'success' : 'secondary'}>
+                                                        {u.questionnaireCompleted ? (
+                                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                                        ) : (
+                                                            <FileText className="mr-2 h-4 w-4" />
+                                                        )}
+                                                        {getPreparationPercentage(u)}%
+                                                    </Badge>
+                                                    {(u.isAdmin || u.email === ADMIN_EMAIL) && <Badge variant="destructive">{t('admin')}</Badge>}
+                                                </div>
+                                            </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                                                <div className="space-y-4">
+                                                    <h4 className="font-semibold">{t('userStatus')}</h4>
+                                                    {(u.isAdmin || u.email === ADMIN_EMAIL) ? (
+                                                        <div className='flex items-center gap-2 font-semibold text-primary'>
+                                                            <ShieldCheck className="h-4 w-4" />
+                                                            {t('admin')}
+                                                        </div>
+                                                    ) : (
+                                                        <Select
+                                                            value={u.status || 'Interesado'}
+                                                            onValueChange={(value) => handleStatusChange(u.uid, value as UserStatus)}
+                                                        >
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder={t('selectStatus')} />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {userStatuses.map(status => (
+                                                                    <SelectItem key={status} value={status}>
+                                                                        {t(`userStatus${status}`)}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <h4 className="font-semibold">{t('userAdmin')}</h4>
+                                                    <div className="flex items-center space-x-2">
+                                                        <Switch
+                                                            id={`admin-switch-${u.uid}`}
+                                                            checked={u.isAdmin || u.email === ADMIN_EMAIL}
+                                                            onCheckedChange={(checked) => handleRoleChange(u.uid, checked)}
+                                                            disabled={u.email === ADMIN_EMAIL}
+                                                        />
+                                                        <label htmlFor={`admin-switch-${u.uid}`}>{t('setAsAdmin')}</label>
                                                     </div>
-                                                ) : (
-                                                    <Select
-                                                        value={u.status || 'Interesado'}
-                                                        onValueChange={(value) => handleStatusChange(u.uid, value as UserStatus)}
-                                                    >
-                                                        <SelectTrigger className="w-36">
-                                                            <SelectValue placeholder={t('selectStatus')} />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {userStatuses.map(status => (
-                                                                <SelectItem key={status} value={status}>
-                                                                    {t(`userStatus${status}`)}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-center">
-                                                {u.questionnaireCompleted ? (
-                                                    <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
-                                                ) : (
-                                                    <div className='flex items-center justify-center gap-2'>
-                                                        <XCircle className="h-5 w-5 text-red-500" />
-                                                        <span>({getPreparationPercentage(u)}%)</span>
-                                                    </div>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Switch
-                                                    checked={u.isAdmin || u.email === ADMIN_EMAIL}
-                                                    onCheckedChange={(checked) => handleRoleChange(u.uid, checked)}
-                                                    disabled={u.email === ADMIN_EMAIL}
-                                                />
-                                            </TableCell>
-                                            <TableCell className='flex gap-2 flex-wrap'>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
                                                 <Button variant="outline" size="sm" onClick={() => setEditingUser(u)}>
-                                                    <Edit className="mr-2 h-4 w-4"/>
-                                                    {t('editUser')}
+                                                    <Edit className="mr-2 h-4 w-4"/>{t('editUser')}
                                                 </Button>
                                                 <Button variant="outline" size="sm" onClick={() => setAssigningUser(u)}>
-                                                    <Star className="mr-2 h-4 w-4"/>
-                                                    {t('assignCeremony')}
+                                                    <Star className="mr-2 h-4 w-4"/>{t('assignCeremony')}
                                                 </Button>
-                                                 <Button variant="outline" size="sm" onClick={() => setViewingUserCourses(u)}>
-                                                    <Video className="mr-2 h-4 w-4" />
-                                                    {t('viewCourses')} ({getCourseProgressPercentage(u)}%)
+                                                <Button variant="outline" size="sm" onClick={() => setViewingUserCourses(u)}>
+                                                    <Video className="mr-2 h-4 w-4" />{t('viewCourses')} ({getCourseProgressPercentage(u)}%)
                                                 </Button>
                                                 {u.phone && (
                                                     <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
-                                                        <WhatsappIcon className="mr-2 h-4 w-4"/>
-                                                        {t('invite')}
+                                                        <WhatsappIcon className="mr-2 h-4 w-4"/>{t('invite')}
                                                     </Button>
                                                 )}
                                                 {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (
                                                     <div className='flex items-center flex-wrap gap-2'>
                                                         <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
-                                                            <FileText className="mr-2 h-4 w-4"/>
-                                                            {t('viewQuestionnaire')} {u.questionnaireCompleted ? '' : `(${getPreparationPercentage(u)}%)`}
+                                                            <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
                                                         </Button>
-                                                        {!u.questionnaireCompleted && <Progress value={getPreparationPercentage(u)} className='h-1 w-full' />}
                                                         {(!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
                                                             <AlertDialog>
                                                                 <AlertDialogTrigger asChild>
@@ -480,11 +482,11 @@ export default function AdminUsersPage() {
                                                         </AlertDialogContent>
                                                     </AlertDialog>
                                                 )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                ))}
+                            </Accordion>
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -623,22 +625,24 @@ export default function AdminUsersPage() {
                                 <Skeleton className="h-64 w-full" />
                             ) : (
                                 <>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>{t('sectionId')}</TableHead>
-                                            <TableHead className='text-right'>{t('clickCount')}</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {analytics.map((analytic) => (
-                                            <TableRow key={analytic.sectionId}>
-                                                <TableCell className="font-medium capitalize">{analytic.sectionId}</TableCell>
-                                                <TableCell className="text-right">{analytic.clickCount}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                <div className='overflow-x-auto'>
+                                    <table className='w-full'>
+                                        <thead>
+                                            <tr className='border-b'>
+                                                <th className='p-2 text-left'>{t('sectionId')}</th>
+                                                <th className='p-2 text-right'>{t('clickCount')}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {analytics.map((analytic) => (
+                                                <tr key={analytic.sectionId} className='border-b'>
+                                                    <td className="p-2 font-medium capitalize">{analytic.sectionId}</td>
+                                                    <td className="p-2 text-right">{analytic.clickCount}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                                 {analytics.length === 0 && (
                                     <p className="text-center text-muted-foreground py-8">{t('noAnalyticsData')}</p>
                                 )}
@@ -729,5 +733,3 @@ export default function AdminUsersPage() {
         </div>
     );
 }
-
-    
