@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -10,12 +11,6 @@ import { ai } from '@/ai/genkit';
 import { getAllUsers, logError } from '@/lib/firebase/firestore';
 import { z } from 'zod';
 import { Resend } from 'resend';
-
-if (!process.env.RESEND_API_KEY) {
-  console.warn(
-    'RESEND_API_KEY environment variable not set. Email functionality will not work.'
-  );
-}
 
 const EmailInputSchema = z.object({
   subject: z.string().describe('The subject of the email.'),
@@ -68,14 +63,16 @@ export const sendEmailToAllUsers = ai.defineFlow(
   },
   async ({ subject, body }) => {
     if (!process.env.RESEND_API_KEY) {
-        throw new Error('Resend API key is not configured.');
+      const errorMessage = 'Resend API key is not configured. Email functionality will not work.';
+      console.warn(errorMessage);
+      return { success: false, message: errorMessage };
     }
     
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     try {
       const users = await getAllUsers();
-      const userEmails = users.map((user) => user.email).filter(Boolean);
+      const userEmails = users.map((user) => user.email).filter(Boolean) as string[];
 
       if (userEmails.length === 0) {
         return { success: false, message: 'No users found to send email to.' };
@@ -94,7 +91,7 @@ export const sendEmailToAllUsers = ai.defineFlow(
       if (error) {
         console.error('Resend API Error:', error);
         await logError(error, { function: 'sendEmailToAllUsers - Resend' });
-        throw new Error(`Failed to send emails: ${error.message}`);
+        return { success: false, message: `Failed to send emails: ${error.message}`};
       }
       
       console.log('Emails sent successfully:', data);
@@ -103,7 +100,7 @@ export const sendEmailToAllUsers = ai.defineFlow(
     } catch (error: any) {
       console.error('Flow Error:', error);
       await logError(error, { function: 'sendEmailToAllUsers - Flow' });
-      throw new Error(`An unexpected error occurred: ${error.message}`);
+      return { success: false, message: `An unexpected error occurred: ${error.message}` };
     }
   }
 );
