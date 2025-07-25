@@ -32,12 +32,12 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { getUserProfile, logSectionClick, UserProfile } from '@/lib/firebase/firestore';
+import { getUserProfile, logUserAction, UserProfile } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
-const APP_VERSION = '1.49';
+const APP_VERSION = '1.50';
 
 export default function Header() {
   const pathname = usePathname();
@@ -47,6 +47,8 @@ export default function Header() {
   const [loading, setLoading] = useState(true);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { t } = useTranslation();
+  const previousPathname = usePrevious(pathname);
+
 
   const navLinks = [
     { href: '/', label: t('navHome'), sectionId: 'home' },
@@ -87,6 +89,20 @@ export default function Header() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (pathname !== previousPathname && user) {
+        logUserAction('navigate_to_page');
+    }
+  }, [pathname, previousPathname, user]);
+
+  function usePrevious<T>(value: T): T | undefined {
+    const ref = React.useRef<T>();
+    React.useEffect(() => {
+        ref.current = value;
+    }, [value]);
+    return ref.current;
+  }
 
   const handleSignOut = async () => {
     await signOut();
