@@ -299,10 +299,10 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
         <DialogContent className="sm:max-w-md bg-card flex flex-col max-h-[90vh]">
             <DialogHeader className="flex-shrink-0">
-            <DialogTitle>{isEditMode ? t('editCeremony') : t('addCeremonyTitle')}</DialogTitle>
-            <DialogDescription>
-                {isEditMode ? t('editCeremonyDescription') : t('addCeremonyDescription')}
-            </DialogDescription>
+                <DialogTitle>{isEditMode ? t('editCeremony') : t('addCeremonyTitle')}</DialogTitle>
+                <DialogDescription>
+                    {isEditMode ? t('editCeremonyDescription') : t('addCeremonyDescription')}
+                </DialogDescription>
             </DialogHeader>
             <div className="flex-grow overflow-y-auto pr-4 -mr-6">
                 <Form {...form}>
@@ -561,17 +561,6 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
                         <Separator />
                         
-                        <div className="flex justify-end gap-2">
-                            <DialogClose asChild>
-                                <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
-                            </DialogClose>
-                            <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
-                                {isUploading ? t('saving') : t('saveChanges')}
-                            </Button>
-                        </div>
-                        
-                        <Separator />
-
                         <div>
                             <Label>{t('formFeatures')}</Label>
                             <div className="space-y-2 mt-2">
@@ -736,6 +725,16 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                                 </div>
                             </div>
                         )}
+                        
+                        <DialogFooter className="flex justify-end gap-2 pt-4">
+                            <DialogClose asChild>
+                                <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
+                            </DialogClose>
+                            <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
+                                {isUploading ? t('saving') : t('saveChanges')}
+                            </Button>
+                        </DialogFooter>
+
                     </form>
                 </Form>
             </div>
