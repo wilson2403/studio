@@ -32,10 +32,11 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { getUserProfile, logUserAction, UserProfile } from '@/lib/firebase/firestore';
+import { getUserProfile, logUserAction, UserProfile, getNewErrorLogsCount } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
+import { Badge } from '../ui/badge';
 
 const APP_VERSION = '1.50';
 
@@ -48,6 +49,7 @@ export default function Header() {
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { t } = useTranslation();
   const previousPathname = usePrevious(pathname);
+  const [newErrorCount, setNewErrorCount] = useState(0);
 
 
   const navLinks = [
@@ -68,7 +70,7 @@ export default function Header() {
       { href: '/admin/theme', label: t('themeTab'), icon: Palette },
       { href: '/admin/backup', label: t('backupTitle'), icon: History },
       { href: '/admin/chats', label: t('chatHistoryTitle'), icon: MessageSquare },
-      { href: '/admin/logs', label: t('errorLogsTitle'), icon: Terminal },
+      { href: '/admin/logs', label: t('errorLogsTitle'), icon: Terminal, id: 'error-logs' },
       { href: '/admin/settings', label: t('systemSettings'), icon: Settings }
   ];
   
@@ -89,6 +91,20 @@ export default function Header() {
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+        if (isAdmin) {
+            const fetchErrorCount = async () => {
+                const count = await getNewErrorLogsCount();
+                setNewErrorCount(count);
+            };
+
+            fetchErrorCount();
+            const interval = setInterval(fetchErrorCount, 30000); // Check every 30 seconds
+
+            return () => clearInterval(interval);
+        }
+    }, [isAdmin]);
 
   useEffect(() => {
     if (pathname !== previousPathname && user) {
@@ -179,9 +195,14 @@ export default function Header() {
                   
                   if (hasAccess) {
                     return (
-                        <DropdownMenuItem key={link.href} onMouseDown={() => router.push(link.href)}>
-                            <link.icon className="mr-2 h-4 w-4" />
-                            <span>{link.label}</span>
+                        <DropdownMenuItem key={link.href} onMouseDown={() => router.push(link.href)} className="flex justify-between items-center">
+                            <div className='flex items-center'>
+                                <link.icon className="mr-2 h-4 w-4" />
+                                <span>{link.label}</span>
+                            </div>
+                            {link.id === 'error-logs' && newErrorCount > 0 && (
+                                <Badge variant="destructive_solid" className="h-5">{newErrorCount}</Badge>
+                            )}
                             {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
                         </DropdownMenuItem>
                     );
@@ -354,9 +375,14 @@ export default function Header() {
                                 if(hasAccess) {
                                     return (
                                         <SheetClose asChild key={link.href}>
-                                            <Link href={link.href} className="transition-colors hover:text-primary flex items-center gap-2 w-full">
+                                            <Link href={link.href} className="transition-colors hover:text-primary flex justify-between items-center gap-2 w-full">
+                                              <div className='flex items-center gap-2'>
                                                 <link.icon className="h-5 w-5" />
                                                 <span>{link.label}</span>
+                                              </div>
+                                                {link.id === 'error-logs' && newErrorCount > 0 && (
+                                                  <Badge variant="destructive_solid">{newErrorCount}</Badge>
+                                                )}
                                                 {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
                                             </Link>
                                         </SheetClose>

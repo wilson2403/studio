@@ -909,6 +909,18 @@ export const getErrorLogs = async (): Promise<ErrorLog[]> => {
     }
 }
 
+export const getNewErrorLogsCount = async (): Promise<number> => {
+    try {
+        const q = query(errorLogsCollection, where('status', '==', 'new'));
+        const snapshot = await getDocs(q);
+        return snapshot.size;
+    } catch (error) {
+        console.error("Error getting new error logs count:", error);
+        // Do not log this error to avoid infinite loops if Firestore is the problem
+        return 0;
+    }
+}
+
 export const updateErrorLogStatus = async (id: string, status: 'new' | 'fixed'): Promise<void> => {
     try {
         const logRef = doc(db, 'error_logs', id);
