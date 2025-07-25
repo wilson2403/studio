@@ -1,4 +1,5 @@
 
+
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog } from '@/types';
@@ -1159,9 +1160,14 @@ export const getVideoProgress = async (uid: string, videoId: string): Promise<nu
 // --- Audit Logs ---
 export const getAuditLogsForUser = async (userId: string): Promise<AuditLog[]> => {
     try {
-        const q = query(auditLogsCollection, where('userId', '==', userId), orderBy('timestamp', 'desc'));
+        const q = query(auditLogsCollection, where('userId', '==', userId));
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AuditLog));
+        const logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AuditLog));
+        
+        // Sort in-memory to avoid composite index
+        logs.sort((a, b) => b.timestamp.toDate().getTime() - a.timestamp.toDate().getTime());
+
+        return logs;
     } catch(e) {
         console.error("Error fetching audit logs:", e);
         logError(e, { function: 'getAuditLogsForUser', userId });
