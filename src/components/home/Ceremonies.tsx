@@ -6,7 +6,7 @@ import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerCl
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters, getUsersForCeremony, UserProfile } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters, getUsersForCeremony, UserProfile, logUserAction } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -134,6 +134,7 @@ export default function Ceremonies({
   const handleViewPlans = (ceremony: Ceremony) => {
     if (!isAuthorized) {
       incrementCeremonyReserveClick(ceremony.id);
+      logUserAction('click_ceremony_details', { targetId: ceremony.id, targetType: 'ceremony' });
     }
 
     if (ceremony.registerRequired && !user) {

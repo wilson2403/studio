@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick, getUsersForCeremony, UserProfile } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick, getUsersForCeremony, UserProfile, logUserAction } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,6 +106,7 @@ export default function AllCeremoniesPage() {
     const handleViewPlans = (ceremony: Ceremony) => {
         if (!isAuthorized) {
             incrementCeremonyReserveClick(ceremony.id);
+            logUserAction('click_ceremony_details', { targetId: ceremony.id, targetType: 'ceremony' });
         }
 
         if (ceremony.registerRequired && !user) {

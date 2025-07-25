@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Pause, Play, Volume2, VolumeX, Loader } from 'lucide-react';
-import { getUserProfile, incrementCeremonyViewCount, updateVideoProgress, getVideoProgress } from '@/lib/firebase/firestore';
+import { getUserProfile, incrementCeremonyViewCount, updateVideoProgress, getVideoProgress, logUserAction } from '@/lib/firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
@@ -295,8 +295,13 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
   }, []);
 
   const handlePlay = useCallback(() => {
-    if (!isAdmin && !trackProgress) {
-      incrementCeremonyViewCount(ceremonyId);
+    if (!isAdmin) {
+      if (!trackProgress) {
+        incrementCeremonyViewCount(ceremonyId);
+        logUserAction('play_video', { targetId: ceremonyId, targetType: 'ceremony_video' });
+      } else {
+        logUserAction('play_video', { targetId: ceremonyId, targetType: 'course_video' });
+      }
     }
   }, [isAdmin, trackProgress, ceremonyId]);
 
