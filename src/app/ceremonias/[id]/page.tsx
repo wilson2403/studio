@@ -64,8 +64,11 @@ export default function SingleCeremonyPage() {
 
     }, [id]);
     
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.includes(id) || false;
-    const assignedPlan = ceremony?.plans?.find(p => userProfile?.assignedCeremonies?.some(c => c.ceremonyId === ceremony.id && c.planId === p.id));
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(c => typeof c === 'string' ? c === id : c.ceremonyId === id) || false;
+    const assignedPlanData = Array.isArray(userProfile?.assignedCeremonies) 
+        ? userProfile?.assignedCeremonies.find(c => typeof c !== 'string' && c.ceremonyId === id) 
+        : undefined;
+    const assignedPlan = ceremony?.plans?.find(p => p.id === assignedPlanData?.planId);
 
 
     const handleShare = async () => {
