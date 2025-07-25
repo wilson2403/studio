@@ -575,11 +575,9 @@ export default function AdminUsersPage() {
                                                     </>
                                                 )}
                                                 {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (
-                                                    <>
-                                                        <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
-                                                            <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
-                                                        </Button>
-                                                    </>
+                                                    <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
+                                                        <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
+                                                    </Button>
                                                 )}
                                                 {u.hasChats && (
                                                     <Button variant="outline" size="sm" onClick={() => setViewingUserChats(u)}>
@@ -978,3 +976,6 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
+
+    
