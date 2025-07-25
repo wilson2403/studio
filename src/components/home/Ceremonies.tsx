@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw, Users, Calendar, Clock } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw, Users, Calendar, Clock, Share2 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -153,6 +153,33 @@ export default function Ceremonies({
     e.stopPropagation();
     setExpandedVideo(ceremony);
   };
+
+  const handleShare = async (ceremony: Ceremony) => {
+      const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
+      const shareTitle = ceremony.title;
+      const shareText = t('shareCeremonyText', { title: ceremony.title });
+
+      if (navigator.share) {
+          try {
+              await navigator.share({
+                  title: shareTitle,
+                  text: shareText,
+                  url: shareUrl,
+              });
+              toast({ title: t('sharedSuccessfully') });
+          } catch (error) {
+              console.error('Error sharing:', error);
+              toast({ title: t('errorSharing'), variant: 'destructive' });
+          }
+      } else {
+          try {
+              await navigator.clipboard.writeText(shareUrl);
+              toast({ title: t('linkCopied') });
+          } catch (error) {
+              toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+          }
+      }
+  };
   
   const renderActiveCeremonies = () => (
     <div className="w-full justify-center">
@@ -164,13 +191,14 @@ export default function Ceremonies({
                   <Card 
                       className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50"
                   >
-                      {isAuthorized && (
-                        <div className="absolute top-2 right-2 z-20 flex gap-2">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
+                      <div className="absolute top-2 right-2 z-20 flex gap-2">
+                        {isAuthorized && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                          <Edit className="h-4 w-4" />
+                        </Button>}
+                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => handleShare(ceremony)}>
+                          <Share2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                       <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
                           <div className="flex gap-2">
                             {ceremony.mediaUrl && (
@@ -433,3 +461,5 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+
+    

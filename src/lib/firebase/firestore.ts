@@ -271,6 +271,21 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
   }
 };
 
+export const getCeremonyById = async (id: string): Promise<Ceremony | null> => {
+    try {
+        const docRef = doc(db, 'ceremonies', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() } as Ceremony;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error getting ceremony by ID: ", error);
+        logError(error, { function: 'getCeremonyById', id });
+        return null;
+    }
+}
+
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
@@ -1177,3 +1192,5 @@ export const getAuditLogsForUser = async (userId: string): Promise<AuditLog[]> =
 
 export type { Chat };
 export type { UserProfile };
+
+    

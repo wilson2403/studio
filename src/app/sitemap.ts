@@ -24,14 +24,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic routes for ceremonies
   const ceremonies = await getCeremonies('active'); 
   const ceremonyRoutes = ceremonies.map(ceremony => ({
-    url: `${BASE_URL}/ceremonies/${ceremony.id}`, // Assuming you might have detail pages in the future
+    url: `${BASE_URL}/ceremonias/${ceremony.id}`,
     lastModified: new Date().toISOString(),
     changeFrequency: 'daily' as 'daily',
     priority: 0.9,
   }));
-  
-  // Note: For a real implementation, you would make `/ceremonies/[id]` a real page.
-  // For now, this just helps Google understand these are important items.
 
   return [...staticRoutes, ...ceremonyRoutes];
 }
+
+    

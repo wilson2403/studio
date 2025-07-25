@@ -6,7 +6,7 @@ import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick,
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, CheckCircle, Eye, MousePointerClick, Users } from 'lucide-react';
+import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, CheckCircle, Eye, MousePointerClick, Users, Share2 } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -126,6 +126,33 @@ export default function AllCeremoniesPage() {
         setActiveVideo(null); // Stop the background video
         setExpandedVideo(ceremony);
     };
+
+     const handleShare = async (ceremony: Ceremony) => {
+        const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
+        const shareTitle = ceremony.title;
+        const shareText = t('shareCeremonyText', { title: ceremony.title });
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: shareTitle,
+                    text: shareText,
+                    url: shareUrl,
+                });
+                toast({ title: t('sharedSuccessfully') });
+            } catch (error) {
+                console.error('Error sharing:', error);
+                toast({ title: t('errorSharing'), variant: 'destructive' });
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                toast({ title: t('linkCopied') });
+            } catch (error) {
+                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+            }
+        }
+    };
     
     if (pageLoading) {
         return (
@@ -209,13 +236,14 @@ export default function AllCeremoniesPage() {
                                     onMouseLeave={() => setActiveVideo(null)}
                                     className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50 h-full"
                                 >
-                                    {isAuthorized && (
                                     <div className="absolute top-2 right-2 z-20 flex gap-2">
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
-                                        <Edit className="h-4 w-4" />
-                                        </Button>
+                                        {isAuthorized && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                                            <Edit className="h-4 w-4" />
+                                        </Button>}
+                                        {ceremony.status === 'active' && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => handleShare(ceremony)}>
+                                            <Share2 className="h-4 w-4" />
+                                        </Button>}
                                     </div>
-                                    )}
                                     <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
                                         {isAuthorized && <Badge variant={statusVariant} className="capitalize">{t(ceremony.status)}</Badge>}
                                         {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
@@ -317,3 +345,5 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
+    
