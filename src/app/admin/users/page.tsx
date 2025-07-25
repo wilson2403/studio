@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizonal } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizonal, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions } from '@/lib/firebase/firestore';
@@ -307,6 +307,17 @@ export default function AdminUsersPage() {
             toast({ title: t('userDeletedError'), description: (error as Error).message, variant: 'destructive' });
         }
     }
+    
+    const handleShareQuestionnaire = (uid: string) => {
+        if (!uid) return;
+        const shareUrl = `${window.location.origin}/questionnaire/${uid}`;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            toast({ title: t('linkCopied'), description: t('questionnaireShareDescription') });
+        }).catch(err => {
+            console.error('Failed to copy link:', err);
+            toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+        });
+    };
 
     const getPreparationPercentage = (user: UserProfile) => {
         if (user.questionnaireCompleted) return 100;
@@ -500,9 +511,14 @@ export default function AdminUsersPage() {
                                                     </>
                                                 )}
                                                 {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (
-                                                    <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
-                                                        <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
-                                                    </Button>
+                                                    <>
+                                                        <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
+                                                            <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
+                                                        </Button>
+                                                        <Button variant="outline" size="sm" onClick={() => handleShareQuestionnaire(u.uid)}>
+                                                            <Share2 className="mr-2 h-4 w-4"/>{t('shareAnswers')}
+                                                        </Button>
+                                                    </>
                                                 )}
                                                 {u.hasChats && (
                                                     <Button variant="outline" size="sm" onClick={() => setViewingUserChats(u)}>

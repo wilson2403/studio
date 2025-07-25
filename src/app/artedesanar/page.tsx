@@ -181,17 +181,6 @@ export default function QuestionnairePage() {
     }
   };
 
-  const handleShareQuestionnaire = () => {
-      if (!user) return;
-      const shareUrl = `${window.location.origin}/questionnaire/${user.uid}`;
-      navigator.clipboard.writeText(shareUrl).then(() => {
-          toast({ title: t('linkCopied'), description: t('questionnaireShareDescription') });
-      }).catch(err => {
-          console.error('Failed to copy link:', err);
-          toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-      });
-  };
-
   const getQuestionStepComponent = (stepInfo: (typeof allSteps)[number]) => {
     switch(stepInfo.id) {
         case 'hasMedicalConditions':
@@ -393,10 +382,6 @@ export default function QuestionnairePage() {
                                                 <div className="flex flex-col items-center gap-4">
                                                     <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
                                                     <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
-                                                    <Button variant="outline" onClick={handleShareQuestionnaire}>
-                                                        <Share2 className="mr-2 h-4 w-4" />
-                                                        {t('shareAnswers')}
-                                                    </Button>
                                                     <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
                                                 </div>
                                             )}
