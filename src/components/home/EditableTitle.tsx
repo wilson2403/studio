@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Label } from '../ui/label';
 
 interface EditableTitleProps {
-  tag: 'h1' | 'h2' | 'p' | 'h3';
+  tag: 'h1' | 'h2' | 'p' | 'h3' | 'span';
   id: string;
   initialValue: string;
   className?: string;
@@ -27,23 +27,26 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const lang = i18n.language as 'es' | 'en';
 
   const [editValue, setEditValue] = useState('');
+  const [currentDisplayValue, setCurrentDisplayValue] = useState(t(initialValue));
   
   const { toast } = useToast();
 
-  const displayValue = useMemo(() => {
-    if (!ready) return ''; // Don't render until translations are ready
+  useEffect(() => {
+    if (!ready) return;
 
     const contentValue = content[id];
-    
-    if (typeof contentValue === 'object' && contentValue !== null) {
-      return (contentValue as any)[lang] || (contentValue as any).es || t(initialValue);
-    }
-    if (typeof contentValue === 'string') {
-      return contentValue;
-    }
-    return t(initialValue);
-  }, [content, id, lang, initialValue, t, ready]);
+    let newDisplayValue;
 
+    if (typeof contentValue === 'object' && contentValue !== null) {
+      newDisplayValue = (contentValue as any)[lang] || (contentValue as any).es || t(initialValue);
+    } else if (typeof contentValue === 'string' && contentValue) {
+      newDisplayValue = contentValue;
+    } else {
+      newDisplayValue = t(initialValue);
+    }
+    setCurrentDisplayValue(newDisplayValue);
+
+  }, [content, id, lang, initialValue, t, ready]);
   
   const handleSave = async () => {
     if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
@@ -71,7 +74,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   };
   
   const handleEditClick = () => {
-    setEditValue(displayValue);
+    setEditValue(currentDisplayValue);
     setIsEditing(true);
   }
 
@@ -79,7 +82,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     return <Tag className={cn(className, "animate-pulse bg-muted/50 text-transparent rounded-md")}>&nbsp;</Tag>
   }
 
-  if (isEditing) {
+  if (isEditing && isAdmin) {
     const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number')) ? Textarea : Input;
     const currentLanguageName = lang === 'es' ? 'Español' : 'English';
     const label = id.includes('Url') || id.includes('Link') || id.includes('Number') ? t(id) : currentLanguageName;
@@ -106,7 +109,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   return (
     <div className={cn("relative group flex items-center justify-center gap-2 w-full")}>
-      <Tag className={className}>{displayValue}</Tag>
+      <Tag className={className}>{currentDisplayValue}</Tag>
       {isAdmin && (
         <Button
           variant="ghost"
