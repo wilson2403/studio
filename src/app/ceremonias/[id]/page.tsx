@@ -3,19 +3,25 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarIcon, Check, Clock, Home } from 'lucide-react';
-import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
+import { ArrowLeft, CalendarIcon, Check, Clock, Home, X } from 'lucide-react';
 import Link from 'next/link';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase/config';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function SingleCeremonyPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
     const params = useParams();
     const router = useRouter();
     const { t, i18n } = useTranslation();
@@ -27,17 +33,26 @@ export default function SingleCeremonyPage() {
                 setLoading(true);
                 const data = await getCeremonyById(id);
                 setCeremony(data);
+                if (data && data.priceType === 'exact') {
+                  setSelectedPlan({ name: 'Plan único', price: data.price, description: ''});
+                }
                 setLoading(false);
             };
             fetchCeremony();
         }
+        
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            setIsAdmin(currentUser?.email === 'wilson2403@gmail.com');
+        });
+        return () => unsubscribe();
+
     }, [id]);
 
     if (loading) {
         return (
             <div className="flex flex-col md:flex-row min-h-screen bg-background">
                 <Skeleton className="w-full md:w-1/2 h-64 md:h-auto" />
-                <div className="w-full md:w-1/2 p-8 space-y-6">
+                <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 space-y-6">
                     <Skeleton className="h-10 w-3/4" />
                     <Skeleton className="h-6 w-1/2" />
                     <Skeleton className="h-20 w-full" />
@@ -63,6 +78,7 @@ export default function SingleCeremonyPage() {
 
     const USD_EXCHANGE_RATE = 500;
     const isEnglish = i18n.language === 'en';
+    const hasPlans = ceremony.priceType === 'from' && ceremony.plans && ceremony.plans.length > 0;
 
     const formatPrice = (price: number, priceUntil?: number) => {
         if (isEnglish) {
@@ -84,6 +100,40 @@ export default function SingleCeremonyPage() {
         return `${prefix}${formatPrice(ceremony.price)}`;
     };
 
+    const getWhatsappLink = () => {
+        const originalLink = ceremony.link;
+
+        if (!selectedPlan) {
+            return originalLink;
+        }
+
+        let phone = '';
+        const phoneRegex = /(?:wa\.me\/|phone=)(\d+)/;
+        const match = originalLink.match(phoneRegex);
+
+        if (match && match[1]) {
+            phone = match[1];
+        }
+
+        if (!phone) {
+            console.warn("Could not extract phone number from WhatsApp link:", originalLink);
+            return originalLink; 
+        }
+        
+        const textParam = new URLSearchParams(originalLink.split('?')[1]).get('text');
+        const baseText = textParam ? `${textParam} - Plan: ${selectedPlan.name}` : `Hola, me interesa la ceremonia ${ceremony.title} con el plan: ${selectedPlan.name}`;
+        
+        return `https://wa.me/${phone}?text=${encodeURIComponent(baseText)}`;
+    }
+
+    const handleWhatsappClick = () => {
+        if (ceremony && !isAdmin) {
+            incrementCeremonyWhatsappClick(ceremony.id);
+        }
+    }
+
+    const isDisabled = hasPlans && !selectedPlan;
+
     return (
         <div className="flex flex-col md:flex-row min-h-screen bg-background">
             <div className="w-full md:w-1/2 md:h-screen sticky top-0">
@@ -97,68 +147,86 @@ export default function SingleCeremonyPage() {
                     defaultMuted={false}
                 />
             </div>
-            <main className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-between">
-                <div>
-                     <Button variant="ghost" onClick={() => router.push('/')} className="mb-8">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        {t('backToHome')}
-                    </Button>
-                    <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
-                    <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
-                        {ceremony.date && (
-                        <p className="flex items-center gap-2">
-                            <CalendarIcon className='w-4 h-4'/> {ceremony.date}
-                        </p>
-                        )}
-                        {ceremony.horario && (
-                        <p className="flex items-center gap-2">
-                            <Clock className='w-4 h-4'/> {ceremony.horario}
-                        </p>
-                        )}
-                    </div>
-                    <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
-                    
-                    <ul className="space-y-3 pt-4">
-                        <li className="flex items-center gap-3 font-bold text-xl">
-                            <span>{t('includes')}</span>
-                        </li>
-                        {ceremony.features?.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-3 ml-4">
-                            <Check className="h-5 w-5 text-primary/70" />
-                            <span className="text-muted-foreground text-base">{feature}</span>
-                        </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="mt-12 text-center md:text-left">
-                     <div className="mb-4">
-                        <span className="text-5xl font-bold text-foreground">
-                            {getBasePriceText()}
-                        </span>
-                        {ceremony.priceType === 'from' && (
-                             <p className="text-sm text-muted-foreground mt-1">
-                                {t('plansFrom')}
+            <main className="w-full md:w-1/2">
+              <ScrollArea className="h-full">
+                <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
+                    <div>
+                        <Button variant="ghost" onClick={() => router.push('/')} className="mb-8">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            {t('backToHome')}
+                        </Button>
+                        <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
+                        <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
+                            {ceremony.date && (
+                            <p className="flex items-center gap-2">
+                                <CalendarIcon className='w-4 h-4'/> {ceremony.date}
                             </p>
+                            )}
+                            {ceremony.horario && (
+                            <p className="flex items-center gap-2">
+                                <Clock className='w-4 h-4'/> {ceremony.horario}
+                            </p>
+                            )}
+                        </div>
+                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
+                        
+                        <ul className="space-y-3 pt-4">
+                            <li className="flex items-center gap-3 font-bold text-xl">
+                                <span>{t('includes')}</span>
+                            </li>
+                            {ceremony.features?.map((feature, i) => (
+                            <li key={i} className="flex items-center gap-3 ml-4">
+                                <Check className="h-5 w-5 text-primary/70" />
+                                <span className="text-muted-foreground text-base">{feature}</span>
+                            </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="mt-12 text-center md:text-left">
+                        {!hasPlans ? (
+                             <div className="mb-4">
+                                <span className="text-5xl font-bold text-foreground">
+                                    {getBasePriceText()}
+                                </span>
+                                <p className="text-sm text-muted-foreground">
+                                    {ceremony.contributionText || t('fullPlanUpTo')}
+                                </p>
+                            </div>
+                        ) : (
+                             <div className='space-y-4 mb-4'>
+                                <h4 className='font-bold text-center'>{t('selectAPlan')}</h4>
+                                <RadioGroup onValueChange={(value) => setSelectedPlan(JSON.parse(value))} className='space-y-2'>
+                                    {ceremony.plans?.map((plan, i) => (
+                                        <Label key={i} htmlFor={`plan-${i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
+                                            <div>
+                                                <p className="font-semibold">{plan.name}</p>
+                                                <p className="text-sm text-muted-foreground">{plan.description}</p>
+                                            </div>
+                                            <div className='flex items-center gap-4'>
+                                                <span className="font-bold text-lg">{formatPrice(plan.price, plan.priceUntil)}</span>
+                                                <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${i}`} />
+                                            </div>
+                                        </Label>
+                                    ))}
+                                </RadioGroup>
+                                {ceremony.contributionText && (
+                                    <p className="text-sm text-center text-muted-foreground">
+                                        {ceremony.contributionText}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                        {ceremony.status === 'active' && (
+                           <Button asChild size="lg" className={cn("w-full md:w-auto", isDisabled && 'opacity-50 pointer-events-none')}>
+                                <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
+                                    {t('reserveWhatsapp')}
+                                </a>
+                            </Button>
                         )}
                     </div>
-                    <Button size="lg" className="w-full md:w-auto" onClick={() => setIsDetailsOpen(true)}>
-                        {t('reserveNow')}
-                    </Button>
                 </div>
+              </ScrollArea>
             </main>
-
-            {isDetailsOpen && (
-                <CeremonyDetailsDialog
-                    ceremony={ceremony}
-                    isOpen={isDetailsOpen}
-                    onClose={() => setIsDetailsOpen(false)}
-                />
-            )}
         </div>
     );
 }
-
-// Make sure to set metadata for this page if it's server-rendered in the future.
-// export async function generateMetadata({ params }: { params: { id: string } }) { ... }
-
-    
