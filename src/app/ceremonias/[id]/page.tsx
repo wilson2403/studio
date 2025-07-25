@@ -43,8 +43,8 @@ export default function SingleCeremonyPage() {
                 setLoading(true);
                 const data = await getCeremonyById(id);
                 setCeremony(data);
-                if (data && data.priceType === 'exact') {
-                  setSelectedPlan({ id: 'default', name: 'Plan único', price: data.price, description: ''});
+                if (data && data.priceType === 'exact' && data.plans && data.plans.length > 0) {
+                  setSelectedPlan(data.plans[0]);
                 }
                 setLoading(false);
             };
@@ -271,14 +271,14 @@ export default function SingleCeremonyPage() {
                                         <h4 className='font-bold text-center'>{t('selectAPlan')}</h4>
                                         <RadioGroup onValueChange={(value) => setSelectedPlan(JSON.parse(value))} className='space-y-2'>
                                             {ceremony.plans?.map((plan, i) => (
-                                                <Label key={i} htmlFor={`plan-${i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
+                                                <Label key={plan.id || i} htmlFor={`plan-${plan.id || i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
                                                     <div>
                                                         <p className="font-semibold">{plan.name}</p>
                                                         <p className="text-sm text-muted-foreground">{plan.description}</p>
                                                     </div>
                                                     <div className='flex items-center gap-4'>
                                                         <span className="font-bold text-lg">{formatPrice(plan.price, plan.priceUntil)}</span>
-                                                        <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${i}`} />
+                                                        <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${plan.id || i}`} />
                                                     </div>
                                                 </Label>
                                             ))}
@@ -318,4 +318,3 @@ export default function SingleCeremonyPage() {
         </div>
     );
 }
-
