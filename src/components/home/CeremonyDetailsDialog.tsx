@@ -117,8 +117,12 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         onClose();
     }}>
       <DialogContent className="sm:max-w-md h-[90vh] sm:h-auto flex flex-col p-0">
-        <DialogHeader className="p-6 pb-2">
-            <DialogTitle className="text-2xl font-headline pr-8">{ceremony.title}</DialogTitle>
+        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogClose>
+        <DialogHeader className="p-6 pb-2 pr-12 flex-shrink-0">
+            <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
             <div className="font-mono text-xs text-muted-foreground pt-1 space-y-1">
                 {ceremony.date && (
                 <p className="flex items-center gap-1.5">
@@ -135,8 +139,8 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                 {ceremony.description}
             </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-hidden flex flex-col">
-            <ScrollArea className="flex-1 px-6">
+        <div className="flex-grow overflow-hidden flex flex-col">
+            <ScrollArea className="flex-grow px-6">
                 <div className="space-y-4 py-4">
                     {!hasPlans ? (
                         <div className="text-center">
@@ -187,7 +191,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
             </ScrollArea>
         </div>
          {ceremony.status === 'active' && (
-          <DialogFooter className="mt-auto p-6 pt-2">
+          <DialogFooter className="p-6 pt-2 flex-shrink-0">
             <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
               <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
                 {t('reserveWhatsapp')}
@@ -199,3 +203,4 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
     </Dialog>
   );
 }
+
