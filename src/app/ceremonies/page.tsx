@@ -151,9 +151,10 @@ export default function AllCeremoniesPage() {
                 });
                 toast({ title: t('sharedSuccessfully') });
             } catch (error) {
-                console.log('Share failed, falling back to clipboard:', error);
-                // Fallback to clipboard if share fails for any reason
-                copyToClipboard();
+                 if ((error as DOMException)?.name !== 'AbortError') {
+                  console.error('Share failed, falling back to clipboard:', error);
+                  copyToClipboard();
+                }
             }
         } else {
             copyToClipboard();
@@ -351,3 +352,5 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
+    

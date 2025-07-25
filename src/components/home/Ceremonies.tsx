@@ -155,37 +155,38 @@ export default function Ceremonies({
     setExpandedVideo(ceremony);
   };
 
-  const handleShare = async (ceremony: Ceremony) => {
-      const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
-      const shareTitle = ceremony.title;
-      const shareText = t('shareCeremonyText', { title: ceremony.title });
-      
-      const copyToClipboard = async () => {
-          try {
-              await navigator.clipboard.writeText(shareUrl);
-              toast({ title: t('linkCopied') });
-          } catch (error) {
-              toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-          }
-      };
+    const handleShare = async (ceremony: Ceremony) => {
+        const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
+        const shareTitle = ceremony.title;
+        const shareText = t('shareCeremonyText', { title: ceremony.title });
+        
+        const copyToClipboard = async () => {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                toast({ title: t('linkCopied') });
+            } catch (error) {
+                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+            }
+        };
 
-      if (navigator.share) {
-          try {
-              await navigator.share({
-                  title: shareTitle,
-                  text: shareText,
-                  url: shareUrl,
-              });
-              toast({ title: t('sharedSuccessfully') });
-          } catch (error) {
-              console.log('Share failed, falling back to clipboard:', error);
-              // Fallback to clipboard if share fails for any reason
-              copyToClipboard();
-          }
-      } else {
-          copyToClipboard();
-      }
-  };
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: shareTitle,
+                    text: shareText,
+                    url: shareUrl,
+                });
+                toast({ title: t('sharedSuccessfully') });
+            } catch (error) {
+                if ((error as DOMException)?.name !== 'AbortError') {
+                  console.error('Share failed, falling back to clipboard:', error);
+                  copyToClipboard();
+                }
+            }
+        } else {
+            copyToClipboard();
+        }
+    };
   
   const renderActiveCeremonies = () => (
     <div className="w-full justify-center">
@@ -467,3 +468,5 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+
+    
