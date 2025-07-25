@@ -16,10 +16,10 @@ import { VideoPlayer } from '@/components/home/VideoPlayer';
 import VideoPopupDialog from '@/components/home/VideoPopupDialog';
 import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
 import { Badge } from '@/components/ui/badge';
-import { EditableTitle } from '@/components/home/EditableTitle';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { EditableProvider } from '@/components/home/EditableProvider';
+import { EditableTitle } from '@/components/home/EditableTitle';
 
 export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
@@ -42,7 +42,7 @@ export default function AllCeremoniesPage() {
              if (currentUser) {
                 const profile = await getUserProfile(currentUser.uid);
                 setUserProfile(profile);
-                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canEditCeremonies);
+                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && !!profile?.permissions?.canEditCeremonies);
                 setIsAuthorized(!!hasPermission);
                 fetchCeremonies(!!hasPermission);
             } else {
@@ -164,20 +164,28 @@ export default function AllCeremoniesPage() {
     }
 
     const sortedCeremonies = [...ceremonies].sort((a, b) => {
-        const aIsAssigned = userProfile?.assignedCeremonies?.some(assigned => assigned.ceremonyId === a.id);
-        const bIsAssigned = userProfile?.assignedCeremonies?.some(assigned => assigned.ceremonyId === b.id);
+        const aIsAssigned = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === a.id);
+        const bIsAssigned = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === b.id);
+
         if (aIsAssigned && !bIsAssigned) return -1;
         if (!aIsAssigned && bIsAssigned) return 1;
+
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
-        return 0;
+
+        const statusOrder = { 'active': 1, 'inactive': 2, 'finished': 3 };
+        if (statusOrder[a.status] !== statusOrder[b.status]) {
+            return statusOrder[a.status] - statusOrder[b.status];
+        }
+
+        return 0; // maintain original order if all else is equal
     });
 
     return (
         <EditableProvider>
             <div className="container py-12 md:py-16 space-y-12">
                 <div className="text-center">
-                    <EditableTitle
+                     <EditableTitle
                         tag="h1"
                         id="ceremoniesPageTitle"
                         initialValue={t('allCeremoniesPageTitle')}
@@ -201,7 +209,7 @@ export default function AllCeremoniesPage() {
                     {sortedCeremonies.map((ceremony) => {
                         const registeredCount = ceremony.assignedUsers?.length || 0;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
-                        const isAssigned = userProfile?.assignedCeremonies?.some(assigned => assigned.ceremonyId === ceremony.id);
+                        const isAssigned = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === ceremony.id);
 
                         return (
                             <div key={ceremony.id} className="px-5">
