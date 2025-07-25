@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import VideoPopupDialog from '@/components/home/VideoPopupDialog';
 import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
-import { EditableProvider } from '@/components/home/EditableProvider';
 import { Badge } from '@/components/ui/badge';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { useToast } from '@/hooks/use-toast';
@@ -174,146 +173,142 @@ export default function AllCeremoniesPage() {
     });
 
     return (
-        <EditableProvider>
-            <div className="container py-12 md:py-16 space-y-12">
-                <div className="text-center">
-                    <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
-                      {t('allCeremoniesPageTitle')}
-                    </h1>
-                     <p className="mt-2 text-lg text-foreground/80 font-body">
-                      {t('allCeremoniesPageSubtitle')}
-                    </p>
-                    {isAuthorized && (
-                    <Button onClick={() => setIsAdding(true)} className="mt-4">
-                        <PlusCircle className="mr-2" />
-                        {t('addCeremony')}
-                    </Button>
-                    )}
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
-                    {sortedCeremonies.map((ceremony) => {
-                        const registeredCount = ceremony.assignedUsers?.length || 0;
-                        const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
-                        const isAssigned = userProfile?.assignedCeremonies?.some(assigned => assigned.ceremonyId === ceremony.id);
-
-                        return (
-                            <div key={ceremony.id} className="px-5">
-                                <Card 
-                                    onMouseEnter={() => setActiveVideo(ceremony.id)}
-                                    onMouseLeave={() => setActiveVideo(null)}
-                                    className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50 h-full"
-                                >
-                                    <div className="absolute top-2 right-2 z-20 flex gap-2">
-                                        {isAuthorized && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
-                                            <Edit className="h-4 w-4" />
-                                        </Button>}
-                                        {ceremony.status === 'active' && 
-                                            <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                                <Link href={`/ceremonias/${ceremony.id}`}><Share2 className="h-4 w-4" /></Link>
-                                            </Button>
-                                        }
-                                    </div>
-                                    <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
-                                        {isAuthorized && <Badge variant={statusVariant} className="capitalize">{t(ceremony.status)}</Badge>}
-                                        {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
-                                        <div className='flex gap-2'>
-                                            {ceremony.mediaUrl && (
-                                                <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                                    <ExternalLink className="h-4 w-4" />
-                                                </Button>
-                                                </a>
-                                            )}
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
-                                                <Expand className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
-                                        <VideoPlayer 
-                                            ceremonyId={ceremony.id}
-                                            videoUrl={ceremony.mediaUrl} 
-                                            mediaType={ceremony.mediaType}
-                                            videoFit={ceremony.videoFit}
-                                            title={ceremony.title}
-                                            autoplay={ceremony.autoplay}
-                                            defaultMuted={ceremony.defaultMuted}
-                                        />
-                                    </div>
-                                    <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center flex-grow">
-                                        <p className="font-mono text-xl font-bold text-white mb-2">
-                                            {ceremony.title}
-                                        </p>
-                                        {ceremony.status === 'active' && ceremony.showParticipantCount && (
-                                            <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
-                                                <Users className="h-4 w-4" />
-                                                <span>{t('registeredCount', { count: registeredCount })}</span>
-                                            </div>
-                                        )}
-                                        {ceremony.status === 'active' ? (
-                                             <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? t('viewDetails') : t('reserveNow')}
-                                            </Button>
-                                        ) : (
-                                            ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
-                                        )}
-                                        {isAuthorized && (
-                                            <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
-                                                <div className='flex items-center gap-1.5'>
-                                                    <Eye className="h-4 w-4" />
-                                                    <span>{ceremony.viewCount || 0}</span>
-                                                </div>
-                                                <div className='flex items-center gap-1.5'>
-                                                    <MousePointerClick className="h-4 w-4" />
-                                                    <span>{ceremony.reserveClickCount || 0}</span>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        )
-                    })}
-                </div>
-
-
-                {(editingCeremony || isAdding) && (
-                    <EditCeremonyDialog
-                        ceremony={editingCeremony}
-                        isOpen={!!editingCeremony || isAdding}
-                        onClose={() => {
-                            setEditingCeremony(null);
-                            setIsAdding(false);
-                        }}
-                        onUpdate={handleCeremonyUpdate}
-                        onAdd={handleCeremonyAdd}
-                        onDelete={handleCeremonyDelete}
-                        onDuplicate={handleCeremonyDuplicate}
-                    />
-                )}
-
-                {viewingCeremony && (
-                    <CeremonyDetailsDialog
-                    ceremony={viewingCeremony}
-                    isOpen={!!viewingCeremony}
-                    onClose={() => setViewingCeremony(null)}
-                    />
-                )}
-
-                {expandedVideo && (
-                    <VideoPopupDialog
-                        ceremonyId={expandedVideo.id}
-                        isOpen={!!expandedVideo}
-                        onClose={() => setExpandedVideo(null)}
-                        videoUrl={expandedVideo.mediaUrl}
-                        mediaType={expandedVideo.mediaType}
-                        title={expandedVideo.title}
-                    />
+        <div className="container py-12 md:py-16 space-y-12">
+            <div className="text-center">
+                <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
+                  {t('allCeremoniesPageTitle')}
+                </h1>
+                 <p className="mt-2 text-lg text-foreground/80 font-body">
+                  {t('allCeremoniesPageSubtitle')}
+                </p>
+                {isAuthorized && (
+                <Button onClick={() => setIsAdding(true)} className="mt-4">
+                    <PlusCircle className="mr-2" />
+                    {t('addCeremony')}
+                </Button>
                 )}
             </div>
-        </EditableProvider>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
+                {sortedCeremonies.map((ceremony) => {
+                    const registeredCount = ceremony.assignedUsers?.length || 0;
+                    const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
+                    const isAssigned = userProfile?.assignedCeremonies?.some(assigned => assigned.ceremonyId === ceremony.id);
+
+                    return (
+                        <div key={ceremony.id} className="px-5">
+                            <Card 
+                                onMouseEnter={() => setActiveVideo(ceremony.id)}
+                                onMouseLeave={() => setActiveVideo(null)}
+                                className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50 h-full"
+                            >
+                                <div className="absolute top-2 right-2 z-20 flex gap-2">
+                                    {isAuthorized && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                                        <Edit className="h-4 w-4" />
+                                    </Button>}
+                                    {ceremony.status === 'active' && 
+                                        <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                            <Link href={`/ceremonias/${ceremony.id}`}><Share2 className="h-4 w-4" /></Link>
+                                        </Button>
+                                    }
+                                </div>
+                                <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
+                                    {isAuthorized && <Badge variant={statusVariant} className="capitalize">{t(ceremony.status)}</Badge>}
+                                    {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
+                                    <div className='flex gap-2'>
+                                        {ceremony.mediaUrl && (
+                                            <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                                <ExternalLink className="h-4 w-4" />
+                                            </Button>
+                                            </a>
+                                        )}
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
+                                            <Expand className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
+                                    <VideoPlayer 
+                                        ceremonyId={ceremony.id}
+                                        videoUrl={ceremony.mediaUrl} 
+                                        mediaType={ceremony.mediaType}
+                                        videoFit={ceremony.videoFit}
+                                        title={ceremony.title}
+                                        autoplay={ceremony.autoplay}
+                                        defaultMuted={ceremony.defaultMuted}
+                                    />
+                                </div>
+                                <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center flex-grow">
+                                    <p className="font-mono text-xl font-bold text-white mb-2">
+                                        {ceremony.title}
+                                    </p>
+                                    {ceremony.status === 'active' && ceremony.showParticipantCount && (
+                                        <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
+                                            <Users className="h-4 w-4" />
+                                            <span>{t('registeredCount', { count: registeredCount })}</span>
+                                        </div>
+                                    )}
+                                    {ceremony.status === 'active' ? (
+                                         <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
+                                            {isAssigned ? t('viewDetails') : t('reserveNow')}
+                                        </Button>
+                                    ) : (
+                                        ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
+                                    )}
+                                    {isAuthorized && (
+                                        <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
+                                            <div className='flex items-center gap-1.5'>
+                                                <Eye className="h-4 w-4" />
+                                                <span>{ceremony.viewCount || 0}</span>
+                                            </div>
+                                            <div className='flex items-center gap-1.5'>
+                                                <MousePointerClick className="h-4 w-4" />
+                                                <span>{ceremony.reserveClickCount || 0}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </div>
+                    )
+                })}
+            </div>
+
+
+            {(editingCeremony || isAdding) && (
+                <EditCeremonyDialog
+                    ceremony={editingCeremony}
+                    isOpen={!!editingCeremony || isAdding}
+                    onClose={() => {
+                        setEditingCeremony(null);
+                        setIsAdding(false);
+                    }}
+                    onUpdate={handleCeremonyUpdate}
+                    onAdd={handleCeremonyAdd}
+                    onDelete={handleCeremonyDelete}
+                    onDuplicate={handleCeremonyDuplicate}
+                />
+            )}
+
+            {viewingCeremony && (
+                <CeremonyDetailsDialog
+                ceremony={viewingCeremony}
+                isOpen={!!viewingCeremony}
+                onClose={() => setViewingCeremony(null)}
+                />
+            )}
+
+            {expandedVideo && (
+                <VideoPopupDialog
+                    ceremonyId={expandedVideo.id}
+                    isOpen={!!expandedVideo}
+                    onClose={() => setExpandedVideo(null)}
+                    videoUrl={expandedVideo.mediaUrl}
+                    mediaType={expandedVideo.mediaType}
+                    title={expandedVideo.title}
+                />
+            )}
+        </div>
     );
 }
-
-    
