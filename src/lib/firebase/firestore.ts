@@ -1,8 +1,9 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
+import { auth } from './config';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
 const contentCollection = collection(db, 'content');
@@ -15,6 +16,8 @@ const errorLogsCollection = collection(db, 'error_logs');
 const invitationMessagesCollection = collection(db, 'invitationMessages');
 const analyticsCollection = collection(db, 'analytics');
 const coursesCollection = collection(db, 'courses');
+const auditLogsCollection = collection(db, 'audit_logs');
+
 
 export const logError = (error: any, context?: Record<string, any>) => {
     try {
@@ -27,6 +30,25 @@ export const logError = (error: any, context?: Record<string, any>) => {
         });
     } catch (e) {
         console.error("Failed to log error to Firestore:", e);
+    }
+};
+
+export const logUserAction = async (action: string, details?: Partial<Omit<AuditLog, 'id' | 'userId' | 'userDisplayName' | 'timestamp' | 'action'>>) => {
+    const user = auth.currentUser;
+    if (!user) return; // Don't log actions for unauthenticated users
+
+    try {
+        await addDoc(auditLogsCollection, {
+            userId: user.uid,
+            userDisplayName: user.displayName || user.email,
+            action,
+            timestamp: serverTimestamp(),
+            page: window.location.pathname,
+            ...details,
+        });
+    } catch(e) {
+        console.error("Failed to log user action:", e);
+        // Do not throw, this is a background task.
     }
 };
 
@@ -53,6 +75,7 @@ export const setContent = async (id: string, value: string | { [key: string]: st
    try {
     const docRef = doc(db, 'content', id);
     await setDoc(docRef, { value });
+    await logUserAction('update_content', { targetId: id, changes: { value } });
   } catch (error) {
     console.error("Error setting content: ", error);
     logError(error, { function: 'setContent', id, value });
@@ -256,6 +279,7 @@ export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<strin
             reserveClickCount: 0,
             whatsappClickCount: 0
         });
+        await logUserAction('create_ceremony', { targetId: docRef.id, targetType: 'ceremony', changes: ceremony });
         return docRef.id;
     } catch(error) {
         console.error("Error adding ceremony: ", error);
@@ -269,6 +293,7 @@ export const updateCeremony = async (ceremony: Ceremony): Promise<void> => {
         const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
         const { id, ...data } = ceremony;
         await updateDoc(ceremonyRef, data);
+        await logUserAction('update_ceremony', { targetId: id, targetType: 'ceremony', changes: data });
     } catch(error) {
         console.error("Error updating ceremony: ", error);
         logError(error, { function: 'updateCeremony', ceremony });
@@ -280,6 +305,7 @@ export const deleteCeremony = async (id: string): Promise<void> => {
     try {
         const ceremonyRef = doc(db, 'ceremonies', id);
         await deleteDoc(ceremonyRef);
+        await logUserAction('delete_ceremony', { targetId: id, targetType: 'ceremony' });
     } catch(error) {
         console.error("Error deleting ceremony: ", error);
         logError(error, { function: 'deleteCeremony', id });
@@ -327,6 +353,7 @@ export const resetCeremonyCounters = async (id: string): Promise<void> => {
             reserveClickCount: 0,
             whatsappClickCount: 0
         });
+        await logUserAction('reset_ceremony_counters', { targetId: id, targetType: 'ceremony' });
     } catch (error) {
         console.error("Error resetting ceremony counters:", error);
         logError(error, { function: 'resetCeremonyCounters', id });
@@ -428,7 +455,7 @@ export const updateGuide = async (guide: Guide): Promise<void> => {
         const guideRef = doc(db, 'guides', guide.id);
         const { id, ...data } = guide; 
         await updateDoc(guideRef, data);
-
+        await logUserAction('update_guide', { targetId: id, targetType: 'guide', changes: data });
     } catch (error) {
         console.error("Error updating guide: ", error);
         logError(error, { function: 'updateGuide', guide });
@@ -440,6 +467,7 @@ export const deleteGuide = async (id: string): Promise<void> => {
     try {
         const guideRef = doc(db, 'guides', id);
         await deleteDoc(guideRef);
+        await logUserAction('delete_guide', { targetId: id, targetType: 'guide' });
     } catch (error) {
         console.error("Error deleting guide: ", error);
         logError(error, { function: 'deleteGuide', id });
@@ -530,6 +558,7 @@ export const deleteUser = async (uid: string): Promise<void> => {
     try {
         const userRef = doc(db, 'users', uid);
         await deleteDoc(userRef);
+        await logUserAction('delete_user', { targetId: uid, targetType: 'user' });
     } catch (error) {
         console.error("Error deleting user:", error);
         logError(error, { function: 'deleteUser', uid });
@@ -557,6 +586,7 @@ export const updateUserProfile = async (uid: string, data: Partial<UserProfile>)
     try {
         const userRef = doc(db, 'users', uid);
         await setDoc(userRef, data, { merge: true });
+        await logUserAction('update_user_profile', { targetId: uid, targetType: 'user', changes: data });
     } catch (error) {
         console.error("Error updating user profile:", error);
         logError(error, { function: 'updateUserProfile', uid, data });
@@ -575,6 +605,7 @@ export const updateUserRole = async (uid: string, role: UserRole): Promise<void>
             }
         }
         await updateDoc(userRef, updateData);
+        await logUserAction('update_user_role', { targetId: uid, targetType: 'user', changes: { role } });
     } catch (error) {
         console.error("Error updating user role:", error);
         logError(error, { function: 'updateUserRole', uid, role });
@@ -588,6 +619,7 @@ export const updateUserPermissions = async (uid: string, permission: keyof NonNu
         await updateDoc(userRef, {
             [`permissions.${permission}`]: value
         });
+        await logUserAction('update_user_permissions', { targetId: uid, targetType: 'user', changes: { [permission]: value } });
     } catch (error) {
         console.error("Error updating user permissions:", error);
         logError(error, { function: 'updateUserPermissions', uid, permission, value });
@@ -599,6 +631,7 @@ export const updateUserStatus = async (uid: string, status: UserStatus): Promise
     try {
         const userRef = doc(db, 'users', uid);
         await updateDoc(userRef, { status });
+        await logUserAction('update_user_status', { targetId: uid, targetType: 'user', changes: { status } });
     } catch (error) {
         console.error("Error updating user status:", error);
         logError(error, { function: 'updateUserStatus', uid, status });
@@ -610,6 +643,7 @@ export const updateUserAssignedCeremonies = async (uid: string, ceremonyIds: str
     try {
         const userRef = doc(db, 'users', uid);
         await updateDoc(userRef, { assignedCeremonies: ceremonyIds });
+        await logUserAction('update_user_ceremonies', { targetId: uid, targetType: 'user', changes: { assignedCeremonies: ceremonyIds } });
     } catch (error) {
         console.error("Error updating assigned ceremonies:", error);
         logError(error, { function: 'updateUserAssignedCeremonies', uid, ceremonyIds });
@@ -650,6 +684,7 @@ export const setThemeSettings = async (settings: ThemeSettings): Promise<void> =
     try {
         const docRef = doc(db, 'settings', 'theme');
         await setDoc(docRef, settings);
+        await logUserAction('update_theme_settings', { changes: settings });
     } catch (error) {
         console.error("Error setting theme settings:", error);
         logError(error, { function: 'setThemeSettings' });
@@ -759,6 +794,7 @@ export const saveQuestionnaire = async (uid: string, answers: QuestionnaireAnswe
 
     try {
         await batch.commit();
+        await logUserAction('complete_questionnaire', { targetId: uid, targetType: 'user', changes: dataToSave });
     } catch (error) {
         console.error("Error saving questionnaire and updating user profile:", error);
         logError(error, { function: 'saveQuestionnaire', uid, data: dataToSave });
@@ -814,6 +850,7 @@ export const resetQuestionnaire = async (uid: string): Promise<void> => {
 
     try {
         await batch.commit();
+        await logUserAction('reset_questionnaire', { targetId: uid, targetType: 'user' });
     } catch (error) {
         console.error("Error resetting questionnaire for user:", error);
         logError(error, { function: 'resetQuestionnaire', uid });
@@ -1045,6 +1082,7 @@ export const addCourse = async (course: Omit<Course, 'id' | 'createdAt'>): Promi
             ...course,
             createdAt: serverTimestamp(),
         });
+        await logUserAction('create_course', { targetId: docRef.id, targetType: 'course', changes: course });
         return docRef.id;
     } catch(error) {
         console.error("Error adding course: ", error);
@@ -1058,6 +1096,7 @@ export const updateCourse = async (course: Course): Promise<void> => {
         const courseRef = doc(db, 'courses', course.id);
         const { id, ...data } = course;
         await updateDoc(courseRef, data);
+        await logUserAction('update_course', { targetId: id, targetType: 'course', changes: data });
     } catch(error) {
         console.error("Error updating course: ", error);
         logError(error, { function: 'updateCourse', course });
@@ -1069,6 +1108,7 @@ export const deleteCourse = async (id: string): Promise<void> => {
     try {
         const courseRef = doc(db, 'courses', id);
         await deleteDoc(courseRef);
+        await logUserAction('delete_course', { targetId: id, targetType: 'course' });
     } catch(error) {
         console.error("Error deleting course: ", error);
         logError(error, { function: 'deleteCourse', id });
@@ -1115,6 +1155,19 @@ export const getVideoProgress = async (uid: string, videoId: string): Promise<nu
         return null;
     }
 };
+
+// --- Audit Logs ---
+export const getAuditLogsForUser = async (userId: string): Promise<AuditLog[]> => {
+    try {
+        const q = query(auditLogsCollection, where('userId', '==', userId), orderBy('timestamp', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as AuditLog));
+    } catch(e) {
+        console.error("Error fetching audit logs:", e);
+        logError(e, { function: 'getAuditLogsForUser', userId });
+        return [];
+    }
+}
 
 export type { Chat };
 export type { UserProfile };

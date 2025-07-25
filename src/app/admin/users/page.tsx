@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions } from '@/lib/firebase/firestore';
@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import ViewUserChatsDialog from '@/components/admin/ViewUserChatsDialog';
 import { Label } from '@/components/ui/label';
+import ViewUserAuditLogDialog from '@/components/admin/ViewUserAuditLogDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -75,6 +76,7 @@ export default function AdminUsersPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewingUserQuestionnaire, setViewingUserQuestionnaire] = useState<UserProfile | null>(null);
     const [viewingUserChats, setViewingUserChats] = useState<UserProfile | null>(null);
+    const [viewingUserAuditLog, setViewingUserAuditLog] = useState<UserProfile | null>(null);
     const [viewingUserCourses, setViewingUserCourses] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
@@ -496,6 +498,9 @@ export default function AdminUsersPage() {
                                                 <Button variant="outline" size="sm" onClick={() => setViewingUserChats(u)}>
                                                     <Bot className="mr-2 h-4 w-4"/>{t('viewAIChats')}
                                                 </Button>
+                                                <Button variant="outline" size="sm" onClick={() => setViewingUserAuditLog(u)}>
+                                                    <ClipboardList className="mr-2 h-4 w-4"/>{t('viewAuditLog')}
+                                                </Button>
                                                 {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
@@ -745,6 +750,13 @@ export default function AdminUsersPage() {
                     user={viewingUserChats}
                     isOpen={!!viewingUserChats}
                     onClose={() => setViewingUserChats(null)}
+                />
+            )}
+            {viewingUserAuditLog && (
+                <ViewUserAuditLogDialog
+                    user={viewingUserAuditLog}
+                    isOpen={!!viewingUserAuditLog}
+                    onClose={() => setViewingUserAuditLog(null)}
                 />
             )}
              {editingUser && (

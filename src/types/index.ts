@@ -221,3 +221,15 @@ export type SystemSettings = {
         preparation: { es: string; en: string };
     };
 };
+
+export type AuditLog = {
+    id: string;
+    userId: string; // UID of the user who performed the action
+    userDisplayName: string | null;
+    action: string; // e.g., 'update_ceremony', 'delete_user', 'login'
+    targetId?: string; // e.g., ceremony ID, user ID that was modified
+    targetType?: string; // e.g., 'ceremony', 'user'
+    changes?: Record<string, any>; // For 'update' actions, store what changed
+    timestamp: Timestamp;
+    page: string; // The page where the action was performed
+}
