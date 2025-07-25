@@ -172,6 +172,13 @@ export type InvitationMessage = {
     en: string;
 }
 
+export type CeremonyInvitationMessage = {
+  id: string;
+  name: string;
+  es: string;
+  en: string;
+};
+
 export type BackupData = {
     users: UserProfile[];
     ceremonies: Ceremony[];

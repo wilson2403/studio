@@ -2,7 +2,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from './config';
 
@@ -15,6 +15,7 @@ const chatsCollection = collection(db, 'chats');
 const questionnairesCollection = collection(db, 'questionnaires');
 const errorLogsCollection = collection(db, 'error_logs');
 const invitationMessagesCollection = collection(db, 'invitationMessages');
+const ceremonyInvitationMessagesCollection = collection(db, 'ceremonyInvitationMessages');
 const analyticsCollection = collection(db, 'analytics');
 const coursesCollection = collection(db, 'courses');
 const auditLogsCollection = collection(db, 'audit_logs');
@@ -1001,6 +1002,52 @@ export const deleteInvitationMessage = async (id: string): Promise<void> => {
         throw error;
     }
 }
+
+// --- Ceremony Invitation Messages ---
+export const getCeremonyInvitationMessages = async (): Promise<CeremonyInvitationMessage[]> => {
+    try {
+        const snapshot = await getDocs(ceremonyInvitationMessagesCollection);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CeremonyInvitationMessage));
+    } catch (error) {
+        console.error("Error getting ceremony invitation messages:", error);
+        logError(error, { function: 'getCeremonyInvitationMessages' });
+        return [];
+    }
+};
+
+export const addCeremonyInvitationMessage = async (message: CeremonyInvitationMessage): Promise<void> => {
+    try {
+        const docRef = doc(db, 'ceremonyInvitationMessages', message.id);
+        await setDoc(docRef, message);
+    } catch (error) {
+        console.error("Error adding ceremony invitation message:", error);
+        logError(error, { function: 'addCeremonyInvitationMessage' });
+        throw error;
+    }
+};
+
+export const updateCeremonyInvitationMessage = async (message: CeremonyInvitationMessage): Promise<void> => {
+    try {
+        const docRef = doc(db, 'ceremonyInvitationMessages', message.id);
+        await updateDoc(docRef, message);
+    } catch (error) {
+        console.error("Error updating ceremony invitation message:", error);
+        logError(error, { function: 'updateCeremonyInvitationMessage' });
+        throw error;
+    }
+};
+
+export const deleteCeremonyInvitationMessage = async (id: string): Promise<void> => {
+    try {
+        const docRef = doc(db, 'ceremonyInvitationMessages', id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error("Error deleting ceremony invitation message:", error);
+        logError(error, { function: 'deleteCeremonyInvitationMessage' });
+        throw error;
+    }
+};
+
 
 // --- Backup & Restore ---
 export const exportAllData = async (): Promise<BackupData> => {
