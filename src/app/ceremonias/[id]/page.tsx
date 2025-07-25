@@ -244,47 +244,53 @@ export default function SingleCeremonyPage() {
                         </ul>
                     </div>
                     <div className="mt-12 text-center md:text-left">
-                        {isAssignedToCeremony && assignedPlan ? (
-                             <div className='space-y-4 mb-4'>
-                                <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
-                                <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
-                                    <p className="font-semibold">{assignedPlan.name}</p>
-                                    <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
-                                    <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
+                        {isAssignedToCeremony ? (
+                             assignedPlan && (
+                                <div className='space-y-4 mb-4'>
+                                    <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
+                                    <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
+                                        <p className="font-semibold">{assignedPlan.name}</p>
+                                        <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
+                                        <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
+                                    </div>
                                 </div>
-                             </div>
-                        ) : !hasPlans ? (
-                             <div className="mb-4">
-                                <span className="text-5xl font-bold text-foreground">
-                                    {getBasePriceText()}
-                                </span>
-                                <p className="text-sm text-muted-foreground">
-                                    {ceremony.contributionText || t('fullPlanUpTo')}
-                                </p>
-                            </div>
+                             )
                         ) : (
-                             <div className='space-y-4 mb-4'>
-                                <h4 className='font-bold text-center'>{t('selectAPlan')}</h4>
-                                <RadioGroup onValueChange={(value) => setSelectedPlan(JSON.parse(value))} className='space-y-2'>
-                                    {ceremony.plans?.map((plan, i) => (
-                                        <Label key={i} htmlFor={`plan-${i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
-                                            <div>
-                                                <p className="font-semibold">{plan.name}</p>
-                                                <p className="text-sm text-muted-foreground">{plan.description}</p>
-                                            </div>
-                                            <div className='flex items-center gap-4'>
-                                                <span className="font-bold text-lg">{formatPrice(plan.price, plan.priceUntil)}</span>
-                                                <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${i}`} />
-                                            </div>
-                                        </Label>
-                                    ))}
-                                </RadioGroup>
-                                {ceremony.contributionText && (
-                                    <p className="text-sm text-center text-muted-foreground">
-                                        {ceremony.contributionText}
-                                    </p>
+                            <>
+                                {!hasPlans ? (
+                                    <div className="mb-4">
+                                        <span className="text-5xl font-bold text-foreground">
+                                            {getBasePriceText()}
+                                        </span>
+                                        <p className="text-sm text-muted-foreground">
+                                            {ceremony.contributionText || t('fullPlanUpTo')}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <div className='space-y-4 mb-4'>
+                                        <h4 className='font-bold text-center'>{t('selectAPlan')}</h4>
+                                        <RadioGroup onValueChange={(value) => setSelectedPlan(JSON.parse(value))} className='space-y-2'>
+                                            {ceremony.plans?.map((plan, i) => (
+                                                <Label key={i} htmlFor={`plan-${i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
+                                                    <div>
+                                                        <p className="font-semibold">{plan.name}</p>
+                                                        <p className="text-sm text-muted-foreground">{plan.description}</p>
+                                                    </div>
+                                                    <div className='flex items-center gap-4'>
+                                                        <span className="font-bold text-lg">{formatPrice(plan.price, plan.priceUntil)}</span>
+                                                        <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${i}`} />
+                                                    </div>
+                                                </Label>
+                                            ))}
+                                        </RadioGroup>
+                                        {ceremony.contributionText && (
+                                            <p className="text-sm text-center text-muted-foreground">
+                                                {ceremony.contributionText}
+                                            </p>
+                                        )}
+                                    </div>
                                 )}
-                            </div>
+                            </>
                         )}
                         <div className="flex flex-col sm:flex-row gap-2">
                             {ceremony.status === 'active' && !isAssignedToCeremony && (
@@ -306,3 +312,4 @@ export default function SingleCeremonyPage() {
         </div>
     );
 }
+
