@@ -427,7 +427,13 @@ export default function AdminUsersPage() {
                                                     <Video className="mr-2 h-4 w-4" />
                                                     {t('viewCourses')} ({getCourseProgressPercentage(u)}%)
                                                 </Button>
-                                                {(u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted ? (
+                                                {u.phone && (
+                                                    <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
+                                                        <WhatsappIcon className="mr-2 h-4 w-4"/>
+                                                        {t('invite')}
+                                                    </Button>
+                                                )}
+                                                {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (
                                                     <div className='flex items-center flex-wrap gap-2'>
                                                         <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
                                                             <FileText className="mr-2 h-4 w-4"/>
@@ -454,13 +460,6 @@ export default function AdminUsersPage() {
                                                             </AlertDialog>
                                                         )}
                                                     </div>
-                                                ) : (
-                                                    u.phone && (
-                                                        <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
-                                                            <WhatsappIcon className="mr-2 h-4 w-4"/>
-                                                            {t('invite')}
-                                                        </Button>
-                                                    )
                                                 )}
                                                 {!u.questionnaireCompleted && (!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
                                                     <AlertDialog>
@@ -730,3 +729,5 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
+    
