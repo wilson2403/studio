@@ -4,7 +4,7 @@
 import { useEditable } from './EditableProvider';
 import { Button } from '../ui/button';
 import { Edit, Save, X } from 'lucide-react';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -23,14 +23,16 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const { isAdmin, content, updateContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
   
-  const { t, i18n } = useTranslation();
+  const { t, i18n, ready } = useTranslation();
   const lang = i18n.language as 'es' | 'en';
 
   const [editValue, setEditValue] = useState('');
   
   const { toast } = useToast();
 
-  const getDisplayValue = useCallback(() => {
+  const displayValue = useMemo(() => {
+    if (!ready) return ''; // Don't render until translations are ready
+
     const contentValue = content[id];
     
     if (typeof contentValue === 'object' && contentValue !== null) {
@@ -40,13 +42,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
       return contentValue;
     }
     return t(initialValue);
-  }, [content, id, lang, initialValue, t]);
+  }, [content, id, lang, initialValue, t, ready]);
 
-  const [displayValue, setDisplayValue] = useState(getDisplayValue());
-
-  useEffect(() => {
-    setDisplayValue(getDisplayValue());
-  }, [getDisplayValue]);
   
   const handleSave = async () => {
     if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
@@ -76,6 +73,10 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const handleEditClick = () => {
     setEditValue(displayValue);
     setIsEditing(true);
+  }
+
+  if (!ready) {
+    return <Tag className={cn(className, "animate-pulse bg-muted/50 text-transparent rounded-md")}>&nbsp;</Tag>
   }
 
   if (isEditing) {
