@@ -128,7 +128,7 @@ export default function SingleCeremonyPage() {
     const USD_EXCHANGE_RATE = 500;
     const isEnglish = i18n.language === 'en';
     const hasPlans = ceremony.priceType === 'from' && ceremony.plans && ceremony.plans.length > 0;
-    const isEnrolled = userProfile?.assignedCeremonies?.includes(ceremony.id) || false;
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.includes(ceremony.id) || false;
 
     const formatPrice = (price: number, priceUntil?: number) => {
         if (isEnglish) {
@@ -217,7 +217,7 @@ export default function SingleCeremonyPage() {
                                 <Clock className='w-4 h-4'/> {ceremony.horario}
                             </p>
                             )}
-                             {user && ceremony.status === 'active' && ceremony.locationLink && (
+                             {isAssignedToCeremony && ceremony.status === 'active' && ceremony.locationLink && (
                                 <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
                                     <MapPin className='w-4 h-4'/> {t('viewLocation')}
                                 </a>
@@ -272,7 +272,7 @@ export default function SingleCeremonyPage() {
                             </div>
                         )}
                         <div className="flex flex-col sm:flex-row gap-2">
-                            {ceremony.status === 'active' && !isEnrolled && (
+                            {ceremony.status === 'active' && !isAssignedToCeremony && (
                             <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
                                     <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
                                         {t('reserveWhatsapp')}

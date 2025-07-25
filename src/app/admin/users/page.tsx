@@ -565,11 +565,11 @@ export default function AdminUsersPage() {
                                                 {u.phone && (
                                                     <>
                                                         <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
-                                                            <WhatsappIcon className="mr-2 h-4 w-4"/>{t('inviteQuestionnaire')}
+                                                            <WhatsappIcon className="mr-2 h-4 w-4"/>{t('inviteQuestionnaireButton')}
                                                         </Button>
                                                         {u.assignedCeremonies && u.assignedCeremonies.length > 0 && (
                                                             <Button variant="outline" size="sm" onClick={() => setInvitingToCeremonyUser(u)}>
-                                                                <SendHorizonal className="mr-2 h-4 w-4"/>{t('inviteToCeremony')}
+                                                                <SendHorizonal className="mr-2 h-4 w-4"/>{t('inviteToCeremonyButton')}
                                                             </Button>
                                                         )}
                                                     </>
