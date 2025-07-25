@@ -323,6 +323,4 @@ export default function SingleCeremonyPage() {
     );
 }
 
-
-
     
