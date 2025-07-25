@@ -8,11 +8,12 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Ceremony, Plan } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { CalendarIcon, Check, Clock } from 'lucide-react';
+import { CalendarIcon, Check, Clock, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
@@ -115,27 +116,27 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         }
         onClose();
     }}>
-      <DialogContent className="sm:max-w-md h-[90vh] sm:h-auto flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
-          <div className="font-mono text-xs text-muted-foreground pt-1 space-y-1">
-            {ceremony.date && (
-              <p className="flex items-center gap-1.5">
-                <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-              </p>
-            )}
-            {ceremony.horario && (
-              <p className="flex items-center gap-1.5">
-                <Clock className='w-3 h-3'/> {ceremony.horario}
-              </p>
-            )}
-          </div>
-          <DialogDescription className='pt-2'>
-            {ceremony.description}
-          </DialogDescription>
+      <DialogContent className="sm:max-w-md h-[90vh] sm:h-auto flex flex-col p-0">
+        <DialogHeader className="p-6 pb-2">
+            <DialogTitle className="text-2xl font-headline pr-8">{ceremony.title}</DialogTitle>
+            <div className="font-mono text-xs text-muted-foreground pt-1 space-y-1">
+                {ceremony.date && (
+                <p className="flex items-center gap-1.5">
+                    <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                </p>
+                )}
+                {ceremony.horario && (
+                <p className="flex items-center gap-1.5">
+                    <Clock className='w-3 h-3'/> {ceremony.horario}
+                </p>
+                )}
+            </div>
+            <DialogDescription className='pt-2'>
+                {ceremony.description}
+            </DialogDescription>
         </DialogHeader>
         <div className="flex-1 overflow-hidden flex flex-col">
-            <ScrollArea className="flex-1 -mx-6 px-6">
+            <ScrollArea className="flex-1 px-6">
                 <div className="space-y-4 py-4">
                     {!hasPlans ? (
                         <div className="text-center">
@@ -186,7 +187,7 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
             </ScrollArea>
         </div>
          {ceremony.status === 'active' && (
-          <DialogFooter className="mt-auto">
+          <DialogFooter className="mt-auto p-6 pt-2">
             <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
               <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
                 {t('reserveWhatsapp')}
