@@ -32,11 +32,7 @@ export default function SingleCeremonyPage() {
     const { toast } = useToast();
     const id = params.id as string;
 
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ceremonyId => ceremonyId === id) || false;
-    const assignedPlanId = userProfile?.assignedCeremonies?.find(c => c.ceremonyId === id)?.planId;
-    const assignedPlan = ceremony?.plans?.find(p => p.id === assignedPlanId);
-
-
+    
     useEffect(() => {
         if (id) {
             const fetchCeremony = async () => {
@@ -67,6 +63,10 @@ export default function SingleCeremonyPage() {
         return () => unsubscribe();
 
     }, [id]);
+    
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(cId => cId === id) || false;
+    const assignedPlan = ceremony?.plans?.find(p => userProfile?.assignedCeremonies?.some(c => c.ceremonyId === ceremony.id && c.planId === p.id));
+
 
     const handleShare = async () => {
         if (!ceremony) return;
