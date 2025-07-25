@@ -154,38 +154,6 @@ export default function Ceremonies({
     e.stopPropagation();
     setExpandedVideo(ceremony);
   };
-
-    const handleShare = async (ceremony: Ceremony) => {
-        const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
-        const shareTitle = ceremony.title;
-        const shareText = t('shareCeremonyText', { title: ceremony.title });
-        
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: shareTitle,
-                    text: shareText,
-                    url: shareUrl,
-                });
-            } catch (error) {
-                // Silently ignore user cancellation or other share errors
-                // and fallback to clipboard copy.
-                try {
-                    await navigator.clipboard.writeText(shareUrl);
-                    toast({ title: t('linkCopied') });
-                } catch (copyError) {
-                    toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-                }
-            }
-        } else {
-             try {
-                await navigator.clipboard.writeText(shareUrl);
-                toast({ title: t('linkCopied') });
-            } catch (error) {
-                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-            }
-        }
-    };
   
   const renderActiveCeremonies = () => (
     <div className="w-full justify-center">
@@ -201,9 +169,11 @@ export default function Ceremonies({
                         {isAuthorized && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
                           <Edit className="h-4 w-4" />
                         </Button>}
-                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={() => handleShare(ceremony)}>
-                          <Share2 className="h-4 w-4" />
-                        </Button>
+                         <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                            <Link href={`/ceremonias/${ceremony.id}`}>
+                                <Share2 className="h-4 w-4" />
+                            </Link>
+                         </Button>
                       </div>
                       <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
                           <div className="flex gap-2">
@@ -467,6 +437,8 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+
+    
 
     
 

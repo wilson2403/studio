@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarIcon, Check, Clock, Home, X } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, Check, Clock, Home, Share2, X } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -16,6 +16,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SingleCeremonyPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
@@ -25,6 +26,7 @@ export default function SingleCeremonyPage() {
     const params = useParams();
     const router = useRouter();
     const { t, i18n } = useTranslation();
+    const { toast } = useToast();
     const id = params.id as string;
 
     useEffect(() => {
@@ -47,6 +49,43 @@ export default function SingleCeremonyPage() {
         return () => unsubscribe();
 
     }, [id]);
+
+    const handleShare = async () => {
+        if (!ceremony) return;
+        const shareUrl = window.location.href;
+        const shareTitle = ceremony.title;
+        const shareText = t('shareCeremonyText', { title: ceremony.title });
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: shareTitle,
+                    text: shareText,
+                    url: shareUrl,
+                });
+            } catch (error) {
+                // Silently fail if user cancels share.
+                // For other errors, fallback to clipboard.
+                if (error instanceof DOMException && error.name === 'AbortError') {
+                    return;
+                }
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    toast({ title: t('linkCopied') });
+                } catch (copyError) {
+                    // This can fail if permissions are not granted.
+                }
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                toast({ title: t('linkCopied') });
+            } catch (error) {
+                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+            }
+        }
+    };
+
 
     if (loading) {
         return (
@@ -144,7 +183,7 @@ export default function SingleCeremonyPage() {
                     videoFit="cover"
                     title={ceremony.title}
                     autoplay
-                    defaultMuted={false}
+                    defaultMuted={true}
                 />
             </div>
             <main className="w-full md:w-1/2">
@@ -216,13 +255,19 @@ export default function SingleCeremonyPage() {
                                 )}
                             </div>
                         )}
-                        {ceremony.status === 'active' && (
-                           <Button asChild size="lg" className={cn("w-full md:w-auto", isDisabled && 'opacity-50 pointer-events-none')}>
-                                <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
-                                    {t('reserveWhatsapp')}
-                                </a>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            {ceremony.status === 'active' && (
+                            <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
+                                    <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
+                                        {t('reserveWhatsapp')}
+                                    </a>
+                                </Button>
+                            )}
+                            <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
+                                <Share2 className="mr-2 h-4 w-4" />
+                                {t('share')}
                             </Button>
-                        )}
+                        </div>
                     </div>
                 </div>
               </ScrollArea>
@@ -230,3 +275,5 @@ export default function SingleCeremonyPage() {
         </div>
     );
 }
+
+    
