@@ -333,7 +333,7 @@ export default function AdminUsersPage() {
     });
 
     const isSuperAdmin = currentUserProfile?.role === 'admin';
-    const canEditUsers = isSuperAdmin || currentUserProfile?.permissions?.canEditUsers;
+    const canEditUsers = isSuperAdmin || !!currentUserProfile?.permissions?.canEditUsers;
 
 
     if (loading) {

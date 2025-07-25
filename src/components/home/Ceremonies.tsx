@@ -49,8 +49,8 @@ export default function Ceremonies({
       if (currentUser) {
           const profile = await getUserProfile(currentUser.uid);
           setUserProfile(profile);
-          const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canEditCeremonies);
-          setIsAuthorized(!!hasPermission);
+          const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && !!profile?.permissions?.canEditCeremonies);
+          setIsAuthorized(hasPermission);
       } else {
           setIsAuthorized(false);
       }

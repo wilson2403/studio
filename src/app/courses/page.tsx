@@ -37,8 +37,8 @@ export default function CoursesPage() {
                 setUser(currentUser);
                 const profile = await getUserProfile(currentUser.uid);
                 setUserProfile(profile);
-                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canEditCourses);
-                setIsAuthorized(!!hasPermission);
+                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && !!profile?.permissions?.canEditCourses);
+                setIsAuthorized(hasPermission);
             } else {
                 router.push('/login?redirect=/courses');
             }
