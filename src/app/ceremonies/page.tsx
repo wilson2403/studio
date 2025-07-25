@@ -185,18 +185,27 @@ export default function AllCeremoniesPage() {
         <EditableProvider>
             <div className="container py-12 md:py-16 space-y-12">
                 <div className="text-center">
-                     <EditableTitle
-                        tag="h1"
-                        id="ceremoniesPageTitle"
-                        initialValue={t('allCeremoniesPageTitle')}
-                        className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
-                    />
-                    <EditableTitle
-                        tag="p"
-                        id="ceremoniesPageSubtitle"
-                        initialValue={t('allCeremoniesPageSubtitle')}
-                        className="mt-2 text-lg text-foreground/80 font-body"
-                    />
+                    {isAuthorized ? (
+                        <>
+                            <EditableTitle
+                                tag="h1"
+                                id="ceremoniesPageTitle"
+                                initialValue={t('allCeremoniesPageTitle')}
+                                className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
+                            />
+                            <EditableTitle
+                                tag="p"
+                                id="ceremoniesPageSubtitle"
+                                initialValue={t('allCeremoniesPageSubtitle')}
+                                className="mt-2 text-lg text-foreground/80 font-body"
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">{t('allCeremoniesPageTitle')}</h1>
+                            <p className="mt-2 text-lg text-foreground/80 font-body">{t('allCeremoniesPageSubtitle')}</p>
+                        </>
+                    )}
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
@@ -328,4 +337,5 @@ export default function AllCeremoniesPage() {
             </div>
         </EditableProvider>
     );
-}
+
+    
