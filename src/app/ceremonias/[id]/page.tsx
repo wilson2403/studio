@@ -43,8 +43,9 @@ export default function SingleCeremonyPage() {
                 setLoading(true);
                 const data = await getCeremonyById(id);
                 setCeremony(data);
-                if (data && data.priceType === 'exact' && data.plans && data.plans.length > 0) {
-                  setSelectedPlan(data.plans[0]);
+                if (data && data.plans && data.plans.length > 0) {
+                  const defaultPlan = data.priceType === 'exact' ? data.plans[0] : null;
+                  setSelectedPlan(defaultPlan);
                 }
                 setLoading(false);
             };
@@ -56,7 +57,8 @@ export default function SingleCeremonyPage() {
             if (currentUser) {
                 const profile = await getUserProfile(currentUser.uid);
                 setUserProfile(profile);
-                setIsAdmin(!!profile?.isAdmin || currentUser.email === 'wilson2403@gmail.com');
+                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && !!profile?.permissions?.canEditCeremonies);
+                setIsAdmin(hasPermission);
             } else {
                 setUserProfile(null);
                 setIsAdmin(false);
