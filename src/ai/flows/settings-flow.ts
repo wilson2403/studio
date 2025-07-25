@@ -52,8 +52,7 @@ export const getSystemSettings = ai.defineFlow(
       }
       
       const whatsappLinkContent = await getContent('whatsappCommunityLink');
-      const whatsappLink = (typeof whatsappLinkContent === 'object' && whatsappLinkContent !== null ? whatsappLinkContent.es : whatsappLinkContent) as string || '';
-
+      const whatsappLink = (typeof whatsappLinkContent === 'object' && whatsappLinkContent !== null ? (whatsappLinkContent as any).es : whatsappLinkContent) as string || '';
 
       const navLinks = {
           home: await fetchContentWithFallback('navHome', { es: 'Inicio', en: 'Home' }),
