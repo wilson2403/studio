@@ -12,14 +12,14 @@ i18n
     fallbackLng: 'es',
     debug: false,
     detection: {
-      order: ['queryString', 'cookie'],
+      order: ['queryString', 'cookie', 'localStorage', 'sessionStorage', 'navigator', 'htmlTag'],
       caches: ['cookie'],
     },
     backend: {
       loadPath: '/locales/{{lng}}/common.json',
     },
     react: {
-      useSuspense: false, // Set to false to avoid Suspense issues with 'use client'
+      useSuspense: false, 
     },
   });
 
