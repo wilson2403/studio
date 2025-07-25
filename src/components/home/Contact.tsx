@@ -14,35 +14,42 @@ import { FacebookIcon } from "../icons/FacebookIcon";
 export default function Contact() {
     const { t } = useTranslation();
     const { content, fetchContent } = useEditable();
+    
     const [communityLink, setCommunityLink] = useState('');
+    const [instagramUrl, setInstagramUrl] = useState('');
+    const [facebookUrl, setFacebookUrl] = useState('');
+    const [whatsappNumber, setWhatsappNumber] = useState('');
 
-    const socialLinks = {
+    const initialValues = {
+        whatsappCommunityLink: 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ',
         instagramUrl: 'https://www.instagram.com/elartedesanarcr',
         facebookUrl: 'https://www.facebook.com/profile.php?id=61574627625274',
-        whatsappUrl: 'https://wa.me/50687992560?text=Hola,%20vengo%20de%20la%20página%20web%20y%20quisiera%20más%20información%20sobre%20El%20Arte%20de%20Sanar'
+        whatsappNumber: '50687992560'
     };
 
-    const whatsappCommunityLinkId = 'whatsappCommunityLink';
-    const initialWhatsappCommunityLink = 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ';
+    useEffect(() => {
+        Object.entries(initialValues).forEach(([id, fallback]) => {
+            fetchContent(id, fallback);
+        });
+    }, [fetchContent]);
 
     useEffect(() => {
-        // Fetch content when component mounts
-        if (whatsappCommunityLinkId) {
-            fetchContent(whatsappCommunityLinkId, initialWhatsappCommunityLink);
-        }
-    }, [fetchContent, whatsappCommunityLinkId, initialWhatsappCommunityLink]);
+        const getStringValue = (id: string, fallback: string) => {
+            const value = content[id];
+            if (typeof value === 'object' && value !== null) {
+                return (value as any).es || fallback;
+            }
+            return (value as string) || fallback;
+        };
 
-    useEffect(() => {
-        // Update local state when content from context changes
-        const communityLinkValue = content[whatsappCommunityLinkId];
-        if (communityLinkValue) {
-            const link = (typeof communityLinkValue === 'object' && communityLinkValue !== null ? (communityLinkValue as any).es : communityLinkValue) as string || initialWhatsappCommunityLink;
-            setCommunityLink(link);
-        } else {
-            setCommunityLink(initialWhatsappCommunityLink);
-        }
-    }, [content, whatsappCommunityLinkId, initialWhatsappCommunityLink]);
+        setCommunityLink(getStringValue('whatsappCommunityLink', initialValues.whatsappCommunityLink));
+        setInstagramUrl(getStringValue('instagramUrl', initialValues.instagramUrl));
+        setFacebookUrl(getStringValue('facebookUrl', initialValues.facebookUrl));
+        setWhatsappNumber(getStringValue('whatsappNumber', initialValues.whatsappNumber));
 
+    }, [content]);
+
+    const whatsappContactUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hola, vengo de la página web y quisiera más información sobre El Arte de Sanar')}`;
 
     return (
         <section id="contact" className="container py-8 md:py-16">
@@ -70,17 +77,17 @@ export default function Contact() {
                      <CardContent className="p-0 flex-grow flex flex-col items-center justify-center w-full">
                         <div className="flex justify-center gap-4">
                             <Button variant="ghost" size="icon" asChild>
-                                <Link href={socialLinks.instagramUrl} target="_blank">
+                                <Link href={instagramUrl} target="_blank">
                                     <Instagram />
                                 </Link>
                             </Button>
                              <Button variant="ghost" size="icon" asChild>
-                                <Link href={socialLinks.facebookUrl} target="_blank">
+                                <Link href={facebookUrl} target="_blank">
                                     <FacebookIcon />
                                 </Link>
                             </Button>
                              <Button variant="ghost" size="icon" asChild>
-                                <Link href={socialLinks.whatsappUrl} target="_blank">
+                                <Link href={whatsappContactUrl} target="_blank">
                                     <WhatsappIcon />
                                 </Link>
                             </Button>

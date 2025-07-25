@@ -214,6 +214,9 @@ export type SystemSettings = {
     googleApiKey: string;
     resendApiKey: string;
     whatsappCommunityLink: string;
+    instagramUrl: string;
+    facebookUrl: string;
+    whatsappNumber: string;
     navLinks: {
         home: { es: string; en: string };
         medicine: { es: string; en: string };

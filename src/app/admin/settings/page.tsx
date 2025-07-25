@@ -37,6 +37,9 @@ const settingsFormSchema = z.object({
     googleApiKey: z.string(),
     resendApiKey: z.string(),
     whatsappCommunityLink: z.string().url('Debe ser una URL válida.'),
+    instagramUrl: z.string().url('Debe ser una URL válida.'),
+    facebookUrl: z.string().url('Debe ser una URL válida.'),
+    whatsappNumber: z.string().min(8, 'Debe ser un número de teléfono válido.'),
     navLinks: z.object({
         home: navLinkSchema,
         medicine: navLinkSchema,
@@ -205,11 +208,32 @@ export default function AdminSettingsPage() {
                                     <h3 className="text-lg font-semibold">{t('contentManagement')}</h3>
                                 </div>
                             </AccordionTrigger>
-                            <AccordionContent className="pt-4">
+                            <AccordionContent className="pt-4 space-y-4">
                                 <FormField control={form.control} name="whatsappCommunityLink" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{t('whatsappCommunityLink')}</FormLabel>
                                         <FormControl><Input {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="instagramUrl" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t('instagramUrl')}</FormLabel>
+                                        <FormControl><Input {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="facebookUrl" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t('facebookUrl')}</FormLabel>
+                                        <FormControl><Input {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="whatsappNumber" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t('whatsappNumber')}</FormLabel>
+                                        <FormControl><Input {...field} placeholder="50688888888" /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}/>

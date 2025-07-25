@@ -30,6 +30,9 @@ const settingsSchema = z.object({
     googleApiKey: z.string(),
     resendApiKey: z.string(),
     whatsappCommunityLink: z.string(),
+    instagramUrl: z.string(),
+    facebookUrl: z.string(),
+    whatsappNumber: z.string(),
     navLinks: z.object({
         home: navLinkSchema,
         medicine: navLinkSchema,
@@ -46,13 +49,18 @@ export const getSystemSettings = ai.defineFlow(
   },
   async () => {
     try {
+      const fetchStringContent = async (id: string, fallback: string) => {
+          const content = await getContent(id) as string | { es: string, en: string } | null;
+          if (typeof content === 'object' && content !== null) {
+              return content.es || fallback;
+          }
+          return content || fallback;
+      }
+      
       const fetchContentWithFallback = async (id: string, fallback: {es: string, en: string}) => {
           const content = await getContent(id) as {es: string, en: string} | null;
           return content || fallback;
       }
-      
-      const whatsappLinkContent = await getContent('whatsappCommunityLink');
-      const whatsappLink = (typeof whatsappLinkContent === 'object' && whatsappLinkContent !== null ? (whatsappLinkContent as any).es : whatsappLinkContent) as string || '';
 
       const navLinks = {
           home: await fetchContentWithFallback('navHome', { es: 'Inicio', en: 'Home' }),
@@ -73,7 +81,10 @@ export const getSystemSettings = ai.defineFlow(
         },
         googleApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
         resendApiKey: process.env.RESEND_API_KEY || '',
-        whatsappCommunityLink: whatsappLink,
+        whatsappCommunityLink: await fetchStringContent('whatsappCommunityLink', 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ'),
+        instagramUrl: await fetchStringContent('instagramUrl', 'https://www.instagram.com/elartedesanarcr'),
+        facebookUrl: await fetchStringContent('facebookUrl', 'https://www.facebook.com/profile.php?id=61574627625274'),
+        whatsappNumber: await fetchStringContent('whatsappNumber', '50687992560'),
         navLinks: navLinks,
       };
     } catch (error: any) {
@@ -123,6 +134,10 @@ export const updateSystemSettings = ai.defineFlow(
       
         // Update Firestore content
         await setContent('whatsappCommunityLink', { es: settings.whatsappCommunityLink, en: settings.whatsappCommunityLink });
+        await setContent('instagramUrl', { es: settings.instagramUrl, en: settings.instagramUrl });
+        await setContent('facebookUrl', { es: settings.facebookUrl, en: settings.facebookUrl });
+        await setContent('whatsappNumber', { es: settings.whatsappNumber, en: settings.whatsappNumber });
+
         for (const [key, value] of Object.entries(settings.navLinks)) {
             await setContent(`nav${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
         }
