@@ -244,7 +244,7 @@ export default function SingleCeremonyPage() {
                         </ul>
                     </div>
                     <div className="mt-12">
-                        {isAssignedToCeremony && assignedPlan && (
+                        {isAssignedToCeremony && assignedPlan && ceremony.status === 'active' && (
                              <div className='space-y-4 mb-4'>
                                 <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
                                 <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
