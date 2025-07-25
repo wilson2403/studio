@@ -178,12 +178,9 @@ export default function Ceremonies({
               });
               toast({ title: t('sharedSuccessfully') });
           } catch (error) {
-              // If the user cancels the share, it throws an AbortError, which we can ignore.
-              if ((error as DOMException).name !== 'AbortError') {
-                console.error('Error sharing:', error);
-                // Fallback to clipboard for other errors
-                copyToClipboard();
-              }
+              console.log('Share failed, falling back to clipboard:', error);
+              // Fallback to clipboard if share fails for any reason
+              copyToClipboard();
           }
       } else {
           copyToClipboard();
