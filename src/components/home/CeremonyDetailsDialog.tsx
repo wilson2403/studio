@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { getUserProfile, incrementCeremonyWhatsappClick } from '@/lib/firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
+import { ScrollArea } from '../ui/scroll-area';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -48,6 +49,13 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
     });
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    // Reset selected plan when dialog opens for a new ceremony
+    if (isOpen) {
+      setSelectedPlan(null);
+    }
+  }, [isOpen]);
 
   if (!ceremony) return null;
 
@@ -109,38 +117,28 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
   const isDisabled = hasPlans && !selectedPlan;
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-        if (!open) {
-            setSelectedPlan(null);
-        }
-        onClose();
-    }}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="relative">
-                <DialogClose className="absolute right-0 top-0 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Close</span>
-                </DialogClose>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md p-0 flex flex-col max-h-[90vh]">
+            <DialogHeader className="p-6 pb-0 pr-12">
+                <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
+                <div className="font-mono text-xs text-muted-foreground pt-1 space-y-1">
+                    {ceremony.date && (
+                    <p className="flex items-center gap-1.5">
+                        <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                    </p>
+                    )}
+                    {ceremony.horario && (
+                    <p className="flex items-center gap-1.5">
+                        <Clock className='w-3 h-3'/> {ceremony.horario}
+                    </p>
+                    )}
+                </div>
+                <DialogDescription className='pt-2'>
+                    {ceremony.description}
+                </DialogDescription>
+            </DialogHeader>
 
-                <DialogHeader className="pr-8">
-                    <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
-                    <div className="font-mono text-xs text-muted-foreground pt-1 space-y-1">
-                        {ceremony.date && (
-                        <p className="flex items-center gap-1.5">
-                            <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-                        </p>
-                        )}
-                        {ceremony.horario && (
-                        <p className="flex items-center gap-1.5">
-                            <Clock className='w-3 h-3'/> {ceremony.horario}
-                        </p>
-                        )}
-                    </div>
-                    <DialogDescription className='pt-2'>
-                        {ceremony.description}
-                    </DialogDescription>
-                </DialogHeader>
-
+            <ScrollArea className="flex-1 px-6">
                 <div className="space-y-4 py-4">
                     {!hasPlans ? (
                         <div className="text-center">
@@ -188,17 +186,21 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                         ))}
                     </ul>
                 </div>
-                
-                {ceremony.status === 'active' && (
-                <DialogFooter className="w-full">
-                    <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
-                    <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
-                        {t('reserveWhatsapp')}
-                    </a>
-                    </Button>
-                </DialogFooter>
-                )}
-            </div>
+            </ScrollArea>
+            
+            {ceremony.status === 'active' && (
+            <DialogFooter className="w-full p-6 pt-0 mt-auto">
+                <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
+                <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
+                    {t('reserveWhatsapp')}
+                </a>
+                </Button>
+            </DialogFooter>
+            )}
+            <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+            </DialogClose>
       </DialogContent>
     </Dialog>
   );
