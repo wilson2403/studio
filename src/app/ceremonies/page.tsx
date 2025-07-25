@@ -179,14 +179,14 @@ export default function AllCeremoniesPage() {
                 <div className="text-center">
                     <EditableTitle
                         tag="h1"
-                        id="allCeremoniesTitle"
-                        initialValue={t('allCeremoniesTitle')}
+                        id="ceremonies"
+                        initialValue={t('allCeremoniesPageTitle')}
                         className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                     />
                      <EditableTitle
                         tag="p"
                         id="allCeremoniesSubtitle"
-                        initialValue={t('allCeremoniesSubtitle')}
+                        initialValue={t('allCeremoniesPageSubtitle')}
                         className="mt-2 text-lg text-foreground/80 font-body"
                     />
                     {isAuthorized && (
@@ -264,7 +264,7 @@ export default function AllCeremoniesPage() {
                                         ) : (
                                             ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
                                         )}
-                                        {isAuthorized && (
+                                        {isAuthorized && ceremony.showAnalytics && (
                                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                                 <div className='flex items-center gap-1.5'>
                                                     <Eye className="h-4 w-4" />
@@ -321,10 +321,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-
-    
-
-    
-
-    
-
