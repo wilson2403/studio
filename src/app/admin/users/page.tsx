@@ -516,7 +516,7 @@ export default function AdminUsersPage() {
                                                             <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
                                                         </Button>
                                                         <Button variant="outline" size="sm" onClick={() => handleShareQuestionnaire(u.uid)}>
-                                                            <Share2 className="mr-2 h-4 w-4"/>{t('shareAnswers')}
+                                                            <Share2 className="mr-2 h-4 w-4"/>{t('share')}
                                                         </Button>
                                                     </>
                                                 )}
