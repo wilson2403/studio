@@ -10,12 +10,13 @@ import { CheckCircle, Eye, Terminal, Trash2, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getErrorLogs, updateErrorLogStatus, deleteErrorLog, deleteAllErrorLogs, ErrorLog } from '@/lib/firebase/firestore';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -128,100 +129,72 @@ export default function AdminLogsPage() {
                     </AlertDialog>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>{t('logTimestamp')}</TableHead>
-                                <TableHead>{t('logMessage')}</TableHead>
-                                <TableHead>{t('logStatus')}</TableHead>
-                                <TableHead>{t('actions')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {logs.map((log) => (
-                                <TableRow key={log.id}>
-                                    <TableCell>{format(log.timestamp.toDate(), 'PPP p')}</TableCell>
-                                    <TableCell className="max-w-sm truncate">{log.message}</TableCell>
-                                    <TableCell>
-                                        {log.status === 'fixed' ? (
-                                            <span className='flex items-center gap-2 text-green-500'><CheckCircle className="h-4 w-4" /> {t('logStatusFixed')}</span>
-                                        ) : (
-                                            <span className='flex items-center gap-2 text-red-500'><XCircle className="h-4 w-4" /> {t('logStatusNew')}</span>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className='flex gap-2'>
-                                        <Button variant="outline" size="sm" onClick={() => setViewingLog(log)}>
-                                            <Eye className="mr-2 h-4 w-4" /> {t('viewDetails')}
-                                        </Button>
-                                        {log.status === 'new' && (
-                                             <Button variant="outline" size="sm" onClick={() => handleStatusChange(log.id, 'fixed')}>
-                                                <CheckCircle className="mr-2 h-4 w-4" /> {t('markAsFixed')}
-                                            </Button>
-                                        )}
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="destructive" size="sm">
-                                                    <Trash2 className="mr-2 h-4 w-4" /> {t('delete')}
+                    <Accordion type="single" collapsible className="w-full space-y-4">
+                        {logs.map((log) => (
+                            <AccordionItem key={log.id} value={log.id} className="border rounded-lg bg-muted/20 px-4">
+                                <AccordionTrigger className="w-full hover:no-underline">
+                                    <div className="flex items-center justify-between gap-4 w-full">
+                                        <div className='flex-1 text-left'>
+                                            <p className="font-semibold truncate max-w-xs sm:max-w-md">{log.message}</p>
+                                            <p className="text-sm text-muted-foreground">{format(log.timestamp.toDate(), 'PPP p')}</p>
+                                        </div>
+                                        <Badge variant={log.status === 'fixed' ? 'success' : 'destructive'} className='capitalize'>
+                                            {log.status === 'fixed' ? (
+                                                <CheckCircle className="mr-2 h-4 w-4" />
+                                            ) : (
+                                                <XCircle className="mr-2 h-4 w-4" />
+                                            )}
+                                            {t(`logStatus${log.status.charAt(0).toUpperCase() + log.status.slice(1)}`)}
+                                        </Badge>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="pt-4 border-t space-y-4">
+                                        <div className='bg-muted/50 p-4 rounded-md font-mono text-sm space-y-4 max-h-96 overflow-y-auto'>
+                                            {log.stack && (
+                                                <div>
+                                                    <h4 className='font-bold mb-1'>{t('logStack')}:</h4>
+                                                    <p className='whitespace-pre-wrap'>{log.stack}</p>
+                                                </div>
+                                            )}
+                                            {log.context && Object.keys(log.context).length > 0 && (
+                                                <div>
+                                                    <h4 className='font-bold mb-1'>{t('logContext')}:</h4>
+                                                    <p className='whitespace-pre-wrap'>{JSON.stringify(log.context, null, 2)}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className='flex gap-2'>
+                                            {log.status === 'new' && (
+                                                <Button variant="outline" size="sm" onClick={() => handleStatusChange(log.id, 'fixed')}>
+                                                    <CheckCircle className="mr-2 h-4 w-4" /> {t('markAsFixed')}
                                                 </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>{t('deleteLogConfirmTitle')}</AlertDialogTitle>
-                                                    <AlertDialogDescription>{t('deleteLogConfirmDescription')}</AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDelete(log.id)}>{t('continue')}</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                                            )}
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive" size="sm">
+                                                        <Trash2 className="mr-2 h-4 w-4" /> {t('delete')}
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>{t('deleteLogConfirmTitle')}</AlertDialogTitle>
+                                                        <AlertDialogDescription>{t('deleteLogConfirmDescription')}</AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDelete(log.id)}>{t('continue')}</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
                 </CardContent>
             </Card>
-
-            {viewingLog && (
-                 <AlertDialog open={!!viewingLog} onOpenChange={(isOpen) => !isOpen && setViewingLog(null)}>
-                    <AlertDialogContent className="max-w-3xl">
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>{t('logDetails')}</AlertDialogTitle>
-                            <AlertDialogDescription>{t('logDetailsDescription')}</AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <ScrollArea className="max-h-[60vh] p-1 pr-4 mt-4">
-                            <div className='bg-muted/50 p-4 rounded-md font-mono text-sm space-y-4'>
-                                <div>
-                                    <h4 className='font-bold mb-1'>{t('logTimestamp')}:</h4>
-                                    <p>{format(viewingLog.timestamp.toDate(), 'PPP p')}</p>
-                                </div>
-                                <div>
-                                    <h4 className='font-bold mb-1'>{t('logMessage')}:</h4>
-                                    <p className='whitespace-pre-wrap'>{viewingLog.message}</p>
-                                </div>
-                                {viewingLog.stack && (
-                                     <div>
-                                        <h4 className='font-bold mb-1'>{t('logStack')}:</h4>
-                                        <p className='whitespace-pre-wrap'>{viewingLog.stack}</p>
-                                    </div>
-                                )}
-                                {viewingLog.context && (
-                                     <div>
-                                        <h4 className='font-bold mb-1'>{t('logContext')}:</h4>
-                                        <p className='whitespace-pre-wrap'>{JSON.stringify(viewingLog.context, null, 2)}</p>
-                                    </div>
-                                )}
-                            </div>
-                        </ScrollArea>
-                        <AlertDialogFooter>
-                             <Button onClick={() => alert(t('featureComingSoon'))}>{t('fixWithAI')}</Button>
-                             <AlertDialogCancel>{t('close')}</AlertDialogCancel>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            )}
-
         </div>
     );
 }
