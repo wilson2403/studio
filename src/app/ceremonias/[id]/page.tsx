@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarIcon, Check, Clock, Home, MapPin, Share2, X } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, Check, CheckCircle, Clock, Home, MapPin, Share2, X } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 
 export default function SingleCeremonyPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
@@ -31,6 +32,11 @@ export default function SingleCeremonyPage() {
     const { toast } = useToast();
     const id = params.id as string;
 
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === id) || false;
+    const assignedPlanId = userProfile?.assignedCeremonies?.find(c => c.ceremonyId === id)?.planId;
+    const assignedPlan = ceremony?.plans?.find(p => p.id === assignedPlanId);
+
+
     useEffect(() => {
         if (id) {
             const fetchCeremony = async () => {
@@ -38,7 +44,7 @@ export default function SingleCeremonyPage() {
                 const data = await getCeremonyById(id);
                 setCeremony(data);
                 if (data && data.priceType === 'exact') {
-                  setSelectedPlan({ name: 'Plan único', price: data.price, description: ''});
+                  setSelectedPlan({ id: 'default', name: 'Plan único', price: data.price, description: ''});
                 }
                 setLoading(false);
             };
@@ -128,7 +134,6 @@ export default function SingleCeremonyPage() {
     const USD_EXCHANGE_RATE = 500;
     const isEnglish = i18n.language === 'en';
     const hasPlans = ceremony.priceType === 'from' && ceremony.plans && ceremony.plans.length > 0;
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.includes(ceremony.id) || false;
 
     const formatPrice = (price: number, priceUntil?: number) => {
         if (isEnglish) {
@@ -201,9 +206,9 @@ export default function SingleCeremonyPage() {
               <ScrollArea className="h-full">
                 <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
                     <div>
-                        <Button variant="ghost" onClick={() => router.push('/')} className="mb-8">
+                        <Button variant="ghost" onClick={() => router.back()} className="mb-8">
                             <ArrowLeft className="mr-2 h-4 w-4" />
-                            {t('backToHome')}
+                            {t('back')}
                         </Button>
                         <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
                         <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
@@ -217,12 +222,13 @@ export default function SingleCeremonyPage() {
                                 <Clock className='w-4 h-4'/> {ceremony.horario}
                             </p>
                             )}
-                             {isAssignedToCeremony && ceremony.status === 'active' && ceremony.locationLink && (
+                            {isAssignedToCeremony && ceremony.status === 'active' && ceremony.locationLink && (
                                 <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
                                     <MapPin className='w-4 h-4'/> {t('viewLocation')}
                                 </a>
                             )}
                         </div>
+                        {isAssignedToCeremony && ceremony.status === 'active' && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                         <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
                         
                         <ul className="space-y-3 pt-4">
@@ -238,7 +244,16 @@ export default function SingleCeremonyPage() {
                         </ul>
                     </div>
                     <div className="mt-12 text-center md:text-left">
-                        {!hasPlans ? (
+                        {isAssignedToCeremony && assignedPlan ? (
+                             <div className='space-y-4 mb-4'>
+                                <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
+                                <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
+                                    <p className="font-semibold">{assignedPlan.name}</p>
+                                    <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
+                                    <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
+                                </div>
+                             </div>
+                        ) : !hasPlans ? (
                              <div className="mb-4">
                                 <span className="text-5xl font-bold text-foreground">
                                     {getBasePriceText()}
@@ -273,7 +288,7 @@ export default function SingleCeremonyPage() {
                         )}
                         <div className="flex flex-col sm:flex-row gap-2">
                             {ceremony.status === 'active' && !isAssignedToCeremony && (
-                            <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
+                                <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
                                     <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
                                         {t('reserveWhatsapp')}
                                     </a>
