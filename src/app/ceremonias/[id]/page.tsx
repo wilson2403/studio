@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CalendarIcon, Check, Clock, Home, Share2, X } from 'lucide-react';
+import { ArrowLeft, CalendarIcon, Check, Clock, Home, MapPin, Share2, X } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -216,6 +216,11 @@ export default function SingleCeremonyPage() {
                             <p className="flex items-center gap-2">
                                 <Clock className='w-4 h-4'/> {ceremony.horario}
                             </p>
+                            )}
+                             {ceremony.locationLink && (
+                                <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
+                                    <MapPin className='w-4 h-4'/> {t('viewLocation')}
+                                </a>
                             )}
                         </div>
                         <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
