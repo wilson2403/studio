@@ -116,31 +116,33 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         }
         onClose();
     }}>
-      <DialogContent className="sm:max-w-md h-[90vh] sm:h-auto flex flex-col p-0">
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
-        <DialogHeader className="p-6 pb-2 pr-12 flex-shrink-0">
-            <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
-            <div className="font-mono text-xs text-muted-foreground pt-1 space-y-1">
-                {ceremony.date && (
-                <p className="flex items-center gap-1.5">
-                    <CalendarIcon className='w-3 h-3'/> {ceremony.date}
-                </p>
-                )}
-                {ceremony.horario && (
-                <p className="flex items-center gap-1.5">
-                    <Clock className='w-3 h-3'/> {ceremony.horario}
-                </p>
-                )}
-            </div>
-            <DialogDescription className='pt-2'>
-                {ceremony.description}
-            </DialogDescription>
-        </DialogHeader>
-        <div className="flex-grow overflow-hidden flex flex-col">
-            <ScrollArea className="flex-grow px-6">
+      <DialogContent className="sm:max-w-md p-0">
+        <ScrollArea className="max-h-[90vh] rounded-lg">
+            <div className="p-6 relative">
+                <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Close</span>
+                </DialogClose>
+
+                <DialogHeader className="pr-8">
+                    <DialogTitle className="text-2xl font-headline">{ceremony.title}</DialogTitle>
+                    <div className="font-mono text-xs text-muted-foreground pt-1 space-y-1">
+                        {ceremony.date && (
+                        <p className="flex items-center gap-1.5">
+                            <CalendarIcon className='w-3 h-3'/> {ceremony.date}
+                        </p>
+                        )}
+                        {ceremony.horario && (
+                        <p className="flex items-center gap-1.5">
+                            <Clock className='w-3 h-3'/> {ceremony.horario}
+                        </p>
+                        )}
+                    </div>
+                    <DialogDescription className='pt-2'>
+                        {ceremony.description}
+                    </DialogDescription>
+                </DialogHeader>
+
                 <div className="space-y-4 py-4">
                     {!hasPlans ? (
                         <div className="text-center">
@@ -188,19 +190,19 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                         ))}
                     </ul>
                 </div>
-            </ScrollArea>
-        </div>
-         {ceremony.status === 'active' && (
-          <DialogFooter className="p-6 pt-2 flex-shrink-0">
-            <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
-              <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
-                {t('reserveWhatsapp')}
-              </a>
-            </Button>
-          </DialogFooter>
-        )}
+                
+                {ceremony.status === 'active' && (
+                <DialogFooter className="w-full">
+                    <Button asChild className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
+                    <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
+                        {t('reserveWhatsapp')}
+                    </a>
+                    </Button>
+                </DialogFooter>
+                )}
+            </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
 }
-
