@@ -64,7 +64,7 @@ export default function SingleCeremonyPage() {
 
     }, [id]);
     
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(cId => cId === id) || false;
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === id) || false;
     const assignedPlan = ceremony?.plans?.find(p => userProfile?.assignedCeremonies?.some(c => c.ceremonyId === ceremony.id && c.planId === p.id));
 
 
@@ -246,7 +246,7 @@ export default function SingleCeremonyPage() {
                         </ul>
                     </div>
                     <div className="mt-12">
-                        {isAssignedToCeremony && assignedPlan && ceremony.status === 'active' && (
+                        {isAssignedToCeremony && assignedPlan && ceremony.status === 'active' ? (
                              <div className='space-y-4 mb-4'>
                                 <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
                                 <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
@@ -255,9 +255,7 @@ export default function SingleCeremonyPage() {
                                     <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
                                 </div>
                             </div>
-                        )}
-                        
-                        {!isAssignedToCeremony && ceremony.status === 'active' && (
+                        ) : !isAssignedToCeremony && ceremony.status === 'active' ? (
                             <div className='text-center md:text-left'>
                                 {!hasPlans ? (
                                     <div className="mb-4">
@@ -304,7 +302,7 @@ export default function SingleCeremonyPage() {
                                     </Button>
                                 </div>
                             </div>
-                        )}
+                        ) : null}
                          {isAssignedToCeremony && ceremony.status === 'active' && (
                              <div className="flex flex-col sm:flex-row gap-2">
                                 <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
