@@ -146,7 +146,7 @@ export default function AdminUsersPage() {
             const profile = await getUserProfile(currentUser.uid);
             setCurrentUserProfile(profile);
 
-            const isAuthorized = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canEditUsers);
+            const isAuthorized = profile?.role === 'admin' || profile?.role === 'organizer';
             if (!isAuthorized) {
                 router.push('/'); return;
             }
@@ -331,6 +331,7 @@ export default function AdminUsersPage() {
     });
 
     const isSuperAdmin = currentUserProfile?.role === 'admin';
+    const canEditUsers = isSuperAdmin || currentUserProfile?.permissions?.canEditUsers;
 
 
     if (loading) {
@@ -417,6 +418,7 @@ export default function AdminUsersPage() {
                                                         <Select
                                                             value={u.status || 'Interesado'}
                                                             onValueChange={(value) => handleStatusChange(u.uid, value as UserStatus)}
+                                                            disabled={!canEditUsers}
                                                         >
                                                             <SelectTrigger className="w-full">
                                                                 <SelectValue placeholder={t('selectStatus')} />
@@ -456,15 +458,15 @@ export default function AdminUsersPage() {
                                                         <h4 className="font-semibold">{t('permissions')}</h4>
                                                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                                             <div className="flex items-center space-x-2">
-                                                                <Checkbox id={`perm-ceremonies-${u.uid}`} checked={u.permissions?.canEditCeremonies} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditCeremonies', !!checked)} />
+                                                                <Checkbox id={`perm-ceremonies-${u.uid}`} checked={u.permissions?.canEditCeremonies} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditCeremonies', !!checked)} disabled={!isSuperAdmin}/>
                                                                 <Label htmlFor={`perm-ceremonies-${u.uid}`}>{t('permission_canEditCeremonies')}</Label>
                                                             </div>
                                                             <div className="flex items-center space-x-2">
-                                                                <Checkbox id={`perm-courses-${u.uid}`} checked={u.permissions?.canEditCourses} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditCourses', !!checked)} />
+                                                                <Checkbox id={`perm-courses-${u.uid}`} checked={u.permissions?.canEditCourses} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditCourses', !!checked)} disabled={!isSuperAdmin}/>
                                                                 <Label htmlFor={`perm-courses-${u.uid}`}>{t('permission_canEditCourses')}</Label>
                                                             </div>
                                                             <div className="flex items-center space-x-2">
-                                                                <Checkbox id={`perm-users-${u.uid}`} checked={u.permissions?.canEditUsers} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditUsers', !!checked)} />
+                                                                <Checkbox id={`perm-users-${u.uid}`} checked={u.permissions?.canEditUsers} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditUsers', !!checked)} disabled={!isSuperAdmin}/>
                                                                 <Label htmlFor={`perm-users-${u.uid}`}>{t('permission_canEditUsers')}</Label>
                                                             </div>
                                                         </div>
@@ -472,7 +474,7 @@ export default function AdminUsersPage() {
                                                 )}
                                             </div>
                                             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
-                                                <Button variant="outline" size="sm" onClick={() => setEditingUser(u)} disabled={!(isSuperAdmin || currentUserProfile?.permissions?.canEditUsers)}>
+                                                <Button variant="outline" size="sm" onClick={() => setEditingUser(u)} disabled={!canEditUsers}>
                                                     <Edit className="mr-2 h-4 w-4"/>{t('editUser')}
                                                 </Button>
                                                 <Button variant="outline" size="sm" onClick={() => setAssigningUser(u)}>

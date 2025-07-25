@@ -161,7 +161,7 @@ export default function CoursesPage() {
                     })}
                 </div>
             ) : (
-                <p className="text-muted-foreground">{t('noCoursesInCategory')}</p>
+                <p className="text-muted-foreground text-center">{t('noCoursesInCategory')}</p>
             )}
         </div>
     );

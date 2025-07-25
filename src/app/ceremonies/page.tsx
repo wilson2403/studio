@@ -47,11 +47,11 @@ export default function AllCeremoniesPage() {
                 fetchCeremonies(!!hasPermission);
             } else {
                 setIsAuthorized(false);
-                router.push('/login?redirect=/ceremonies');
+                fetchCeremonies(false);
             }
         });
         return () => unsubscribe();
-    }, [router]);
+    }, []);
     
     const fetchCeremonies = async (isUserAuthorized: boolean) => {
         setPageLoading(true);
@@ -141,7 +141,7 @@ export default function AllCeremoniesPage() {
         );
     }
     
-    if (!user) {
+    if (!user && !pageLoading) {
         return (
             <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
                 <Card className="w-full max-w-md text-center">

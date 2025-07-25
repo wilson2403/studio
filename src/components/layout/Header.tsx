@@ -70,6 +70,8 @@ export default function Header() {
   ];
   
   const isAdmin = userProfile?.role === 'admin';
+  const isOrganizer = userProfile?.role === 'organizer';
+  const organizerHasPerms = isOrganizer && (userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses || userProfile?.permissions?.canEditUsers);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -145,16 +147,30 @@ export default function Header() {
                 <Bot className="mr-2 h-4 w-4" />
                 <span>{t('myChatsTitle')}</span>
             </DropdownMenuItem>
-            {isAdmin && (
+            {(isAdmin || organizerHasPerms) && (
               <>
                 <DropdownMenuSeparator />
-                {adminNavLinks.map(link => (
-                    <DropdownMenuItem key={link.href} onMouseDown={() => router.push(link.href)}>
-                        <link.icon className="mr-2 h-4 w-4" />
-                        <span>{link.label}</span>
-                        {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
-                    </DropdownMenuItem>
-                ))}
+                {adminNavLinks.map(link => {
+                  let hasAccess = isAdmin;
+                  if (!hasAccess && isOrganizer) {
+                      if (link.href === '/admin/users' && userProfile.permissions?.canEditUsers) hasAccess = true;
+                      if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile.permissions?.canEditCeremonies || userProfile.permissions?.canEditCourses)) hasAccess = true;
+                      // Other admin links are admin-only
+                  }
+                  
+                  if (!hasAccess && link.href !== '/admin' && link.href !== '/admin/users') return null;
+                  
+                  if (hasAccess) {
+                    return (
+                        <DropdownMenuItem key={link.href} onMouseDown={() => router.push(link.href)}>
+                            <link.icon className="mr-2 h-4 w-4" />
+                            <span>{link.label}</span>
+                            {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
+                        </DropdownMenuItem>
+                    );
+                  }
+                  return null;
+                })}
               </>
             )}
             <DropdownMenuSeparator />
@@ -308,18 +324,29 @@ export default function Header() {
                           </SheetClose>
                         </>
                       )}
-                      {isAdmin && (
+                      {(isAdmin || organizerHasPerms) && (
                         <>
                           <DropdownMenuSeparator />
-                          {adminNavLinks.map((link) => (
-                              <SheetClose asChild key={link.href}>
-                                  <Link href={link.href} className="transition-colors hover:text-primary flex items-center gap-2 w-full">
-                                      <link.icon className="h-5 w-5" />
-                                      <span>{link.label}</span>
-                                      {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
-                                  </Link>
-                              </SheetClose>
-                          ))}
+                           {adminNavLinks.map(link => {
+                                let hasAccess = isAdmin;
+                                if (!hasAccess && isOrganizer) {
+                                    if (link.href === '/admin/users' && userProfile.permissions?.canEditUsers) hasAccess = true;
+                                    if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile.permissions?.canEditCeremonies || userProfile.permissions?.canEditCourses)) hasAccess = true;
+                                    // Other admin links are admin-only
+                                }
+                                if(hasAccess) {
+                                    return (
+                                        <SheetClose asChild key={link.href}>
+                                            <Link href={link.href} className="transition-colors hover:text-primary flex items-center gap-2 w-full">
+                                                <link.icon className="h-5 w-5" />
+                                                <span>{link.label}</span>
+                                                {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
+                                            </Link>
+                                        </SheetClose>
+                                    )
+                                }
+                                return null;
+                            })}
                           <DropdownMenuSeparator />
                         </>
                       )}
