@@ -303,7 +303,7 @@ export default function AdminUsersPage() {
 
     const getPreparationPercentage = (user: UserProfile) => {
         if (user.questionnaireCompleted) return 100;
-        const totalSteps = 11;
+        const totalSteps = 12; // Increased to 12 because of the new info step
         const progress = user.preparationStep || 0;
         return Math.floor(((progress + 1) / totalSteps) * 100);
     }
