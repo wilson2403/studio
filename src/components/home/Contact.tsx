@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Instagram } from "lucide-react";
@@ -10,6 +9,7 @@ import Link from "next/link";
 import { WhatsappIcon } from "../icons/WhatsappIcon";
 import { useEditable } from "./EditableProvider";
 import { useEffect, useState } from "react";
+import { FacebookIcon } from "../icons/FacebookIcon";
 
 export default function Contact() {
     const { t } = useTranslation();
@@ -27,15 +27,21 @@ export default function Contact() {
 
     useEffect(() => {
         // Fetch content when component mounts
-        fetchContent(whatsappCommunityLinkId, initialWhatsappCommunityLink);
-    }, [fetchContent]);
+        if (whatsappCommunityLinkId) {
+            fetchContent(whatsappCommunityLinkId, initialWhatsappCommunityLink);
+        }
+    }, [fetchContent, whatsappCommunityLinkId, initialWhatsappCommunityLink]);
 
     useEffect(() => {
         // Update local state when content from context changes
         const communityLinkValue = content[whatsappCommunityLinkId];
-        const link = (typeof communityLinkValue === 'object' && communityLinkValue !== null ? communityLinkValue.es : communityLinkValue) as string || initialWhatsappCommunityLink;
-        setCommunityLink(link);
-    }, [content[whatsappCommunityLinkId]]);
+        if (communityLinkValue) {
+            const link = (typeof communityLinkValue === 'object' && communityLinkValue !== null ? (communityLinkValue as any).es : communityLinkValue) as string || initialWhatsappCommunityLink;
+            setCommunityLink(link);
+        } else {
+            setCommunityLink(initialWhatsappCommunityLink);
+        }
+    }, [content, whatsappCommunityLinkId, initialWhatsappCommunityLink]);
 
 
     return (
