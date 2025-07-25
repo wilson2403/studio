@@ -29,7 +29,9 @@ export default function Contact() {
         fetchContent(whatsappCommunityLinkId, initialWhatsappCommunityLink);
     }, [fetchContent]);
 
-    const communityLink = content[whatsappCommunityLinkId] as string || initialWhatsappCommunityLink;
+    const communityLinkValue = content[whatsappCommunityLinkId];
+    const communityLink = (typeof communityLinkValue === 'object' && communityLinkValue !== null ? communityLinkValue.es : communityLinkValue) as string || initialWhatsappCommunityLink;
+
 
     return (
         <section id="contact" className="container py-8 md:py-16">

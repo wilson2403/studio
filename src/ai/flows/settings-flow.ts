@@ -51,7 +51,9 @@ export const getSystemSettings = ai.defineFlow(
           return content || fallback;
       }
       
-      const whatsappLink = await getContent('whatsappCommunityLink') as string || '';
+      const whatsappLinkContent = await getContent('whatsappCommunityLink');
+      const whatsappLink = (typeof whatsappLinkContent === 'object' && whatsappLinkContent !== null ? whatsappLinkContent.es : whatsappLinkContent) as string || '';
+
 
       const navLinks = {
           home: await fetchContentWithFallback('navHome', { es: 'Inicio', en: 'Home' }),
@@ -121,7 +123,7 @@ export const updateSystemSettings = ai.defineFlow(
         await fs.writeFile(envPath, envContent.trim());
       
         // Update Firestore content
-        await setContent('whatsappCommunityLink', settings.whatsappCommunityLink);
+        await setContent('whatsappCommunityLink', { es: settings.whatsappCommunityLink, en: settings.whatsappCommunityLink });
         for (const [key, value] of Object.entries(settings.navLinks)) {
             await setContent(`nav${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
         }

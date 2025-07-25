@@ -36,9 +36,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const contentValue = content[id];
   let displayValue: string;
   
-  if (id === 'whatsappCommunityLink') {
-    displayValue = contentValue as string || initialValue;
-  } else if (typeof contentValue === 'object' && contentValue !== null) {
+  if (typeof contentValue === 'object' && contentValue !== null) {
       displayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
   } else if (typeof contentValue === 'string') {
       displayValue = contentValue;
@@ -48,7 +46,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   
   const handleSave = async () => {
     if (id === 'whatsappCommunityLink') {
-        await updateContent(id, { es: editValue, en: editValue });
+        const newValue = { es: editValue, en: editValue };
+        await updateContent(id, newValue);
     } else {
         if (!contentValue) return;
 
@@ -62,8 +61,6 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
         
         try {
             await updateContent(id, newContentValue);
-            toast({ title: t('editableSuccess'), description: '' });
-            setIsEditing(false);
         } catch (error) {
             toast({ title: t('editableError'), description: '', variant: 'destructive' });
         }
@@ -78,7 +75,12 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   };
   
   const handleEditClick = () => {
-    setEditValue(displayValue);
+    if (id === 'whatsappCommunityLink') {
+       const linkValue = (typeof contentValue === 'object' && contentValue !== null ? contentValue.es : contentValue) as string || initialValue;
+       setEditValue(linkValue);
+    } else {
+       setEditValue(displayValue);
+    }
     setIsEditing(true);
   }
 
