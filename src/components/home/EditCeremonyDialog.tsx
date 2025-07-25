@@ -297,16 +297,16 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
-      <DialogContent className="sm:max-w-[500px] bg-card">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-md bg-card flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>{isEditMode ? t('editCeremony') : t('addCeremonyTitle')}</DialogTitle>
           <DialogDescription>
             {isEditMode ? t('editCeremonyDescription') : t('addCeremonyDescription')}
           </DialogDescription>
         </DialogHeader>
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-                <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 py-2">
+        <div className="flex-grow overflow-y-auto -mr-6 pr-6">
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     
                     <FormField
                         control={form.control}
@@ -685,11 +685,9 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             <Progress value={uploadProgress} />
                         </div>
                     )}
-                </div>
-                
-                 {isEditMode && <Separator className="my-4" />}
 
-                 <div className="space-y-4 pt-2">
+                    {isEditMode && <Separator className="my-4" />}
+
                     {isEditMode && ceremony && (
                         <div className='space-y-4'>
                             <FormField
@@ -697,7 +695,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                                 name="status"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t('formStatus')}</FormLabel>
+                                        <FormLabel>{t('status')}</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isUploading}>
                                             <FormControl>
                                                 <SelectTrigger>
@@ -756,8 +754,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                                 </AlertDialog>
                             </div>
                         </div>
-                     )}
-
+                    )}
                     <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end w-full pt-2">
                         <DialogClose asChild>
                             <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
@@ -766,10 +763,11 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             {isUploading ? t('saving') : t('saveChanges')}
                         </Button>
                     </DialogFooter>
-                 </div>
-            </form>
-        </Form>
+                </form>
+            </Form>
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
+
