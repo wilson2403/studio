@@ -168,9 +168,14 @@ export default function Ceremonies({
                     url: shareUrl,
                 });
             } catch (error) {
-                // If the user cancels the share or the API fails,
-                // we don't want to throw an error. We can just ignore it.
-                console.log('Share API failed or was cancelled, this is expected in some cases.');
+                // Silently ignore user cancellation or other share errors
+                // and fallback to clipboard copy.
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    toast({ title: t('linkCopied') });
+                } catch (copyError) {
+                    toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+                }
             }
         } else {
              try {
@@ -462,5 +467,7 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+
+    
 
     
