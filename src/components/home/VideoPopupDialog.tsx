@@ -32,6 +32,7 @@ export default function VideoPopupDialog({ ceremonyId, isOpen, onClose, videoUrl
             ceremonyId={ceremonyId}
             videoUrl={videoUrl}
             mediaType={mediaType}
+            videoFit="contain"
             title={title}
             autoplay={true}
             defaultMuted={false}
