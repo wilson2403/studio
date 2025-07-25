@@ -59,7 +59,7 @@ export default function Header() {
   ];
   
   const userNavLinks = [
-     { href: '/ceremonies', label: t('navMyCeremonies'), sectionId: 'ceremonies' },
+     { href: '/ceremonies', label: t('navCeremonies'), sectionId: 'ceremonies' },
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
      { href: '/artedesanar', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
