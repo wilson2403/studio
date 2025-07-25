@@ -56,7 +56,6 @@ const messagesFormSchema = (t: (key: string, options?: any) => string) => z.obje
 type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
 type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 const userRoles: UserRole[] = ['user', 'organizer', 'admin'];
 
@@ -291,6 +290,10 @@ export default function AdminUsersPage() {
     }
 
     const handleDeleteUser = async (uid: string) => {
+        if (currentUserProfile?.uid === uid) {
+            toast({ title: t('errorCannotDeleteSelf'), variant: 'destructive' });
+            return;
+        }
         try {
             await deleteUser(uid);
             setUsers(prev => prev.filter(u => u.uid !== uid));
@@ -469,7 +472,7 @@ export default function AdminUsersPage() {
                                                 )}
                                             </div>
                                             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
-                                                <Button variant="outline" size="sm" onClick={() => setEditingUser(u)}>
+                                                <Button variant="outline" size="sm" onClick={() => setEditingUser(u)} disabled={!(isSuperAdmin || currentUserProfile?.permissions?.canEditUsers)}>
                                                     <Edit className="mr-2 h-4 w-4"/>{t('editUser')}
                                                 </Button>
                                                 <Button variant="outline" size="sm" onClick={() => setAssigningUser(u)}>
@@ -787,3 +790,5 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
+    
