@@ -63,11 +63,15 @@ export default function Ceremonies({
       try {
         let ceremoniesData = await getCeremonies(status);
         
+        // Ensure inactive ceremonies are not shown on the homepage
+        ceremoniesData = ceremoniesData.filter(c => c.status !== 'inactive');
+
         if (ceremoniesData.length === 0 && status === 'active') {
             const allCeremonies = await getCeremonies();
             if (allCeremonies.length === 0) {
                  await seedCeremonies();
                  ceremoniesData = await getCeremonies(status);
+                 ceremoniesData = ceremoniesData.filter(c => c.status !== 'inactive');
             }
         }
         
