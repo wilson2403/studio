@@ -141,12 +141,11 @@ export default function AllCeremoniesPage() {
                     url: shareUrl,
                 });
             } catch (error) {
-                // This will fail on desktop, or if the user cancels the share.
-                // We can safely ignore this error.
-                console.log('Share API not supported or failed, user can copy link manually.');
+                // If the user cancels the share or the API fails,
+                // we don't want to throw an error. We can just ignore it.
+                console.log('Share API failed or was cancelled, this is expected in some cases.');
             }
         } else {
-            // Fallback for browsers that do not support the Share API
              try {
                 await navigator.clipboard.writeText(shareUrl);
                 toast({ title: t('linkCopied') });
