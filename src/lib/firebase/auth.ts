@@ -27,9 +27,10 @@ export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-    // Check if user document already exists
     const userRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(userRef);
+
+    const isUserAdmin = user.email === ADMIN_EMAIL;
 
     if (!docSnap.exists()) {
         // New user
@@ -39,23 +40,24 @@ export const signInWithGoogle = async () => {
             displayName: user.displayName,
             photoURL: user.photoURL,
             providerId: result.providerId,
-            isAdmin: user.email === ADMIN_EMAIL,
+            role: isUserAdmin ? 'admin' : 'user', // Set role on creation
             questionnaireCompleted: false,
             status: 'Interesado',
         }, { merge: true });
         sessionStorage.setItem('tour_status', 'pending');
     } else {
-        // Returning user, but ensure tour status is cleared
+        // Returning user, ensure their admin status is correct.
+        // This is crucial if their admin status was ever manually changed or corrupted.
+        if (isUserAdmin) {
+            await setDoc(userRef, { role: 'admin' }, { merge: true });
+        }
         sessionStorage.removeItem('tour_status');
     }
     
     return user;
   } catch (error: any) {
-    // This error code means the user closed the popup. It's not a critical error.
     if (error.code === 'auth/popup-closed-by-user') {
       console.log('Google Sign-In popup closed by user.');
-      // We can return null or rethrow a more specific, non-critical error
-      // For now, we'll just not throw, which will prevent the error toast.
       return null;
     }
     console.error("Error signing in with Google: ", error);
@@ -69,7 +71,6 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
-    // Update profile and send verification email
     await updateProfile(user, { displayName });
     await sendEmailVerification(user);
     
@@ -78,7 +79,6 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
         ? `${dialCode}${phone.replace(/\D/g, '')}`
         : undefined;
 
-    // Create user document in Firestore
     const userRef = doc(db, 'users', user.uid);
     await setDoc(userRef, {
       uid: user.uid,
@@ -87,7 +87,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
       phone: fullPhoneNumber,
       photoURL: user.photoURL,
       providerId: 'password',
-      isAdmin: user.email === ADMIN_EMAIL,
+      role: user.email === ADMIN_EMAIL ? 'admin' : 'user',
       questionnaireCompleted: false,
       status: 'Interesado',
     });
@@ -146,10 +146,8 @@ export const updateUserEmail = async (newEmail: string, currentPassword?: string
     if (!currentPassword) throw new Error("Current password is required to update email.");
 
     try {
-        // Re-authentication is required for sensitive operations like changing an email.
         await reauthenticate(currentPassword);
         await updateEmail(user, newEmail);
-        // Also update the email in your Firestore database
         const userRef = doc(db, 'users', user.uid);
         await setDoc(userRef, { email: newEmail }, { merge: true });
 
@@ -165,7 +163,6 @@ export const updateUserPassword = async (currentPassword: string, newPassword: s
     if (!user) throw new Error("No user is signed in.");
     
     try {
-        // Re-authentication is also required for changing the password.
         await reauthenticate(currentPassword);
         await firebaseUpdatePassword(user, newPassword);
     } catch (error) {
@@ -174,4 +171,3 @@ export const updateUserPassword = async (currentPassword: string, newPassword: s
         throw error;
     }
 };
-
