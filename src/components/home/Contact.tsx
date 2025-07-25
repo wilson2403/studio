@@ -8,13 +8,13 @@ import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { WhatsappIcon } from "../icons/WhatsappIcon";
-import { FacebookIcon } from "../icons/FacebookIcon";
 import { useEditable } from "./EditableProvider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Contact() {
     const { t } = useTranslation();
     const { content, fetchContent } = useEditable();
+    const [communityLink, setCommunityLink] = useState('');
 
     const socialLinks = {
         instagramUrl: 'https://www.instagram.com/elartedesanarcr',
@@ -26,11 +26,16 @@ export default function Contact() {
     const initialWhatsappCommunityLink = 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ';
 
     useEffect(() => {
+        // Fetch content when component mounts
         fetchContent(whatsappCommunityLinkId, initialWhatsappCommunityLink);
     }, [fetchContent]);
 
-    const communityLinkValue = content[whatsappCommunityLinkId];
-    const communityLink = (typeof communityLinkValue === 'object' && communityLinkValue !== null ? communityLinkValue.es : communityLinkValue) as string || initialWhatsappCommunityLink;
+    useEffect(() => {
+        // Update local state when content from context changes
+        const communityLinkValue = content[whatsappCommunityLinkId];
+        const link = (typeof communityLinkValue === 'object' && communityLinkValue !== null ? communityLinkValue.es : communityLinkValue) as string || initialWhatsappCommunityLink;
+        setCommunityLink(link);
+    }, [content[whatsappCommunityLinkId]]);
 
 
     return (
@@ -85,12 +90,14 @@ export default function Contact() {
                             initialValue={t('whatsappCommunityTitle')}
                             className="text-lg text-foreground/80 font-body mb-4"
                         />
-                        <Button asChild>
-                            <Link href={communityLink} target="_blank">
-                                <WhatsappIcon className="mr-2" />
-                                {t('whatsappCommunityButton')}
-                            </Link>
-                        </Button>
+                        {communityLink && (
+                            <Button asChild>
+                                <Link href={communityLink} target="_blank">
+                                    <WhatsappIcon className="mr-2" />
+                                    {t('whatsappCommunityButton')}
+                                </Link>
+                            </Button>
+                        )}
                     </CardContent>
                 </Card>
             </div>
