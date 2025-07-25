@@ -217,7 +217,7 @@ export default function SingleCeremonyPage() {
                                 <Clock className='w-4 h-4'/> {ceremony.horario}
                             </p>
                             )}
-                             {ceremony.locationLink && (
+                             {user && ceremony.status === 'active' && ceremony.locationLink && (
                                 <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
                                     <MapPin className='w-4 h-4'/> {t('viewLocation')}
                                 </a>
