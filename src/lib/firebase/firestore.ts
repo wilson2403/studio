@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress } from '@/types';
+import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -598,13 +598,34 @@ export const updateUserProfile = async (uid: string, data: Partial<UserProfile>)
     }
 };
 
-export const updateUserRole = async (uid: string, isAdmin: boolean): Promise<void> => {
+export const updateUserRole = async (uid: string, role: UserRole): Promise<void> => {
     try {
         const userRef = doc(db, 'users', uid);
-        await updateDoc(userRef, { isAdmin });
+        const updateData: { role: UserRole, permissions?: UserProfile['permissions'] } = { role };
+        // When demoting from admin, clear permissions
+        if (role !== 'admin') {
+            const currentProfile = await getUserProfile(uid);
+            if(currentProfile?.role === 'admin') {
+                updateData.permissions = {}; // Reset permissions
+            }
+        }
+        await updateDoc(userRef, updateData);
     } catch (error) {
         console.error("Error updating user role:", error);
-        logError(error, { function: 'updateUserRole', uid, isAdmin });
+        logError(error, { function: 'updateUserRole', uid, role });
+        throw error;
+    }
+};
+
+export const updateUserPermissions = async (uid: string, permission: keyof NonNullable<UserProfile['permissions']>, value: boolean) => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, {
+            [`permissions.${permission}`]: value
+        });
+    } catch (error) {
+        console.error("Error updating user permissions:", error);
+        logError(error, { function: 'updateUserPermissions', uid, permission, value });
         throw error;
     }
 };
@@ -716,13 +737,14 @@ export const getChat = async (chatId: string): Promise<Chat | null> => {
 };
 
 
-export const getAllChats = async (): Promise<Chat[]> => {
+export const getChatsByUserId = async (userId: string): Promise<Chat[]> => {
     try {
-        const snapshot = await getDocs(chatsCollection);
+        const q = query(chatsCollection, where('user.uid', '==', userId), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
     } catch (error) {
-        console.error("Error fetching chats: ", error);
-        logError(error, { function: 'getAllChats' });
+        console.error(`Error getting chats for user ${userId}:`, error);
+        logError(error, { function: 'getChatsByUserId', userId });
         return [];
     }
 };

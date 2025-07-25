@@ -6,13 +6,12 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { useFieldArray, useForm } from 'react-hook-form';
@@ -30,11 +29,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { v4 as uuidv4 } from 'uuid';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Progress } from '@/components/ui/progress';
 import AssignCeremonyDialog from '@/components/admin/AssignCeremonyDialog';
 import ViewUserCoursesDialog from '@/components/admin/ViewUserCoursesDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '../ui/checkbox';
+import ViewUserChatsDialog from '../admin/ViewUserChatsDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -57,8 +57,7 @@ type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
-const TOTAL_PREPARATION_STEPS = 11;
-
+const userRoles: UserRole[] = ['user', 'organizer', 'admin'];
 
 const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMessage, 'id'> => ({
     name: t('defaultInvitationName'),
@@ -69,11 +68,13 @@ const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMe
 
 export default function AdminUsersPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
+    const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserProfile[]>([]);
     const [courses, setCourses] = useState<Course[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewingUserQuestionnaire, setViewingUserQuestionnaire] = useState<UserProfile | null>(null);
+    const [viewingUserChats, setViewingUserChats] = useState<UserProfile | null>(null);
     const [viewingUserCourses, setViewingUserCourses] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
@@ -143,10 +144,13 @@ export default function AdminUsersPage() {
                 router.push('/'); return;
             }
             const profile = await getUserProfile(currentUser.uid);
-            const isAdmin = profile?.isAdmin || currentUser.email === ADMIN_EMAIL;
+            setCurrentUserProfile(profile);
+
+            const isAdmin = profile?.role === 'admin';
             if (!isAdmin) {
                 router.push('/'); return;
             }
+
             setUser(currentUser);
             await Promise.all([fetchUsers(), fetchInvitationMessages(), fetchAnalytics(), fetchCourses()]);
             setLoading(false);
@@ -156,16 +160,26 @@ export default function AdminUsersPage() {
     }, [router, toast, t, messagesForm]);
 
 
-    const handleRoleChange = async (uid: string, isAdmin: boolean) => {
+    const handleRoleChange = async (uid: string, role: UserRole) => {
         try {
-            await updateUserRole(uid, isAdmin);
-            setUsers(users.map(u => u.uid === uid ? { ...u, isAdmin } : u));
+            await updateUserRole(uid, role);
+            setUsers(users.map(u => u.uid === uid ? { ...u, role } : u));
             toast({ title: t('roleUpdatedSuccess') });
         } catch (error: any) {
             toast({ title: t('roleUpdatedError'), variant: 'destructive' });
         }
     };
     
+    const handlePermissionsChange = async (uid: string, permission: keyof NonNullable<UserProfile['permissions']>, value: boolean) => {
+        try {
+            await updateUserPermissions(uid, permission, value);
+            setUsers(users.map(u => u.uid === uid ? { ...u, permissions: { ...(u.permissions || {}), [permission]: value } } : u));
+            toast({ title: t('permissionsUpdatedSuccess') });
+        } catch (error: any) {
+            toast({ title: t('permissionsUpdatedError'), variant: 'destructive' });
+        }
+    };
+
     const handleStatusChange = async (uid: string, status: UserStatus) => {
         try {
             await updateUserStatus(uid, status);
@@ -288,8 +302,9 @@ export default function AdminUsersPage() {
 
     const getPreparationPercentage = (user: UserProfile) => {
         if (user.questionnaireCompleted) return 100;
+        const totalSteps = 11;
         const progress = user.preparationStep || 0;
-        return Math.floor(((progress + 1) / TOTAL_PREPARATION_STEPS) * 100);
+        return Math.floor(((progress + 1) / totalSteps) * 100);
     }
 
     const getCourseProgressPercentage = (user: UserProfile) => {
@@ -310,6 +325,8 @@ export default function AdminUsersPage() {
             u.phone?.includes(search)
         );
     });
+
+    const isSuperAdmin = currentUserProfile?.role === 'admin';
 
 
     if (loading) {
@@ -378,15 +395,16 @@ export default function AdminUsersPage() {
                                                         )}
                                                         {getPreparationPercentage(u)}%
                                                     </Badge>
-                                                    {(u.isAdmin || u.email === ADMIN_EMAIL) && <Badge variant="destructive">{t('admin')}</Badge>}
+                                                    {u.role === 'admin' && <Badge variant="destructive">{t('admin')}</Badge>}
+                                                    {u.role === 'organizer' && <Badge variant="warning">{t('organizer')}</Badge>}
                                                 </div>
                                             </div>
                                         </AccordionTrigger>
                                         <AccordionContent>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
                                                 <div className="space-y-4">
                                                     <h4 className="font-semibold">{t('userStatus')}</h4>
-                                                    {(u.isAdmin || u.email === ADMIN_EMAIL) ? (
+                                                    {u.role === 'admin' ? (
                                                         <div className='flex items-center gap-2 font-semibold text-primary'>
                                                             <ShieldCheck className="h-4 w-4" />
                                                             {t('admin')}
@@ -410,17 +428,44 @@ export default function AdminUsersPage() {
                                                     )}
                                                 </div>
                                                 <div className="space-y-4">
-                                                    <h4 className="font-semibold">{t('userAdmin')}</h4>
-                                                    <div className="flex items-center space-x-2">
-                                                        <Switch
-                                                            id={`admin-switch-${u.uid}`}
-                                                            checked={u.isAdmin || u.email === ADMIN_EMAIL}
-                                                            onCheckedChange={(checked) => handleRoleChange(u.uid, checked)}
-                                                            disabled={u.email === ADMIN_EMAIL}
-                                                        />
-                                                        <label htmlFor={`admin-switch-${u.uid}`}>{t('setAsAdmin')}</label>
-                                                    </div>
+                                                     <h4 className="font-semibold">{t('userRole')}</h4>
+                                                     <Select
+                                                        value={u.role || 'user'}
+                                                        onValueChange={(value) => handleRoleChange(u.uid, value as UserRole)}
+                                                        disabled={!isSuperAdmin}
+                                                     >
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue placeholder={t('selectRole')} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {userRoles.map(role => (
+                                                                <SelectItem key={role} value={role}>
+                                                                    {t(`role_${role}`)}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                     </Select>
                                                 </div>
+
+                                                {u.role === 'organizer' && (
+                                                    <div className="md:col-span-2 space-y-4">
+                                                        <h4 className="font-semibold">{t('permissions')}</h4>
+                                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                            <div className="flex items-center space-x-2">
+                                                                <Checkbox id={`perm-ceremonies-${u.uid}`} checked={u.permissions?.canEditCeremonies} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditCeremonies', !!checked)} />
+                                                                <Label htmlFor={`perm-ceremonies-${u.uid}`}>{t('permission_canEditCeremonies')}</Label>
+                                                            </div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <Checkbox id={`perm-courses-${u.uid}`} checked={u.permissions?.canEditCourses} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditCourses', !!checked)} />
+                                                                <Label htmlFor={`perm-courses-${u.uid}`}>{t('permission_canEditCourses')}</Label>
+                                                            </div>
+                                                            <div className="flex items-center space-x-2">
+                                                                <Checkbox id={`perm-users-${u.uid}`} checked={u.permissions?.canEditUsers} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditUsers', !!checked)} />
+                                                                <Label htmlFor={`perm-users-${u.uid}`}>{t('permission_canEditUsers')}</Label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t">
                                                 <Button variant="outline" size="sm" onClick={() => setEditingUser(u)}>
@@ -438,32 +483,33 @@ export default function AdminUsersPage() {
                                                     </Button>
                                                 )}
                                                 {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (
-                                                    <div className='flex items-center flex-wrap gap-2'>
-                                                        <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
-                                                            <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
-                                                        </Button>
-                                                        {(!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
-                                                            <AlertDialog>
-                                                                <AlertDialogTrigger asChild>
-                                                                    <Button variant="destructive" size="sm">
-                                                                        <RotateCcw className="mr-2 h-4 w-4" /> {t('reset')}
-                                                                    </Button>
-                                                                </AlertDialogTrigger>
-                                                                <AlertDialogContent>
-                                                                    <AlertDialogHeader>
-                                                                        <AlertDialogTitle>{t('resetQuestionnaireConfirmTitle')}</AlertDialogTitle>
-                                                                        <AlertDialogDescription>{t('resetQuestionnaireConfirmDescription', { name: u.displayName || u.email })}</AlertDialogDescription>
-                                                                    </AlertDialogHeader>
-                                                                    <AlertDialogFooter>
-                                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                                        <AlertDialogAction onClick={() => handleResetQuestionnaire(u.uid)}>{t('continue')}</AlertDialogAction>
-                                                                    </AlertDialogFooter>
-                                                                </AlertDialogContent>
-                                                            </AlertDialog>
-                                                        )}
-                                                    </div>
+                                                    <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
+                                                        <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
+                                                    </Button>
                                                 )}
-                                                {!u.questionnaireCompleted && (!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
+                                                <Button variant="outline" size="sm" onClick={() => setViewingUserChats(u)}>
+                                                    <Bot className="mr-2 h-4 w-4"/>{t('viewAIChats')}
+                                                </Button>
+                                                {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="destructive" size="sm">
+                                                                <RotateCcw className="mr-2 h-4 w-4" /> {t('reset')}
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>{t('resetQuestionnaireConfirmTitle')}</AlertDialogTitle>
+                                                                <AlertDialogDescription>{t('resetQuestionnaireConfirmDescription', { name: u.displayName || u.email })}</AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleResetQuestionnaire(u.uid)}>{t('continue')}</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                )}
+                                                {isSuperAdmin && u.role !== 'admin' && (
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
                                                             <Button variant="destructive" size="icon" className='h-9 w-9'>
@@ -572,7 +618,7 @@ export default function AdminUsersPage() {
                                                         <FormItem className='mb-2'>
                                                             <FormLabel>{t('templateMessageES')}</FormLabel>
                                                             <FormControl>
-                                                                <Textarea {...field} rows={8}/>
+                                                                <Textarea {...field} rows={10}/>
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -585,7 +631,7 @@ export default function AdminUsersPage() {
                                                         <FormItem>
                                                             <FormLabel>{t('templateMessageEN')}</FormLabel>
                                                             <FormControl>
-                                                                <Textarea {...field} rows={8} />
+                                                                <Textarea {...field} rows={10} />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -688,6 +734,13 @@ export default function AdminUsersPage() {
                     onClose={() => setViewingUserCourses(null)}
                 />
             )}
+            {viewingUserChats && (
+                <ViewUserChatsDialog
+                    user={viewingUserChats}
+                    isOpen={!!viewingUserChats}
+                    onClose={() => setViewingUserChats(null)}
+                />
+            )}
              {editingUser && (
                 <EditProfileDialog 
                     user={editingUser} 
@@ -733,4 +786,5 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
 

@@ -32,19 +32,18 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { getUserProfile, logSectionClick, updateVideoProgress } from '@/lib/firebase/firestore';
+import { getUserProfile, logSectionClick, updateVideoProgress, UserProfile } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
 const APP_VERSION = '1.42';
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { t } = useTranslation();
@@ -66,18 +65,22 @@ export default function Header() {
       { href: '/admin/users', label: t('userManagementTitle'), icon: UserIcon },
       { href: '/admin/theme', label: t('themeTab'), icon: Palette },
       { href: '/admin/backup', label: t('backupTitle'), icon: History },
-      { href: '/admin/chat', label: t('chatHistoryTitle'), icon: MessageSquare },
       { href: '/admin/logs', label: t('errorLogsTitle'), icon: Terminal }
   ];
+
+  const canEditCeremonies = userProfile?.role === 'admin' || userProfile?.permissions?.canEditCeremonies;
+  const canEditUsers = userProfile?.role === 'admin' || userProfile?.permissions?.canEditUsers;
+  const canEditCourses = userProfile?.role === 'admin' || userProfile?.permissions?.canEditCourses;
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
         const profile = await getUserProfile(currentUser.uid);
-        setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+        setUserProfile(profile);
       } else {
-        setIsAdmin(false);
+        setUserProfile(null);
       }
       setLoading(false);
     });
@@ -90,7 +93,7 @@ export default function Header() {
   };
 
   const handleLinkMouseDown = (sectionId: string) => {
-    if (!isAdmin) {
+    if (userProfile?.role !== 'admin') {
       logSectionClick(sectionId, user?.uid);
     }
   }
@@ -144,7 +147,7 @@ export default function Header() {
                 <BookOpen className="mr-2 h-4 w-4" />
                 <span>{t('navCourses')}</span>
             </DropdownMenuItem>
-            {isAdmin && (
+            {userProfile?.role === 'admin' && (
               <>
                 <DropdownMenuSeparator />
                 {adminNavLinks.map(link => (
@@ -307,7 +310,7 @@ export default function Header() {
                           </SheetClose>
                         </>
                       )}
-                      {isAdmin && (
+                      {userProfile?.role === 'admin' && (
                         <>
                           <DropdownMenuSeparator />
                           {adminNavLinks.map((link) => (
