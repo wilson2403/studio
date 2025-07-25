@@ -40,12 +40,16 @@ export default function InviteToCeremonyDialog({ user, isOpen, onClose }: Invite
     if (!user.phone) return;
 
     const ceremonyLink = `${window.location.origin}/ceremonias/${ceremony.id}`;
-    const message = t('ceremonyInvitationMessage', {
+    let message = t('ceremonyInvitationMessage', {
       name: user.displayName,
       ceremonyTitle: ceremony.title,
       ceremonyDate: ceremony.date,
       link: ceremonyLink,
     });
+
+    if (ceremony.locationLink) {
+        message += `\n\n${t('locationLabel')}: ${ceremony.locationLink}`;
+    }
     
     const phoneNumber = user.phone.replace(/\D/g, '');
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;

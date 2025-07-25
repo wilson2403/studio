@@ -19,6 +19,7 @@ export type Ceremony = {
   priceType: 'exact' | 'from';
   features: string[];
   link: string;
+  locationLink?: string;
   featured: boolean;
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
@@ -152,6 +153,7 @@ export type QuestionnaireAnswers = {
     mainIntention: string;
     hasPreviousExperience: 'yes' | 'no';
     previousExperienceDetails?: string;
+    updatedAt?: Timestamp;
 };
 
 export type ErrorLog = {

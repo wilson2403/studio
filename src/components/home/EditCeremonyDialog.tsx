@@ -43,6 +43,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('formPrice') })),
   priceType: z.enum(['exact', 'from']),
   link: z.string().url(t('errorInvalidUrl')).or(z.literal('')),
+  locationLink: z.string().url(t('errorInvalidUrl')).or(z.literal('')).optional(),
   featured: z.boolean(),
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
   mediaUrl: z.string().optional(),
@@ -88,6 +89,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       price: 80000,
       priceType: 'from',
       link: 'https://wa.me/50687992560',
+      locationLink: '',
       featured: false,
       features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
       mediaUrl: '',
@@ -119,6 +121,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
         price: 80000,
         priceType: 'from',
         link: 'https://wa.me/50687992560',
+        locationLink: '',
         featured: false,
         features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
         mediaUrl: '',
@@ -424,6 +427,20 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                                     <FormLabel>{t('formLink')}</FormLabel>
                                     <FormControl>
                                         <Textarea rows={2} {...field} disabled={isUploading} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="locationLink"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('locationLinkLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} disabled={isUploading} placeholder="https://maps.app.goo.gl/..." />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
