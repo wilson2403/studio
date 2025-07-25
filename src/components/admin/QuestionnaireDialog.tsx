@@ -13,6 +13,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { getQuestionnaire, QuestionnaireAnswers, UserProfile } from '@/lib/firebase/firestore';
 import { ScrollArea } from '../ui/scroll-area';
+import { Button } from '../ui/button';
+import { Share2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuestionnaireDialogProps {
   user: UserProfile;
@@ -24,6 +27,7 @@ export default function QuestionnaireDialog({ user, isOpen, onClose }: Questionn
   const [answers, setAnswers] = useState<QuestionnaireAnswers | null>(null);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen && user) {
@@ -36,6 +40,17 @@ export default function QuestionnaireDialog({ user, isOpen, onClose }: Questionn
       fetchAnswers();
     }
   }, [isOpen, user]);
+
+  const handleShareQuestionnaire = (uid: string) => {
+    if (!uid) return;
+    const shareUrl = `${window.location.origin}/questionnaire/${uid}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        toast({ title: t('linkCopied'), description: t('questionnaireShareDescription') });
+    }).catch(err => {
+        console.error('Failed to copy link:', err);
+        toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+    });
+  };
 
   const renderAnswer = (label: string, value?: string, details?: string) => {
     if (value === undefined && details === undefined) return null;
@@ -62,8 +77,16 @@ export default function QuestionnaireDialog({ user, isOpen, onClose }: Questionn
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{t('questionnaireResponsesFor', { name: user.displayName || user.email })}</DialogTitle>
-          <DialogDescription>{t('questionnaireResponsesDescription')}</DialogDescription>
+          <div className="flex justify-between items-center">
+            <div className='flex-1'>
+              <DialogTitle>{t('questionnaireResponsesFor', { name: user.displayName || user.email })}</DialogTitle>
+              <DialogDescription>{t('questionnaireResponsesDescription')}</DialogDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => handleShareQuestionnaire(user.uid)}>
+              <Share2 className="mr-2 h-4 w-4"/>
+              {t('share')}
+            </Button>
+          </div>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] p-1">
             <div className="py-4 pr-4">
@@ -91,5 +114,3 @@ export default function QuestionnaireDialog({ user, isOpen, onClose }: Questionn
     </Dialog>
   );
 }
-
-    

@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizonal, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions, CeremonyInvitationMessage, getCeremonyInvitationMessages, addCeremonyInvitationMessage, updateCeremonyInvitationMessage, deleteCeremonyInvitationMessage } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
@@ -55,8 +55,20 @@ const messagesFormSchema = (t: (key: string, options?: any) => string) => z.obje
     templates: z.array(messageTemplateSchema(t)),
 });
 
+const ceremonyMessageTemplateSchema = (t: (key: string, options?: any) => string) => z.object({
+    id: z.string(),
+    name: z.string().min(1, t('errorRequired', { field: t('templateName') })),
+    es: z.string().min(1, t('errorRequired', { field: t('templateMessageES') })),
+    en: z.string().min(1, t('errorRequired', { field: t('templateMessageEN') })),
+});
+
+const ceremonyMessagesFormSchema = (t: (key: string, options?: any) => string) => z.object({
+    ceremonyTemplates: z.array(ceremonyMessageTemplateSchema(t)),
+});
+
 type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
 type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
+type CeremonyMessagesFormValues = z.infer<ReturnType<typeof ceremonyMessagesFormSchema>>;
 
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 const userRoles: UserRole[] = ['user', 'organizer', 'admin'];
@@ -65,6 +77,12 @@ const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMe
     name: t('defaultInvitationName'),
     es: '¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: https://artedesanar.vercel.app/questionnaire',
     en: 'Hello! We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar. You can do it here: https://artedesanar.vercel.app/questionnaire',
+});
+
+const defaultCeremonyInvitationMessage = (t: (key: string) => string): Omit<CeremonyInvitationMessage, 'id'> => ({
+    name: t('defaultCeremonyInvitationName'),
+    es: '¡Hola {{userName}}! Te confirmamos tu inscripción a la ceremonia "{{ceremonyTitle}}" del {{ceremonyDate}} a las {{ceremonyHorario}}. Aquí tienes el enlace con los detalles y la ubicación: {{ceremonyLink}}.\n\nUbicación: {{locationLink}}\n\n¡Te esperamos!',
+    en: 'Hello {{userName}}! We are confirming your registration for the "{{ceremonyTitle}}" ceremony on {{ceremonyDate}} at {{ceremonyHorario}}. Here is the link with the details and location: {{ceremonyLink}}.\n\nLocation: {{locationLink}}\n\nWe look forward to seeing you!',
 });
 
 
@@ -81,6 +99,7 @@ export default function AdminUsersPage() {
     const [viewingUserCourses, setViewingUserCourses] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
+    const [ceremonyInvitationTemplates, setCeremonyInvitationTemplates] = useState<CeremonyInvitationMessage[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
     const [invitingToCeremonyUser, setInvitingToCeremonyUser] = useState<UserProfile | null>(null);
     const [assigningUser, setAssigningUser] = useState<UserProfile | null>(null);
@@ -106,6 +125,16 @@ export default function AdminUsersPage() {
         name: "templates",
     });
 
+    const ceremonyMessagesForm = useForm<CeremonyMessagesFormValues>({
+        resolver: zodResolver(ceremonyMessagesFormSchema(t)),
+        defaultValues: { ceremonyTemplates: [] },
+    });
+
+    const { fields: ceremonyTemplateFields, append: appendCeremonyTemplate, remove: removeCeremonyTemplate } = useFieldArray({
+        control: ceremonyMessagesForm.control,
+        name: "ceremonyTemplates",
+    });
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -128,6 +157,17 @@ export default function AdminUsersPage() {
             }
             setInvitationTemplates(templates);
             messagesForm.reset({ templates });
+
+            let ceremonyTemplates = await getCeremonyInvitationMessages();
+            if(ceremonyTemplates.length === 0) {
+                const newId = uuidv4();
+                const defaultCeremonyTemplate = { id: newId, ...defaultCeremonyInvitationMessage(t) };
+                await addCeremonyInvitationMessage(defaultCeremonyTemplate);
+                ceremonyTemplates = [defaultCeremonyTemplate];
+            }
+            setCeremonyInvitationTemplates(ceremonyTemplates);
+            ceremonyMessagesForm.reset({ ceremonyTemplates });
+
             setLoadingMessages(false);
         };
         
@@ -161,7 +201,7 @@ export default function AdminUsersPage() {
         });
 
         return () => unsubscribe();
-    }, [router, toast, t, messagesForm]);
+    }, [router, toast, t, messagesForm, ceremonyMessagesForm]);
 
 
     const handleRoleChange = async (uid: string, role: UserRole) => {
@@ -271,6 +311,41 @@ export default function AdminUsersPage() {
              toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
         }
     }
+
+    const onCeremonyMessagesSubmit = async (data: CeremonyMessagesFormValues) => {
+        try {
+            for (const template of data.ceremonyTemplates) {
+                await updateCeremonyInvitationMessage(template);
+            }
+            setCeremonyInvitationTemplates(data.ceremonyTemplates);
+            toast({ title: t('messagesUpdatedSuccess') });
+        } catch (error: any) {
+            toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
+        }
+    };
+
+    const handleAddCeremonyTemplate = async () => {
+        const newTemplate: CeremonyInvitationMessage = {
+            id: uuidv4(),
+            name: t('newCeremonyTemplateName', { count: ceremonyTemplateFields.length + 1 }),
+            es: t('defaultCeremonyInvitationName'),
+            en: 'Default ceremony invitation message',
+        }
+        await addCeremonyInvitationMessage(newTemplate);
+        appendCeremonyTemplate(newTemplate);
+        setCeremonyInvitationTemplates(prev => [...prev, newTemplate]);
+    }
+
+    const handleDeleteCeremonyTemplate = async (templateId: string, index: number) => {
+        try {
+            await deleteCeremonyInvitationMessage(templateId);
+            removeCeremonyTemplate(index);
+            setCeremonyInvitationTemplates(prev => prev.filter(t => t.id !== templateId));
+            toast({ title: t('templateDeleted') });
+        } catch(error: any) {
+             toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
+        }
+    }
     
     const handleResetAnalytics = async () => {
         try {
@@ -307,17 +382,6 @@ export default function AdminUsersPage() {
             toast({ title: t('userDeletedError'), description: (error as Error).message, variant: 'destructive' });
         }
     }
-    
-    const handleShareQuestionnaire = (uid: string) => {
-        if (!uid) return;
-        const shareUrl = `${window.location.origin}/questionnaire/${uid}`;
-        navigator.clipboard.writeText(shareUrl).then(() => {
-            toast({ title: t('linkCopied'), description: t('questionnaireShareDescription') });
-        }).catch(err => {
-            console.error('Failed to copy link:', err);
-            toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-        });
-    };
 
     const getPreparationPercentage = (user: UserProfile) => {
         if (user.questionnaireCompleted) return 100;
@@ -515,9 +579,6 @@ export default function AdminUsersPage() {
                                                         <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
                                                             <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
                                                         </Button>
-                                                        <Button variant="outline" size="sm" onClick={() => handleShareQuestionnaire(u.uid)}>
-                                                            <Share2 className="mr-2 h-4 w-4"/>{t('share')}
-                                                        </Button>
                                                     </>
                                                 )}
                                                 {u.hasChats && (
@@ -633,69 +694,145 @@ export default function AdminUsersPage() {
                                     <Skeleton className="h-10 w-1/4" />
                                 </div>
                             ) : (
-                                <Form {...messagesForm}>
-                                    <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-6">
-                                        <div className='space-y-4'>
-                                        {templateFields.map((field, index) => (
-                                            <Card key={field.id} className="p-4 bg-muted/30">
-                                                 <FormField
-                                                    control={messagesForm.control}
-                                                    name={`templates.${index}.name`}
-                                                    render={({ field }) => (
-                                                        <FormItem className='mb-4'>
-                                                            <FormLabel>{t('templateName')}</FormLabel>
-                                                            <FormControl>
-                                                                <Input {...field} />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
-                                                    control={messagesForm.control}
-                                                    name={`templates.${index}.es`}
-                                                    render={({ field }) => (
-                                                        <FormItem className='mb-2'>
-                                                            <FormLabel>{t('templateMessageES')}</FormLabel>
-                                                            <FormControl>
-                                                                <Textarea {...field} rows={10}/>
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
-                                                    control={messagesForm.control}
-                                                    name={`templates.${index}.en`}
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>{t('templateMessageEN')}</FormLabel>
-                                                            <FormControl>
-                                                                <Textarea {...field} rows={10} />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <Button type="button" variant="destructive" size="sm" className="mt-4" onClick={() => handleDeleteTemplate(field.id, index)}>
-                                                    <Trash2 className="mr-2 h-4 w-4" />
-                                                    {t('deleteTemplate')}
-                                                </Button>
-                                            </Card>
-                                        ))}
-                                        </div>
-                                        <div className='flex gap-2'>
-                                            <Button type="button" variant="outline" onClick={handleAddTemplate}>
-                                                <PlusCircle className="mr-2 h-4 w-4" />
-                                                {t('addTemplate')}
-                                            </Button>
-                                            <Button type="submit" disabled={messagesForm.formState.isSubmitting}>
-                                                <Save className="mr-2 h-4 w-4"/>
-                                                {messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                                            </Button>
-                                        </div>
-                                    </form>
-                                </Form>
+                                <Accordion type="multiple" defaultValue={['questionnaire-templates']}>
+                                    <AccordionItem value="questionnaire-templates">
+                                        <AccordionTrigger>{t('questionnaireInvitationTemplates')}</AccordionTrigger>
+                                        <AccordionContent>
+                                            <Form {...messagesForm}>
+                                                <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-6">
+                                                    <div className='space-y-4'>
+                                                    {templateFields.map((field, index) => (
+                                                        <Card key={field.id} className="p-4 bg-muted/30">
+                                                            <FormField
+                                                                control={messagesForm.control}
+                                                                name={`templates.${index}.name`}
+                                                                render={({ field }) => (
+                                                                    <FormItem className='mb-4'>
+                                                                        <FormLabel>{t('templateName')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Input {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                control={messagesForm.control}
+                                                                name={`templates.${index}.es`}
+                                                                render={({ field }) => (
+                                                                    <FormItem className='mb-2'>
+                                                                        <FormLabel>{t('templateMessageES')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Textarea {...field} rows={5}/>
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                control={messagesForm.control}
+                                                                name={`templates.${index}.en`}
+                                                                render={({ field }) => (
+                                                                    <FormItem>
+                                                                        <FormLabel>{t('templateMessageEN')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Textarea {...field} rows={5} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <Button type="button" variant="destructive" size="sm" className="mt-4" onClick={() => handleDeleteTemplate(field.id, index)}>
+                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                {t('deleteTemplate')}
+                                                            </Button>
+                                                        </Card>
+                                                    ))}
+                                                    </div>
+                                                    <div className='flex gap-2'>
+                                                        <Button type="button" variant="outline" onClick={handleAddTemplate}>
+                                                            <PlusCircle className="mr-2 h-4 w-4" />
+                                                            {t('addTemplate')}
+                                                        </Button>
+                                                        <Button type="submit" disabled={messagesForm.formState.isSubmitting}>
+                                                            <Save className="mr-2 h-4 w-4"/>
+                                                            {messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
+                                                        </Button>
+                                                    </div>
+                                                </form>
+                                            </Form>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                    <AccordionItem value="ceremony-templates">
+                                        <AccordionTrigger>{t('ceremonyInvitationTemplates')}</AccordionTrigger>
+                                        <AccordionContent>
+                                            <Form {...ceremonyMessagesForm}>
+                                                <form onSubmit={ceremonyMessagesForm.handleSubmit(onCeremonyMessagesSubmit)} className="space-y-6">
+                                                    <div className='space-y-4'>
+                                                    {ceremonyTemplateFields.map((field, index) => (
+                                                        <Card key={field.id} className="p-4 bg-muted/30">
+                                                            <FormField
+                                                                control={ceremonyMessagesForm.control}
+                                                                name={`ceremonyTemplates.${index}.name`}
+                                                                render={({ field }) => (
+                                                                    <FormItem className='mb-4'>
+                                                                        <FormLabel>{t('templateName')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Input {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                control={ceremonyMessagesForm.control}
+                                                                name={`ceremonyTemplates.${index}.es`}
+                                                                render={({ field }) => (
+                                                                    <FormItem className='mb-2'>
+                                                                        <FormLabel>{t('templateMessageES')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Textarea {...field} rows={10}/>
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                control={ceremonyMessagesForm.control}
+                                                                name={`ceremonyTemplates.${index}.en`}
+                                                                render={({ field }) => (
+                                                                    <FormItem>
+                                                                        <FormLabel>{t('templateMessageEN')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Textarea {...field} rows={10} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                             <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>
+                                                            <Button type="button" variant="destructive" size="sm" className="mt-4" onClick={() => handleDeleteCeremonyTemplate(field.id, index)}>
+                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                {t('deleteTemplate')}
+                                                            </Button>
+                                                        </Card>
+                                                    ))}
+                                                    </div>
+                                                    <div className='flex gap-2'>
+                                                        <Button type="button" variant="outline" onClick={handleAddCeremonyTemplate}>
+                                                            <PlusCircle className="mr-2 h-4 w-4" />
+                                                            {t('addCeremonyTemplate')}
+                                                        </Button>
+                                                        <Button type="submit" disabled={ceremonyMessagesForm.formState.isSubmitting}>
+                                                            <Save className="mr-2 h-4 w-4"/>
+                                                            {ceremonyMessagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
+                                                        </Button>
+                                                    </div>
+                                                </form>
+                                            </Form>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
                             )}
                         </CardContent>
                     </Card>
@@ -810,6 +947,7 @@ export default function AdminUsersPage() {
                     user={invitingToCeremonyUser}
                     isOpen={!!invitingToCeremonyUser}
                     onClose={() => setInvitingToCeremonyUser(null)}
+                    invitationTemplates={ceremonyInvitationTemplates}
                 />
             )}
              {invitingUser && (
