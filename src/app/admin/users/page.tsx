@@ -369,7 +369,7 @@ export default function AdminUsersPage() {
                                                     <p className="font-semibold">{u.displayName || t('anonymousUser')}</p>
                                                     <p className="text-sm text-muted-foreground">{u.email}</p>
                                                 </div>
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                                     <Badge variant={u.questionnaireCompleted ? 'success' : 'secondary'}>
                                                         {u.questionnaireCompleted ? (
                                                             <CheckCircle className="mr-2 h-4 w-4" />
@@ -733,3 +733,4 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
