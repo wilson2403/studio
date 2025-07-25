@@ -22,11 +22,17 @@ interface EditableTitleProps {
 export const EditableTitle = ({ tag: Tag, id, initialValue, className }: EditableTitleProps) => {
   const { isAdmin, content, updateContent, fetchContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState('');
-  const [displayValue, setDisplayValue] = useState(initialValue);
-  const { toast } = useToast();
+  
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'es' | 'en';
+
+  // State for the value to be displayed, initialized with the translation
+  const [displayValue, setDisplayValue] = useState(t(initialValue));
+  
+  // State for the value in the input field when editing
+  const [editValue, setEditValue] = useState('');
+  
+  const { toast } = useToast();
 
   useEffect(() => {
     if (id) {
@@ -37,34 +43,40 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   useEffect(() => {
     const contentValue = content[id];
     let newDisplayValue: string;
-    
+
     if (typeof contentValue === 'object' && contentValue !== null) {
+        // If content is an object (e.g., {es: 'Hola', en: 'Hello'}), use the value for the current language
         newDisplayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || t(initialValue);
-    } else if (typeof contentValue === 'string') {
+    } else if (typeof contentValue === 'string' && contentValue) {
+        // If it's a simple string (like a URL), use it directly
         newDisplayValue = contentValue;
     } else {
+        // Fallback to the translated initial value
         newDisplayValue = t(initialValue);
     }
-
-    if(newDisplayValue !== id) {
+    
+    // Only update if the value is meaningful and different
+    if (newDisplayValue && newDisplayValue !== id) {
        setDisplayValue(newDisplayValue);
     }
   }, [content, id, lang, initialValue, t]);
+
+  // Ensure displayValue updates when language changes
+  useEffect(() => {
+      setDisplayValue(t(initialValue));
+  }, [lang, initialValue, t]);
+
   
   const handleSave = async () => {
     if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
         const newValue = { es: editValue, en: editValue };
         await updateContent(id, newValue);
     } else {
-        if (!content[id]) return;
-
-        let newContentValue: { [key: string]: string; };
-
-        if (typeof content[id] === 'object' && content[id] !== null) {
-            newContentValue = { ...(content[id] as object), [lang]: editValue };
-        } else {
-            newContentValue = { es: lang === 'es' ? editValue : initialValue, en: lang === 'en' ? editValue : initialValue, [lang]: editValue };
-        }
+        const currentContent = content[id] || {};
+        const newContentValue = { 
+            ...(typeof currentContent === 'object' ? currentContent : { es: initialValue, en: initialValue }),
+            [lang]: editValue 
+        };
         
         try {
             await updateContent(id, newContentValue);
@@ -78,16 +90,10 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   const handleCancel = () => {
     setIsEditing(false);
-    setEditValue(displayValue);
   };
   
   const handleEditClick = () => {
-    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
-       const linkValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
-       setEditValue(linkValue);
-    } else {
-       setEditValue(displayValue);
-    }
+    setEditValue(displayValue); // Set the editing value to what is currently displayed
     setIsEditing(true);
   }
 
