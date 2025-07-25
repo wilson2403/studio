@@ -118,7 +118,7 @@ export default function AllCeremoniesPage() {
                 )
             })
         } else {
-            setViewingCeremony(ceremony);
+            router.push(`/ceremonias/${ceremony.id}`);
         }
     };
 
@@ -133,15 +133,6 @@ export default function AllCeremoniesPage() {
         const shareTitle = ceremony.title;
         const shareText = t('shareCeremonyText', { title: ceremony.title });
         
-        const copyToClipboard = async () => {
-            try {
-                await navigator.clipboard.writeText(shareUrl);
-                toast({ title: t('linkCopied') });
-            } catch (error) {
-                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-            }
-        };
-
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -149,15 +140,19 @@ export default function AllCeremoniesPage() {
                     text: shareText,
                     url: shareUrl,
                 });
-                toast({ title: t('sharedSuccessfully') });
             } catch (error) {
-                 if ((error as DOMException)?.name !== 'AbortError') {
-                  console.error('Share failed, falling back to clipboard:', error);
-                  copyToClipboard();
-                }
+                // This will fail on desktop, or if the user cancels the share.
+                // We can safely ignore this error.
+                console.log('Share API not supported or failed, user can copy link manually.');
             }
         } else {
-            copyToClipboard();
+            // Fallback for browsers that do not support the Share API
+             try {
+                await navigator.clipboard.writeText(shareUrl);
+                toast({ title: t('linkCopied') });
+            } catch (error) {
+                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+            }
         }
     };
     
