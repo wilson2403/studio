@@ -39,26 +39,17 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     let newDisplayValue: string;
     
     if (typeof contentValue === 'object' && contentValue !== null) {
-        newDisplayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
+        newDisplayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || t(initialValue);
     } else if (typeof contentValue === 'string') {
         newDisplayValue = contentValue;
     } else {
-        newDisplayValue = initialValue;
+        newDisplayValue = t(initialValue);
     }
-    // Update displayValue only if it's different from the initial translation key.
-    // This prevents showing the key while translations are loading.
+
     if(newDisplayValue !== id) {
        setDisplayValue(newDisplayValue);
     }
-  }, [content, id, lang, initialValue]);
-
-  // A secondary effect to ensure the translation is applied once i18n is ready.
-  useEffect(() => {
-    if(displayValue === id || displayValue === initialValue) {
-       setDisplayValue(t(initialValue));
-    }
-  }, [t, initialValue, displayValue, id]);
-
+  }, [content, id, lang, initialValue, t]);
   
   const handleSave = async () => {
     if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
