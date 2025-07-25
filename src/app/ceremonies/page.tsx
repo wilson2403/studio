@@ -132,6 +132,15 @@ export default function AllCeremoniesPage() {
         const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
         const shareTitle = ceremony.title;
         const shareText = t('shareCeremonyText', { title: ceremony.title });
+        
+        const copyToClipboard = async () => {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                toast({ title: t('linkCopied') });
+            } catch (error) {
+                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+            }
+        };
 
         if (navigator.share) {
             try {
@@ -143,15 +152,13 @@ export default function AllCeremoniesPage() {
                 toast({ title: t('sharedSuccessfully') });
             } catch (error) {
                 console.error('Error sharing:', error);
-                toast({ title: t('errorSharing'), variant: 'destructive' });
+                // Fallback to clipboard copy if sharing is denied or fails
+                if ((error as DOMException).name !== 'AbortError') {
+                    copyToClipboard();
+                }
             }
         } else {
-            try {
-                await navigator.clipboard.writeText(shareUrl);
-                toast({ title: t('linkCopied') });
-            } catch (error) {
-                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-            }
+            copyToClipboard();
         }
     };
     
@@ -346,3 +353,5 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
+    
