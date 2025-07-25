@@ -175,11 +175,11 @@ export default function AllCeremoniesPage() {
     return (
         <div className="container py-12 md:py-16 space-y-12">
             <div className="text-center">
-                <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
-                  {t('allCeremoniesPageTitle')}
+                 <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
+                    {t('allCeremoniesPageTitle')}
                 </h1>
-                 <p className="mt-2 text-lg text-foreground/80 font-body">
-                  {t('allCeremoniesPageSubtitle')}
+                <p className="mt-2 text-lg text-foreground/80 font-body">
+                    {t('allCeremoniesPageSubtitle')}
                 </p>
                 {isAuthorized && (
                 <Button onClick={() => setIsAdding(true)} className="mt-4">
@@ -243,7 +243,7 @@ export default function AllCeremoniesPage() {
                                     <p className="font-mono text-xl font-bold text-white mb-2">
                                         {ceremony.title}
                                     </p>
-                                    {ceremony.status === 'active' && ceremony.showParticipantCount && (
+                                    {isAuthorized && ceremony.showParticipantCount && (
                                         <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
                                             <Users className="h-4 w-4" />
                                             <span>{t('registeredCount', { count: registeredCount })}</span>
