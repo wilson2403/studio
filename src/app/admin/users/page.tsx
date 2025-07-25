@@ -33,8 +33,9 @@ import AssignCeremonyDialog from '@/components/admin/AssignCeremonyDialog';
 import ViewUserCoursesDialog from '@/components/admin/ViewUserCoursesDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '../ui/checkbox';
-import ViewUserChatsDialog from '../admin/ViewUserChatsDialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import ViewUserChatsDialog from '@/components/admin/ViewUserChatsDialog';
+import { Label } from '@/components/ui/label';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -786,5 +787,6 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
 
 
