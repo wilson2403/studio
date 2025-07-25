@@ -179,13 +179,13 @@ export default function AllCeremoniesPage() {
                 <div className="text-center">
                     <EditableTitle
                         tag="h1"
-                        id="allCeremoniesPageTitle"
+                        id="ceremoniesPageTitle"
                         initialValue={t('allCeremoniesPageTitle')}
                         className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                     />
                     <EditableTitle
                         tag="p"
-                        id="allCeremoniesPageSubtitle"
+                        id="ceremoniesPageSubtitle"
                         initialValue={t('allCeremoniesPageSubtitle')}
                         className="mt-2 text-lg text-foreground/80 font-body"
                     />
