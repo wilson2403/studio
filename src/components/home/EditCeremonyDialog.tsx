@@ -48,6 +48,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   mediaType: z.enum(['image', 'video']).default('image'),
   videoFit: z.enum(['cover', 'contain']).default('cover'),
   autoplay: z.boolean().default(false),
+  defaultMuted: z.boolean().default(true),
   plans: z.array(planSchema(t)).optional(),
   contributionText: z.string().optional(),
   status: z.enum(['active', 'finished', 'inactive']),
@@ -91,6 +92,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       mediaType: 'image',
       videoFit: 'cover',
       autoplay: false,
+      defaultMuted: true,
       plans: [{ name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
       contributionText: t('defaultContributionText'),
       status: 'active',
@@ -120,6 +122,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
         mediaType: 'image',
         videoFit: 'cover',
         autoplay: false,
+        defaultMuted: true,
         plans: [{ name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
         contributionText: t('defaultContributionText'),
         status: 'active',
@@ -706,6 +709,25 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                                     </FormControl>
                                     <div className="space-y-1 leading-none">
                                         <FormLabel>{t('formAutoplay')}</FormLabel>
+                                    </div>
+                                </FormItem>
+                            )}
+                        />
+
+                         <FormField
+                            control={form.control}
+                            name="defaultMuted"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                    <FormControl>
+                                        <Checkbox
+                                            checked={!field.value}
+                                            onCheckedChange={(checked) => field.onChange(!checked)}
+                                            disabled={isUploading}
+                                        />
+                                    </FormControl>
+                                    <div className="space-y-1 leading-none">
+                                        <FormLabel>{t('formDefaultAudio')}</FormLabel>
                                     </div>
                                 </FormItem>
                             )}

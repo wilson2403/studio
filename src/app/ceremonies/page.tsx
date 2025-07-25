@@ -229,7 +229,8 @@ export default function AllCeremoniesPage() {
                                             mediaType={ceremony.mediaType}
                                             videoFit={ceremony.videoFit}
                                             title={ceremony.title}
-                                            isActivated={activeVideo === ceremony.id && !expandedVideo}
+                                            autoplay={ceremony.autoplay}
+                                            defaultMuted={ceremony.defaultMuted}
                                             inCarousel={false}
                                         />
                                     </div>
@@ -295,6 +296,7 @@ export default function AllCeremoniesPage() {
 
                 {expandedVideo && (
                     <VideoPopupDialog
+                        ceremonyId={expandedVideo.id}
                         isOpen={!!expandedVideo}
                         onClose={() => setExpandedVideo(null)}
                         videoUrl={expandedVideo.mediaUrl}

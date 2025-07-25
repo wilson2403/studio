@@ -23,6 +23,7 @@ export type Ceremony = {
   mediaType?: 'image' | 'video';
   videoFit?: 'cover' | 'contain';
   autoplay?: boolean;
+  defaultMuted?: boolean;
   plans?: Plan[];
   contributionText?: string;
   status: 'active' | 'finished' | 'inactive';

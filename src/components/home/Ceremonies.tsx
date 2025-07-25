@@ -188,7 +188,7 @@ export default function Ceremonies({
                               videoFit={ceremony.videoFit}
                               title={ceremony.title}
                               autoplay={ceremony.autoplay}
-                              defaultMuted={false}
+                              defaultMuted={ceremony.defaultMuted}
                            />
                       </div>
                       <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
@@ -265,7 +265,7 @@ export default function Ceremonies({
                           videoFit={ceremony.videoFit}
                           title={ceremony.title}
                           autoplay={ceremony.autoplay}
-                          defaultMuted={index !== 0}
+                          defaultMuted={ceremony.defaultMuted}
                        />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none transition-colors duration-300"></div>
                       <div className="absolute bottom-0 left-0 p-4 md:p-6 text-white pointer-events-none w-full">
