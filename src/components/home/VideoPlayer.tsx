@@ -12,7 +12,7 @@ import { auth } from '@/lib/firebase/config';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
-const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null => {
+const getYoutubeEmbedUrl = (url: string, autoplay: boolean): string | null => {
   if (!url) return null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = url.match(youtubeRegex);
@@ -20,7 +20,7 @@ const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null =>
   if (!videoId) return null;
 
   const params = new URLSearchParams({
-    autoplay: isActivated ? '1' : '0', 
+    autoplay: autoplay ? '1' : '0', 
     loop: '1',
     controls: '1',
     playlist: videoId,
@@ -29,31 +29,31 @@ const getYoutubeEmbedUrl = (url: string, isActivated: boolean): string | null =>
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
 
-const getTikTokEmbedUrl = (url: string, isActivated: boolean): string | null => {
+const getTikTokEmbedUrl = (url: string, autoplay: boolean): string | null => {
     if (!url) return null;
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
-    const autoplay = isActivated ? '1' : '0';
+    const autoplayParam = autoplay ? '1' : '0';
     const mute = '1';
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplay}&loop=0&controls=1&mute=${mute}`;
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplayParam}&loop=0&controls=1&mute=${mute}`;
 };
 
-const getFacebookEmbedUrl = (url: string, isActivated: boolean): string | null => {
+const getFacebookEmbedUrl = (url: string, autoplay: boolean): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
     if (url.includes('/videos/') || url.includes('/share/v/')) {
-        const autoplay = isActivated ? '1' : '0';
+        const autoplayParam = autoplay ? '1' : '0';
         const mute = '1';
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplay}&mute=${mute}&loop=1&controls=1`;
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplayParam}&mute=${mute}&loop=1&controls=1`;
     }
     return null;
 };
 
-const getStreamableEmbedUrl = (url: string, isActivated: boolean): string | null => {
+const getStreamableEmbedUrl = (url: string, autoplay: boolean): string | null => {
   if (!url) return null;
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
-    autoplay: isActivated ? '1' : '0',
+    autoplay: autoplay ? '1' : '0',
     mute: '1',
     loop: '1',
     controls: '1',
@@ -142,10 +142,9 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
         if (isIntersecting) {
             if (autoplay) {
                 video.play().then(handlePlay).catch(console.error);
-                setIsMuted(false);
             }
         } else {
-            if (!autoplay) {
+            if (autoplay) {
                 video.pause();
             }
         }
@@ -330,7 +329,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={className} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} autoplay={autoplay} />;
+      return <DirectVideoPlayer src={url} className={cn("absolute inset-0 w-full h-full", className)} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} autoplay={autoplay} />;
     }
     
     return (

@@ -33,7 +33,7 @@ export default function VideoPopupDialog({ ceremonyId, isOpen, onClose, videoUrl
             videoUrl={videoUrl}
             mediaType={mediaType}
             title={title}
-            isActivated={true}
+            autoplay={true}
             defaultMuted={false}
           />
         </div>
