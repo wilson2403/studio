@@ -704,9 +704,12 @@ export const getChat = async (chatId: string): Promise<Chat | null> => {
 
 export const getChatsByUserId = async (userId: string): Promise<Chat[]> => {
     try {
-        const q = query(chatsCollection, where('user.uid', '==', userId), orderBy('createdAt', 'desc'));
+        const q = query(chatsCollection, where('user.uid', '==', userId));
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
+        const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
+        // Sort in-memory to avoid composite index requirement
+        chats.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+        return chats;
     } catch (error) {
         console.error(`Error getting chats for user ${userId}:`, error);
         logError(error, { function: 'getChatsByUserId', userId });
