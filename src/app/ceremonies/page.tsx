@@ -151,10 +151,11 @@ export default function AllCeremoniesPage() {
                 });
                 toast({ title: t('sharedSuccessfully') });
             } catch (error) {
-                console.error('Error sharing:', error);
-                // Fallback to clipboard copy if sharing is denied or fails
+                // If the user cancels the share, it throws an AbortError, which we can ignore.
                 if ((error as DOMException).name !== 'AbortError') {
-                    copyToClipboard();
+                  console.error('Error sharing:', error);
+                  // Fallback to clipboard for other errors
+                  copyToClipboard();
                 }
             }
         } else {
@@ -353,5 +354,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-
-    
