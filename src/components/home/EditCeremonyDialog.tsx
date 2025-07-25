@@ -297,453 +297,449 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
-      <DialogContent className="sm:max-w-md bg-card flex flex-col">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle>{isEditMode ? t('editCeremony') : t('addCeremonyTitle')}</DialogTitle>
-          <DialogDescription>
-            {isEditMode ? t('editCeremonyDescription') : t('addCeremonyDescription')}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full">
-                <div className="flex-grow overflow-y-auto pr-4 -mr-6 space-y-4">
-                    
-                    <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formTitle')}</FormLabel>
-                                <FormControl>
-                                    <Input {...field} disabled={isUploading} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formDescription')}</FormLabel>
-                                <FormControl>
-                                    <Textarea {...field} disabled={isUploading} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="date"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formDate')}</FormLabel>
-                                <FormControl>
-                                    <Input {...field} disabled={isUploading} placeholder="Ej: 24 de Julio, 2024" />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    
-                    <FormField
-                        control={form.control}
-                        name="horario"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formSchedule')}</FormLabel>
-                                <FormControl>
-                                    <Textarea rows={2} {...field} disabled={isUploading} placeholder="Ej: 4:00 p.m. – 7:00 a.m." />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formPrice')}</FormLabel>
-                                <FormControl>
-                                    <Input type="number" {...field} disabled={isUploading} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="priceType"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formPriceType')}</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isUploading}>
+        <DialogContent className="sm:max-w-md bg-card flex flex-col max-h-[90vh]">
+            <DialogHeader className="flex-shrink-0">
+            <DialogTitle>{isEditMode ? t('editCeremony') : t('addCeremonyTitle')}</DialogTitle>
+            <DialogDescription>
+                {isEditMode ? t('editCeremonyDescription') : t('addCeremonyDescription')}
+            </DialogDescription>
+            </DialogHeader>
+            <div className="flex-grow overflow-y-auto pr-4 -mr-6">
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="title"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formTitle')}</FormLabel>
                                     <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={t('formSelectType')} />
-                                        </SelectTrigger>
+                                        <Input {...field} disabled={isUploading} />
                                     </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="exact">{t('priceTypeExact')}</SelectItem>
-                                        <SelectItem value="from">{t('priceTypeFrom')}</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        control={form.control}
-                        name="contributionText"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formContributionText')}</FormLabel>
-                                <FormControl>
-                                    <Input {...field} disabled={isUploading} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="link"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formLink')}</FormLabel>
-                                <FormControl>
-                                    <Textarea rows={2} {...field} disabled={isUploading} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={form.control}
-                        name="mediaUrl"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formMediaUrl')}</FormLabel>
-                                <FormControl>
-                                    <Textarea rows={2} {...field} placeholder="https://youtube.com/... o /videos/local.mp4" disabled={isUploading || !!mediaFile} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    
-                    <FormItem>
-                        <FormLabel>{t('formOrUpload')}</FormLabel>
-                        <FormControl>
-                        <Input id="media-upload" type="file" accept="image/*,video/*" onChange={handleFileChange} disabled={isUploading || !!form.watch('mediaUrl')}/>
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-
-                    <FormField
-                        control={form.control}
-                        name="mediaType"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formMediaType')}</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value} disabled={isUploading || !!mediaFile}>
+                        <FormField
+                            control={form.control}
+                            name="description"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formDescription')}</FormLabel>
                                     <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={t('formSelectType')} />
-                                        </SelectTrigger>
+                                        <Textarea {...field} disabled={isUploading} />
                                     </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="image">{t('formImageType')}</SelectItem>
-                                        <SelectItem value="video">{t('formVideoType')}</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        control={form.control}
-                        name="videoFit"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>{t('formVideoFit')}</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value} disabled={isUploading}>
+                        <FormField
+                            control={form.control}
+                            name="date"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formDate')}</FormLabel>
                                     <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder={t('formSelectFit')} />
-                                        </SelectTrigger>
+                                        <Input {...field} disabled={isUploading} placeholder="Ej: 24 de Julio, 2024" />
                                     </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="cover">{t('videoFitCover')}</SelectItem>
-                                        <SelectItem value="contain">{t('videoFitContain')}</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    
-                    <Separator/>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        
+                        <FormField
+                            control={form.control}
+                            name="horario"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formSchedule')}</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={2} {...field} disabled={isUploading} placeholder="Ej: 4:00 p.m. – 7:00 a.m." />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <div className="space-y-4">
-                        <Label>Configuración Adicional</Label>
-                        <div className="flex flex-wrap gap-4">
-                            <FormField
-                                control={form.control}
-                                name="featured"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                        <FormField
+                            control={form.control}
+                            name="price"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formPrice')}</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" {...field} disabled={isUploading} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="priceType"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formPriceType')}</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isUploading}>
                                         <FormControl>
-                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={t('formSelectType')} />
+                                            </SelectTrigger>
                                         </FormControl>
-                                        <div className="space-y-1 leading-none"><FormLabel>{t('formFeatured')}</FormLabel></div>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="registerRequired"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                        <SelectContent>
+                                            <SelectItem value="exact">{t('priceTypeExact')}</SelectItem>
+                                            <SelectItem value="from">{t('priceTypeFrom')}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="contributionText"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formContributionText')}</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} disabled={isUploading} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="link"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formLink')}</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={2} {...field} disabled={isUploading} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="mediaUrl"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formMediaUrl')}</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={2} {...field} placeholder="https://youtube.com/... o /videos/local.mp4" disabled={isUploading || !!mediaFile} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        
+                        <FormItem>
+                            <FormLabel>{t('formOrUpload')}</FormLabel>
+                            <FormControl>
+                            <Input id="media-upload" type="file" accept="image/*,video/*" onChange={handleFileChange} disabled={isUploading || !!form.watch('mediaUrl')}/>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+
+                        <FormField
+                            control={form.control}
+                            name="mediaType"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formMediaType')}</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value} disabled={isUploading || !!mediaFile}>
                                         <FormControl>
-                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={t('formSelectType')} />
+                                            </SelectTrigger>
                                         </FormControl>
-                                        <div className="space-y-1 leading-none"><FormLabel>{t('formRegisterRequired')}</FormLabel></div>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="showParticipantCount"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                        <SelectContent>
+                                            <SelectItem value="image">{t('formImageType')}</SelectItem>
+                                            <SelectItem value="video">{t('formVideoType')}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="videoFit"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('formVideoFit')}</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value} disabled={isUploading}>
                                         <FormControl>
-                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={t('formSelectFit')} />
+                                            </SelectTrigger>
                                         </FormControl>
-                                        <div className="space-y-1 leading-none"><FormLabel>{t('formShowParticipantCount')}</FormLabel></div>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="autoplay"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                        <FormControl>
-                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading}/>
-                                        </FormControl>
-                                        <div className="space-y-1 leading-none"><FormLabel>{t('formAutoplay')}</FormLabel></div>
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="defaultMuted"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
-                                        <FormControl>
-                                            <Checkbox checked={!field.value} onCheckedChange={(checked) => field.onChange(!checked)} disabled={isUploading}/>
-                                        </FormControl>
-                                        <div className="space-y-1 leading-none"><FormLabel>{t('formDefaultAudio')}</FormLabel></div>
-                                    </FormItem>
-                                )}
-                            />
+                                        <SelectContent>
+                                            <SelectItem value="cover">{t('videoFitCover')}</SelectItem>
+                                            <SelectItem value="contain">{t('videoFitContain')}</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        
+                        <div className="space-y-4 pt-4">
+                            <Label>Configuración Adicional</Label>
+                            <div className="flex flex-wrap gap-4">
+                                <FormField
+                                    control={form.control}
+                                    name="featured"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                            <FormControl>
+                                                <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none"><FormLabel>{t('formFeatured')}</FormLabel></div>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="registerRequired"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                            <FormControl>
+                                                <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none"><FormLabel>{t('formRegisterRequired')}</FormLabel></div>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="showParticipantCount"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                            <FormControl>
+                                                <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading} />
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none"><FormLabel>{t('formShowParticipantCount')}</FormLabel></div>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="autoplay"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                            <FormControl>
+                                                <Checkbox checked={field.value} onCheckedChange={field.onChange} disabled={isUploading}/>
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none"><FormLabel>{t('formAutoplay')}</FormLabel></div>
+                                        </FormItem>
+                                    )}
+                                />
+                                 <FormField
+                                    control={form.control}
+                                    name="defaultMuted"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                                            <FormControl>
+                                                <Checkbox checked={!field.value} onCheckedChange={(checked) => field.onChange(!checked)} disabled={isUploading}/>
+                                            </FormControl>
+                                            <div className="space-y-1 leading-none"><FormLabel>{t('formDefaultAudio')}</FormLabel></div>
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                         </div>
-                    </div>
-                    
-                    <Separator/>
 
-                    <div className="flex justify-end gap-2 pt-2">
-                        <DialogClose asChild>
-                            <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
-                        </DialogClose>
-                        <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
-                            {isUploading ? t('saving') : t('saveChanges')}
-                        </Button>
-                    </div>
-
-                    <Separator/>
-
-                    <div>
-                        <Label>{t('formFeatures')}</Label>
-                        <div className="space-y-2 mt-2">
-                            {fields.map((field, index) => (
-                                <div key={field.id} className="flex items-center gap-2">
-                                    <Input {...form.register(`features.${index}.value`)} disabled={isUploading}/>
-                                    <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={isUploading}><Trash className="h-4 w-4"/></Button>
-                                </div>
-                            ))}
-                            <Button type="button" variant="outline" size="sm" onClick={() => append({ value: "" })} disabled={isUploading}>
-                                {t('formAddFeature')}
+                        <Separator />
+                        
+                        <div className="flex justify-end gap-2">
+                            <DialogClose asChild>
+                                <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
+                            </DialogClose>
+                            <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
+                                {isUploading ? t('saving') : t('saveChanges')}
                             </Button>
                         </div>
-                    </div>
+                        
+                        <Separator />
 
-                    {priceType === 'from' && (
                         <div>
-                            <Label className="text-lg font-semibold">{t('plansTitle')}</Label>
-                            <div className="space-y-4 mt-2">
-                                {planFields.map((field, index) => (
-                                    <div key={field.id} className="space-y-3 p-4 border rounded-md relative bg-muted/50">
-                                        <div className="absolute top-2 right-2">
-                                            <Button type="button" variant="destructive" size="icon" className="h-7 w-7" onClick={() => removePlan(index)} disabled={isUploading}><Trash className="h-4 w-4"/></Button>
-                                        </div>
-                                        <FormField
-                                            control={form.control}
-                                            name={`plans.${index}.name`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>{t('planName')}</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} disabled={isUploading} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name={`plans.${index}.description`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>{t('planDescription')}</FormLabel>
-                                                    <FormControl>
-                                                        <Textarea {...field} disabled={isUploading} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <FormField
-                                                control={form.control}
-                                                name={`plans.${index}.price`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>{t('planPriceFrom')}</FormLabel>
-                                                        <FormControl>
-                                                            <Input type="number" {...field} disabled={isUploading} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name={`plans.${index}.priceUntil`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>{t('planPriceUntil')}</FormLabel>
-                                                        <FormControl>
-                                                            <Input type="number" {...field} disabled={isUploading} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
+                            <Label>{t('formFeatures')}</Label>
+                            <div className="space-y-2 mt-2">
+                                {fields.map((field, index) => (
+                                    <div key={field.id} className="flex items-center gap-2">
+                                        <Input {...form.register(`features.${index}.value`)} disabled={isUploading}/>
+                                        <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={isUploading}><Trash className="h-4 w-4"/></Button>
                                     </div>
                                 ))}
-                                <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ name: '', description: '', price: 0 })} disabled={isUploading}>
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    {t('addPlan')}
+                                <Button type="button" variant="outline" size="sm" onClick={() => append({ value: "" })} disabled={isUploading}>
+                                    {t('formAddFeature')}
                                 </Button>
                             </div>
                         </div>
-                    )}
-            
-                    {isUploading && (
-                        <div className='space-y-1'>
-                            <Label>{mediaFile ? t('uploadingFile') : t('saving')}</Label>
-                            <Progress value={uploadProgress} />
-                        </div>
-                    )}
 
-                    {isEditMode && <Separator className="my-4" />}
-
-                    {isEditMode && ceremony && (
-                        <div className='space-y-4'>
-                            <FormField
-                                control={form.control}
-                                name="status"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t('status')}</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isUploading}>
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={t('formSelectStatus')} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="active">{t('statusActive')}</SelectItem>
-                                                <SelectItem value="inactive">{t('statusInactive')}</SelectItem>
-                                                <SelectItem value="finished">{t('statusFinished')}</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <div className="flex flex-wrap gap-2 items-center">
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button type="button" variant="destructive" size="icon" disabled={isUploading}>
-                                            <Trash className="h-4 w-4" />
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>{t('deleteCeremonyConfirmTitle')}</AlertDialogTitle>
-                                            <AlertDialogDescription>{t('deleteCeremonyConfirmDescription')}</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                            <AlertDialogAction onClick={handleDelete}>{t('delete')}</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                                <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
-                                    <Copy className="mr-2 h-4 w-4" />
-                                    {t('duplicate')}
-                                </Button>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                            <History className="mr-2 h-4 w-4" />
-                                            {t('resetCounters')}
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>{t('resetCountersConfirmTitle')}</AlertDialogTitle>
-                                            <AlertDialogDescription>{t('resetCountersConfirmDescription')}</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                            <AlertDialogAction onClick={handleResetCounters}>{t('continue')}</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                        {priceType === 'from' && (
+                            <div>
+                                <Label className="text-lg font-semibold">{t('plansTitle')}</Label>
+                                <div className="space-y-4 mt-2">
+                                    {planFields.map((field, index) => (
+                                        <div key={field.id} className="space-y-3 p-4 border rounded-md relative bg-muted/50">
+                                            <div className="absolute top-2 right-2">
+                                                <Button type="button" variant="destructive" size="icon" className="h-7 w-7" onClick={() => removePlan(index)} disabled={isUploading}><Trash className="h-4 w-4"/></Button>
+                                            </div>
+                                            <FormField
+                                                control={form.control}
+                                                name={`plans.${index}.name`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>{t('planName')}</FormLabel>
+                                                        <FormControl>
+                                                            <Input {...field} disabled={isUploading} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name={`plans.${index}.description`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>{t('planDescription')}</FormLabel>
+                                                        <FormControl>
+                                                            <Textarea {...field} disabled={isUploading} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`plans.${index}.price`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>{t('planPriceFrom')}</FormLabel>
+                                                            <FormControl>
+                                                                <Input type="number" {...field} disabled={isUploading} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name={`plans.${index}.priceUntil`}
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>{t('planPriceUntil')}</FormLabel>
+                                                            <FormControl>
+                                                                <Input type="number" {...field} disabled={isUploading} />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ name: '', description: '', price: 0 })} disabled={isUploading}>
+                                        <PlusCircle className="mr-2 h-4 w-4" />
+                                        {t('addPlan')}
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-            </form>
-        </Form>
-      </DialogContent>
+                        )}
+                
+                        {isUploading && (
+                            <div className='space-y-1'>
+                                <Label>{mediaFile ? t('uploadingFile') : t('saving')}</Label>
+                                <Progress value={uploadProgress} />
+                            </div>
+                        )}
+
+                        {isEditMode && <Separator className="my-4" />}
+
+                        {isEditMode && ceremony && (
+                            <div className='space-y-4'>
+                                <FormField
+                                    control={form.control}
+                                    name="status"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>{t('status')}</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isUploading}>
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder={t('formSelectStatus')} />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="active">{t('statusActive')}</SelectItem>
+                                                    <SelectItem value="inactive">{t('statusInactive')}</SelectItem>
+                                                    <SelectItem value="finished">{t('statusFinished')}</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="flex flex-wrap gap-2 items-center">
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button type="button" variant="destructive" size="icon" disabled={isUploading}>
+                                                <Trash className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>{t('deleteCeremonyConfirmTitle')}</AlertDialogTitle>
+                                                <AlertDialogDescription>{t('deleteCeremonyConfirmDescription')}</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleDelete}>{t('delete')}</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
+                                        <Copy className="mr-2 h-4 w-4" />
+                                        {t('duplicate')}
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                                <History className="mr-2 h-4 w-4" />
+                                                {t('resetCounters')}
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>{t('resetCountersConfirmTitle')}</AlertDialogTitle>
+                                                <AlertDialogDescription>{t('resetCountersConfirmDescription')}</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleResetCounters}>{t('continue')}</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                            </div>
+                        )}
+                    </form>
+                </Form>
+            </div>
+        </DialogContent>
     </Dialog>
   );
 }
-
