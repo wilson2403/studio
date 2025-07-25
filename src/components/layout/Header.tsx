@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -32,7 +32,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { getUserProfile, logSectionClick, updateVideoProgress, UserProfile } from '@/lib/firebase/firestore';
+import { getUserProfile, logSectionClick, UserProfile } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
@@ -65,13 +65,11 @@ export default function Header() {
       { href: '/admin/users', label: t('userManagementTitle'), icon: UserIcon },
       { href: '/admin/theme', label: t('themeTab'), icon: Palette },
       { href: '/admin/backup', label: t('backupTitle'), icon: History },
+      { href: '/admin/chats', label: t('chatHistoryTitle'), icon: MessageSquare },
       { href: '/admin/logs', label: t('errorLogsTitle'), icon: Terminal }
   ];
-
-  const canEditCeremonies = userProfile?.role === 'admin' || userProfile?.permissions?.canEditCeremonies;
-  const canEditUsers = userProfile?.role === 'admin' || userProfile?.permissions?.canEditUsers;
-  const canEditCourses = userProfile?.role === 'admin' || userProfile?.permissions?.canEditCourses;
-
+  
+  const isAdmin = userProfile?.role === 'admin';
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -139,15 +137,15 @@ export default function Header() {
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>{t('editProfileTitle')}</span>
             </DropdownMenuItem>
-             <DropdownMenuItem onMouseDown={() => router.push('/my-ceremonies')}>
-                <Briefcase className="mr-2 h-4 w-4" />
-                <span>{t('myCeremoniesTitle')}</span>
-            </DropdownMenuItem>
              <DropdownMenuItem onMouseDown={() => router.push('/courses')}>
                 <BookOpen className="mr-2 h-4 w-4" />
                 <span>{t('navCourses')}</span>
             </DropdownMenuItem>
-            {userProfile?.role === 'admin' && (
+            <DropdownMenuItem onMouseDown={() => router.push('/chats')}>
+                <Bot className="mr-2 h-4 w-4" />
+                <span>{t('myChatsTitle')}</span>
+            </DropdownMenuItem>
+            {isAdmin && (
               <>
                 <DropdownMenuSeparator />
                 {adminNavLinks.map(link => (
@@ -296,21 +294,21 @@ export default function Header() {
                                   <span>{t('editProfileTitle')}</span>
                               </button>
                           </SheetClose>
-                           <SheetClose asChild>
-                              <Link href="/my-ceremonies" className="transition-colors hover:text-primary flex items-center gap-2">
-                                  <Briefcase className="h-5 w-5" />
-                                  {t('myCeremoniesTitle')}
-                              </Link>
-                          </SheetClose>
                           <SheetClose asChild>
                               <Link href="/courses" className="transition-colors hover:text-primary flex items-center gap-2">
                                   <BookOpen className="h-5 w-5" />
                                   {t('navCourses')}
                               </Link>
                           </SheetClose>
+                          <SheetClose asChild>
+                              <Link href="/chats" className="transition-colors hover:text-primary flex items-center gap-2">
+                                  <Bot className="h-5 w-5" />
+                                  {t('myChatsTitle')}
+                              </Link>
+                          </SheetClose>
                         </>
                       )}
-                      {userProfile?.role === 'admin' && (
+                      {isAdmin && (
                         <>
                           <DropdownMenuSeparator />
                           {adminNavLinks.map((link) => (

@@ -20,6 +20,8 @@ import { continueChat, ChatMessage } from '@/ai/flows/chat-flow';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { User } from 'lucide-react';
 
 export default function MyChatsPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -130,7 +132,12 @@ export default function MyChatsPage() {
                                     {selectedChat.messages.map((message, index) => (
                                         <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-start' : 'justify-end')}>
                                             {message.role === 'user' && (
-                                                <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center text-xs">{user?.displayName?.charAt(0)}</div>
+                                                <Avatar className="h-6 w-6 flex-shrink-0">
+                                                   <AvatarImage src={user?.photoURL || undefined} />
+                                                   <AvatarFallback>
+                                                     <User className="h-4 w-4" />
+                                                   </AvatarFallback>
+                                                </Avatar>
                                             )}
                                             <div className={cn("max-w-xs md:max-w-md rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'border')}>
                                                 <p className="whitespace-pre-wrap">{message.content}</p>
@@ -174,8 +181,8 @@ export default function MyChatsPage() {
                     ) : (
                         <div className="text-center py-12">
                             <p className="text-muted-foreground mb-4">{t('noChatsFound')}</p>
-                            <Button>
-                                {t('startConversationWithGuide')}
+                            <Button asChild>
+                               <Link href="/">{t('startConversationWithGuide')}</Link>
                             </Button>
                         </div>
                     )}
@@ -184,4 +191,3 @@ export default function MyChatsPage() {
         </div>
     );
 }
-

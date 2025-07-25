@@ -6,7 +6,7 @@ import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick,
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, Calendar, Eye, MousePointerClick, Users } from 'lucide-react';
+import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, CheckCircle, Eye, MousePointerClick, Users } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -17,17 +17,15 @@ import VideoPopupDialog from '@/components/home/VideoPopupDialog';
 import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
 export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
     const [pageLoading, setPageLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
+    const [userProfile, setUserProfile] = useState<any>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
     const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
@@ -43,7 +41,8 @@ export default function AllCeremoniesPage() {
             setUser(currentUser);
              if (currentUser) {
                 const profile = await getUserProfile(currentUser.uid);
-                const isAdminUser = !!profile?.isAdmin || currentUser.email === ADMIN_EMAIL;
+                setUserProfile(profile);
+                const isAdminUser = profile?.role === 'admin';
                 setIsAdmin(isAdminUser);
                 fetchCeremonies(isAdminUser);
             } else {
@@ -163,6 +162,16 @@ export default function AllCeremoniesPage() {
         )
     }
 
+    const sortedCeremonies = [...ceremonies].sort((a, b) => {
+        const aIsAssigned = userProfile?.assignedCeremonies?.includes(a.id);
+        const bIsAssigned = userProfile?.assignedCeremonies?.includes(b.id);
+        if (aIsAssigned && !bIsAssigned) return -1;
+        if (!aIsAssigned && bIsAssigned) return 1;
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return 0;
+    });
+
     return (
         <EditableProvider>
             <div className="container py-12 md:py-16 space-y-12">
@@ -188,9 +197,11 @@ export default function AllCeremoniesPage() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
-                    {ceremonies.map((ceremony) => {
+                    {sortedCeremonies.map((ceremony) => {
                         const registeredCount = ceremony.assignedUsers?.length || 0;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
+                        const isAssigned = userProfile?.assignedCeremonies?.includes(ceremony.id);
+
                         return (
                             <div key={ceremony.id} className="px-5">
                                 <Card 
@@ -206,9 +217,8 @@ export default function AllCeremoniesPage() {
                                     </div>
                                     )}
                                     <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
-                                        <Badge variant={statusVariant} className="capitalize">
-                                            {t(ceremony.status)}
-                                        </Badge>
+                                        {isAdmin && <Badge variant={statusVariant} className="capitalize">{t(ceremony.status)}</Badge>}
+                                        {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                                         <div className='flex gap-2'>
                                             {ceremony.mediaUrl && (
                                                 <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -231,14 +241,13 @@ export default function AllCeremoniesPage() {
                                             title={ceremony.title}
                                             autoplay={ceremony.autoplay}
                                             defaultMuted={ceremony.defaultMuted}
-                                            inCarousel={false}
                                         />
                                     </div>
                                     <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center flex-grow">
                                         <p className="font-mono text-xl font-bold text-white mb-2">
                                             {ceremony.title}
                                         </p>
-                                        {ceremony.status === 'active' && (
+                                        {ceremony.status === 'active' && ceremony.showParticipantCount && (
                                             <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
                                                 <Users className="h-4 w-4" />
                                                 <span>{t('registeredCount', { count: registeredCount })}</span>
@@ -308,10 +317,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-
-
-    
-
-    
-
-    

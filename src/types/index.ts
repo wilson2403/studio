@@ -52,6 +52,7 @@ export type Guide = {
 };
 
 export type UserStatus = 'Interesado' | 'Cliente' | 'Pendiente';
+export type UserRole = 'user' | 'organizer' | 'admin';
 
 export type UserProfile = {
     uid: string;
@@ -60,7 +61,12 @@ export type UserProfile = {
     photoURL?: string;
     phone?: string;
     address?: string;
-    isAdmin?: boolean;
+    role?: UserRole;
+    permissions?: {
+        canEditCeremonies?: boolean;
+        canEditCourses?: boolean;
+        canEditUsers?: boolean;
+    };
     questionnaireCompleted?: boolean;
     status?: UserStatus;
     preparationStep?: number;
@@ -126,6 +132,7 @@ export type Chat = {
         uid: string;
         email: string | null;
         displayName: string | null;
+        photoURL?: string | null;
     } | null;
     createdAt: Timestamp;
     updatedAt: Timestamp;
@@ -193,4 +200,3 @@ export type VideoProgress = {
         updatedAt: Timestamp;
     }
 }
-    

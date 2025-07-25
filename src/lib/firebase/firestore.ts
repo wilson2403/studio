@@ -1,7 +1,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, PastCeremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
@@ -287,40 +287,6 @@ export const deleteCeremony = async (id: string): Promise<void> => {
     }
 }
 
-export const finishCeremony = async (ceremony: Ceremony): Promise<void> => {
-  try {
-    const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
-    await updateDoc(ceremonyRef, { status: 'finished' });
-  } catch (error) {
-    console.error("Error finishing ceremony: ", error);
-    logError(error, { function: 'finishCeremony', ceremony });
-    throw error;
-  }
-};
-
-export const inactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
-  try {
-    const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
-    await updateDoc(ceremonyRef, { status: 'inactive' });
-  } catch (error) {
-    console.error("Error inactivating ceremony: ", error);
-    logError(error, { function: 'inactivateCeremony', ceremony });
-    throw error;
-  }
-};
-
-
-export const reactivateCeremony = async (ceremony: Ceremony): Promise<void> => {
-  try {
-    const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
-    await updateDoc(ceremonyRef, { status: 'active' });
-  } catch (error) {
-    console.error("Error reactivating ceremony: ", error);
-    logError(error, { function: 'reactivateCeremony', ceremony });
-    throw error;
-  }
-};
-
 // --- Ceremony Analytics ---
 export const incrementCeremonyViewCount = async (id: string): Promise<void> => {
     try {
@@ -602,10 +568,9 @@ export const updateUserRole = async (uid: string, role: UserRole): Promise<void>
     try {
         const userRef = doc(db, 'users', uid);
         const updateData: { role: UserRole, permissions?: UserProfile['permissions'] } = { role };
-        // When demoting from admin, clear permissions
-        if (role !== 'admin') {
+        if (role !== 'admin' && role !== 'organizer') {
             const currentProfile = await getUserProfile(uid);
-            if(currentProfile?.role === 'admin') {
+            if(currentProfile?.role === 'admin' || currentProfile?.role === 'organizer') {
                 updateData.permissions = {}; // Reset permissions
             }
         }
@@ -749,6 +714,17 @@ export const getChatsByUserId = async (userId: string): Promise<Chat[]> => {
     }
 };
 
+export const getAllChats = async (): Promise<Chat[]> => {
+    try {
+        const q = query(chatsCollection, orderBy('updatedAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
+    } catch (error) {
+        console.error("Error getting all chats:", error);
+        logError(error, { function: 'getAllChats' });
+        return [];
+    }
+};
 
 // --- Questionnaire & Preparation ---
 
@@ -1136,9 +1112,6 @@ export const getVideoProgress = async (uid: string, videoId: string): Promise<nu
         return null;
     }
 };
-
-
-
 
 export type { Chat };
 export type { UserProfile };

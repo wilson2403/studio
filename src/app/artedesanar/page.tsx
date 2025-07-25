@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { getQuestionnaire, saveQuestionnaire, QuestionnaireAnswers, getUserProfile, updatePreparationProgress } from '@/lib/firebase/firestore';
-import { BookOpen, PartyPopper, HeartPulse, Pill, Brain, History, Sprout, Wind, HeartHandshake, Leaf, Minus, Sparkles, CheckCircle } from 'lucide-react';
+import { BookOpen, PartyPopper, HeartPulse, Pill, Brain, History, Sprout, Wind, HeartHandshake, Leaf, Minus, Sparkles, CheckCircle, Bot } from 'lucide-react';
 import Link from 'next/link';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
@@ -70,6 +70,7 @@ export default function QuestionnairePage() {
     { type: 'question', id: 'hasMentalHealthHistory', icon: Brain, titleKey: 'questionnaireMentalHealth', descriptionKey: 'questionnaireMentalHealthDesc', detailsLabelKey: 'questionnaireMentalHealthDetails' },
     { type: 'question', id: 'hasPreviousExperience', icon: History, titleKey: 'questionnaireExperience', descriptionKey: 'questionnaireExperienceDesc', detailsLabelKey: 'questionnaireExperienceDetails' },
     { type: 'question', id: 'mainIntention', icon: Sprout, titleKey: 'questionnaireIntention', descriptionKey: 'questionnaireIntentionDesc' },
+    { type: 'info', id: 'aiGuide', icon: Bot, titleKey: 'aiGuideTitle', descriptionKey: 'aiGuideDescription' },
     { type: 'info', id: 'process', icon: Wind, titleKey: 'preparationProcessTitle', descriptionKey: 'preparationGuideFullSubtitle' },
     { type: 'info', id: 'diet', icon: Leaf, titleKey: 'dietTitle', descriptionKey: 'dietSubtitle' },
     { type: 'info', id: 'mentalPrep', icon: Sparkles, titleKey: 'mentalPrepTitle', descriptionKey: 'mentalPrepSubtitle' },
@@ -227,6 +228,17 @@ export default function QuestionnairePage() {
   }
 
   const getInfoStepComponent = (step: (typeof allSteps)[number]) => {
+    if (step.id === 'aiGuide') {
+      return (
+        <div className="text-center max-w-sm flex flex-col items-center gap-4">
+            <EditableTitle tag="p" id="aiGuideContent" initialValue={t('aiGuideContent')} className="text-muted-foreground" />
+            <div className="flex flex-col sm:flex-row gap-2">
+                <Button asChild><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCourses')}</Link></Button>
+                <Button asChild variant="outline"><Link href="/chats"><Bot className="mr-2 h-4 w-4" />{t('talkToGuide')}</Link></Button>
+            </div>
+        </div>
+      )
+    }
     if (step.id === 'process') {
       const processSteps = [
           { id: "preparationProcess", titleId: "preparationProcessTitle", descriptionId: "preparationProcessDescription", Icon: Sprout },
@@ -405,12 +417,3 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
-
-
-
-
-    
-
-    
-
-
