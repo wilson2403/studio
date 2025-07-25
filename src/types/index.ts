@@ -1,4 +1,5 @@
 
+
 import { Timestamp } from "firebase/firestore";
 
 export type Plan = {
@@ -74,6 +75,7 @@ export type UserProfile = {
     assignedCeremonies?: string[];
     completedCourses?: string[];
     videoProgress?: { [videoId: string]: number };
+    hasLogs?: boolean;
 }
 
 export type ThemeSettings = {

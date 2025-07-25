@@ -1,6 +1,6 @@
 
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -562,7 +562,16 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
     try {
         const q = query(collection(db, 'users'));
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => doc.data() as UserProfile);
+        const users = querySnapshot.docs.map(doc => doc.data() as UserProfile);
+
+        // Check for audit logs for each user
+        const usersWithLogStatus = await Promise.all(
+            users.map(async (user) => {
+                const hasLogs = await hasAuditLogs(user.uid);
+                return { ...user, hasLogs };
+            })
+        );
+        return usersWithLogStatus;
     } catch (error) {
         console.error("Error getting all users:", error);
         logError(error, { function: 'getAllUsers' });
@@ -1173,6 +1182,18 @@ export const getVideoProgress = async (uid: string, videoId: string): Promise<nu
 };
 
 // --- Audit Logs ---
+export const hasAuditLogs = async (userId: string): Promise<boolean> => {
+    try {
+        const q = query(auditLogsCollection, where('userId', '==', userId), limit(1));
+        const snapshot = await getDocs(q);
+        return !snapshot.empty;
+    } catch (e) {
+        console.error("Error checking for audit logs:", e);
+        logError(e, { function: 'hasAuditLogs', userId });
+        return false;
+    }
+}
+
 export const getAuditLogsForUser = async (userId: string): Promise<AuditLog[]> => {
     try {
         const q = query(auditLogsCollection, where('userId', '==', userId));
@@ -1192,5 +1213,3 @@ export const getAuditLogsForUser = async (userId: string): Promise<AuditLog[]> =
 
 export type { Chat };
 export type { UserProfile };
-
-    

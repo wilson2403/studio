@@ -498,9 +498,11 @@ export default function AdminUsersPage() {
                                                 <Button variant="outline" size="sm" onClick={() => setViewingUserChats(u)}>
                                                     <Bot className="mr-2 h-4 w-4"/>{t('viewAIChats')}
                                                 </Button>
-                                                <Button variant="outline" size="sm" onClick={() => setViewingUserAuditLog(u)}>
-                                                    <ClipboardList className="mr-2 h-4 w-4"/>{t('viewAuditLog')}
-                                                </Button>
+                                                {u.hasLogs && (
+                                                    <Button variant="outline" size="sm" onClick={() => setViewingUserAuditLog(u)}>
+                                                        <ClipboardList className="mr-2 h-4 w-4"/>{t('viewAuditLog')}
+                                                    </Button>
+                                                )}
                                                 {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (!u.assignedCeremonies || u.assignedCeremonies.length === 0) && (
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
