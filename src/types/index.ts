@@ -76,6 +76,7 @@ export type UserProfile = {
     completedCourses?: string[];
     videoProgress?: { [videoId: string]: number };
     hasLogs?: boolean;
+    hasChats?: boolean;
 }
 
 export type ThemeSettings = {

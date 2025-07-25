@@ -495,9 +495,11 @@ export default function AdminUsersPage() {
                                                         <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
                                                     </Button>
                                                 )}
-                                                <Button variant="outline" size="sm" onClick={() => setViewingUserChats(u)}>
-                                                    <Bot className="mr-2 h-4 w-4"/>{t('viewAIChats')}
-                                                </Button>
+                                                {u.hasChats && (
+                                                    <Button variant="outline" size="sm" onClick={() => setViewingUserChats(u)}>
+                                                        <Bot className="mr-2 h-4 w-4"/>{t('viewAIChats')}
+                                                    </Button>
+                                                )}
                                                 {u.hasLogs && (
                                                     <Button variant="outline" size="sm" onClick={() => setViewingUserAuditLog(u)}>
                                                         <ClipboardList className="mr-2 h-4 w-4"/>{t('viewAuditLog')}

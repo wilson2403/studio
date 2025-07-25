@@ -564,11 +564,12 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
         const querySnapshot = await getDocs(q);
         const users = querySnapshot.docs.map(doc => doc.data() as UserProfile);
 
-        // Check for audit logs for each user
+        // Check for audit logs and chats for each user
         const usersWithLogStatus = await Promise.all(
             users.map(async (user) => {
                 const hasLogs = await hasAuditLogs(user.uid);
-                return { ...user, hasLogs };
+                const hasUserChats = await hasChats(user.uid);
+                return { ...user, hasLogs, hasChats: hasUserChats };
             })
         );
         return usersWithLogStatus;
@@ -719,6 +720,17 @@ export const setThemeSettings = async (settings: ThemeSettings): Promise<void> =
 
 
 // --- Chat ---
+export const hasChats = async (userId: string): Promise<boolean> => {
+    try {
+        const q = query(chatsCollection, where('user.uid', '==', userId), limit(1));
+        const snapshot = await getDocs(q);
+        return !snapshot.empty;
+    } catch (e) {
+        console.error("Error checking for user chats:", e);
+        logError(e, { function: 'hasChats', userId });
+        return false;
+    }
+}
 
 export const saveChatMessage = async (chatId: string, messages: ChatMessage[], user: { uid: string, email: string | null, displayName: string | null } | null) => {
     const chatRef = doc(db, 'chats', chatId);
