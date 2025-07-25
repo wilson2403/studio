@@ -95,7 +95,7 @@ export default function Chatbot() {
         }
     };
 
-    if (userProfile?.role !== 'admin') {
+    if (!user || userProfile?.role !== 'admin') {
         return null;
     }
 
