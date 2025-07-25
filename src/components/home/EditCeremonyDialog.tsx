@@ -19,9 +19,9 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Ceremony, Plan } from '@/types';
-import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, finishCeremony, reactivateCeremony, inactivateCeremony, resetCeremonyCounters } from '@/lib/firebase/firestore';
+import { addCeremony, updateCeremony, deleteCeremony, uploadImage, uploadVideo, resetCeremonyCounters } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Copy, PlusCircle, Trash, CheckCircle, RotateCcw, Archive, History } from 'lucide-react';
+import { Copy, PlusCircle, Trash, History } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { useState, useEffect } from 'react';
@@ -274,62 +274,6 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     }
   }
 
-  const handleFinish = async () => {
-    if (!ceremony) return;
-    try {
-      await finishCeremony(ceremony);
-      onUpdate({ ...ceremony, status: 'finished' });
-      toast({
-        title: t('ceremonyFinishedSuccess'),
-        description: t('ceremonyMovedToPast'),
-      });
-      onClose();
-    } catch (error) {
-      toast({
-        title: t('error'),
-        description: t('errorFinishingCeremony'),
-        variant: 'destructive',
-      });
-    }
-  }
-  
-  const handleInactivate = async () => {
-    if (!ceremony) return;
-    try {
-      await inactivateCeremony(ceremony);
-      onUpdate({ ...ceremony, status: 'inactive' });
-      toast({
-        title: t('ceremonyInactivatedSuccess'),
-      });
-      onClose();
-    } catch (error) {
-      toast({
-        title: t('error'),
-        description: t('errorInactivatingCeremony'),
-        variant: 'destructive',
-      });
-    }
-  }
-
-
-  const handleReactivate = async () => {
-      if (!ceremony) return;
-      try {
-          await reactivateCeremony(ceremony);
-          onUpdate({ ...ceremony, status: 'active' });
-          toast({
-              title: t('ceremonyReactivatedSuccess'),
-          });
-          onClose();
-      } catch (error) {
-           toast({
-              title: t('error'),
-              description: t('errorReactivatingCeremony'),
-              variant: 'destructive'
-          });
-      }
-  }
-
   const handleResetCounters = async () => {
     if (!ceremony) return;
     try {
@@ -353,7 +297,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
-      <DialogContent className="sm:max-w-lg bg-card">
+      <DialogContent className="sm:max-w-[500px] bg-card">
         <DialogHeader>
           <DialogTitle>{isEditMode ? t('editCeremony') : t('addCeremonyTitle')}</DialogTitle>
           <DialogDescription>
@@ -413,7 +357,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             <FormItem>
                                 <FormLabel>{t('formSchedule')}</FormLabel>
                                 <FormControl>
-                                    <Input {...field} disabled={isUploading} placeholder="Ej: 4:00 p.m. – 7:00 a.m." />
+                                    <Textarea rows={2} {...field} disabled={isUploading} placeholder="Ej: 4:00 p.m. – 7:00 a.m." />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -477,7 +421,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             <FormItem>
                                 <FormLabel>{t('formLink')}</FormLabel>
                                 <FormControl>
-                                    <Input {...field} disabled={isUploading} />
+                                    <Textarea rows={2} {...field} disabled={isUploading} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -491,7 +435,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             <FormItem>
                                 <FormLabel>{t('formMediaUrl')}</FormLabel>
                                 <FormControl>
-                                    <Input {...field} placeholder="https://youtube.com/... o /videos/local.mp4" disabled={isUploading || !!mediaFile} />
+                                    <Textarea rows={2} {...field} placeholder="https://youtube.com/... o /videos/local.mp4" disabled={isUploading || !!mediaFile} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -742,97 +686,75 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                         </div>
                     )}
                 </div>
+                
+                 {isEditMode && <Separator className="my-4" />}
 
-                {isEditMode && <Separator className="my-4" />}
-
-                <div className="px-1 space-y-4">
-                     {isEditMode && ceremony && (
-                        <div className="flex flex-wrap gap-2 items-center">
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                <Button type="button" variant="destructive" size="sm" disabled={isUploading}>
-                                    <Trash className="mr-2 h-4 w-4" />
-                                    {t('delete')}
-                                </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>{t('deleteCeremonyConfirmTitle')}</AlertDialogTitle>
-                                    <AlertDialogDescription>{t('deleteCeremonyConfirmDescription')}</AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleDelete}>{t('delete')}</AlertDialogAction>
-                                </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                            <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
-                                <Copy className="mr-2 h-4 w-4" />
-                                {t('duplicate')}
-                            </Button>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                        <History className="mr-2 h-4 w-4" />
-                                        {t('resetCounters')}
-                                    </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{t('resetCountersConfirmTitle')}</AlertDialogTitle>
-                                        <AlertDialogDescription>{t('resetCountersConfirmDescription')}</AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleResetCounters}>{t('continue')}</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                            {ceremony.status === 'active' ? (
-                                <div className="flex gap-2">
+                 <div className="space-y-4 pt-2">
+                    {isEditMode && ceremony && (
+                        <div className='space-y-4'>
+                            <FormField
+                                control={form.control}
+                                name="status"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t('formStatus')}</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isUploading}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={t('formSelectStatus')} />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="active">{t('statusActive')}</SelectItem>
+                                                <SelectItem value="inactive">{t('statusInactive')}</SelectItem>
+                                                <SelectItem value="finished">{t('statusFinished')}</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <div className="flex flex-wrap gap-2 items-center">
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                    <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                        <CheckCircle className="mr-2 h-4 w-4" />
-                                        {t('markAsFinished')}
-                                    </Button>
+                                        <Button type="button" variant="destructive" size="icon" disabled={isUploading}>
+                                            <Trash className="h-4 w-4" />
+                                        </Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
-                                        <AlertDialogDescription>{t('finishCeremonyConfirmDescription')}</AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
-                                    </AlertDialogFooter>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>{t('deleteCeremonyConfirmTitle')}</AlertDialogTitle>
+                                            <AlertDialogDescription>{t('deleteCeremonyConfirmDescription')}</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handleDelete}>{t('delete')}</AlertDialogAction>
+                                        </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
+                                <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
+                                    <Copy className="mr-2 h-4 w-4" />
+                                    {t('duplicate')}
+                                </Button>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                    <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                        <Archive className="mr-2 h-4 w-4" />
-                                        {t('markAsInactive')}
-                                    </Button>
+                                        <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                            <History className="mr-2 h-4 w-4" />
+                                            {t('resetCounters')}
+                                        </Button>
                                     </AlertDialogTrigger>
                                     <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>{t('inactivateCeremonyConfirmTitle')}</AlertDialogTitle>
-                                        <AlertDialogDescription>{t('inactivateCeremonyConfirmDescription')}</AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                        <AlertDialogAction onClick={handleInactivate}>{t('continue')}</AlertDialogAction>
-                                    </AlertDialogFooter>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>{t('resetCountersConfirmTitle')}</AlertDialogTitle>
+                                            <AlertDialogDescription>{t('resetCountersConfirmDescription')}</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handleResetCounters}>{t('continue')}</AlertDialogAction>
+                                        </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
-                                </div>
-                            ) : (
-                                <Button type="button" variant="outline" size="sm" onClick={handleReactivate} disabled={isUploading}>
-                                <RotateCcw className="mr-2 h-4 w-4" />
-                                {t('reactivateCeremony')}
-                                </Button>
-                            )}
+                            </div>
                         </div>
                      )}
 
@@ -844,7 +766,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             {isUploading ? t('saving') : t('saveChanges')}
                         </Button>
                     </DialogFooter>
-                </div>
+                 </div>
             </form>
         </Form>
       </DialogContent>
