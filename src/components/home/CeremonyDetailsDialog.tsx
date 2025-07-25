@@ -17,7 +17,6 @@ import { CalendarIcon, Check, Clock, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
-import { ScrollArea } from '../ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { getUserProfile, incrementCeremonyWhatsappClick } from '@/lib/firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -116,10 +115,9 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
         }
         onClose();
     }}>
-      <DialogContent className="sm:max-w-md p-0">
-        <ScrollArea className="max-h-[90vh] rounded-lg">
-            <div className="p-6 relative">
-                <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="relative">
+                <DialogClose className="absolute right-0 top-0 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground z-10">
                     <X className="h-4 w-4" />
                     <span className="sr-only">Close</span>
                 </DialogClose>
@@ -201,7 +199,6 @@ export default function CeremonyDetailsDialog({ ceremony, isOpen, onClose }: Cer
                 </DialogFooter>
                 )}
             </div>
-        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
