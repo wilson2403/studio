@@ -17,7 +17,7 @@ import {
 } from 'firebase/auth';
 import { auth, db } from './config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { logError } from './firestore';
+import { logError, getUserProfile } from './firestore';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -30,7 +30,7 @@ export const signInWithGoogle = async () => {
     const userRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(userRef);
 
-    const isUserAdmin = user.email === ADMIN_EMAIL;
+    const isUserAdminByEmail = user.email === ADMIN_EMAIL;
 
     if (!docSnap.exists()) {
         // New user
@@ -40,15 +40,14 @@ export const signInWithGoogle = async () => {
             displayName: user.displayName,
             photoURL: user.photoURL,
             providerId: result.providerId,
-            role: isUserAdmin ? 'admin' : 'user', // Set role on creation
+            role: isUserAdminByEmail ? 'admin' : 'user', // Set role on creation
             questionnaireCompleted: false,
             status: 'Interesado',
-        }, { merge: true });
+        });
         sessionStorage.setItem('tour_status', 'pending');
     } else {
         // Returning user, ensure their admin status is correct.
-        // This is crucial if their admin status was ever manually changed or corrupted.
-        if (isUserAdmin) {
+        if (isUserAdminByEmail) {
             await setDoc(userRef, { role: 'admin' }, { merge: true });
         }
         sessionStorage.removeItem('tour_status');
