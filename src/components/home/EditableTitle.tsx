@@ -23,6 +23,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const { isAdmin, content, updateContent, fetchContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  const [displayValue, setDisplayValue] = useState(initialValue);
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'es' | 'en';
@@ -33,28 +34,32 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     }
   }, [id, initialValue, fetchContent]);
 
-  const contentValue = content[id];
-  let displayValue: string;
-  
-  if (typeof contentValue === 'object' && contentValue !== null) {
-      displayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
-  } else if (typeof contentValue === 'string') {
-      displayValue = contentValue;
-  } else {
-      displayValue = initialValue;
-  }
+  useEffect(() => {
+    const contentValue = content[id];
+    let newDisplayValue: string;
+    
+    if (typeof contentValue === 'object' && contentValue !== null) {
+        newDisplayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
+    } else if (typeof contentValue === 'string') {
+        newDisplayValue = contentValue;
+    } else {
+        newDisplayValue = initialValue;
+    }
+    setDisplayValue(newDisplayValue);
+  }, [content, id, lang, initialValue]);
+
   
   const handleSave = async () => {
-    if (id === 'whatsappCommunityLink') {
+    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
         const newValue = { es: editValue, en: editValue };
         await updateContent(id, newValue);
     } else {
-        if (!contentValue) return;
+        if (!content[id]) return;
 
         let newContentValue: { [key: string]: string; };
 
-        if (typeof contentValue === 'object' && contentValue !== null) {
-            newContentValue = { ...(contentValue as object), [lang]: editValue };
+        if (typeof content[id] === 'object' && content[id] !== null) {
+            newContentValue = { ...(content[id] as object), [lang]: editValue };
         } else {
             newContentValue = { [lang]: editValue };
         }
@@ -75,8 +80,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   };
   
   const handleEditClick = () => {
-    if (id === 'whatsappCommunityLink') {
-       const linkValue = (typeof contentValue === 'object' && contentValue !== null ? contentValue.es : contentValue) as string || initialValue;
+    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
+       const linkValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
        setEditValue(linkValue);
     } else {
        setEditValue(displayValue);
@@ -85,9 +90,9 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
 
   if (isEditing) {
-    const InputComponent = (Tag === 'p' || Tag === 'h3' || id === 'whatsappCommunityLink') ? Textarea : Input;
+    const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number')) ? Textarea : Input;
     const currentLanguageName = lang === 'es' ? 'Español' : 'English';
-    const label = id === 'whatsappCommunityLink' ? t('whatsappCommunityLink') : currentLanguageName;
+    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') ? t(id) : currentLanguageName;
 
 
     return (

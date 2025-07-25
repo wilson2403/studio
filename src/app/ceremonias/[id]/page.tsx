@@ -32,7 +32,7 @@ export default function SingleCeremonyPage() {
     const { toast } = useToast();
     const id = params.id as string;
 
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === id) || false;
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ceremonyId => ceremonyId === id) || false;
     const assignedPlanId = userProfile?.assignedCeremonies?.find(c => c.ceremonyId === id)?.planId;
     const assignedPlan = ceremony?.plans?.find(p => p.id === assignedPlanId);
 
