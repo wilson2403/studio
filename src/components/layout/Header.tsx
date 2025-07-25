@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -66,7 +66,8 @@ export default function Header() {
       { href: '/admin/theme', label: t('themeTab'), icon: Palette },
       { href: '/admin/backup', label: t('backupTitle'), icon: History },
       { href: '/admin/chats', label: t('chatHistoryTitle'), icon: MessageSquare },
-      { href: '/admin/logs', label: t('errorLogsTitle'), icon: Terminal }
+      { href: '/admin/logs', label: t('errorLogsTitle'), icon: Terminal },
+      { href: '/admin/settings', label: t('systemSettings'), icon: Settings }
   ];
   
   const isAdmin = userProfile?.role === 'admin';

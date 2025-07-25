@@ -200,3 +200,24 @@ export type VideoProgress = {
         updatedAt: Timestamp;
     }
 }
+
+export type SystemSettings = {
+    firebaseConfig: {
+        apiKey: string;
+        authDomain: string;
+        projectId: string;
+        storageBucket: string;
+        messagingSenderId: string;
+        appId: string;
+    };
+    googleApiKey: string;
+    resendApiKey: string;
+    whatsappCommunityLink: string;
+    navLinks: {
+        home: { es: string; en: string };
+        medicine: { es: string; en: string };
+        guides: { es: string; en: string };
+        ceremonies: { es: string; en: string };
+        preparation: { es: string; en: string };
+    };
+};
