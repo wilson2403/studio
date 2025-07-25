@@ -6,7 +6,7 @@ import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerCl
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters, getUsersForCeremony } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters, getUsersForCeremony, UserProfile } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -22,8 +22,6 @@ import { Card, CardContent } from '../ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
-
 export default function Ceremonies({ 
   status, 
   id,
@@ -33,7 +31,8 @@ export default function Ceremonies({
   subtitleInitialValue
 }: CeremoniesProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
@@ -49,9 +48,11 @@ export default function Ceremonies({
       setUser(currentUser);
       if (currentUser) {
           const profile = await getUserProfile(currentUser.uid);
-          setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+          setUserProfile(profile);
+          const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canEditCeremonies);
+          setIsAuthorized(!!hasPermission);
       } else {
-          setIsAdmin(false);
+          setIsAuthorized(false);
       }
     });
     return () => unsubscribe();
@@ -131,7 +132,7 @@ export default function Ceremonies({
   }
 
   const handleViewPlans = (ceremony: Ceremony) => {
-    if (!isAdmin) {
+    if (!isAuthorized) {
       incrementCeremonyReserveClick(ceremony.id);
     }
 
@@ -163,7 +164,7 @@ export default function Ceremonies({
                   <Card 
                       className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50"
                   >
-                      {isAdmin && (
+                      {isAuthorized && (
                         <div className="absolute top-2 right-2 z-20 flex gap-2">
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
                             <Edit className="h-4 w-4" />
@@ -208,7 +209,7 @@ export default function Ceremonies({
                           <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                             {t('reserveNow')}
                           </Button>
-                          {isAdmin && (
+                          {isAuthorized && (
                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                 <div className='flex items-center gap-1.5'>
                                     <Eye className="h-4 w-4" />
@@ -243,7 +244,7 @@ export default function Ceremonies({
                 <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-0 px-2">
                   <div className="p-1 h-full">
                     <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
-                      {isAdmin && (
+                      {isAuthorized && (
                         <div className="absolute top-2 right-2 z-20 flex gap-2">
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
                             <Edit className="h-4 w-4" />
@@ -280,7 +281,7 @@ export default function Ceremonies({
                             </p>
                            )}
                       </div>
-                       {isAdmin && (
+                       {isAuthorized && (
                         <div className="absolute bottom-16 right-4 flex-col justify-start gap-4 text-xs text-white/70 mt-3 pt-3">
                             <div className='flex items-center gap-1.5'>
                                 <Eye className="h-4 w-4" />
@@ -331,7 +332,7 @@ export default function Ceremonies({
     );
   }
   
-  if (ceremonies.length === 0 && isAdmin) {
+  if (ceremonies.length === 0 && isAuthorized) {
       return (
         <section id={id} className="container py-8 md:py-16 animate-in fade-in-0 duration-1000 delay-500">
             <div className="flex flex-col items-center text-center space-y-4 mb-12">
@@ -341,7 +342,7 @@ export default function Ceremonies({
                 initialValue={titleInitialValue}
                 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                 />
-                 {isAdmin && (
+                 {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)}>
                         <PlusCircle className="mr-2" />
                         {t('addCeremony')}
@@ -378,7 +379,7 @@ export default function Ceremonies({
                 className="max-w-2xl text-lg text-foreground/80 font-body"
             />
         )}
-         {isAdmin && status === 'active' && (
+         {isAuthorized && status === 'active' && (
           <Button onClick={() => setIsAdding(true)}>
             <PlusCircle className="mr-2" />
             {t('addCeremony')}
@@ -432,4 +433,3 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
-

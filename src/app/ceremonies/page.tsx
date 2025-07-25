@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick, getUsersForCeremony } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick, getUsersForCeremony, UserProfile } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,8 +25,8 @@ export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
     const [pageLoading, setPageLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
-    const [userProfile, setUserProfile] = useState<any>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
     const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
     const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
@@ -42,23 +42,23 @@ export default function AllCeremoniesPage() {
              if (currentUser) {
                 const profile = await getUserProfile(currentUser.uid);
                 setUserProfile(profile);
-                const isAdminUser = profile?.role === 'admin';
-                setIsAdmin(isAdminUser);
-                fetchCeremonies(isAdminUser);
+                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canEditCeremonies);
+                setIsAuthorized(!!hasPermission);
+                fetchCeremonies(!!hasPermission);
             } else {
-                setIsAdmin(false);
+                setIsAuthorized(false);
                 router.push('/login?redirect=/ceremonies');
             }
         });
         return () => unsubscribe();
     }, [router]);
     
-    const fetchCeremonies = async (isAdminUser: boolean) => {
+    const fetchCeremonies = async (isUserAuthorized: boolean) => {
         setPageLoading(true);
         try {
             const data = await getCeremonies(); // Get all ceremonies
-            // Filter inactive ones only if user is not admin
-            const visibleCeremonies = isAdminUser ? data : data.filter(c => c.status !== 'inactive');
+            // Filter inactive ones only if user is not authorized
+            const visibleCeremonies = isUserAuthorized ? data : data.filter(c => c.status !== 'inactive');
             
              const decoratedCeremonies = await Promise.all(
                 visibleCeremonies.map(async (ceremony) => {
@@ -104,7 +104,7 @@ export default function AllCeremoniesPage() {
     }
 
     const handleViewPlans = (ceremony: Ceremony) => {
-        if (!isAdmin) {
+        if (!isAuthorized) {
             incrementCeremonyReserveClick(ceremony.id);
         }
 
@@ -188,7 +188,7 @@ export default function AllCeremoniesPage() {
                         initialValue={t('allCeremoniesSubtitle')}
                         className="mt-2 text-lg text-foreground/80 font-body"
                     />
-                    {isAdmin && (
+                    {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
                         {t('addCeremony')}
@@ -209,7 +209,7 @@ export default function AllCeremoniesPage() {
                                     onMouseLeave={() => setActiveVideo(null)}
                                     className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50 h-full"
                                 >
-                                    {isAdmin && (
+                                    {isAuthorized && (
                                     <div className="absolute top-2 right-2 z-20 flex gap-2">
                                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
                                         <Edit className="h-4 w-4" />
@@ -217,7 +217,7 @@ export default function AllCeremoniesPage() {
                                     </div>
                                     )}
                                     <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
-                                        {isAdmin && <Badge variant={statusVariant} className="capitalize">{t(ceremony.status)}</Badge>}
+                                        {isAuthorized && <Badge variant={statusVariant} className="capitalize">{t(ceremony.status)}</Badge>}
                                         {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                                         <div className='flex gap-2'>
                                             {ceremony.mediaUrl && (
@@ -260,7 +260,7 @@ export default function AllCeremoniesPage() {
                                         ) : (
                                             ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
                                         )}
-                                        {isAdmin && (
+                                        {isAuthorized && (
                                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                                 <div className='flex items-center gap-1.5'>
                                                     <Eye className="h-4 w-4" />

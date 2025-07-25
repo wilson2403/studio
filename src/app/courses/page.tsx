@@ -18,12 +18,10 @@ import { CheckCircle, Clock, Edit, PlusCircle, Trash, Video } from 'lucide-react
 import { useToast } from '@/hooks/use-toast';
 import AddCourseDialog from '@/components/admin/AddCourseDialog';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
-
 export default function CoursesPage() {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [loading, setLoading] = useState(true);
     const [courses, setCourses] = useState<Course[]>([]);
     const [isAddingCourse, setIsAddingCourse] = useState(false);
@@ -39,7 +37,8 @@ export default function CoursesPage() {
                 setUser(currentUser);
                 const profile = await getUserProfile(currentUser.uid);
                 setUserProfile(profile);
-                setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canEditCourses);
+                setIsAuthorized(!!hasPermission);
             } else {
                 router.push('/login?redirect=/courses');
             }
@@ -138,7 +137,7 @@ export default function CoursesPage() {
                                 <CardContent className="p-4 space-y-3">
                                     <div className='flex justify-between items-start'>
                                         <h3 className="text-xl font-bold">{course.title}</h3>
-                                        {isAdmin && (
+                                        {isAuthorized && (
                                             <Button variant="ghost" size="icon" onClick={() => setEditingCourse(course)}>
                                                 <Edit className="h-4 w-4" />
                                             </Button>
@@ -172,7 +171,7 @@ export default function CoursesPage() {
             <div className="text-center space-y-4">
                 <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">{t('navCourses')}</h1>
                 <p className="text-lg text-foreground/80 font-body max-w-2xl mx-auto">{t('coursesDescription')}</p>
-                 {isAdmin && (
+                 {isAuthorized && (
                     <Button onClick={() => setIsAddingCourse(true)}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         {t('addCourse')}

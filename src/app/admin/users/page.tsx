@@ -146,8 +146,8 @@ export default function AdminUsersPage() {
             const profile = await getUserProfile(currentUser.uid);
             setCurrentUserProfile(profile);
 
-            const isAdmin = profile?.role === 'admin';
-            if (!isAdmin) {
+            const isAuthorized = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canEditUsers);
+            if (!isAuthorized) {
                 router.push('/'); return;
             }
 
@@ -790,5 +790,3 @@ export default function AdminUsersPage() {
         </div>
     );
 }
-
-    
