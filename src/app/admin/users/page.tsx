@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions } from '@/lib/firebase/firestore';
@@ -37,6 +37,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import ViewUserChatsDialog from '@/components/admin/ViewUserChatsDialog';
 import { Label } from '@/components/ui/label';
 import ViewUserAuditLogDialog from '@/components/admin/ViewUserAuditLogDialog';
+import InviteToCeremonyDialog from '@/components/admin/InviteToCeremonyDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -81,6 +82,7 @@ export default function AdminUsersPage() {
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
+    const [invitingToCeremonyUser, setInvitingToCeremonyUser] = useState<UserProfile | null>(null);
     const [assigningUser, setAssigningUser] = useState<UserProfile | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
     const [analytics, setAnalytics] = useState<SectionAnalytics[]>([]);
@@ -486,9 +488,16 @@ export default function AdminUsersPage() {
                                                     <Video className="mr-2 h-4 w-4" />{t('viewCourses')} ({getCourseProgressPercentage(u)}%)
                                                 </Button>
                                                 {u.phone && (
-                                                    <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
-                                                        <WhatsappIcon className="mr-2 h-4 w-4"/>{t('invite')}
-                                                    </Button>
+                                                    <>
+                                                        <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
+                                                            <WhatsappIcon className="mr-2 h-4 w-4"/>{t('inviteQuestionnaire')}
+                                                        </Button>
+                                                        {u.assignedCeremonies && u.assignedCeremonies.length > 0 && (
+                                                            <Button variant="outline" size="sm" onClick={() => setInvitingToCeremonyUser(u)}>
+                                                                <SendHorizone className="mr-2 h-4 w-4"/>{t('inviteToCeremony')}
+                                                            </Button>
+                                                        )}
+                                                    </>
                                                 )}
                                                 {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (
                                                     <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
@@ -778,6 +787,13 @@ export default function AdminUsersPage() {
                     isOpen={!!assigningUser}
                     onClose={() => setAssigningUser(null)}
                     onUpdate={handleCeremonyAssignmentUpdate}
+                />
+            )}
+            {invitingToCeremonyUser && (
+                <InviteToCeremonyDialog
+                    user={invitingToCeremonyUser}
+                    isOpen={!!invitingToCeremonyUser}
+                    onClose={() => setInvitingToCeremonyUser(null)}
                 />
             )}
              {invitingUser && (

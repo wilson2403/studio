@@ -3,14 +3,14 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarIcon, Check, Clock, Home, Share2, X } from 'lucide-react';
 import Link from 'next/link';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,8 @@ import { useToast } from '@/hooks/use-toast';
 export default function SingleCeremonyPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
     const params = useParams();
@@ -44,7 +46,15 @@ export default function SingleCeremonyPage() {
         }
         
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            setIsAdmin(currentUser?.email === 'wilson2403@gmail.com');
+            setUser(currentUser);
+            if (currentUser) {
+                const profile = await getUserProfile(currentUser.uid);
+                setUserProfile(profile);
+                setIsAdmin(!!profile?.isAdmin || currentUser.email === 'wilson2403@gmail.com');
+            } else {
+                setUserProfile(null);
+                setIsAdmin(false);
+            }
         });
         return () => unsubscribe();
 
@@ -64,11 +74,11 @@ export default function SingleCeremonyPage() {
                     url: shareUrl,
                 });
             } catch (error) {
-                // Silently fail if user cancels share.
-                // For other errors, fallback to clipboard.
                 if (error instanceof DOMException && error.name === 'AbortError') {
+                    // Silently fail if user cancels share.
                     return;
                 }
+                // For other errors, fallback to clipboard.
                 try {
                     await navigator.clipboard.writeText(shareUrl);
                     toast({ title: t('linkCopied') });
@@ -118,6 +128,7 @@ export default function SingleCeremonyPage() {
     const USD_EXCHANGE_RATE = 500;
     const isEnglish = i18n.language === 'en';
     const hasPlans = ceremony.priceType === 'from' && ceremony.plans && ceremony.plans.length > 0;
+    const isEnrolled = userProfile?.assignedCeremonies?.includes(ceremony.id) || false;
 
     const formatPrice = (price: number, priceUntil?: number) => {
         if (isEnglish) {
@@ -256,7 +267,7 @@ export default function SingleCeremonyPage() {
                             </div>
                         )}
                         <div className="flex flex-col sm:flex-row gap-2">
-                            {ceremony.status === 'active' && (
+                            {ceremony.status === 'active' && !isEnrolled && (
                             <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
                                     <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
                                         {t('reserveWhatsapp')}
@@ -275,5 +286,3 @@ export default function SingleCeremonyPage() {
         </div>
     );
 }
-
-    
