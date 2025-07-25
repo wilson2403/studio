@@ -28,6 +28,7 @@ import { useState, useEffect } from 'react';
 import { Progress } from '../ui/progress';
 import { useTranslation } from 'react-i18next';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
+import { Separator } from '../ui/separator';
 
 const planSchema = (t: (key: string, options?: any) => string) => z.object({
   name: z.string().min(1, t('errorRequired', { field: t('planName') })),
@@ -352,7 +353,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
   return (
     <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
-      <DialogContent className="sm:max-w-[600px] bg-card">
+      <DialogContent className="sm:max-w-lg bg-card">
         <DialogHeader>
           <DialogTitle>{isEditMode ? t('editCeremony') : t('addCeremonyTitle')}</DialogTitle>
           <DialogDescription>
@@ -548,95 +549,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             </FormItem>
                         )}
                     />
-
-                    <div>
-                        <Label>{t('formFeatures')}</Label>
-                        <div className="space-y-2 mt-2">
-                            {fields.map((field, index) => (
-                                <div key={field.id} className="flex items-center gap-2">
-                                    <Input {...form.register(`features.${index}.value`)} disabled={isUploading}/>
-                                    <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={isUploading}><Trash className="h-4 w-4"/></Button>
-                                </div>
-                            ))}
-                            <Button type="button" variant="outline" size="sm" onClick={() => append({ value: "" })} disabled={isUploading}>
-                                {t('formAddFeature')}
-                            </Button>
-                        </div>
-                    </div>
-
-                    {priceType === 'from' && (
-                        <div>
-                            <Label className="text-lg font-semibold">{t('plansTitle')}</Label>
-                            <div className="space-y-4 mt-2">
-                                {planFields.map((field, index) => (
-                                    <div key={field.id} className="space-y-3 p-4 border rounded-md relative bg-muted/50">
-                                        <div className="absolute top-2 right-2">
-                                            <Button type="button" variant="destructive" size="icon" className="h-7 w-7" onClick={() => removePlan(index)} disabled={isUploading}><Trash className="h-4 w-4"/></Button>
-                                        </div>
-                                        <FormField
-                                            control={form.control}
-                                            name={`plans.${index}.name`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>{t('planName')}</FormLabel>
-                                                    <FormControl>
-                                                        <Input {...field} disabled={isUploading} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name={`plans.${index}.description`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel>{t('planDescription')}</FormLabel>
-                                                    <FormControl>
-                                                        <Textarea {...field} disabled={isUploading} />
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <FormField
-                                                control={form.control}
-                                                name={`plans.${index}.price`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>{t('planPriceFrom')}</FormLabel>
-                                                        <FormControl>
-                                                            <Input type="number" {...field} disabled={isUploading} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name={`plans.${index}.priceUntil`}
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>{t('planPriceUntil')}</FormLabel>
-                                                        <FormControl>
-                                                            <Input type="number" {...field} disabled={isUploading} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                                <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ name: '', description: '', price: 0 })} disabled={isUploading}>
-                                    <PlusCircle className="mr-2 h-4 w-4" />
-                                    {t('addPlan')}
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-            
+                    
                     <div className="flex flex-wrap gap-4 pt-2">
                         <FormField
                             control={form.control}
@@ -733,6 +646,94 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                             )}
                         />
                     </div>
+                    
+                    <div>
+                        <Label>{t('formFeatures')}</Label>
+                        <div className="space-y-2 mt-2">
+                            {fields.map((field, index) => (
+                                <div key={field.id} className="flex items-center gap-2">
+                                    <Input {...form.register(`features.${index}.value`)} disabled={isUploading}/>
+                                    <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)} disabled={isUploading}><Trash className="h-4 w-4"/></Button>
+                                </div>
+                            ))}
+                            <Button type="button" variant="outline" size="sm" onClick={() => append({ value: "" })} disabled={isUploading}>
+                                {t('formAddFeature')}
+                            </Button>
+                        </div>
+                    </div>
+
+                    {priceType === 'from' && (
+                        <div>
+                            <Label className="text-lg font-semibold">{t('plansTitle')}</Label>
+                            <div className="space-y-4 mt-2">
+                                {planFields.map((field, index) => (
+                                    <div key={field.id} className="space-y-3 p-4 border rounded-md relative bg-muted/50">
+                                        <div className="absolute top-2 right-2">
+                                            <Button type="button" variant="destructive" size="icon" className="h-7 w-7" onClick={() => removePlan(index)} disabled={isUploading}><Trash className="h-4 w-4"/></Button>
+                                        </div>
+                                        <FormField
+                                            control={form.control}
+                                            name={`plans.${index}.name`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>{t('planName')}</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} disabled={isUploading} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`plans.${index}.description`}
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>{t('planDescription')}</FormLabel>
+                                                    <FormControl>
+                                                        <Textarea {...field} disabled={isUploading} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <FormField
+                                                control={form.control}
+                                                name={`plans.${index}.price`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>{t('planPriceFrom')}</FormLabel>
+                                                        <FormControl>
+                                                            <Input type="number" {...field} disabled={isUploading} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name={`plans.${index}.priceUntil`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>{t('planPriceUntil')}</FormLabel>
+                                                        <FormControl>
+                                                            <Input type="number" {...field} disabled={isUploading} />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                                <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ name: '', description: '', price: 0 })} disabled={isUploading}>
+                                    <PlusCircle className="mr-2 h-4 w-4" />
+                                    {t('addPlan')}
+                                </Button>
+                            </div>
+                        </div>
+                    )}
             
                     {isUploading && (
                         <div className='space-y-1'>
@@ -742,107 +743,108 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                     )}
                 </div>
 
-                <DialogFooter className="flex-col sm:flex-row sm:justify-between w-full pt-4">
-                    <div className="flex gap-2 items-center flex-wrap">
-                      {isEditMode && ceremony && (
-                        <>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button type="button" variant="destructive" size="sm" disabled={isUploading}>
-                                <Trash className="mr-2 h-4 w-4" />
-                                {t('delete')}
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>{t('deleteCeremonyConfirmTitle')}</AlertDialogTitle>
-                                <AlertDialogDescription>{t('deleteCeremonyConfirmDescription')}</AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDelete}>{t('delete')}</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                          <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
-                            <Copy className="mr-2 h-4 w-4" />
-                            {t('duplicate')}
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                    <History className="mr-2 h-4 w-4" />
-                                    {t('resetCounters')}
+                {isEditMode && <Separator className="my-4" />}
+
+                <div className="px-1 space-y-4">
+                     {isEditMode && ceremony && (
+                        <div className="flex flex-wrap gap-2 items-center">
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                <Button type="button" variant="destructive" size="sm" disabled={isUploading}>
+                                    <Trash className="mr-2 h-4 w-4" />
+                                    {t('delete')}
                                 </Button>
-                            </AlertDialogTrigger>
-                             <AlertDialogContent>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
                                 <AlertDialogHeader>
-                                    <AlertDialogTitle>{t('resetCountersConfirmTitle')}</AlertDialogTitle>
-                                    <AlertDialogDescription>{t('resetCountersConfirmDescription')}</AlertDialogDescription>
+                                    <AlertDialogTitle>{t('deleteCeremonyConfirmTitle')}</AlertDialogTitle>
+                                    <AlertDialogDescription>{t('deleteCeremonyConfirmDescription')}</AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                     <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleResetCounters}>{t('continue')}</AlertDialogAction>
+                                    <AlertDialogAction onClick={handleDelete}>{t('delete')}</AlertDialogAction>
                                 </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                          {ceremony.status === 'active' ? (
-                            <div className="flex gap-2">
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                    {t('markAsFinished')}
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
-                                    <AlertDialogDescription>{t('finishCeremonyConfirmDescription')}</AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
-                                  </AlertDialogFooter>
                                 </AlertDialogContent>
-                              </AlertDialog>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button type="button" variant="outline" size="sm" disabled={isUploading}>
-                                    <Archive className="mr-2 h-4 w-4" />
-                                    {t('markAsInactive')}
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>{t('inactivateCeremonyConfirmTitle')}</AlertDialogTitle>
-                                    <AlertDialogDescription>{t('inactivateCeremonyConfirmDescription')}</AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                    <AlertDialogAction onClick={handleInactivate}>{t('continue')}</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          ) : (
-                            <Button type="button" variant="outline" size="sm" onClick={handleReactivate} disabled={isUploading}>
-                              <RotateCcw className="mr-2 h-4 w-4" />
-                              {t('reactivateCeremony')}
+                            </AlertDialog>
+                            <Button type="button" variant="outline" size="sm" onClick={handleDuplicate} disabled={isUploading}>
+                                <Copy className="mr-2 h-4 w-4" />
+                                {t('duplicate')}
                             </Button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    <div className="flex gap-2 items-center justify-end flex-shrink-0">
-                      <DialogClose asChild>
-                        <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
-                      </DialogClose>
-                      <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
-                        {isUploading ? t('saving') : t('saveChanges')}
-                      </Button>
-                    </div>
-                </DialogFooter>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                        <History className="mr-2 h-4 w-4" />
+                                        {t('resetCounters')}
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>{t('resetCountersConfirmTitle')}</AlertDialogTitle>
+                                        <AlertDialogDescription>{t('resetCountersConfirmDescription')}</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleResetCounters}>{t('continue')}</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                            {ceremony.status === 'active' ? (
+                                <div className="flex gap-2">
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                    <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                        {t('markAsFinished')}
+                                    </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>{t('finishCeremonyConfirmTitle')}</AlertDialogTitle>
+                                        <AlertDialogDescription>{t('finishCeremonyConfirmDescription')}</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleFinish}>{t('continue')}</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                    <Button type="button" variant="outline" size="sm" disabled={isUploading}>
+                                        <Archive className="mr-2 h-4 w-4" />
+                                        {t('markAsInactive')}
+                                    </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>{t('inactivateCeremonyConfirmTitle')}</AlertDialogTitle>
+                                        <AlertDialogDescription>{t('inactivateCeremonyConfirmDescription')}</AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleInactivate}>{t('continue')}</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                                </div>
+                            ) : (
+                                <Button type="button" variant="outline" size="sm" onClick={handleReactivate} disabled={isUploading}>
+                                <RotateCcw className="mr-2 h-4 w-4" />
+                                {t('reactivateCeremony')}
+                                </Button>
+                            )}
+                        </div>
+                     )}
+
+                    <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end w-full pt-2">
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary" disabled={isUploading}>{t('cancel')}</Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={isUploading || form.formState.isSubmitting}>
+                            {isUploading ? t('saving') : t('saveChanges')}
+                        </Button>
+                    </DialogFooter>
+                </div>
             </form>
         </Form>
       </DialogContent>

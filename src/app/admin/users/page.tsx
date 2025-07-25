@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics, resetQuestionnaire, deleteUser } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -69,6 +69,7 @@ export default function AdminUsersPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState<UserProfile[]>([]);
+    const [courses, setCourses] = useState<Course[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewingUserQuestionnaire, setViewingUserQuestionnaire] = useState<UserProfile | null>(null);
     const [viewingUserCourses, setViewingUserCourses] = useState<UserProfile | null>(null);
@@ -131,6 +132,11 @@ export default function AdminUsersPage() {
             setLoadingAnalytics(false);
         };
 
+        const fetchCourses = async () => {
+            const allCourses = await getCourses();
+            setCourses(allCourses);
+        };
+
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
                 router.push('/'); return;
@@ -141,7 +147,7 @@ export default function AdminUsersPage() {
                 router.push('/'); return;
             }
             setUser(currentUser);
-            await Promise.all([fetchUsers(), fetchInvitationMessages(), fetchAnalytics()]);
+            await Promise.all([fetchUsers(), fetchInvitationMessages(), fetchAnalytics(), fetchCourses()]);
             setLoading(false);
         });
 
@@ -286,6 +292,16 @@ export default function AdminUsersPage() {
         // The +1 is because steps are 0-indexed, but a user on step 0 has completed 1 step.
         return Math.floor(((progress + 1) / TOTAL_PREPARATION_STEPS) * 100);
     }
+
+    const getCourseProgressPercentage = (user: UserProfile) => {
+        const requiredCourses = courses.filter(c => c.category === 'required');
+        if (requiredCourses.length === 0) return 0;
+        
+        const completedCourses = user.completedCourses || [];
+        const completedRequiredCount = requiredCourses.filter(rc => completedCourses.includes(rc.id)).length;
+        
+        return Math.floor((completedRequiredCount / requiredCourses.length) * 100);
+    }
     
     const filteredUsers = users.filter(u => {
         const search = searchTerm.toLowerCase();
@@ -409,7 +425,7 @@ export default function AdminUsersPage() {
                                                 </Button>
                                                  <Button variant="outline" size="sm" onClick={() => setViewingUserCourses(u)}>
                                                     <Video className="mr-2 h-4 w-4" />
-                                                    {t('viewCourses')}
+                                                    {t('viewCourses')} ({getCourseProgressPercentage(u)}%)
                                                 </Button>
                                                 {(u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted ? (
                                                     <div className='flex items-center flex-wrap gap-2'>
@@ -714,4 +730,3 @@ export default function AdminUsersPage() {
         </div>
     );
 }
-
