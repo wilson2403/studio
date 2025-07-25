@@ -120,33 +120,40 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
             hasPlayed.current = true;
         }
     }, [onPlay]);
-
+    
     useEffect(() => {
-        observer.current = new IntersectionObserver(([entry]) => {
-            setIntersecting(entry.isIntersecting);
-        }, { threshold: 0.5 }); // Trigger when 50% of the video is visible
+        const video = videoRef.current;
+        if (!video) return;
 
-        if (videoRef.current) {
-            observer.current.observe(videoRef.current);
-        }
+        const observerCallback = (entries: IntersectionObserverEntry[]) => {
+            entries.forEach(entry => {
+                setIntersecting(entry.isIntersecting);
+            });
+        };
+
+        const intersectionObserver = new IntersectionObserver(observerCallback, { threshold: 0.5 });
+        intersectionObserver.observe(video);
 
         return () => {
-            observer.current?.disconnect();
+            intersectionObserver.disconnect();
         };
     }, []);
 
     useEffect(() => {
         const video = videoRef.current;
-        if (!video) return;
+        if (!video || !autoplay) return;
 
         if (isIntersecting) {
-            if (autoplay) {
-                video.play().then(handlePlay).catch(console.error);
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.then(handlePlay).catch(error => {
+                    if (error.name !== 'AbortError') {
+                        console.error('Error attempting to play video:', error);
+                    }
+                });
             }
         } else {
-            if (autoplay) {
-                video.pause();
-            }
+            video.pause();
         }
     }, [isIntersecting, autoplay, handlePlay]);
 
