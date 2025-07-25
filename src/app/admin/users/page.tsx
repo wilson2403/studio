@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizone } from 'lucide-react';
+import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizonal } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions } from '@/lib/firebase/firestore';
@@ -494,7 +494,7 @@ export default function AdminUsersPage() {
                                                         </Button>
                                                         {u.assignedCeremonies && u.assignedCeremonies.length > 0 && (
                                                             <Button variant="outline" size="sm" onClick={() => setInvitingToCeremonyUser(u)}>
-                                                                <SendHorizone className="mr-2 h-4 w-4"/>{t('inviteToCeremony')}
+                                                                <SendHorizonal className="mr-2 h-4 w-4"/>{t('inviteToCeremony')}
                                                             </Button>
                                                         )}
                                                     </>
