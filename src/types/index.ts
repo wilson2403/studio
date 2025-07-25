@@ -29,6 +29,7 @@ export type Ceremony = {
   status: 'active' | 'finished' | 'inactive';
   registerRequired?: boolean;
   showParticipantCount?: boolean;
+  showAnalytics?: boolean;
   viewCount?: number;
   reserveClickCount?: number;
   whatsappClickCount?: number;

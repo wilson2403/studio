@@ -75,11 +75,21 @@ export default function ViewUserAuditLogDialog({ user, isOpen, onClose }: ViewUs
                                 <AccordionContent>
                                     <div className="space-y-2 pt-2">
                                     {dateLogs.map(log => (
-                                        <div key={log.id} className="text-sm p-2 rounded-md bg-background/50">
-                                            <p><span className="font-semibold">{format(log.timestamp.toDate(), 'p', { locale })}:</span> {t(`auditAction_${log.action}`, { defaultValue: log.action })}</p>
-                                            {log.page && <p className="text-xs text-muted-foreground">{t('onPage')}: {log.page}</p>}
-                                            {log.targetType && <p className="text-xs text-muted-foreground">{t('targetType')}: {log.targetType}</p>}
-                                            {log.targetId && <p className="text-xs text-muted-foreground">{t('targetId')}: {log.targetId}</p>}
+                                        <div key={log.id} className="text-sm p-3 rounded-md bg-background/50 border">
+                                            <p className="font-semibold">
+                                                <span className="text-primary">{format(log.timestamp.toDate(), 'p', { locale })}:</span> {t(`auditAction_${log.action}`, { defaultValue: log.action })}
+                                            </p>
+                                            <div className="text-xs text-muted-foreground mt-1 space-y-1">
+                                                {log.page && <p>{t('onPage')}: <code className="bg-muted px-1 py-0.5 rounded">{log.page}</code></p>}
+                                                {log.targetType && <p>{t('targetType')}: {log.targetType}</p>}
+                                                {log.targetId && <p>{t('targetId')}: {log.targetId}</p>}
+                                                {log.changes && (
+                                                    <div>
+                                                        <p>{t('changes')}:</p>
+                                                        <pre className="whitespace-pre-wrap bg-muted p-2 rounded-md mt-1 text-xs">{JSON.stringify(log.changes, null, 2)}</pre>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     ))}
                                     </div>
