@@ -164,8 +164,8 @@ export default function AllCeremoniesPage() {
     }
 
     const sortedCeremonies = [...ceremonies].sort((a, b) => {
-        const aIsAssigned = userProfile?.assignedCeremonies?.includes(a.id);
-        const bIsAssigned = userProfile?.assignedCeremonies?.includes(b.id);
+        const aIsAssigned = userProfile?.assignedCeremonies?.some(assigned => assigned.ceremonyId === a.id);
+        const bIsAssigned = userProfile?.assignedCeremonies?.some(assigned => assigned.ceremonyId === b.id);
         if (aIsAssigned && !bIsAssigned) return -1;
         if (!aIsAssigned && bIsAssigned) return 1;
         if (a.featured && !b.featured) return -1;
@@ -179,8 +179,8 @@ export default function AllCeremoniesPage() {
                 <div className="text-center">
                     <EditableTitle
                         tag="h1"
-                        id="ceremonies"
-                        initialValue={t('ceremonies')}
+                        id="allCeremoniesTitle"
+                        initialValue={t('allCeremoniesTitle')}
                         className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
                     />
                      <EditableTitle
@@ -201,7 +201,7 @@ export default function AllCeremoniesPage() {
                     {sortedCeremonies.map((ceremony) => {
                         const registeredCount = ceremony.assignedUsers?.length || 0;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
-                        const isAssigned = userProfile?.assignedCeremonies?.includes(ceremony.id);
+                        const isAssigned = userProfile?.assignedCeremonies?.some(assigned => assigned.ceremonyId === ceremony.id);
 
                         return (
                             <div key={ceremony.id} className="px-5">
@@ -258,8 +258,8 @@ export default function AllCeremoniesPage() {
                                             </div>
                                         )}
                                         {ceremony.status === 'active' ? (
-                                            <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                            {t('reserveNow')}
+                                             <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
+                                                {isAssigned ? t('viewDetails') : t('reserveNow')}
                                             </Button>
                                         ) : (
                                             ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
@@ -327,3 +327,4 @@ export default function AllCeremoniesPage() {
     
 
     
+
