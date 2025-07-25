@@ -37,7 +37,7 @@ import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 
-const APP_VERSION = '1.43';
+const APP_VERSION = '1.44';
 
 export default function Header() {
   const pathname = usePathname();

@@ -59,7 +59,7 @@ interface EditProfileDialogProps {
   isOpen: boolean;
   onClose: () => void;
   isAdminEditing?: boolean;
-  onAdminUpdate?: (data: ProfileFormValues & { phone?: string }) => void;
+  onAdminUpdate?: (data: Partial<UserProfile>) => void;
 }
 
 export default function EditProfileDialog({ user, isOpen, onClose, isAdminEditing = false, onAdminUpdate }: EditProfileDialogProps) {
@@ -117,7 +117,13 @@ export default function EditProfileDialog({ user, isOpen, onClose, isAdminEditin
         const phoneNumber = data.phone ? data.phone.replace(/\D/g, '') : '';
         const fullPhoneNumber = phoneNumber ? `${dialCode}${phoneNumber}` : undefined;
         
-        const updateData = { displayName: data.displayName, phone: fullPhoneNumber };
+        const updateData: Partial<UserProfile> = { 
+            displayName: data.displayName, 
+            phone: fullPhoneNumber 
+        };
+        
+        // This is a CRITICAL change. When an admin edits their own profile,
+        // we must NOT overwrite their role or permissions. We only update name/phone.
         await updateUserProfile(user.uid, updateData);
         
         if (isAdminEditing && onAdminUpdate) {
