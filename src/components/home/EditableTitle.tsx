@@ -36,7 +36,9 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const contentValue = content[id];
   let displayValue: string;
   
-  if (typeof contentValue === 'object' && contentValue !== null) {
+  if (id === 'whatsappCommunityLink') {
+    displayValue = contentValue as string || initialValue;
+  } else if (typeof contentValue === 'object' && contentValue !== null) {
       displayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
   } else if (typeof contentValue === 'string') {
       displayValue = contentValue;
@@ -45,23 +47,29 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
   
   const handleSave = async () => {
-    if (!contentValue) return;
-
-    let newContentValue: { [key: string]: string; };
-
-    if (typeof contentValue === 'object' && contentValue !== null) {
-        newContentValue = { ...(contentValue as object), [lang]: editValue };
+    if (id === 'whatsappCommunityLink') {
+        await updateContent(id, { es: editValue, en: editValue });
     } else {
-        newContentValue = { [lang]: editValue };
+        if (!contentValue) return;
+
+        let newContentValue: { [key: string]: string; };
+
+        if (typeof contentValue === 'object' && contentValue !== null) {
+            newContentValue = { ...(contentValue as object), [lang]: editValue };
+        } else {
+            newContentValue = { [lang]: editValue };
+        }
+        
+        try {
+            await updateContent(id, newContentValue);
+            toast({ title: t('editableSuccess'), description: '' });
+            setIsEditing(false);
+        } catch (error) {
+            toast({ title: t('editableError'), description: '', variant: 'destructive' });
+        }
     }
-    
-    try {
-        await updateContent(id, newContentValue);
-        toast({ title: t('editableSuccess'), description: '' });
-        setIsEditing(false);
-    } catch (error) {
-        toast({ title: t('editableError'), description: '', variant: 'destructive' });
-    }
+    toast({ title: t('editableSuccess'), description: '' });
+    setIsEditing(false);
   };
 
   const handleCancel = () => {
@@ -75,13 +83,15 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
 
   if (isEditing) {
-    const InputComponent = Tag === 'p' || Tag === 'h3' ? Textarea : Input;
+    const InputComponent = (Tag === 'p' || Tag === 'h3' || id === 'whatsappCommunityLink') ? Textarea : Input;
     const currentLanguageName = lang === 'es' ? 'Español' : 'English';
+    const label = id === 'whatsappCommunityLink' ? t('whatsappCommunityLink') : currentLanguageName;
+
 
     return (
       <div className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">
         <div className='w-full space-y-2'>
-            <Label htmlFor={`${id}-${lang}`}>{currentLanguageName}</Label>
+            <Label htmlFor={`${id}-${lang}`}>{label}</Label>
             <InputComponent 
                 id={`${id}-${lang}`}
                 value={editValue} 
@@ -113,4 +123,3 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     </div>
   );
 };
-
