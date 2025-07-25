@@ -64,7 +64,7 @@ export default function SingleCeremonyPage() {
 
     }, [id]);
     
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === id) || false;
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.includes(id) || false;
     const assignedPlan = ceremony?.plans?.find(p => userProfile?.assignedCeremonies?.some(c => c.ceremonyId === ceremony.id && c.planId === p.id));
 
 
@@ -255,7 +255,8 @@ export default function SingleCeremonyPage() {
                                     <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
                                 </div>
                             </div>
-                        ) : !isAssignedToCeremony && ceremony.status === 'active' ? (
+                        ) : null}
+                        {!isAssignedToCeremony && ceremony.status === 'active' ? (
                             <div className='text-center md:text-left'>
                                 {!hasPlans ? (
                                     <div className="mb-4">

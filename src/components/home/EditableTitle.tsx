@@ -45,8 +45,19 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     } else {
         newDisplayValue = initialValue;
     }
-    setDisplayValue(newDisplayValue);
+    // Update displayValue only if it's different from the initial translation key.
+    // This prevents showing the key while translations are loading.
+    if(newDisplayValue !== id) {
+       setDisplayValue(newDisplayValue);
+    }
   }, [content, id, lang, initialValue]);
+
+  // A secondary effect to ensure the translation is applied once i18n is ready.
+  useEffect(() => {
+    if(displayValue === id || displayValue === initialValue) {
+       setDisplayValue(t(initialValue));
+    }
+  }, [t, initialValue, displayValue, id]);
 
   
   const handleSave = async () => {
@@ -61,7 +72,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
         if (typeof content[id] === 'object' && content[id] !== null) {
             newContentValue = { ...(content[id] as object), [lang]: editValue };
         } else {
-            newContentValue = { [lang]: editValue };
+            newContentValue = { es: lang === 'es' ? editValue : initialValue, en: lang === 'en' ? editValue : initialValue, [lang]: editValue };
         }
         
         try {
