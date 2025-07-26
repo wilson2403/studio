@@ -231,7 +231,7 @@ export default function SingleCeremonyPage() {
                                 )}
                                 {user && ceremony.status === 'active' && isAssignedToCeremony && ceremony.locationLink && (
                                     <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
-                                        <MapPin className='w-4 h-4'/> <EditableTitle tag="p" id="buttonViewLocation" initialValue={t('viewLocation')} />
+                                        <MapPin className='w-4 h-4'/> <span>{t('viewLocation')}</span>
                                     </a>
                                 )}
                             </div>
@@ -304,7 +304,7 @@ export default function SingleCeremonyPage() {
                                         </Button>
                                         <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
                                             <Share2 className="mr-2 h-4 w-4" />
-                                            <EditableTitle tag="p" id="buttonShare" initialValue={t('share')} />
+                                            <span>{t('share')}</span>
                                         </Button>
                                     </div>
                                 </div>
@@ -313,7 +313,7 @@ export default function SingleCeremonyPage() {
                                 <div className="flex flex-col sm:flex-row gap-2">
                                     <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
                                         <Share2 className="mr-2 h-4 w-4" />
-                                        <EditableTitle tag="p" id="buttonShare" initialValue={t('share')} />
+                                        <span>{t('share')}</span>
                                     </Button>
                                 </div>
                             )}
