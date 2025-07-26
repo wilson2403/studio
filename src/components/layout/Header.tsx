@@ -38,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 
-const APP_VERSION = '1.52';
+const APP_VERSION = '1.53';
 
 export default function Header() {
   const pathname = usePathname();
@@ -434,3 +434,5 @@ export default function Header() {
     </>
   );
 }
+
+    
