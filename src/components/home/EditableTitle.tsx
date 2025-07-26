@@ -49,7 +49,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }, [content, id, lang, initialValue, t, ready]);
   
   const handleSave = async () => {
-    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
+    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber' || id.startsWith('button')) {
         const newValue = { es: editValue, en: editValue };
         await updateContent(id, newValue);
     } else {
@@ -78,14 +78,10 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     setIsEditing(true);
   }
 
-  if (!ready) {
-    return <Tag className={cn(className, "animate-pulse bg-muted/50 text-transparent rounded-md")}>&nbsp;</Tag>
-  }
-
-  if (isEditing && isAdmin) {
+  if (isEditing) {
     const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number')) ? Textarea : Input;
     const currentLanguageName = lang === 'es' ? 'Español' : 'English';
-    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') ? t(id) : currentLanguageName;
+    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button') ? t(id) : currentLanguageName;
 
 
     return (
@@ -109,12 +105,12 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   return (
     <div className={cn("relative group flex items-center justify-center gap-2 w-full")}>
-      <Tag className={className}>{currentDisplayValue}</Tag>
+      <Tag className={className}>{displayValue}</Tag>
       {isAdmin && (
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity absolute right-[-40px]"
           onClick={handleEditClick}
         >
           <Edit className="h-4 w-4" />
