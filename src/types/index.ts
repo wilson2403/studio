@@ -3,6 +3,7 @@
 import { Timestamp } from "firebase/firestore";
 
 export type Plan = {
+  id: string;
   name: string;
   price: number;
   priceUntil?: number;
@@ -73,7 +74,7 @@ export type UserProfile = {
     questionnaireCompleted?: boolean;
     status?: UserStatus;
     preparationStep?: number;
-    assignedCeremonies?: string[];
+    assignedCeremonies?: { ceremonyId: string; planId: string }[];
     completedCourses?: string[];
     videoProgress?: { [videoId: string]: number };
     hasLogs?: boolean;

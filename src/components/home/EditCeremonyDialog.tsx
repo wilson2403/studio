@@ -29,8 +29,10 @@ import { Progress } from '../ui/progress';
 import { useTranslation } from 'react-i18next';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Separator } from '../ui/separator';
+import { v4 as uuidv4 } from 'uuid';
 
 const planSchema = (t: (key: string, options?: any) => string) => z.object({
+  id: z.string().default(() => uuidv4()),
   name: z.string().min(1, t('errorRequired', { field: t('planName') })),
   description: z.string().min(1, t('errorRequired', { field: t('planDescription') })),
   price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('planPrice') })),
@@ -97,7 +99,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       videoFit: 'cover',
       autoplay: false,
       defaultMuted: true,
-      plans: [{ name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
+      plans: [{ id: uuidv4(), name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
       contributionText: t('defaultContributionText'),
       status: 'active',
       date: '',
@@ -113,6 +115,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       form.reset({
         ...ceremony,
         features: ceremony.features.map(f => ({ value: f })),
+        plans: ceremony.plans?.map(p => ({...p, id: p.id || uuidv4() }))
       });
     } else {
       form.reset({
@@ -129,7 +132,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
         videoFit: 'cover',
         autoplay: false,
         defaultMuted: true,
-        plans: [{ name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
+        plans: [{ id: uuidv4(), name: 'Plan Básico', price: 80000, description: 'Descripción plan' }],
         contributionText: t('defaultContributionText'),
         status: 'active',
         date: '',
@@ -199,7 +202,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     }
 
     try {
-      const ceremonyData = { ...data, mediaUrl: finalMediaUrl, mediaType: finalMediaType, features: data.features.map(f => f.value) };
+      const ceremonyData = { ...data, mediaUrl: finalMediaUrl, mediaType: finalMediaType, features: data.features.map(f => f.value), plans: data.plans?.map(p => ({...p, id: p.id || uuidv4()})) };
       if (ceremonyData.priceType === 'exact') {
         delete ceremonyData.plans;
       }
@@ -264,6 +267,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
         ...originalData,
         title: `${originalData.title} (Copia)`,
         featured: false, // Duplicates are not featured by default
+        plans: originalData.plans?.map(p => ({...p, id: uuidv4()})),
       };
       const newId = await addCeremony(duplicatedData);
       onDuplicate({ ...duplicatedData, id: newId });
@@ -673,7 +677,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                                             </div>
                                         </div>
                                     ))}
-                                    <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ name: '', description: '', price: 0 })} disabled={isUploading}>
+                                    <Button type="button" variant="outline" size="sm" onClick={() => appendPlan({ id: uuidv4(), name: '', description: '', price: 0 })} disabled={isUploading}>
                                         <PlusCircle className="mr-2 h-4 w-4" />
                                         {t('addPlan')}
                                     </Button>
