@@ -337,5 +337,4 @@ export default function AllCeremoniesPage() {
             </div>
         </EditableProvider>
     );
-
-    
+}
