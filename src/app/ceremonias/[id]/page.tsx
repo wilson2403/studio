@@ -203,7 +203,11 @@ export default function SingleCeremonyPage() {
                             <X className="h-5 w-5" />
                         </Button>
                         <div>
-                            <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary mt-12">{ceremony.title}</h1>
+                            <Button variant="ghost" onClick={() => router.back()} className="mb-8">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                <EditableTitle tag="p" id="buttonBack" initialValue={t('back')} />
+                            </Button>
+                            <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
                             <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
                                 {ceremony.date && (
                                 <p className="flex items-center gap-2">
@@ -300,3 +304,5 @@ export default function SingleCeremonyPage() {
         </EditableProvider>
     );
 }
+
+    
