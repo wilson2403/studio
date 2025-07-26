@@ -314,3 +314,5 @@ export default function SingleCeremonyPage() {
         </EditableProvider>
     );
 }
+
+    
