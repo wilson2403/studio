@@ -77,8 +77,7 @@ export default function SingleCeremonyPage() {
         if (!ceremony) return;
         const shareUrl = window.location.href;
         const shareText = t('shareCeremonyText', { title: ceremony.title });
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
-
+        
         if (ceremony.mediaUrl && ceremony.mediaUrl.includes('githubusercontent')) {
              try {
                 await navigator.clipboard.writeText(shareUrl);
@@ -87,6 +86,7 @@ export default function SingleCeremonyPage() {
                 toast({ title: t('errorCopyingLink'), variant: 'destructive' });
             }
         } else {
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
             window.open(whatsappUrl, '_blank');
         }
     };
@@ -199,13 +199,13 @@ export default function SingleCeremonyPage() {
                 <main className="w-full md:w-1/2">
                 <ScrollArea className="h-full">
                     <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen relative">
-                        <Button variant="ghost" onClick={() => router.back()} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-card hover:bg-muted text-foreground">
-                            <X className="h-5 w-5" />
-                        </Button>
                         <div>
                             <Button variant="ghost" onClick={() => router.back()} className="mb-8">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
-                                <EditableTitle tag="p" id="buttonBack" initialValue={t('back')} />
+                                {t('back')}
+                            </Button>
+                            <Button variant="ghost" onClick={() => router.back()} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-card hover:bg-muted text-foreground">
+                                <X className="h-5 w-5" />
                             </Button>
                             <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
                             <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
@@ -296,6 +296,10 @@ export default function SingleCeremonyPage() {
                                     </div>
                                 </div>
                             ) : null}
+                            {isAssignedToCeremony && ceremony.status === 'active' && (
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                </div>
+                            )}
                         </div>
                     </div>
                 </ScrollArea>
