@@ -131,7 +131,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
 
   return (
-    <div className={cn("relative group flex items-center justify-center gap-2 w-full")}>
+    <div className={cn("relative group flex items-center justify-center gap-2", Tag !== 'p' && "w-full")}>
       <Tag className={className}>{displayValue}</Tag>
       {isAdmin && (
         <Button
