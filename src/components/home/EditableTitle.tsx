@@ -26,8 +26,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const { t, i18n, ready } = useTranslation();
   const lang = i18n.language as 'es' | 'en';
 
-  const [editValue, setEditValue] = useState('');
-  const [currentDisplayValue, setCurrentDisplayValue] = useState(t(initialValue));
+  const [editValues, setEditValues] = useState({ es: '', en: '' });
+  const [displayValue, setDisplayValue] = useState(t(initialValue));
   
   const { toast } = useToast();
 
@@ -44,7 +44,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     } else {
       newDisplayValue = t(initialValue);
     }
-    setCurrentDisplayValue(newDisplayValue);
+    setDisplayValue(newDisplayValue);
 
   }, [content, id, lang, initialValue, t, ready]);
   
@@ -136,5 +136,3 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     </div>
   );
 };
-
-    
