@@ -47,15 +47,28 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }, [content, id, lang, initialValue]);
   
   const handleSave = async () => {
-    const newContentValue = { ...editValues };
-    
-    try {
-        await updateContent(id, newContentValue);
-        toast({ title: t('editableSuccess'), description: '' });
-        setIsEditing(false);
-    } catch (error) {
-        toast({ title: t('editableError'), description: '', variant: 'destructive' });
+    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber' || id.startsWith('button')) {
+        const newValue = { es: editValue, en: editValue };
+        await updateContent(id, newValue);
+    } else {
+        if (!content[id]) return;
+
+        let newContentValue: { [key: string]: string; };
+
+        if (typeof content[id] === 'object' && content[id] !== null) {
+            newContentValue = { ...(content[id] as object), [lang]: editValue };
+        } else {
+            newContentValue = { es: lang === 'es' ? editValue : initialValue, en: lang === 'en' ? editValue : initialValue, [lang]: editValue };
+        }
+        
+        try {
+            await updateContent(id, newContentValue);
+        } catch (error) {
+            toast({ title: t('editableError'), description: '', variant: 'destructive' });
+        }
     }
+    toast({ title: t('editableSuccess'), description: '' });
+    setIsEditing(false);
   };
 
 
@@ -63,29 +76,21 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     setIsEditing(false);
   };
   
-  const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    const currentContent = content[id];
-    let esValue = '';
-    let enValue = '';
-
-    if (typeof currentContent === 'object' && currentContent !== null) {
-        esValue = (currentContent as any).es || '';
-        enValue = (currentContent as any).en || '';
-    } else if (typeof currentContent === 'string') {
-        // Handle case where it might be a simple string
-        esValue = currentContent;
-        enValue = currentContent;
+  const handleEditClick = () => {
+    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
+       const linkValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
+       setEditValue(linkValue);
+    } else {
+       setEditValue(displayValue);
     }
-    
-    setEditValues({ es: esValue || initialValue, en: enValue || initialValue });
     setIsEditing(true);
   }
 
   if (isEditing) {
-    const InputComponent = (Tag === 'p' || Tag === 'h3') ? Textarea : Input;
+    const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number')) ? Textarea : Input;
+    const currentLanguageName = lang === 'es' ? 'Español' : 'English';
+    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') ? t(id) : currentLanguageName;
+
 
     return (
       <div className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">

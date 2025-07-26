@@ -180,131 +180,133 @@ export default function SingleCeremonyPage() {
     const isDisabled = hasPlans && !selectedPlan;
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen bg-background">
-            <div className="w-full md:w-1/2 md:h-screen sticky top-0">
-                <VideoPlayer
-                    ceremonyId={ceremony.id}
-                    videoUrl={ceremony.mediaUrl}
-                    mediaType={ceremony.mediaType}
-                    videoFit="cover"
-                    title={ceremony.title}
-                    autoplay
-                    defaultMuted={true}
-                />
-            </div>
-            <main className="w-full md:w-1/2">
-              <ScrollArea className="h-full">
-                <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
-                    <div>
-                        <Button variant="ghost" onClick={() => router.back()} className="mb-8">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            {t('back')}
-                        </Button>
-                        <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
-                        <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
-                            {ceremony.date && (
-                            <p className="flex items-center gap-2">
-                                <CalendarIcon className='w-4 h-4'/> {ceremony.date}
-                            </p>
-                            )}
-                            {ceremony.horario && (
-                            <p className="flex items-center gap-2">
-                                <Clock className='w-4 h-4'/> {ceremony.horario}
-                            </p>
-                            )}
-                            {user && ceremony.status === 'active' && isAssignedToCeremony && ceremony.locationLink && (
-                                <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
-                                    <MapPin className='w-4 h-4'/> {t('viewLocation')}
-                                </a>
-                            )}
-                        </div>
-                        {isAssignedToCeremony && ceremony.status === 'active' && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
-                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
-                        
-                        <ul className="space-y-3 pt-4">
-                            <li className="flex items-center gap-3 font-bold text-xl">
-                                <span>{t('includes')}</span>
-                            </li>
-                            {ceremony.features?.map((feature, i) => (
-                            <li key={i} className="flex items-center gap-3 ml-4">
-                                <Check className="h-5 w-5 text-primary/70" />
-                                <span className="text-muted-foreground text-base">{feature}</span>
-                            </li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div className="mt-12">
-                        {isAssignedToCeremony && assignedPlan && ceremony.status === 'active' ? (
-                             <div className='space-y-4 mb-4'>
-                                <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
-                                <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
-                                    <p className="font-semibold">{assignedPlan.name}</p>
-                                    <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
-                                    <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
-                                </div>
-                            </div>
-                        ) : null}
-                        {!isAssignedToCeremony && ceremony.status === 'active' ? (
-                            <div className='text-center md:text-left'>
-                                {!hasPlans ? (
-                                    <div className="mb-4">
-                                        <span className="text-5xl font-bold text-foreground">
-                                            {getBasePriceText()}
-                                        </span>
-                                        <p className="text-sm text-muted-foreground">
-                                            {ceremony.contributionText || t('fullPlanUpTo')}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className='space-y-4 mb-4'>
-                                        <h4 className='font-bold text-center'>{t('selectAPlan')}</h4>
-                                        <RadioGroup onValueChange={(value) => setSelectedPlan(JSON.parse(value))} className='space-y-2'>
-                                            {ceremony.plans?.map((plan, i) => (
-                                                <Label key={plan.id || i} htmlFor={`plan-${plan.id || i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
-                                                    <div>
-                                                        <p className="font-semibold">{plan.name}</p>
-                                                        <p className="text-sm text-muted-foreground">{plan.description}</p>
-                                                    </div>
-                                                    <div className='flex items-center gap-4'>
-                                                        <span className="font-bold text-lg">{formatPrice(plan.price, plan.priceUntil)}</span>
-                                                        <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${plan.id || i}`} />
-                                                    </div>
-                                                </Label>
-                                            ))}
-                                        </RadioGroup>
-                                        {ceremony.contributionText && (
-                                            <p className="text-sm text-center text-muted-foreground">
-                                                {ceremony.contributionText}
-                                            </p>
-                                        )}
-                                    </div>
+        <EditableProvider>
+            <div className="flex flex-col md:flex-row min-h-screen bg-background">
+                <div className="w-full md:w-1/2 md:h-screen sticky top-0">
+                    <VideoPlayer
+                        ceremonyId={ceremony.id}
+                        videoUrl={ceremony.mediaUrl}
+                        mediaType={ceremony.mediaType}
+                        videoFit="cover"
+                        title={ceremony.title}
+                        autoplay
+                        defaultMuted={true}
+                    />
+                </div>
+                <main className="w-full md:w-1/2">
+                <ScrollArea className="h-full">
+                    <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
+                        <div>
+                            <Button variant="ghost" onClick={() => router.back()} className="mb-8">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                <EditableTitle tag="p" id="buttonBack" initialValue={t('back')} />
+                            </Button>
+                            <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
+                            <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
+                                {ceremony.date && (
+                                <p className="flex items-center gap-2">
+                                    <CalendarIcon className='w-4 h-4'/> {ceremony.date}
+                                </p>
                                 )}
+                                {ceremony.horario && (
+                                <p className="flex items-center gap-2">
+                                    <Clock className='w-4 h-4'/> {ceremony.horario}
+                                </p>
+                                )}
+                                {user && ceremony.status === 'active' && isAssignedToCeremony && ceremony.locationLink && (
+                                    <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
+                                        <MapPin className='w-4 h-4'/> <EditableTitle tag="p" id="buttonViewLocation" initialValue={t('viewLocation')} />
+                                    </a>
+                                )}
+                            </div>
+                            {isAssignedToCeremony && ceremony.status === 'active' && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
+                            <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
+                            
+                            <ul className="space-y-3 pt-4">
+                                <li className="flex items-center gap-3 font-bold text-xl">
+                                    <span>{t('includes')}</span>
+                                </li>
+                                {ceremony.features?.map((feature, i) => (
+                                <li key={i} className="flex items-center gap-3 ml-4">
+                                    <Check className="h-5 w-5 text-primary/70" />
+                                    <span className="text-muted-foreground text-base">{feature}</span>
+                                </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="mt-12">
+                            {isAssignedToCeremony && assignedPlan && ceremony.status === 'active' ? (
+                                <div className='space-y-4 mb-4'>
+                                    <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
+                                    <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
+                                        <p className="font-semibold">{assignedPlan.name}</p>
+                                        <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
+                                        <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
+                                    </div>
+                                </div>
+                            ) : null}
+                            {!isAssignedToCeremony && ceremony.status === 'active' ? (
+                                <div className='text-center md:text-left'>
+                                    {!hasPlans ? (
+                                        <div className="mb-4">
+                                            <span className="text-5xl font-bold text-foreground">
+                                                {getBasePriceText()}
+                                            </span>
+                                            <p className="text-sm text-muted-foreground">
+                                                {ceremony.contributionText || t('fullPlanUpTo')}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className='space-y-4 mb-4'>
+                                            <h4 className='font-bold text-center'>{t('selectAPlan')}</h4>
+                                            <RadioGroup onValueChange={(value) => setSelectedPlan(JSON.parse(value))} className='space-y-2'>
+                                                {ceremony.plans?.map((plan, i) => (
+                                                    <Label key={plan.id || i} htmlFor={`plan-${plan.id || i}`} className='flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-muted/50 has-[input:checked]:bg-primary/10 has-[input:checked]:border-primary'>
+                                                        <div>
+                                                            <p className="font-semibold">{plan.name}</p>
+                                                            <p className="text-sm text-muted-foreground">{plan.description}</p>
+                                                        </div>
+                                                        <div className='flex items-center gap-4'>
+                                                            <span className="font-bold text-lg">{formatPrice(plan.price, plan.priceUntil)}</span>
+                                                            <RadioGroupItem value={JSON.stringify(plan)} id={`plan-${plan.id || i}`} />
+                                                        </div>
+                                                    </Label>
+                                                ))}
+                                            </RadioGroup>
+                                            {ceremony.contributionText && (
+                                                <p className="text-sm text-center text-muted-foreground">
+                                                    {ceremony.contributionText}
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                        <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
+                                            <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
+                                                {t('reserveWhatsapp')}
+                                            </a>
+                                        </Button>
+                                        <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
+                                            <Share2 className="mr-2 h-4 w-4" />
+                                            <EditableTitle tag="p" id="buttonShare" initialValue={t('share')} />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : null}
+                            {isAssignedToCeremony && ceremony.status === 'active' && (
                                 <div className="flex flex-col sm:flex-row gap-2">
-                                     <Button asChild size="lg" className={cn("w-full", isDisabled && 'opacity-50 pointer-events-none')}>
-                                        <a href={isDisabled ? '#' : getWhatsappLink()} target="_blank" rel="noopener noreferrer" onClick={handleWhatsappClick}>
-                                            {t('reserveWhatsapp')}
-                                        </a>
-                                    </Button>
                                     <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
                                         <Share2 className="mr-2 h-4 w-4" />
-                                        {t('share')}
+                                        <EditableTitle tag="p" id="buttonShare" initialValue={t('share')} />
                                     </Button>
                                 </div>
-                            </div>
-                        ) : null}
-                         {isAssignedToCeremony && ceremony.status === 'active' && (
-                             <div className="flex flex-col sm:flex-row gap-2">
-                                <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
-                                    <Share2 className="mr-2 h-4 w-4" />
-                                    {t('share')}
-                                </Button>
-                             </div>
-                         )}
+                            )}
+                        </div>
                     </div>
-                </div>
-              </ScrollArea>
-            </main>
-        </div>
+                </ScrollArea>
+                </main>
+            </div>
+        </EditableProvider>
     );
 }
 
