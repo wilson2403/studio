@@ -1,7 +1,7 @@
 'use client';
 
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { auth } from '@/lib/firebase/config';
 import { getContent, setContent } from '@/lib/firebase/firestore';
 
@@ -40,14 +40,14 @@ export const EditableProvider = ({ children }: { children: React.ReactNode }) =>
     return () => unsubscribe();
   }, []);
 
-  const fetchContent = async (id: string, initialValue: string) => {
+  const fetchContent = useCallback(async (id: string, initialValue: string) => {
     if (!id) return; // Guard clause to prevent error
     const existingValue = await getContent(id);
     setContentState((prev) => ({
       ...prev,
       [id]: existingValue ?? initialValue,
     }));
-  };
+  }, []);
 
   const updateContent = async (id: string, value: ContentObject) => {
     // Update local state for immediate feedback
