@@ -149,16 +149,11 @@ export default function Ceremonies({
       router.push(`/ceremonias/${ceremony.id}`);
     }
   };
-
-  const handleExpandVideo = (e: React.MouseEvent, ceremony: Ceremony) => {
-    e.stopPropagation();
-    setExpandedVideo(ceremony);
-  };
   
-  const handleShare = async (ceremony: Ceremony) => {
+  const handleShare = async (e: React.MouseEvent, ceremony: Ceremony) => {
+      e.stopPropagation();
       const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
-      const shareText = t('shareCeremonyText', { title: ceremony.title });
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
+      const shareText = t('shareCeremonyText', { title: ceremony.title, url: shareUrl });
 
       if (ceremony.mediaUrl && ceremony.mediaUrl.includes('githubusercontent')) {
           try {
@@ -168,10 +163,16 @@ export default function Ceremonies({
               toast({ title: t('errorCopyingLink'), variant: 'destructive' });
           }
       } else {
+          const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
           window.open(whatsappUrl, '_blank');
       }
   };
 
+  const handleExpandVideo = (e: React.MouseEvent, ceremony: Ceremony) => {
+    e.stopPropagation();
+    setExpandedVideo(ceremony);
+  };
+  
   const renderActiveCeremonies = () => (
     <div className="w-full justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
@@ -186,8 +187,10 @@ export default function Ceremonies({
                         {isAuthorized && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
                           <Edit className="h-4 w-4" />
                         </Button>}
-                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleShare(ceremony); }}>
-                            <Share2 className="h-4 w-4" />
+                         <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                            <Link href={`/ceremonias/${ceremony.id}`}>
+                                <Share2 className="h-4 w-4" />
+                            </Link>
                          </Button>
                       </div>
                       <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
@@ -452,3 +455,10 @@ interface CeremoniesProps {
     subtitleId?: string;
     subtitleInitialValue?: string;
 }
+
+    
+
+    
+
+    
+

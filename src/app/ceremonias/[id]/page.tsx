@@ -85,9 +85,6 @@ export default function SingleCeremonyPage() {
             } catch (error) {
                 toast({ title: t('errorCopyingLink'), variant: 'destructive' });
             }
-        } else {
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
-            window.open(whatsappUrl, '_blank');
         }
     };
 
