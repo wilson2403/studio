@@ -66,20 +66,23 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
-    const contentValue = content[id];
-    if (typeof contentValue === 'object' && contentValue !== null) {
-      setEditValues({
-        es: (contentValue as any).es || '',
-        en: (contentValue as any).en || '',
-      });
+    if (id.startsWith('button')) {
+        const buttonValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
+        setEditValue(buttonValue);
+    } else if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
+       const linkValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
+       setEditValue(linkValue);
     } else {
-      setEditValues({ es: contentValue as string || initialValue, en: '' });
+       setEditValue(displayValue);
     }
     setIsEditing(true);
   }
 
   if (isEditing) {
     const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button')) ? Textarea : Input;
+    const currentLanguageName = lang === 'es' ? 'Español' : 'English';
+    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button') ? t(id) : currentLanguageName;
+
 
     return (
       <div className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">
