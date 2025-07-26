@@ -47,28 +47,15 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }, [content, id, lang, initialValue]);
   
   const handleSave = async () => {
-    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber' || id.startsWith('button')) {
-        const newValue = { es: editValue, en: editValue };
-        await updateContent(id, newValue);
-    } else {
-        if (!content[id]) return;
-
-        let newContentValue: { [key: string]: string; };
-
-        if (typeof content[id] === 'object' && content[id] !== null) {
-            newContentValue = { ...(content[id] as object), [lang]: editValue };
-        } else {
-            newContentValue = { es: lang === 'es' ? editValue : initialValue, en: lang === 'en' ? editValue : initialValue, [lang]: editValue };
-        }
-        
-        try {
-            await updateContent(id, newContentValue);
-        } catch (error) {
-            toast({ title: t('editableError'), description: '', variant: 'destructive' });
-        }
+    const newContentValue = { ...editValues };
+    
+    try {
+        await updateContent(id, newContentValue);
+        toast({ title: t('editableSuccess'), description: '' });
+        setIsEditing(false);
+    } catch (error) {
+        toast({ title: t('editableError'), description: '', variant: 'destructive' });
     }
-    toast({ title: t('editableSuccess'), description: '' });
-    setIsEditing(false);
   };
 
 
@@ -76,8 +63,13 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     setIsEditing(false);
   };
   
-  const handleEditClick = () => {
-    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
+  const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (id.startsWith('button')) {
+        const buttonValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
+        setEditValue(buttonValue);
+    } else if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
        const linkValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
        setEditValue(linkValue);
     } else {
@@ -87,9 +79,9 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
 
   if (isEditing) {
-    const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number')) ? Textarea : Input;
+    const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button')) ? Textarea : Input;
     const currentLanguageName = lang === 'es' ? 'Español' : 'English';
-    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') ? t(id) : currentLanguageName;
+    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button') ? t(id) : currentLanguageName;
 
 
     return (
