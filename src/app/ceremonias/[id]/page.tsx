@@ -209,19 +209,19 @@ export default function SingleCeremonyPage() {
                         autoplay
                         defaultMuted={true}
                     >
-                        <Button variant="ghost" onClick={handleShare} className="absolute top-2 right-12 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
+                        <Button variant="ghost" onClick={handleShare} className="absolute top-2 right-2 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
                             <Share2 className="h-5 w-5" />
-                        </Button>
-                        <Button variant="ghost" onClick={() => router.back()} className="absolute top-2 right-2 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
-                            <X className="h-5 w-5" />
                         </Button>
                     </VideoPlayer>
                 </div>
                 <main className="w-full md:w-1/2">
                 <ScrollArea className="h-full">
-                    <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
+                    <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen relative">
+                        <Button variant="ghost" onClick={() => router.back()} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-card hover:bg-muted text-foreground">
+                            <X className="h-5 w-5" />
+                        </Button>
                         <div>
-                            <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
+                            <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary mt-12">{ceremony.title}</h1>
                             <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
                                 {ceremony.date && (
                                 <p className="flex items-center gap-2">
