@@ -20,8 +20,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
-import { EditableProvider } from '@/components/home/EditableProvider';
-import { EditableTitle } from '@/components/home/EditableTitle';
 
 export default function SingleCeremonyPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
@@ -75,19 +73,23 @@ export default function SingleCeremonyPage() {
     const assignedPlan = ceremony?.plans?.find(p => p.id === assignedPlanData?.planId);
 
 
-    const handleShare = async () => {
-        if (!ceremony) return;
-        const shareUrl = window.location.href;
-        const shareText = t('shareCeremonyText', { title: ceremony.title });
-        
-        if (ceremony.mediaUrl && ceremony.mediaUrl.includes('githubusercontent')) {
-             try {
-                await navigator.clipboard.writeText(shareUrl);
-                toast({ title: t('linkCopied') });
-            } catch (error) {
-                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-            }
-        }
+    const handleShare = async (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!ceremony) return;
+      const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
+      const shareText = t('shareCeremonyText', { title: ceremony.title, url: shareUrl });
+
+      if (ceremony.mediaUrl && ceremony.mediaUrl.includes('githubusercontent')) {
+          try {
+              await navigator.clipboard.writeText(shareUrl);
+              toast({ title: t('linkCopied') });
+          } catch (error) {
+              toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+          }
+      } else {
+          const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+          window.open(whatsappUrl, '_blank');
+      }
     };
 
 
@@ -180,7 +182,7 @@ export default function SingleCeremonyPage() {
     return (
         <EditableProvider>
             <div className="flex flex-col md:flex-row min-h-screen bg-background relative">
-                <div className="w-full md:w-1/2 md:h-screen sticky top-0">
+                 <div className="w-full md:w-1/2 md:h-screen sticky top-0">
                      <VideoPlayer
                         ceremonyId={ceremony.id}
                         videoUrl={ceremony.mediaUrl}
@@ -190,11 +192,8 @@ export default function SingleCeremonyPage() {
                         autoplay
                         defaultMuted={true}
                     >
-                        <Button variant="ghost" onClick={handleShare} className="absolute top-2 right-12 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
+                         <Button variant="ghost" onClick={(e) => handleShare(e)} className="absolute top-2 right-12 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
                             <Share2 className="h-5 w-5" />
-                        </Button>
-                        <Button variant="ghost" onClick={() => router.back()} className="absolute top-2 right-2 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
-                            <X className="h-5 w-5" />
                         </Button>
                     </VideoPlayer>
                 </div>
@@ -202,6 +201,13 @@ export default function SingleCeremonyPage() {
                 <ScrollArea className="h-full">
                     <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
                         <div>
+                             <Button variant="ghost" onClick={() => router.back()} className="mb-8">
+                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                {t('back')}
+                            </Button>
+                             <Button variant="ghost" size="icon" className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white md:hidden" onClick={() => router.back()}>
+                                <X className="h-5 w-5" />
+                            </Button>
                             <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
                             <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
                                 {ceremony.date && (
