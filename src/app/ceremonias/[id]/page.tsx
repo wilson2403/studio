@@ -190,21 +190,13 @@ export default function SingleCeremonyPage() {
                         title={ceremony.title}
                         autoplay
                         defaultMuted={true}
-                    >
-                        <Button variant="ghost" onClick={handleShare} className="absolute top-2 right-2 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
-                            <Share2 className="h-5 w-5" />
-                        </Button>
-                    </VideoPlayer>
+                    />
                 </div>
                 <main className="w-full md:w-1/2">
                 <ScrollArea className="h-full">
                     <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen relative">
                         <div>
-                            <Button variant="ghost" onClick={() => router.back()} className="mb-8">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                {t('back')}
-                            </Button>
-                            <Button variant="ghost" onClick={() => router.back()} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-card hover:bg-muted text-foreground">
+                             <Button variant="ghost" onClick={() => router.back()} className="absolute top-4 right-4 z-10 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40">
                                 <X className="h-5 w-5" />
                             </Button>
                             <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
@@ -298,6 +290,10 @@ export default function SingleCeremonyPage() {
                             ) : null}
                             {isAssignedToCeremony && ceremony.status === 'active' && (
                                 <div className="flex flex-col sm:flex-row gap-2">
+                                    <Button size="lg" variant="outline" className="w-full sm:w-auto" onClick={handleShare}>
+                                        <Share2 className="mr-2 h-4 w-4" />
+                                        <span>{t('share')}</span>
+                                    </Button>
                                 </div>
                             )}
                         </div>
@@ -308,5 +304,3 @@ export default function SingleCeremonyPage() {
         </EditableProvider>
     );
 }
-
-    
