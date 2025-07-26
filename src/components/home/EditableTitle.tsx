@@ -53,11 +53,15 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
         const newValue = { es: editValue, en: editValue };
         await updateContent(id, newValue);
     } else {
-        const currentContent = content[id] || {};
-        const newContentValue = { 
-            ...(typeof currentContent === 'object' ? currentContent : { es: initialValue, en: initialValue }),
-            [lang]: editValue 
-        };
+        if (!content[id]) return;
+
+        let newContentValue: { [key: string]: string; };
+
+        if (typeof content[id] === 'object' && content[id] !== null) {
+            newContentValue = { ...(content[id] as object), [lang]: editValue };
+        } else {
+            newContentValue = { es: lang === 'es' ? editValue : initialValue, en: lang === 'en' ? editValue : initialValue, [lang]: editValue };
+        }
         
         try {
             await updateContent(id, newContentValue);
@@ -69,31 +73,53 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     setIsEditing(false);
   };
 
+
   const handleCancel = () => {
     setIsEditing(false);
   };
   
-  const handleEditClick = () => {
-    setEditValue(currentDisplayValue);
+  const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (id.startsWith('button')) {
+        const buttonValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
+        setEditValue(buttonValue);
+    } else if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
+       const linkValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
+       setEditValue(linkValue);
+    } else {
+       setEditValue(displayValue);
+    }
     setIsEditing(true);
   }
 
   if (isEditing) {
-    const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number')) ? Textarea : Input;
+    const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button')) ? Textarea : Input;
     const currentLanguageName = lang === 'es' ? 'Español' : 'English';
     const label = id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button') ? t(id) : currentLanguageName;
 
 
     return (
       <div className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">
-        <div className='w-full space-y-2'>
-            <Label htmlFor={`${id}-${lang}`}>{label}</Label>
-            <InputComponent 
-                id={`${id}-${lang}`}
-                value={editValue} 
-                onChange={(e) => setEditValue(e.target.value)} 
-                className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
-            />
+        <div className='w-full space-y-4'>
+            <div className='space-y-2'>
+                <Label htmlFor={`${id}-es`}>Español</Label>
+                <InputComponent 
+                    id={`${id}-es`}
+                    value={editValues.es} 
+                    onChange={(e) => setEditValues(prev => ({...prev, es: e.target.value}))} 
+                    className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
+                />
+            </div>
+             <div className='space-y-2'>
+                <Label htmlFor={`${id}-en`}>English</Label>
+                <InputComponent 
+                    id={`${id}-en`}
+                    value={editValues.en} 
+                    onChange={(e) => setEditValues(prev => ({...prev, en: e.target.value}))} 
+                    className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
+                />
+            </div>
         </div>
         <div className="flex gap-2 mt-2">
           <Button onClick={handleSave} size="sm"><Save className="mr-2"/> {t('save')}</Button>
@@ -102,6 +128,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
       </div>
     );
   }
+
 
   return (
     <div className={cn("relative group flex items-center justify-center gap-2 w-full")}>
