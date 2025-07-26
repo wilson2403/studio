@@ -150,6 +150,7 @@ export default function Ceremonies({
     }
   };
   
+<<<<<<< HEAD
   const handleShare = async (e: React.MouseEvent, ceremony: Ceremony) => {
       e.stopPropagation();
       const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
@@ -173,6 +174,8 @@ export default function Ceremonies({
     setExpandedVideo(ceremony);
   };
   
+=======
+>>>>>>> parent of 7046d17 (que el boton de compartir de los videos copia el link y lo comparte por)
   const renderActiveCeremonies = () => (
     <div className="w-full justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
@@ -461,4 +464,7 @@ interface CeremoniesProps {
     
 
     
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 7046d17 (que el boton de compartir de los videos copia el link y lo comparte por)

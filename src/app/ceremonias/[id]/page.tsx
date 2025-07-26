@@ -73,6 +73,7 @@ export default function SingleCeremonyPage() {
     const assignedPlan = ceremony?.plans?.find(p => p.id === assignedPlanData?.planId);
 
 
+<<<<<<< HEAD
     const handleShare = async (e: React.MouseEvent) => {
       e.stopPropagation();
       if (!ceremony) return;
@@ -90,6 +91,42 @@ export default function SingleCeremonyPage() {
           const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
           window.open(whatsappUrl, '_blank');
       }
+=======
+    const handleShare = async () => {
+        if (!ceremony) return;
+        const shareUrl = window.location.href;
+        const shareTitle = ceremony.title;
+        const shareText = t('shareCeremonyText', { title: ceremony.title });
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: shareTitle,
+                    text: shareText,
+                    url: shareUrl,
+                });
+            } catch (error) {
+                if (error instanceof DOMException && error.name === 'AbortError') {
+                    // Silently fail if user cancels share.
+                    return;
+                }
+                // For other errors, fallback to clipboard.
+                try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    toast({ title: t('linkCopied') });
+                } catch (copyError) {
+                    // This can fail if permissions are not granted.
+                }
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                toast({ title: t('linkCopied') });
+            } catch (error) {
+                toast({ title: t('errorCopyingLink'), variant: 'destructive' });
+            }
+        }
+>>>>>>> parent of 7046d17 (que el boton de compartir de los videos copia el link y lo comparte por)
     };
 
 
