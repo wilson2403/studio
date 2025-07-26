@@ -104,7 +104,7 @@ const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: s
 };
 
 
-const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay, defaultMuted = true, trackProgress, userId, autoplay }: { src: string, videoId: string, className?: string, videoFit?: 'cover' | 'contain', onPlay: () => void, defaultMuted?: boolean, trackProgress?: boolean, userId?: string | null, autoplay?: boolean }) => {
+const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay, defaultMuted = true, trackProgress, userId, autoplay, children }: { src: string, videoId: string, className?: string, videoFit?: 'cover' | 'contain', onPlay: () => void, defaultMuted?: boolean, trackProgress?: boolean, userId?: string | null, autoplay?: boolean, children?: React.ReactNode }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(defaultMuted);
@@ -258,6 +258,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
                 muted={isMuted}
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
+            {children}
             {!autoplay && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
                   <Button
@@ -284,7 +285,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
     );
 };
 
-export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, defaultMuted, trackProgress = false }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, defaultMuted, trackProgress = false, children }: VideoPlayerProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -341,7 +342,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     }
 
     if (isDirectVideoUrl(url)) {
-      return <DirectVideoPlayer src={url} className={cn("absolute inset-0 w-full h-full", className)} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} autoplay={autoplay} />;
+      return <DirectVideoPlayer src={url} className={cn("absolute inset-0 w-full h-full", className)} videoFit={videoFit} onPlay={handlePlay} defaultMuted={defaultMuted} trackProgress={trackProgress} videoId={ceremonyId} userId={user?.uid} autoplay={autoplay}>{children}</DirectVideoPlayer>;
     }
     
     return (
@@ -382,4 +383,5 @@ interface VideoPlayerProps {
   defaultMuted?: boolean;
   trackProgress?: boolean;
   userId?: string | null;
+  children?: React.ReactNode;
 }
