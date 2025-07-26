@@ -61,7 +61,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   
   const handleSave = async () => {
-    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
+    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber' || id.startsWith('button')) {
         const newValue = { es: editValue, en: editValue };
         await updateContent(id, newValue);
     } else {
@@ -90,8 +90,13 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     setEditValue(displayValue);
   };
   
-  const handleEditClick = () => {
-    if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
+  const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (id.startsWith('button')) {
+        const buttonValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
+        setEditValue(buttonValue);
+    } else if (id === 'whatsappCommunityLink' || id === 'instagramUrl' || id === 'facebookUrl' || id === 'whatsappNumber') {
        const linkValue = (typeof content[id] === 'object' && content[id] !== null ? (content[id] as any).es : content[id]) as string || initialValue;
        setEditValue(linkValue);
     } else {
@@ -101,9 +106,9 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
 
   if (isEditing) {
-    const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number')) ? Textarea : Input;
+    const InputComponent = (Tag === 'p' || Tag === 'h3' || id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button')) ? Textarea : Input;
     const currentLanguageName = lang === 'es' ? 'Español' : 'English';
-    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') ? t(id) : currentLanguageName;
+    const label = id.includes('Url') || id.includes('Link') || id.includes('Number') || id.startsWith('button') ? t(id) : currentLanguageName;
 
 
     return (
@@ -126,13 +131,13 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
 
   return (
-    <div className={cn("relative group flex items-center justify-center gap-2 w-full")}>
+    <div className={cn("relative group flex items-center justify-center gap-2", Tag !== 'p' && "w-full")}>
       <Tag className={className}>{displayValue}</Tag>
       {isAdmin && (
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity absolute right-[-40px]"
           onClick={handleEditClick}
         >
           <Edit className="h-4 w-4" />
