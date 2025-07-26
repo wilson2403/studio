@@ -206,6 +206,9 @@ export default function SingleCeremonyPage() {
                 <ScrollArea className="h-full">
                     <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
                         <div>
+                             <Button variant="ghost" onClick={() => router.back()} className="absolute top-4 right-4 z-10 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40">
+                                <X className="h-5 w-5" />
+                            </Button>
                             <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
                             <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
                                 {ceremony.date && (
