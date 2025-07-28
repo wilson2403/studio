@@ -89,8 +89,11 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   if (isEditing) {
     const InputComponent = (Tag === 'p' || Tag === 'h3') ? Textarea : Input;
 
+    // Use a 'span' wrapper when editing a 'p' tag to avoid nesting block elements
+    const EditWrapper = Tag === 'p' ? 'span' : 'div';
+
     return (
-      <div className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">
+      <EditWrapper className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">
         <div className='w-full space-y-4'>
             <div className='space-y-2'>
                 <Label htmlFor={`${id}-es`}>Español</Label>
@@ -115,18 +118,19 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
           <Button onClick={handleSave} size="sm"><Save className="mr-2"/> {t('save')}</Button>
           <Button onClick={handleCancel} variant="outline" size="sm"><X className="mr-2"/> {t('cancel')}</Button>
         </div>
-      </div>
+      </EditWrapper>
     );
   }
 
   if (Tag === 'p' && !isAdmin) {
+    // Return a fragment or just text if it's a non-admin view of a paragraph
     return <>{displayValue}</>;
   }
   
   if (Tag === 'p' && isAdmin) {
     return (
         <span className={cn("relative group inline-flex items-center justify-center gap-2", className)}>
-            {displayValue}
+            <span className={className}>{displayValue}</span>
              <Button
                 variant="ghost"
                 size="icon"
