@@ -119,6 +119,26 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     );
   }
 
+  if (Tag === 'p' && !isAdmin) {
+    return <>{displayValue}</>;
+  }
+  
+  if (Tag === 'p' && isAdmin) {
+    return (
+        <div className={cn("relative group flex items-center justify-center gap-2", className)}>
+            <span className={className}>{displayValue}</span>
+             <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity absolute right-[-40px]"
+                onClick={handleEditClick}
+                >
+                <Edit className="h-4 w-4" />
+            </Button>
+        </div>
+    )
+  }
+
 
   return (
     <div className={cn("relative group flex items-center justify-center gap-2", Tag !== 'p' && "w-full")}>
