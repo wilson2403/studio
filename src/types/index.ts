@@ -21,6 +21,7 @@ export type Ceremony = {
   features: string[];
   link: string;
   locationLink?: string;
+  downloadUrl?: string;
   featured: boolean;
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
@@ -251,3 +252,4 @@ export type AuditLog = {
     timestamp: Timestamp;
     page: string; // The page where the action was performed
 }
+

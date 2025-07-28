@@ -6,7 +6,7 @@ import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick,
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, CheckCircle, Eye, MousePointerClick, Users, Share2 } from 'lucide-react';
+import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, CheckCircle, Eye, MousePointerClick, Users, Share2, Download } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -280,7 +280,16 @@ export default function AllCeremoniesPage() {
                                                 {isAssigned ? t('viewDetails') : t('reserveNow')}
                                             </Button>
                                         ) : (
-                                            ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
+                                            ceremony.downloadUrl ? (
+                                                <Button asChild variant="secondary" className='w-full'>
+                                                    <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download>
+                                                        <Download className="mr-2 h-4 w-4" />
+                                                        {t('downloadVideo')}
+                                                    </a>
+                                                </Button>
+                                            ) : (
+                                                ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
+                                            )
                                         )}
                                         {isAuthorized && (
                                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
@@ -339,3 +348,4 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+

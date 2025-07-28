@@ -46,6 +46,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   priceType: z.enum(['exact', 'from']),
   link: z.string().url(t('errorInvalidUrl')).or(z.literal('')),
   locationLink: z.string().url(t('errorInvalidUrl')).or(z.literal('')).optional(),
+  downloadUrl: z.string().url(t('errorInvalidUrl')).or(z.literal('')).optional(),
   featured: z.boolean(),
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
   mediaUrl: z.string().optional(),
@@ -92,6 +93,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       priceType: 'from',
       link: 'https://wa.me/50687992560',
       locationLink: '',
+      downloadUrl: '',
       featured: false,
       features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
       mediaUrl: '',
@@ -125,6 +127,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
         priceType: 'from',
         link: 'https://wa.me/50687992560',
         locationLink: '',
+        downloadUrl: '',
         featured: false,
         features: [{ value: t('featureFood')}, {value: t('featureLodging')}],
         mediaUrl: '',
@@ -445,6 +448,20 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                                     <FormLabel>{t('locationLinkLabel')}</FormLabel>
                                     <FormControl>
                                         <Input {...field} disabled={isUploading} placeholder="https://maps.app.goo.gl/..." />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                         <FormField
+                            control={form.control}
+                            name="downloadUrl"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>{t('downloadUrlLabel')}</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} disabled={isUploading} placeholder="https://..." />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -778,3 +795,4 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     </Dialog>
   );
 }
+
