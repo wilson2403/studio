@@ -11,8 +11,6 @@ import { getUserProfile, incrementCeremonyViewCount, updateVideoProgress, getVid
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
-
 const getYoutubeEmbedUrl = (url: string, autoplay: boolean): string | null => {
   if (!url) return null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -296,7 +294,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
       setUser(currentUser);
       if (currentUser) {
         const profile = await getUserProfile(currentUser.uid);
-        setIsAdmin(!!profile?.isAdmin || currentUser.email === ADMIN_EMAIL);
+        setIsAdmin(profile?.role === 'admin');
       } else {
         setIsAdmin(false);
       }
@@ -305,13 +303,14 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
   }, []);
 
   const handlePlay = useCallback(() => {
-    if (!isAdmin) {
-      if (!trackProgress) {
+    if (isAdmin) {
+        return;
+    }
+    if (!trackProgress) {
         incrementCeremonyViewCount(ceremonyId);
         logUserAction('play_video', { targetId: ceremonyId, targetType: 'ceremony_video' });
-      } else {
+    } else {
         logUserAction('play_video', { targetId: ceremonyId, targetType: 'course_video' });
-      }
     }
   }, [isAdmin, trackProgress, ceremonyId]);
 
