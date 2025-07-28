@@ -218,6 +218,7 @@ export default function AllCeremoniesPage() {
                     {sortedCeremonies.map((ceremony) => {
                         const registeredCount = ceremony.assignedUsers?.length || 0;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
+                        const statusText = t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`);
                         const isAssigned = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === ceremony.id);
 
                         return (
@@ -238,7 +239,7 @@ export default function AllCeremoniesPage() {
                                         }
                                     </div>
                                     <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
-                                        {isAuthorized && <Badge variant={statusVariant} className="capitalize">{t(ceremony.status)}</Badge>}
+                                        {isAuthorized && <Badge variant={statusVariant} className="capitalize">{statusText}</Badge>}
                                         {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                                         <div className='flex gap-2'>
                                             {ceremony.mediaUrl && (
