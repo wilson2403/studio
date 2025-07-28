@@ -20,15 +20,6 @@ interface InviteToCeremonyDialogProps {
   invitationTemplates: CeremonyInvitationMessage[];
 }
 
-// Function to generate a URL-friendly slug from a title
-const createSlug = (title: string) => {
-    return title
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '') // remove non-word chars
-        .replace(/[\s_-]+/g, '-') // collapse whitespace and replace by -
-        .replace(/^-+|-+$/g, ''); // remove leading/trailing dashes
-};
-
 export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose, invitationTemplates }: InviteToCeremonyDialogProps) {
   const { t, i18n } = useTranslation();
   const [selectedTemplate, setSelectedTemplate] = useState<CeremonyInvitationMessage | null>(null);
@@ -47,8 +38,7 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
     const lang = i18n.language as 'es' | 'en';
     let message = selectedTemplate[lang] || selectedTemplate.es;
     
-    const ceremonySlug = ceremony.id; // Use ID for a stable link
-    const ceremonyLink = `${window.location.origin}/ceremonias/${ceremonySlug}`;
+    const ceremonyLink = `${window.location.origin}/ceremonias/${ceremony.id}`;
 
     message = message.replace(/{{userName}}/g, user.displayName || 'participante');
     message = message.replace(/{{ceremonyTitle}}/g, ceremony.title || '');
@@ -69,7 +59,7 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
       <DialogContent>
         <DialogHeader>
             <DialogTitle>
-                <EditableTitle tag="h3" id="inviteToCeremonyTitle" initialValue={t('inviteToCeremonyTitle')} />
+                <EditableTitle tag="p" id="inviteToCeremonyTitle" initialValue={t('inviteToCeremonyTitle')} />
             </DialogTitle>
             <DialogDescription>
                 <EditableTitle

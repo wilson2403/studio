@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyBySlug, getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -40,11 +40,7 @@ export default function SingleCeremonyPage() {
             if (id) {
                 setLoading(true);
                 try {
-                    // Try fetching by slug first, then by ID as a fallback
-                    let data = await getCeremonyBySlug(id);
-                    if (!data) {
-                        data = await getCeremonyById(id);
-                    }
+                    const data = await getCeremonyById(id);
 
                     setCeremony(data);
                     if (data?.plans?.length) {
