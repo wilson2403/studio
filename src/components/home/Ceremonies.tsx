@@ -64,8 +64,18 @@ export default function Ceremonies({
       try {
         let ceremoniesData = await getCeremonies(status);
         
-        // Ensure inactive ceremonies are not shown on the homepage
-        ceremoniesData = ceremoniesData.filter(c => c.status !== 'inactive');
+        if (status === 'finished') { // Special logic for "past events"
+            const allCeremonies = await getCeremonies(); // Fetch all
+            ceremoniesData = allCeremonies
+                .filter(c => c.status === 'finished' || c.status === 'inactive' || c.featured)
+                .sort((a, b) => {
+                    const statusOrder = { featured: 1, finished: 2, inactive: 3 };
+                    const getOrder = (c: Ceremony) => c.featured ? statusOrder.featured : statusOrder[c.status] || 4;
+                    return getOrder(a) - getOrder(b);
+                });
+        } else { // Active ceremonies logic
+            ceremoniesData = ceremoniesData.filter(c => c.status === 'active');
+        }
 
         if (ceremoniesData.length === 0 && status === 'active') {
             const allCeremonies = await getCeremonies();

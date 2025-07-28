@@ -127,8 +127,8 @@ export const seedCeremonies = async () => {
       videoFit: 'cover',
       autoplay: false,
       plans: [
-        { name: 'Plan Básico', price: 80000, description: "Incluye ceremonia y guía." },
-        { name: 'Plan Completo', price: 100000, priceUntil: 120000, description: "Incluye ceremonia, guía y hospedaje." }
+        { id: 'plan1', name: 'Plan Básico', price: 80000, description: "Incluye ceremonia y guía." },
+        { id: 'plan2', name: 'Plan Completo', price: 100000, priceUntil: 120000, description: "Incluye ceremonia, guía y hospedaje." }
       ],
       contributionText: 'Puedes reservar con el 20%',
       status: 'active',
@@ -212,12 +212,7 @@ export const seedCeremonies = async () => {
 
 export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive'): Promise<Ceremony[]> => {
   try {
-    let q;
-    if (status) {
-      q = query(ceremoniesCollection, where('status', '==', status));
-    } else {
-      q = collection(db, 'ceremonies');
-    }
+    const q = status ? query(ceremoniesCollection, where('status', '==', status)) : collection(db, 'ceremonies');
     
     const snapshot = await getDocs(q);
     
@@ -249,7 +244,7 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
       if (status === 'finished') {
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
-        return dateB.localeCompare(dateA);
+        return dateB.localeCompare(dateA); // This sorts by date descending for finished.
       }
 
       // Default sorting for all ceremonies
