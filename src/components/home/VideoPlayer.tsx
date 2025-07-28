@@ -280,6 +280,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
                 loop={true}
                 playsInline
                 muted={isMuted}
+                onPlay={autoplay ? handlePlay : undefined}
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
             {children}
