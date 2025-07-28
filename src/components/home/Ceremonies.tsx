@@ -62,19 +62,22 @@ export default function Ceremonies({
     const fetchAndDecorateCeremonies = async () => {
       setLoading(true);
       try {
-        let ceremoniesData = await getCeremonies(status);
+        let ceremoniesData: Ceremony[] = [];
         
-        if (status === 'finished') { // Special logic for "past events"
+        if (status === 'active') {
+          ceremoniesData = await getCeremonies('active');
+        } else if (status === 'finished') { // Special logic for "past events"
             const allCeremonies = await getCeremonies(); // Fetch all
             ceremoniesData = allCeremonies
-                .filter(c => c.status === 'finished' || c.status === 'inactive' || c.featured)
+                .filter(c => c.status === 'finished' || c.status === 'inactive')
                 .sort((a, b) => {
-                    const statusOrder = { featured: 1, finished: 2, inactive: 3 };
-                    const getOrder = (c: Ceremony) => c.featured ? statusOrder.featured : statusOrder[c.status] || 4;
+                    if (a.featured && !b.featured) return -1;
+                    if (!a.featured && b.featured) return 1;
+                    
+                    const statusOrder = { finished: 1, inactive: 2 };
+                    const getOrder = (c: Ceremony) => statusOrder[c.status] || 3;
                     return getOrder(a) - getOrder(b);
                 });
-        } else { // Active ceremonies logic
-            ceremoniesData = ceremoniesData.filter(c => c.status === 'active');
         }
 
         if (ceremoniesData.length === 0 && status === 'active') {
@@ -86,7 +89,6 @@ export default function Ceremonies({
             }
         }
         
-        // Decorate with user counts
         if (status === 'active') {
           const decoratedCeremonies = await Promise.all(
             ceremoniesData.map(async (ceremony) => {

@@ -212,7 +212,7 @@ export const seedCeremonies = async () => {
 
 export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive'): Promise<Ceremony[]> => {
   try {
-    const q = status ? query(ceremoniesCollection, where('status', '==', status)) : collection(db, 'ceremonies');
+    const q = status ? query(ceremoniesCollection, where('status', '==', status)) : query(ceremoniesCollection);
     
     const snapshot = await getDocs(q);
     
@@ -225,39 +225,26 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
     const ceremoniesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
     
-    // Manual sorting in code
     ceremoniesData.sort((a, b) => {
       const dateA = a.date || '';
       const dateB = b.date || '';
       
-      if (status === 'active') {
-        // Sort featured first, then by date
+      if (a.status === 'active') {
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
         return dateA.localeCompare(dateB);
       }
       
-      if (status === 'inactive') {
-        return dateA.localeCompare(dateB);
-      }
-      
-      if (status === 'finished') {
+      if (a.status === 'finished') {
         if (a.featured && !b.featured) return -1;
         if (!a.featured && b.featured) return 1;
-        return dateB.localeCompare(dateA); // This sorts by date descending for finished.
+        return dateB.localeCompare(dateA); 
       }
 
-      // Default sorting for all ceremonies
       const statusOrder = { active: 1, inactive: 2, finished: 3 };
       const statusComparison = (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
       if (statusComparison !== 0) return statusComparison;
       
-      if (a.status === 'active') {
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-      }
-      
-      if (a.status === 'finished') return dateB.localeCompare(dateA); 
       return dateA.localeCompare(dateB);
     });
 
