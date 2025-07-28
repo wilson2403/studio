@@ -74,7 +74,7 @@ export type UserProfile = {
     questionnaireCompleted?: boolean;
     status?: UserStatus;
     preparationStep?: number;
-    assignedCeremonies?: { ceremonyId: string; planId: string }[];
+    assignedCeremonies?: string[];
     completedCourses?: string[];
     videoProgress?: { [videoId: string]: number };
     hasLogs?: boolean;
@@ -229,6 +229,7 @@ export type SystemSettings = {
     whatsappCommunityLink: string;
     instagramUrl: string;
     facebookUrl: string;
+    tiktokUrl: string;
     whatsappNumber: string;
     navLinks: {
         home: { es: string; en: string };

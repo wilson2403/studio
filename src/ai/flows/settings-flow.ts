@@ -32,6 +32,7 @@ const settingsSchema = z.object({
     whatsappCommunityLink: z.string(),
     instagramUrl: z.string(),
     facebookUrl: z.string(),
+    tiktokUrl: z.string(),
     whatsappNumber: z.string(),
     navLinks: z.object({
         home: navLinkSchema,
@@ -84,6 +85,7 @@ export const getSystemSettings = ai.defineFlow(
         whatsappCommunityLink: await fetchStringContent('whatsappCommunityLink', 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ'),
         instagramUrl: await fetchStringContent('instagramUrl', 'https://www.instagram.com/elartedesanarcr'),
         facebookUrl: await fetchStringContent('facebookUrl', 'https://www.facebook.com/profile.php?id=61574627625274'),
+        tiktokUrl: await fetchStringContent('tiktokUrl', 'https://www.tiktok.com/@elartedesanarcr'),
         whatsappNumber: await fetchStringContent('whatsappNumber', '50687992560'),
         navLinks: navLinks,
       };
@@ -136,6 +138,7 @@ export const updateSystemSettings = ai.defineFlow(
         await setContent('whatsappCommunityLink', { es: settings.whatsappCommunityLink, en: settings.whatsappCommunityLink });
         await setContent('instagramUrl', { es: settings.instagramUrl, en: settings.instagramUrl });
         await setContent('facebookUrl', { es: settings.facebookUrl, en: settings.facebookUrl });
+        await setContent('tiktokUrl', { es: settings.tiktokUrl, en: settings.tiktokUrl });
         await setContent('whatsappNumber', { es: settings.whatsappNumber, en: settings.whatsappNumber });
 
         for (const [key, value] of Object.entries(settings.navLinks)) {

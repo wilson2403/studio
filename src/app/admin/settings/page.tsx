@@ -39,6 +39,7 @@ const settingsFormSchema = z.object({
     whatsappCommunityLink: z.string().url('Debe ser una URL válida.'),
     instagramUrl: z.string().url('Debe ser una URL válida.'),
     facebookUrl: z.string().url('Debe ser una URL válida.'),
+    tiktokUrl: z.string().url('Debe ser una URL válida.'),
     whatsappNumber: z.string().min(8, 'Debe ser un número de teléfono válido.'),
     navLinks: z.object({
         home: navLinkSchema,
@@ -226,6 +227,13 @@ export default function AdminSettingsPage() {
                                 <FormField control={form.control} name="facebookUrl" render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>{t('facebookUrl')}</FormLabel>
+                                        <FormControl><Input {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="tiktokUrl" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>{t('tiktokUrl')}</FormLabel>
                                         <FormControl><Input {...field} /></FormControl>
                                         <FormMessage />
                                     </FormItem>

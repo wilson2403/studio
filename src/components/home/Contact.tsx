@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Instagram } from "lucide-react";
@@ -10,6 +11,7 @@ import { WhatsappIcon } from "../icons/WhatsappIcon";
 import { useEditable } from "./EditableProvider";
 import { useEffect, useState } from "react";
 import { FacebookIcon } from "../icons/FacebookIcon";
+import { TikTokIcon } from "../icons/TikTokIcon";
 
 export default function Contact() {
     const { t } = useTranslation();
@@ -18,12 +20,14 @@ export default function Contact() {
     const [communityLink, setCommunityLink] = useState('');
     const [instagramUrl, setInstagramUrl] = useState('');
     const [facebookUrl, setFacebookUrl] = useState('');
+    const [tiktokUrl, setTiktokUrl] = useState('');
     const [whatsappNumber, setWhatsappNumber] = useState('');
 
     const initialValues = {
         whatsappCommunityLink: 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ',
         instagramUrl: 'https://www.instagram.com/elartedesanarcr',
         facebookUrl: 'https://www.facebook.com/profile.php?id=61574627625274',
+        tiktokUrl: 'https://www.tiktok.com/@elartedesanarcr',
         whatsappNumber: '50687992560'
     };
 
@@ -45,6 +49,7 @@ export default function Contact() {
         setCommunityLink(getStringValue('whatsappCommunityLink', initialValues.whatsappCommunityLink));
         setInstagramUrl(getStringValue('instagramUrl', initialValues.instagramUrl));
         setFacebookUrl(getStringValue('facebookUrl', initialValues.facebookUrl));
+        setTiktokUrl(getStringValue('tiktokUrl', initialValues.tiktokUrl));
         setWhatsappNumber(getStringValue('whatsappNumber', initialValues.whatsappNumber));
 
     }, [content]);
@@ -84,6 +89,11 @@ export default function Contact() {
                              <Button variant="ghost" size="icon" asChild>
                                 <Link href={facebookUrl} target="_blank">
                                     <FacebookIcon />
+                                </Link>
+                            </Button>
+                             <Button variant="ghost" size="icon" asChild>
+                                <Link href={tiktokUrl} target="_blank">
+                                    <TikTokIcon />
                                 </Link>
                             </Button>
                              <Button variant="ghost" size="icon" asChild>
