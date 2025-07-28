@@ -280,16 +280,7 @@ export default function AllCeremoniesPage() {
                                                 {isAssigned ? t('viewDetails') : t('reserveNow')}
                                             </Button>
                                         ) : (
-                                            ceremony.downloadUrl ? (
-                                                <Button asChild variant="secondary" className='w-full'>
-                                                    <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download>
-                                                        <Download className="mr-2 h-4 w-4" />
-                                                        {t('downloadVideo')}
-                                                    </a>
-                                                </Button>
-                                            ) : (
-                                                ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
-                                            )
+                                            ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
                                         )}
                                         {isAuthorized && (
                                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
@@ -348,4 +339,5 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
 
