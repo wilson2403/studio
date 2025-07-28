@@ -108,3 +108,6 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
     </Dialog>
   );
 }
+
+
+    

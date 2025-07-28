@@ -36,7 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import ViewUserChatsDialog from '@/components/admin/ViewUserChatsDialog';
 import { Label } from '@/components/ui/label';
-import ViewUserAuditLogDialog from '@/components/admin/ViewUserAuditLogDialog';
+import ViewUserAuditLogDialog from '@/components/admin/ViewUserLogDialog';
 import InviteToCeremonyDialog from '@/components/admin/InviteToCeremonyDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
@@ -975,5 +975,7 @@ export default function AdminUsersPage() {
 
 
 
+
+    
 
     
