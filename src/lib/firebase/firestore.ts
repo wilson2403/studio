@@ -224,29 +224,6 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
     }
 
     const ceremoniesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
-    
-    ceremoniesData.sort((a, b) => {
-      const dateA = a.date || '';
-      const dateB = b.date || '';
-      
-      if (a.status === 'active') {
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-        return dateA.localeCompare(dateB);
-      }
-      
-      if (a.status === 'finished') {
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-        return dateB.localeCompare(dateA); 
-      }
-
-      const statusOrder = { active: 1, inactive: 2, finished: 3 };
-      const statusComparison = (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
-      if (statusComparison !== 0) return statusComparison;
-      
-      return dateA.localeCompare(dateB);
-    });
 
     return ceremoniesData;
   } catch (error) {
@@ -1267,3 +1244,5 @@ export const getAuditLogsForUser = async (userId: string): Promise<AuditLog[]> =
 
 export type { Chat };
 export type { UserProfile };
+
+  

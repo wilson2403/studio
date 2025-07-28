@@ -39,12 +39,12 @@ export default function AllCeremoniesPage() {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
-             if (currentUser) {
+            if (currentUser) {
                 const profile = await getUserProfile(currentUser.uid);
                 setUserProfile(profile);
                 const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && !!profile?.permissions?.canEditCeremonies);
                 setIsAuthorized(!!hasPermission);
-                fetchCeremonies(!!hasPermission);
+                fetchCeremonies(!!hasPermission, profile);
             } else {
                 setIsAuthorized(false);
                 fetchCeremonies(false);
@@ -52,21 +52,26 @@ export default function AllCeremoniesPage() {
         });
         return () => unsubscribe();
     }, []);
-    
-    const fetchCeremonies = async (isUserAuthorized: boolean) => {
+
+    const fetchCeremonies = async (isUserAuthorized: boolean, profile: UserProfile | null = null) => {
         setPageLoading(true);
         try {
             const data = await getCeremonies(); // Get all ceremonies
             // Filter inactive ones only if user is not authorized
-            const visibleCeremonies = isUserAuthorized ? data : data.filter(c => c.status !== 'inactive');
+            let visibleCeremonies = isUserAuthorized ? data : data.filter(c => c.status !== 'inactive');
             
-             const decoratedCeremonies = await Promise.all(
-                visibleCeremonies.map(async (ceremony) => {
-                    const users = await getUsersForCeremony(ceremony.id);
-                    return { ...ceremony, assignedUsers: users };
-                })
-            );
-            setCeremonies(decoratedCeremonies);
+            if (isUserAuthorized) {
+                 visibleCeremonies = await Promise.all(
+                    visibleCeremonies.map(async (ceremony) => {
+                        const users = await getUsersForCeremony(ceremony.id);
+                        return { ...ceremony, assignedUsers: users };
+                    })
+                );
+            }
+            
+            const sorted = sortCeremonies(visibleCeremonies, profile);
+
+            setCeremonies(sorted);
 
         } catch (error) {
             console.error("Failed to fetch ceremonies:", error);
@@ -75,13 +80,36 @@ export default function AllCeremoniesPage() {
         }
     };
 
+    const sortCeremonies = (ceremoniesToSort: Ceremony[], profile: UserProfile | null): Ceremony[] => {
+        return [...ceremoniesToSort].sort((a, b) => {
+            const aIsAssigned = profile?.assignedCeremonies?.some(c => c === a.id) || false;
+            const bIsAssigned = profile?.assignedCeremonies?.some(c => c === b.id) || false;
+
+            if (aIsAssigned && !bIsAssigned) return -1;
+            if (!aIsAssigned && bIsAssigned) return 1;
+
+            const statusOrder = { 'active': 1, 'finished': 3, 'inactive': 4 };
+
+            if (a.status !== b.status) {
+                 return (statusOrder[a.status] || 99) - (statusOrder[b.status] || 99);
+            }
+
+            if (a.status === 'active') {
+                if (a.featured && !b.featured) return -1;
+                if (!a.featured && b.featured) return 1;
+            }
+
+            return 0;
+        });
+    }
+
 
     const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
         const ceremonyExists = ceremonies.some(c => c.id === updatedCeremony.id);
         if (ceremonyExists) {
-            setCeremonies(prev => prev.map(c => c.id === updatedCeremony.id ? updatedCeremony : c));
+            setCeremonies(prev => sortCeremonies(prev.map(c => c.id === updatedCeremony.id ? updatedCeremony : c), userProfile));
         } else {
-            setCeremonies(prev => [...prev, updatedCeremony]);
+            setCeremonies(prev => sortCeremonies([...prev, updatedCeremony], userProfile));
         }
         setEditingCeremony(null);
     };
@@ -92,15 +120,12 @@ export default function AllCeremoniesPage() {
     };
     
     const handleCeremonyAdd = (newCeremony: Ceremony) => {
-        setCeremonies(prev => [...prev, newCeremony].sort((a,b) => {
-            const statusOrder = { active: 1, inactive: 2, finished: 3 };
-            return (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4) || (a.date || '').localeCompare(b.date || '');
-        }));
+        setCeremonies(prev => sortCeremonies([...prev, newCeremony], userProfile));
         setIsAdding(false);
     }
     
     const handleCeremonyDuplicate = (newCeremony: Ceremony) => {
-        setCeremonies(prev => [...prev, newCeremony]);
+        setCeremonies(prev => sortCeremonies([...prev, newCeremony], userProfile));
     }
 
     const handleViewPlans = (ceremony: Ceremony) => {
@@ -163,24 +188,6 @@ export default function AllCeremoniesPage() {
         )
     }
 
-    const sortedCeremonies = [...ceremonies].sort((a, b) => {
-        const aIsAssigned = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === a.id);
-        const bIsAssigned = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === b.id);
-
-        if (aIsAssigned && !bIsAssigned) return -1;
-        if (!aIsAssigned && bIsAssigned) return 1;
-
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-
-        const statusOrder = { 'active': 1, 'inactive': 2, 'finished': 3 };
-        if (statusOrder[a.status] !== statusOrder[b.status]) {
-            return statusOrder[a.status] - statusOrder[b.status];
-        }
-
-        return 0; // maintain original order if all else is equal
-    });
-
     return (
         <EditableProvider>
             <div className="container py-12 md:py-16 space-y-12">
@@ -215,11 +222,11 @@ export default function AllCeremoniesPage() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 items-stretch justify-center">
-                    {sortedCeremonies.map((ceremony) => {
+                    {ceremonies.map((ceremony) => {
                         const registeredCount = ceremony.assignedUsers?.length || 0;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
                         const statusText = t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`);
-                        const isAssigned = userProfile?.assignedCeremonies?.some(c => c.ceremonyId === ceremony.id);
+                        const isAssigned = userProfile?.assignedCeremonies?.some(c => c === ceremony.id);
 
                         return (
                             <div key={ceremony.id} className="px-5">
@@ -252,6 +259,13 @@ export default function AllCeremoniesPage() {
                                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
                                                 <Expand className="h-4 w-4" />
                                             </Button>
+                                             {ceremony.status !== 'active' && ceremony.downloadUrl && isAssigned && (
+                                                <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download onClick={(e) => e.stopPropagation()}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                                        <Download className="h-4 w-4" />
+                                                    </Button>
+                                                </a>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
@@ -277,7 +291,7 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? t('viewDetails') : t('reserveNow')}
+                                                {isAssigned ? t('buttonViewDetails') : t('reserveNow')}
                                             </Button>
                                         ) : (
                                             ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
@@ -341,3 +355,6 @@ export default function AllCeremoniesPage() {
 }
 
 
+
+
+  
