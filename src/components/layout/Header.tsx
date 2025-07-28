@@ -38,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 
-const APP_VERSION = '1.55';
+const APP_VERSION = '1.56';
 
 export default function Header() {
   const pathname = usePathname();
@@ -187,7 +187,7 @@ export default function Header() {
                   let hasAccess = isAdmin;
                   if (!hasAccess && isOrganizer) {
                       if (link.href === '/admin/users' && userProfile.permissions?.canEditUsers) hasAccess = true;
-                      if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile.permissions?.canEditCeremonies || userProfile.permissions?.canEditCourses)) hasAccess = true;
+                      if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses)) hasAccess = true;
                       // Other admin links are admin-only
                   }
                   
@@ -369,7 +369,7 @@ export default function Header() {
                                 let hasAccess = isAdmin;
                                 if (!hasAccess && isOrganizer) {
                                     if (link.href === '/admin/users' && userProfile.permissions?.canEditUsers) hasAccess = true;
-                                    if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile.permissions?.canEditCeremonies || userProfile.permissions?.canEditCourses)) hasAccess = true;
+                                    if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses)) hasAccess = true;
                                     // Other admin links are admin-only
                                 }
                                 if(hasAccess) {
