@@ -24,7 +24,7 @@ export type Ceremony = {
   downloadUrl?: string;
   featured: boolean;
   mediaUrl?: string;
-  mediaType?: 'image' | 'video';
+  mediaType?: 'image' | 'video' | 'short video';
   videoFit?: 'cover' | 'contain';
   autoplay?: boolean;
   defaultMuted?: boolean;

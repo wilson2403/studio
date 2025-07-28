@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -50,7 +51,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   featured: z.boolean(),
   features: z.array(z.object({ value: z.string().min(1, 'La característica no puede estar vacía') })),
   mediaUrl: z.string().optional(),
-  mediaType: z.enum(['image', 'video']).default('image'),
+  mediaType: z.enum(['image', 'video', 'short video']).default('image'),
   videoFit: z.enum(['cover', 'contain']).default('cover'),
   autoplay: z.boolean().default(false),
   defaultMuted: z.boolean().default(true),
@@ -506,6 +507,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
                                         <SelectContent>
                                             <SelectItem value="image">{t('formImageType')}</SelectItem>
                                             <SelectItem value="video">{t('formVideoType')}</SelectItem>
+                                            <SelectItem value="short video">Short Video</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormMessage />

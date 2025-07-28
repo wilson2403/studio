@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Image from 'next/image';
@@ -14,7 +15,7 @@ const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
 const getYoutubeEmbedUrl = (url: string, autoplay: boolean): string | null => {
   if (!url) return null;
-  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = url.match(youtubeRegex);
   const videoId = match ? match[1] : null;
   if (!videoId) return null;
@@ -333,10 +334,10 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     const url = videoUrl || '';
 
     const embedUrl = 
-        getYoutubeEmbedUrl(url, !!autoplay) ||
-        getTikTokEmbedUrl(url, !!autoplay) ||
-        getFacebookEmbedUrl(url, !!autoplay) ||
-        getStreamableEmbedUrl(url, !!autoplay);
+        (mediaType === 'video' || mediaType === 'short video') && getYoutubeEmbedUrl(url, !!autoplay)
+        || getTikTokEmbedUrl(url, !!autoplay)
+        || getFacebookEmbedUrl(url, !!autoplay)
+        || getStreamableEmbedUrl(url, !!autoplay);
 
     if (embedUrl) {
        return <IframePlayer src={embedUrl} title={title} className={className} onPlay={handlePlay} />;
@@ -376,7 +377,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
 interface VideoPlayerProps {
   ceremonyId: string;
   videoUrl?: string;
-  mediaType?: 'image' | 'video';
+  mediaType?: 'image' | 'video' | 'short video';
   videoFit?: 'cover' | 'contain';
   autoplay?: boolean;
   title: string;
