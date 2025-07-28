@@ -36,27 +36,37 @@ export default function SingleCeremonyPage() {
 
     
     useEffect(() => {
-        if (id) {
-            const fetchCeremony = async () => {
+        const fetchCeremonyData = async () => {
+            if (id) {
                 setLoading(true);
-                const data = await getCeremonyById(id);
-                setCeremony(data);
-                if (data && data.plans && data.plans.length > 0) {
-                  const defaultPlan = data.priceType === 'exact' ? data.plans[0] : null;
-                  setSelectedPlan(defaultPlan);
+                try {
+                    const data = await getCeremonyById(id);
+                    setCeremony(data);
+                    if (data?.plans?.length) {
+                        const defaultPlan = data.priceType === 'exact' ? data.plans[0] : null;
+                        setSelectedPlan(defaultPlan);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch ceremony", error);
+                } finally {
+                    setLoading(false);
                 }
-                setLoading(false);
-            };
-            fetchCeremony();
-        }
+            }
+        };
+
+        fetchCeremonyData();
         
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
             if (currentUser) {
-                const profile = await getUserProfile(currentUser.uid);
-                setUserProfile(profile);
-                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && !!profile?.permissions?.canEditCeremonies);
-                setIsAdmin(hasPermission);
+                try {
+                    const profile = await getUserProfile(currentUser.uid);
+                    setUserProfile(profile);
+                    const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && !!profile?.permissions?.canEditCeremonies);
+                    setIsAdmin(hasPermission);
+                } catch (error) {
+                    console.error("Failed to fetch user profile", error);
+                }
             } else {
                 setUserProfile(null);
                 setIsAdmin(false);
@@ -66,8 +76,13 @@ export default function SingleCeremonyPage() {
 
     }, [id]);
     
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.includes(id) || false;
-    const assignedPlan = ceremony?.plans?.find(p => userProfile?.assignedCeremonies?.some(c => c.ceremonyId === ceremony.id && c.planId === p.id));
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => typeof ac === 'string' ? ac === id : ac.ceremonyId === id) || false;
+    
+    const assignedPlan = ceremony?.plans?.find(p => 
+        userProfile?.assignedCeremonies?.some(ac => 
+            typeof ac !== 'string' && ac.ceremonyId === ceremony.id && ac.planId === p.id
+        )
+    );
 
 
     const handleShare = async () => {
@@ -297,3 +312,5 @@ export default function SingleCeremonyPage() {
         </EditableProvider>
     );
 }
+
+    
