@@ -116,6 +116,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     if (ceremony && isEditMode) {
       form.reset({
         ...ceremony,
+        downloadUrl: ceremony.downloadUrl || '',
         features: ceremony.features.map(f => ({ value: f })),
         plans: ceremony.plans?.map(p => ({...p, id: p.id || uuidv4() }))
       });
