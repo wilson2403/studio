@@ -70,10 +70,22 @@ const isDirectVideoUrl = (url: string): boolean => {
 const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: string, className?: string, onPlay: () => void }) => {
     const [isLoading, setIsLoading] = useState(true);
     const hasPlayed = useRef(false);
+    const isAdmin = useRef(false);
+    
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const user = auth.currentUser;
+            if (user) {
+                const profile = await getUserProfile(user.uid);
+                isAdmin.current = !!profile?.role;
+            }
+        };
+        checkAdmin();
+    }, []);
 
     const handleLoad = () => {
         setIsLoading(false);
-        if (!hasPlayed.current) {
+        if (!hasPlayed.current && !isAdmin.current) {
             onPlay();
             hasPlayed.current = true;
         }
@@ -111,15 +123,27 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
     const hasPlayed = useRef(false);
     const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
     const [isIntersecting, setIntersecting] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const user = auth.currentUser;
+            if(user) {
+                const profile = await getUserProfile(user.uid);
+                setIsAdmin(profile?.role === 'admin');
+            }
+        };
+        checkAdmin();
+    }, []);
+    
     const observer = useRef<IntersectionObserver | null>(null);
 
     const handlePlay = useCallback(() => {
-        if (!hasPlayed.current) {
+        if (!hasPlayed.current && !isAdmin) {
             onPlay();
             hasPlayed.current = true;
         }
-    }, [onPlay]);
+    }, [onPlay, isAdmin]);
     
     useEffect(() => {
         const video = videoRef.current;
@@ -146,16 +170,16 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
         if (isIntersecting) {
             const playPromise = video.play();
             if (playPromise !== undefined) {
-                playPromise.then(handlePlay).catch(error => {
+                playPromise.catch(error => {
                     if (error.name !== 'AbortError') {
-                        console.error('Error attempting to play video:', error);
+                        console.error('Error attempting to autoplay video:', error);
                     }
                 });
             }
         } else {
             video.pause();
         }
-    }, [isIntersecting, autoplay, handlePlay]);
+    }, [isIntersecting, autoplay]);
 
 
     if (!src) {
@@ -194,7 +218,6 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
         if(video) {
             const handlePlayEvent = () => {
                 setIsPlaying(true);
-                handlePlay();
                 startProgressTracking();
             };
             const handlePauseEvent = () => {
@@ -222,7 +245,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
                 stopProgressTracking();
             }
         }
-    }, [handlePlay, trackProgress, userId, videoId]);
+    }, [trackProgress, userId, videoId]);
 
     useEffect(() => {
       if(videoRef.current) {
@@ -237,6 +260,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
             if (video.paused) {
                 video.play();
                 setIsMuted(false);
+                handlePlay(); // Explicit user interaction
             } else {
                 video.pause();
             }
