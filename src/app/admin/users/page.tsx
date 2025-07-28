@@ -101,7 +101,6 @@ export default function AdminUsersPage() {
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
     const [ceremonyInvitationTemplates, setCeremonyInvitationTemplates] = useState<CeremonyInvitationMessage[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
-    const [invitingToCeremonyUser, setInvitingToCeremonyUser] = useState<UserProfile | null>(null);
     const [assigningUser, setAssigningUser] = useState<UserProfile | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
     const [analytics, setAnalytics] = useState<SectionAnalytics[]>([]);
@@ -563,16 +562,9 @@ export default function AdminUsersPage() {
                                                     <Video className="mr-2 h-4 w-4" />{t('viewCourses')} ({getCourseProgressPercentage(u)}%)
                                                 </Button>
                                                 {u.phone && (
-                                                    <>
-                                                        <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
-                                                            <WhatsappIcon className="mr-2 h-4 w-4"/>{t('inviteQuestionnaireButton')}
-                                                        </Button>
-                                                        {u.assignedCeremonies && u.assignedCeremonies.length > 0 && (
-                                                            <Button variant="outline" size="sm" onClick={() => setInvitingToCeremonyUser(u)}>
-                                                                <SendHorizonal className="mr-2 h-4 w-4"/>{t('inviteToCeremonyButton')}
-                                                            </Button>
-                                                        )}
-                                                    </>
+                                                    <Button variant="outline" size="sm" onClick={() => setInvitingUser(u)}>
+                                                        <WhatsappIcon className="mr-2 h-4 w-4"/>{t('inviteQuestionnaireButton')}
+                                                    </Button>
                                                 )}
                                                 {((u.preparationStep !== undefined && u.preparationStep > 0) || u.questionnaireCompleted) && (
                                                     <Button variant="outline" size="sm" onClick={() => setViewingUserQuestionnaire(u)}>
@@ -938,13 +930,6 @@ export default function AdminUsersPage() {
                     isOpen={!!assigningUser}
                     onClose={() => setAssigningUser(null)}
                     onUpdate={handleCeremonyAssignmentUpdate}
-                />
-            )}
-            {invitingToCeremonyUser && (
-                <InviteToCeremonyDialog
-                    user={invitingToCeremonyUser}
-                    isOpen={!!invitingToCeremonyUser}
-                    onClose={() => setInvitingToCeremonyUser(null)}
                     invitationTemplates={ceremonyInvitationTemplates}
                 />
             )}
@@ -979,6 +964,7 @@ export default function AdminUsersPage() {
 
 
     
+
 
 
 
