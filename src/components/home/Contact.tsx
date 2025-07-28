@@ -17,12 +17,6 @@ export default function Contact() {
     const { t } = useTranslation();
     const { content, fetchContent } = useEditable();
     
-    const [communityLink, setCommunityLink] = useState('');
-    const [instagramUrl, setInstagramUrl] = useState('');
-    const [facebookUrl, setFacebookUrl] = useState('');
-    const [tiktokUrl, setTiktokUrl] = useState('');
-    const [whatsappNumber, setWhatsappNumber] = useState('');
-
     const initialValues = {
         whatsappCommunityLink: 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ',
         instagramUrl: 'https://www.instagram.com/elartedesanarcr',
@@ -30,6 +24,12 @@ export default function Contact() {
         tiktokUrl: 'https://www.tiktok.com/@elartedesanarcr',
         whatsappNumber: '50687992560'
     };
+    
+    const [communityLink, setCommunityLink] = useState(initialValues.whatsappCommunityLink);
+    const [instagramUrl, setInstagramUrl] = useState(initialValues.instagramUrl);
+    const [facebookUrl, setFacebookUrl] = useState(initialValues.facebookUrl);
+    const [tiktokUrl, setTiktokUrl] = useState(initialValues.tiktokUrl);
+    const [whatsappNumber, setWhatsappNumber] = useState(initialValues.whatsappNumber);
 
     useEffect(() => {
         Object.entries(initialValues).forEach(([id, fallback]) => {
