@@ -84,7 +84,7 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
               ) : ceremonies.length > 0 ? (
                 ceremonies.map(ceremony => {
                   const isAssigned = selectedCeremonies.includes(ceremony.id);
-                  const isInviteable = isAssigned && ceremony.status === 'active' && user.phone;
+                  const isInviteable = !!user.phone;
                   return (
                     <div key={ceremony.id} className="flex items-center space-x-3 rounded-md border p-3">
                       <Checkbox
