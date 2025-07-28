@@ -77,7 +77,7 @@ export default function SingleCeremonyPage() {
 
     }, [id]);
     
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => typeof ac === 'string' ? ac === id : ac.ceremonyId === ceremony?.id) || false;
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => ac === id) || false;
 
     const assignedPlan = ceremony?.plans?.find(p => 
         userProfile?.assignedCeremonies?.some(ac => 

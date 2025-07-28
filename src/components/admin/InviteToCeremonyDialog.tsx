@@ -59,7 +59,7 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
       <DialogContent>
         <DialogHeader>
             <DialogTitle>
-                <EditableTitle tag="p" id="inviteToCeremonyTitle" initialValue={t('inviteToCeremonyTitle')} />
+                <EditableTitle tag="h3" id="inviteToCeremonyTitle" initialValue={t('inviteToCeremonyTitle')} />
             </DialogTitle>
             <DialogDescription>
                 <EditableTitle
@@ -73,7 +73,7 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
            {invitationTemplates.length > 0 ? (
               <div className="space-y-2">
                 <Label htmlFor="template-select">
-                    <EditableTitle tag="p" id="selectTemplate" initialValue={t('selectTemplate')} />
+                    <EditableTitle tag="span" id="selectTemplate" initialValue={t('selectTemplate')} />
                 </Label>
                 <Select
                     value={selectedTemplate ? JSON.stringify(selectedTemplate) : ''}
@@ -108,6 +108,3 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
     </Dialog>
   );
 }
-
-
-    
