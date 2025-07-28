@@ -23,7 +23,6 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const { isAdmin, content, updateContent, fetchContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({ es: '', en: '' });
-  const [displayValue, setDisplayValue] = useState(initialValue);
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'es' | 'en';
@@ -34,31 +33,21 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     }
   }, [id, initialValue, fetchContent]);
 
-  useEffect(() => {
-    const contentValue = content[id];
-    let newDisplayValue: string;
-    
-    if (typeof contentValue === 'object' && contentValue !== null) {
-        newDisplayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
-    } else if (typeof contentValue === 'string') {
-        newDisplayValue = contentValue;
-    } else {
-        newDisplayValue = initialValue;
-    }
-    // Update displayValue only if it's different from the initial translation key.
-    // This prevents showing the key while translations are loading.
-    if(newDisplayValue !== id) {
-       setDisplayValue(newDisplayValue);
-    }
-  }, [content, id, lang, initialValue]);
+  const contentValue = content[id];
+  let displayValue: string;
 
-  // A secondary effect to ensure the translation is applied once i18n is ready.
-  useEffect(() => {
-    if(displayValue === id || displayValue === initialValue) {
-       setDisplayValue(t(initialValue));
-    }
-  }, [t, initialValue, displayValue, id]);
+  if (typeof contentValue === 'object' && contentValue !== null) {
+      displayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
+  } else if (typeof contentValue === 'string') {
+      displayValue = contentValue;
+  } else {
+      displayValue = initialValue;
+  }
 
+  // Fallback to translation if display value is still the key
+  if (displayValue === id) {
+      displayValue = t(initialValue);
+  }
   
   const handleSave = async () => {
     const newContentValue = { ...editValues };
@@ -89,7 +78,6 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
         esValue = (currentContent as any).es || '';
         enValue = (currentContent as any).en || '';
     } else if (typeof currentContent === 'string') {
-        // Handle case where it might be a simple string
         esValue = currentContent;
         enValue = currentContent;
     }

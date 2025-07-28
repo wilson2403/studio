@@ -1,7 +1,8 @@
+
 'use client';
 
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { auth } from '@/lib/firebase/config';
 import { getContent, setContent } from '@/lib/firebase/firestore';
 
@@ -40,28 +41,37 @@ export const EditableProvider = ({ children }: { children: React.ReactNode }) =>
     return () => unsubscribe();
   }, []);
 
-  const fetchContent = async (id: string, initialValue: string) => {
-    if (!id) return; // Guard clause to prevent error
-    const existingValue = await getContent(id);
+  const fetchContent = useCallback(async (id: string, initialValue: string) => {
+    if (!id || content[id]) return; 
+
     setContentState((prev) => ({
-      ...prev,
-      [id]: existingValue ?? initialValue,
+        ...prev,
+        [id]: initialValue,
     }));
-  };
+    
+    try {
+        const existingValue = await getContent(id);
+        if (existingValue !== null) {
+            setContentState((prev) => ({
+                ...prev,
+                [id]: existingValue,
+            }));
+        }
+    } catch (error) {
+        console.warn(`Could not fetch content for id "${id}" offline. Using initial value.`);
+    }
+  }, [content]);
 
   const updateContent = async (id: string, value: ContentObject) => {
-    // Update local state for immediate feedback
     setContentState((prev) => ({
         ...prev,
         [id]: value,
     }));
 
     try {
-        // Save the full object to Firestore
         await setContent(id, value);
     } catch (error) {
         console.error("Failed to save content:", error);
-        // Optionally, revert state or show an error to the user
     }
   };
 
