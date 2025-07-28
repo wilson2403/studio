@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Bot, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllChats, Chat } from '@/lib/firebase/firestore';
+import { getAllChats, Chat, getUserProfile } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -40,8 +40,15 @@ export default function AdminChatHistoryPage() {
                 router.push('/');
                 return;
             }
-            // Simple check if it's admin. A more robust solution would use user profile roles.
-            // For now, we assume only the admin would know this URL.
+            
+            const profile = await getUserProfile(currentUser.uid);
+            const isAuthorized = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canViewChatHistory);
+
+            if (!isAuthorized) {
+                router.push('/');
+                return;
+            }
+            
             await fetchChats();
             setLoading(false);
         });

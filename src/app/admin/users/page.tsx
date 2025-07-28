@@ -410,6 +410,7 @@ export default function AdminUsersPage() {
 
     const isSuperAdmin = currentUserProfile?.role === 'admin';
     const canEditUsers = isSuperAdmin || !!currentUserProfile?.permissions?.canEditUsers;
+    const canViewChatHistory = isSuperAdmin || !!currentUserProfile?.permissions?.canViewChatHistory;
 
 
     if (loading) {
@@ -547,6 +548,10 @@ export default function AdminUsersPage() {
                                                                 <Checkbox id={`perm-users-${u.uid}`} checked={u.permissions?.canEditUsers} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canEditUsers', !!checked)} disabled={!isSuperAdmin}/>
                                                                 <Label htmlFor={`perm-users-${u.uid}`}>{t('permission_canEditUsers')}</Label>
                                                             </div>
+                                                             <div className="flex items-center space-x-2">
+                                                                <Checkbox id={`perm-chats-${u.uid}`} checked={u.permissions?.canViewChatHistory} onCheckedChange={(checked) => handlePermissionsChange(u.uid, 'canViewChatHistory', !!checked)} disabled={!isSuperAdmin}/>
+                                                                <Label htmlFor={`perm-chats-${u.uid}`}>{t('permission_canViewChatHistory')}</Label>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 )}
@@ -571,7 +576,7 @@ export default function AdminUsersPage() {
                                                         <FileText className="mr-2 h-4 w-4"/>{t('viewQuestionnaire')}
                                                     </Button>
                                                 )}
-                                                {u.hasChats && (
+                                                {u.hasChats && canViewChatHistory && (
                                                     <Button variant="outline" size="sm" onClick={() => setViewingUserChats(u)}>
                                                         <Bot className="mr-2 h-4 w-4"/>{t('viewAIChats')}
                                                     </Button>
@@ -964,6 +969,7 @@ export default function AdminUsersPage() {
 
 
     
+
 
 
 

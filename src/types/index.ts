@@ -71,6 +71,7 @@ export type UserProfile = {
         canEditCeremonies?: boolean;
         canEditCourses?: boolean;
         canEditUsers?: boolean;
+        canViewChatHistory?: boolean;
     };
     questionnaireCompleted?: boolean;
     status?: UserStatus;
@@ -252,4 +253,3 @@ export type AuditLog = {
     timestamp: Timestamp;
     page: string; // The page where the action was performed
 }
-
