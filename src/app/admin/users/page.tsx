@@ -836,8 +836,8 @@ export default function AdminUsersPage() {
                     <Card className="bg-card/50 backdrop-blur-sm">
                         <CardHeader>
                             <CardTitle>{t('analyticsTitle')}</CardTitle>
-                            <CardDescription>{t('analyticsDescription')}</CardHeader>
-                        </CardContent>
+                            <CardDescription>{t('analyticsDescription')}</CardDescription>
+                        </CardHeader>
                         <CardContent>
                             {loadingAnalytics ? (
                                 <Skeleton className="h-64 w-full" />
