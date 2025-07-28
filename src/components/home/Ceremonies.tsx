@@ -28,7 +28,8 @@ export default function Ceremonies({
   titleId,
   titleInitialValue,
   subtitleId,
-  subtitleInitialValue
+  subtitleInitialValue,
+  hideDownloadButton = false,
 }: CeremoniesProps) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -293,7 +294,7 @@ export default function Ceremonies({
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
                               <Expand className="h-4 w-4" />
                           </Button>
-                           {ceremony.downloadUrl && (
+                           {!hideDownloadButton && ceremony.downloadUrl && (
                                 <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download onClick={(e) => e.stopPropagation()}>
                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                                         <Download className="h-4 w-4" />
@@ -470,5 +471,6 @@ interface CeremoniesProps {
     titleInitialValue: string;
     subtitleId?: string;
     subtitleInitialValue?: string;
+    hideDownloadButton?: boolean;
 }
 

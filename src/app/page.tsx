@@ -24,6 +24,7 @@ export default function Home() {
         id="eventos-anteriores"
         titleId="pastEventsTitle"
         titleInitialValue={t('pastEventsTitle')}
+        hideDownloadButton={true}
       />
       <ExploreMore />
       <Contact />
