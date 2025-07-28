@@ -25,6 +25,7 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean): string | null => {
     controls: '1',
     playlist: videoId,
     mute: '0',
+    vq: 'hd1080',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
