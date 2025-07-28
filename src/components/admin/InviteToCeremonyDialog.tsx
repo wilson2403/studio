@@ -10,6 +10,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { WhatsappIcon } from '../icons/WhatsappIcon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
+import { EditableTitle } from '../home/EditableTitle';
 
 interface InviteToCeremonyDialogProps {
   user: UserProfile;
@@ -67,13 +68,23 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('inviteToCeremonyTitle')}</DialogTitle>
-          <DialogDescription>{t('inviteToCeremonyFor', { name: user.displayName || user.email, ceremony: ceremony.title })}</DialogDescription>
+            <DialogTitle>
+                <EditableTitle tag="h3" id="inviteToCeremonyTitle" initialValue={t('inviteToCeremonyTitle')} />
+            </DialogTitle>
+            <DialogDescription>
+                <EditableTitle
+                    tag="p"
+                    id="inviteToCeremonyFor"
+                    initialValue={t('inviteToCeremonyFor', { name: user.displayName || user.email, ceremony: ceremony.title })}
+                />
+            </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
            {invitationTemplates.length > 0 ? (
               <div className="space-y-2">
-                <Label htmlFor="template-select">{t('selectTemplate')}</Label>
+                <Label htmlFor="template-select">
+                    <EditableTitle tag="p" id="selectTemplate" initialValue={t('selectTemplate')} />
+                </Label>
                 <Select
                     value={selectedTemplate ? JSON.stringify(selectedTemplate) : ''}
                     onValueChange={(value) => setSelectedTemplate(JSON.parse(value))}
