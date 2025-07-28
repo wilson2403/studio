@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
+import { getCeremonyBySlug, getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -40,7 +40,12 @@ export default function SingleCeremonyPage() {
             if (id) {
                 setLoading(true);
                 try {
-                    const data = await getCeremonyById(id);
+                    // Try fetching by slug first, then by ID as a fallback
+                    let data = await getCeremonyBySlug(id);
+                    if (!data) {
+                        data = await getCeremonyById(id);
+                    }
+
                     setCeremony(data);
                     if (data?.plans?.length) {
                         const defaultPlan = data.priceType === 'exact' ? data.plans[0] : null;
@@ -76,8 +81,8 @@ export default function SingleCeremonyPage() {
 
     }, [id]);
     
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => typeof ac === 'string' ? ac === id : ac.ceremonyId === id) || false;
-    
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => typeof ac === 'string' ? ac === id : ac.ceremonyId === ceremony?.id) || false;
+
     const assignedPlan = ceremony?.plans?.find(p => 
         userProfile?.assignedCeremonies?.some(ac => 
             typeof ac !== 'string' && ac.ceremonyId === ceremony.id && ac.planId === p.id
@@ -312,5 +317,3 @@ export default function SingleCeremonyPage() {
         </EditableProvider>
     );
 }
-
-    

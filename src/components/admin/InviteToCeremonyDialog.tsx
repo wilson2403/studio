@@ -19,6 +19,15 @@ interface InviteToCeremonyDialogProps {
   invitationTemplates: CeremonyInvitationMessage[];
 }
 
+// Function to generate a URL-friendly slug from a title
+const createSlug = (title: string) => {
+    return title
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // remove non-word chars
+        .replace(/[\s_-]+/g, '-') // collapse whitespace and replace by -
+        .replace(/^-+|-+$/g, ''); // remove leading/trailing dashes
+};
+
 export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose, invitationTemplates }: InviteToCeremonyDialogProps) {
   const { t, i18n } = useTranslation();
   const [selectedTemplate, setSelectedTemplate] = useState<CeremonyInvitationMessage | null>(null);
@@ -36,12 +45,15 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
 
     const lang = i18n.language as 'es' | 'en';
     let message = selectedTemplate[lang] || selectedTemplate.es;
+    
+    const ceremonySlug = createSlug(ceremony.title);
+    const ceremonyLink = `${window.location.origin}/ceremonias/${ceremonySlug}`;
 
     message = message.replace(/{{userName}}/g, user.displayName || 'participante');
     message = message.replace(/{{ceremonyTitle}}/g, ceremony.title || '');
     message = message.replace(/{{ceremonyDate}}/g, ceremony.date || '');
     message = message.replace(/{{ceremonyHorario}}/g, ceremony.horario || '');
-    message = message.replace(/{{ceremonyLink}}/g, `${window.location.origin}/ceremonias/${ceremony.id}`);
+    message = message.replace(/{{ceremonyLink}}/g, ceremonyLink);
     message = message.replace(/{{locationLink}}/g, ceremony.locationLink || '');
     
     const phoneNumber = user.phone.replace(/\D/g, '');
@@ -95,5 +107,3 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
     </Dialog>
   );
 }
-
-    

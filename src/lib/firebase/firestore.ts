@@ -271,6 +271,28 @@ export const getCeremonyById = async (id: string): Promise<Ceremony | null> => {
     }
 }
 
+// Function to generate a URL-friendly slug from a title
+const createSlug = (title: string) => {
+    return title
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // remove non-word chars
+        .replace(/[\s_-]+/g, '-') // collapse whitespace and replace by -
+        .replace(/^-+|-+$/g, ''); // remove leading/trailing dashes
+};
+
+
+export const getCeremonyBySlug = async (slug: string): Promise<Ceremony | null> => {
+    try {
+        const allCeremonies = await getCeremonies();
+        const foundCeremony = allCeremonies.find(c => createSlug(c.title) === slug);
+        return foundCeremony || null;
+    } catch (error) {
+        console.error("Error getting ceremony by slug: ", error);
+        logError(error, { function: 'getCeremonyBySlug', slug });
+        return null;
+    }
+}
+
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
