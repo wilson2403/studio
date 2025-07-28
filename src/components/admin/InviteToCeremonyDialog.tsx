@@ -46,7 +46,7 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
     const lang = i18n.language as 'es' | 'en';
     let message = selectedTemplate[lang] || selectedTemplate.es;
     
-    const ceremonySlug = createSlug(ceremony.title);
+    const ceremonySlug = ceremony.id; // Use ID for a stable link
     const ceremonyLink = `${window.location.origin}/ceremonias/${ceremonySlug}`;
 
     message = message.replace(/{{userName}}/g, user.displayName || 'participante');
