@@ -241,7 +241,7 @@ export default function AllCeremoniesPage() {
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
-                        {getButtonText('addCeremony', 'Agregar Ceremonia')}
+                        {getButtonText('addCeremony', 'addCeremony')}
                     </Button>
                     )}
                 </div>
@@ -321,9 +321,9 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
+                                                {isAssigned ? getButtonText('buttonViewDetails', 'buttonViewDetails') : t('reserveNow')}
                                             </Button>
-                                        ) : isAssigned ? (
+                                        ) : ceremony.status === 'finished' && isAssigned ? (
                                             <Button asChild variant="default" className='w-full'>
                                                 <Link href={`/artesanar/${ceremony.id}`}>
                                                   <Video className="mr-2 h-4 w-4"/>
@@ -390,3 +390,4 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
