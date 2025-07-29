@@ -63,6 +63,7 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [navLoading, setNavLoading] = useState(true);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const previousPathname = usePrevious(pathname);
@@ -106,8 +107,15 @@ export default function Header() {
     });
 
     const fetchNavSettings = async () => {
-        const settings = await getSystemSettings();
-        setNavSettings(settings.navLinks);
+        setNavLoading(true);
+        try {
+            const settings = await getSystemSettings();
+            setNavSettings(settings.navLinks);
+        } catch (error) {
+            console.error("Failed to fetch nav settings:", error);
+        } finally {
+            setNavLoading(false);
+        }
     };
 
     fetchNavSettings();
@@ -329,8 +337,18 @@ export default function Header() {
             </Link>
           </div>
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {visiblePublicLinks.map(getNavLink)}
-            {user && visibleUserLinks.map(getNavLink)}
+             {navLoading ? (
+                <>
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
+                </>
+            ) : (
+                <>
+                    {visiblePublicLinks.map(getNavLink)}
+                    {user && visibleUserLinks.map(getNavLink)}
+                </>
+            )}
           </nav>
           <div className="flex flex-1 items-center justify-end space-x-2">
             <ThemeSwitcher />
@@ -429,8 +447,18 @@ export default function Header() {
                           <DropdownMenuSeparator />
                         </>
                       )}
-                      {visiblePublicLinks.map(getMobileNavLink)}
-                      {user && visibleUserLinks.map(getMobileNavLink)}
+                      {navLoading ? (
+                        <>
+                            <Skeleton className="h-7 w-24" />
+                            <Skeleton className="h-7 w-24" />
+                            <Skeleton className="h-7 w-24" />
+                        </>
+                       ) : (
+                         <>
+                            {visiblePublicLinks.map(getMobileNavLink)}
+                            {user && visibleUserLinks.map(getMobileNavLink)}
+                         </>
+                       )}
                     </nav>
                   </div>
                 </ScrollArea>
