@@ -1342,7 +1342,12 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
             where('consent', '==', true)
         );
         const snapshot = await getDocs(q);
-        const testimonials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial));
+        const testimonials = snapshot.docs.map(doc => {
+            const data = doc.data();
+            // Manually convert Firestore Timestamp to JS Date
+            const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
+            return { id: doc.id, ...data, createdAt } as Testimonial
+        });
         
         // Sort in-memory to avoid composite index
         testimonials.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
