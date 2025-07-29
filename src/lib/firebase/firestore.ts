@@ -485,67 +485,38 @@ export const deleteGuide = async (id: string): Promise<void> => {
 
 
 // --- Firebase Storage ---
+export const uploadMedia = (file: File, onProgress: (progress: number) => void, path: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            return reject(new Error("No file provided for upload."));
+        }
+        const storageRef = ref(storage, `${path}/${Date.now()}-${file.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                onProgress(progress);
+            },
+            (error) => {
+                console.error("Upload failed:", error);
+                logError(error, { function: 'uploadMedia', path });
+                reject(error);
+            },
+            () => {
+                getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
+            }
+        );
+    });
+};
 
 export const uploadImage = (file: File, onProgress: (progress: number) => void): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-        return reject(new Error("No file provided for upload."));
-    }
-    const storageRef = ref(storage, `images/${Date.now()}-${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        onProgress(progress);
-      },
-      (error) => {
-        console.error("Image upload failed:", error);
-        logError(error, { function: 'uploadImage' });
-        reject(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          resolve(downloadURL);
-        }).catch(reject);
-      }
-    );
-  });
+  return uploadMedia(file, onProgress, 'images');
 };
 
 export const uploadVideo = (file: File, onProgress: (progress: number) => void, path: string = 'videos'): Promise<string> => {
-  return new Promise((resolve, reject) => {
-     if (!file) {
-        return reject(new Error("No file provided for upload."));
-    }
-    const storageRef = ref(storage, `${path}/${Date.now()}-${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        onProgress(progress);
-      },
-      (error) => {
-        console.error("Video upload failed:", error);
-        logError(error, { function: 'uploadVideo' });
-        reject(error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref)
-          .then((downloadURL) => {
-            resolve(downloadURL);
-          })
-          .catch((error) => {
-            console.error("Failed to get download URL:", error);
-            logError(error, { function: 'getDownloadURL' });
-            reject(error);
-          });
-      }
-    );
-  });
+  return uploadMedia(file, onProgress, path);
 };
 
 // --- User Profile ---
@@ -1387,5 +1358,3 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
 
 export type { Chat };
 export type { UserProfile };
-
-    
