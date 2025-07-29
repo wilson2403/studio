@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -13,13 +12,13 @@ import {
   DialogClose,
 } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getQuestionnaire, QuestionnaireAnswers } from '@/lib/firebase/firestore';
+import { getQuestionnaire, QuestionnaireAnswers, UserProfile } from '@/lib/firebase/firestore';
 import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import { User } from 'firebase/auth';
 
 interface ViewAnswersDialogProps {
-  user: User;
+  user: User | UserProfile;
   isOpen: boolean;
   onClose: () => void;
 }

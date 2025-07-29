@@ -38,6 +38,7 @@ import ViewUserChatsDialog from '@/components/admin/ViewUserChatsDialog';
 import { Label } from '@/components/ui/label';
 import ViewUserAuditLogDialog from '@/components/admin/ViewUserAuditLogDialog';
 import InviteToCeremonyDialog from '@/components/admin/InviteToCeremonyDialog';
+import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -93,14 +94,14 @@ const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMe
 
 const defaultCeremonyInvitationMessage = (t: (key: string) => string): Omit<CeremonyInvitationMessage, 'id'> => ({
     name: t('defaultCeremonyInvitationName'),
-    es: '¡Hola {{userName}}! Te confirmamos tu inscripción a la ceremonia "{{ceremonyTitle}}" del {{ceremonyDate}} a las {{ceremonyHorario}}. Aquí tienes el enlace con los detalles y la ubicación: {{ceremonyLink}}.\n\nUbicación: {{locationLink}}\n\n¡Te esperamos!',
-    en: 'Hello {{userName}}! We are confirming your registration for the "{{ceremonyTitle}}" ceremony on {{ceremonyDate}} at {{ceremonyHorario}}. Here is the link with the details and location: {{ceremonyLink}}.\n\nLocation: {{locationLink}}\n\nWe look forward to seeing you!',
+    es: '¡Hola {{userName}}! Te confirmamos tu inscripción a la ceremonia "{{ceremonyTitle}}" del {{ceremonyDate}} a las {{ceremonyHorario}}. Aquí tienes el enlace con los detalles y la ubicación: {{ceremonyLink}}.\\n\\nUbicación: {{locationLink}}\\n\\n¡Te esperamos!',
+    en: 'Hello {{userName}}! We are confirming your registration for the "{{ceremonyTitle}}" ceremony on {{ceremonyDate}} at {{ceremonyHorario}}. Here is the link with the details and location: {{ceremonyLink}}.\\n\\nLocation: {{locationLink}}\\n\\nWe look forward to seeing you!',
 });
 
 const defaultShareMemoryMessage = (t: (key: string) => string): Omit<ShareMemoryMessage, 'id'> => ({
     name: t('defaultShareMemoryName'),
-    es: '¡Hola {{userName}}! ✨ Esperamos que te encuentres muy bien. Queríamos compartir contigo el recuerdo en video de la ceremonia "{{ceremonyTitle}}". ¡Fue un honor compartir ese espacio sagrado contigo!\n\nPuedes verlo aquí: {{memoryLink}}\n\nCon cariño,\nEl equipo de El Arte de Sanar',
-    en: 'Hello {{userName}}! ✨ We hope you are doing well. We wanted to share the video memory of the "{{ceremonyTitle}}" ceremony with you. It was an honor to share that sacred space with you!\n\nYou can watch it here: {{memoryLink}}\n\nWith love,\nThe El Arte de Sanar Team',
+    es: '¡Hola {{userName}}! ✨ Esperamos que te encuentres muy bien. Queríamos compartir contigo el recuerdo en video de la ceremonia "{{ceremonyTitle}}". ¡Fue un honor compartir ese espacio sagrado contigo!\\n\\nPuedes verlo aquí: {{memoryLink}}\\n\\nCon cariño,\\nEl equipo de El Arte de Sanar',
+    en: 'Hello {{userName}}! ✨ We hope you are doing well. We wanted to share the video memory of the "{{ceremonyTitle}}" ceremony with you. It was an honor to share that sacred space with you!\\n\\nYou can watch it here: {{memoryLink}}\\n\\nWith love,\\nThe El Arte de Sanar Team',
 });
 
 
@@ -294,7 +295,7 @@ export default function AdminUsersPage() {
         const message = template?.[lang] || template?.es;
         const encodedMessage = encodeURIComponent(message);
         
-        const phoneNumber = invitingUser.phone.replace(/\D/g, '');
+        const phoneNumber = invitingUser.phone.replace(/\\D/g, '');
         const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
         
         window.open(url, '_blank');
@@ -1040,7 +1041,7 @@ export default function AdminUsersPage() {
                 </TabsContent>
             </Tabs>
             {viewingUserQuestionnaire && (
-                <TestimonialDialog 
+                <ViewAnswersDialog
                     user={viewingUserQuestionnaire} 
                     isOpen={!!viewingUserQuestionnaire} 
                     onClose={() => setViewingUserQuestionnaire(null)}
@@ -1115,17 +1116,110 @@ export default function AdminUsersPage() {
     );
 }
 
-
     
+```
+  </change>
+  <change>
+    <file>src/components/questionnaire/ViewAnswersDialog.tsx</file>
+    <content><![CDATA[
+'use client';
 
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getQuestionnaire, QuestionnaireAnswers, UserProfile } from '@/lib/firebase/firestore';
+import { ScrollArea } from '../ui/scroll-area';
+import { Button } from '../ui/button';
+import { User } from 'firebase/auth';
 
+interface ViewAnswersDialogProps {
+  user: User | UserProfile;
+  isOpen: boolean;
+  onClose: () => void;
+}
 
+export default function ViewAnswersDialog({ user, isOpen, onClose }: ViewAnswersDialogProps) {
+  const [answers, setAnswers] = useState<QuestionnaireAnswers | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
+  useEffect(() => {
+    if (isOpen && user) {
+      const fetchAnswers = async () => {
+        setLoading(true);
+        const data = await getQuestionnaire(user.uid);
+        setAnswers(data);
+        setLoading(false);
+      };
+      fetchAnswers();
+    }
+  }, [isOpen, user]);
 
+  const renderAnswer = (label: string, value?: string, details?: string) => {
+    if (value === undefined && details === undefined) return null;
 
+    let displayValue: string;
+    if (value) {
+        displayValue = t(value);
+    } else {
+        displayValue = details || t('noDetailsProvided');
+    }
 
-    
-
-    
-
-    
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 py-3 border-b">
+        <dt className="font-semibold text-foreground/90 md:col-span-1">{label}</dt>
+        <dd className="text-muted-foreground md:col-span-2">
+          {value && <span className={`font-medium ${value === 'yes' ? 'text-destructive' : 'text-primary'}`}>{displayValue}</span>}
+          {details && <p className="mt-1 text-sm whitespace-pre-wrap">{details}</p>}
+        </dd>
+      </div>
+    );
+  };
+  
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>{t('myQuestionnaireAnswers')}</DialogTitle>
+          <DialogDescription>{t('myQuestionnaireAnswersDescription')}</DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="max-h-[60vh] p-1">
+            <div className="py-4 pr-4">
+            {loading ? (
+                <div className="space-y-4">
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-8 w-full" />
+                </div>
+            ) : answers ? (
+                <dl>
+                {renderAnswer(t('questionnaireMedicalConditions'), answers.hasMedicalConditions, answers.medicalConditionsDetails)}
+                {renderAnswer(t('questionnaireMedication'), answers.isTakingMedication, answers.medicationDetails)}
+                {renderAnswer(t('questionnaireMentalHealth'), answers.hasMentalHealthHistory, answers.mentalHealthDetails)}
+                {renderAnswer(t('questionnaireExperience'), answers.hasPreviousExperience, answers.previousExperienceDetails)}
+                {renderAnswer(t('questionnaireIntention'), undefined, answers.mainIntention)}
+                </dl>
+            ) : (
+                <p className="text-center text-muted-foreground py-8">{t('noAnswersSubmitted')}</p>
+            )}
+            </div>
+        </ScrollArea>
+        <DialogFooter>
+            <DialogClose asChild>
+                <Button variant="outline">{t('close')}</Button>
+            </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
