@@ -166,6 +166,26 @@ export default function AllCeremoniesPage() {
         setActiveVideo(null); // Stop the background video
         setExpandedVideo(ceremony);
     };
+    
+    const handleShare = async (ceremony: Ceremony) => {
+        const shareUrl = `${window.location.origin}/ceremonias/${ceremony.slug || ceremony.id}`;
+        const shareText = t('shareCeremonyText', { title: ceremony.title });
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: ceremony.title,
+                    text: shareText,
+                    url: shareUrl,
+                });
+            } catch (error) {
+                window.open(whatsappUrl, '_blank');
+            }
+        } else {
+            window.open(whatsappUrl, '_blank');
+        }
+    };
 
     const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
         const lang = i18n.language as 'es' | 'en';
@@ -269,8 +289,8 @@ export default function AllCeremoniesPage() {
                                             <Edit className="h-4 w-4" />
                                         </Button>}
                                         {ceremony.status === 'active' && 
-                                            <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                                <Link href={`/ceremonias/${ceremony.id}`}><Share2 className="h-4 w-4" /></Link>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleShare(ceremony); }}>
+                                                <Share2 className="h-4 w-4" />
                                             </Button>
                                         }
                                     </div>
@@ -389,4 +409,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-

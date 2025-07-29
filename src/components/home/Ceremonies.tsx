@@ -184,7 +184,7 @@ export default function Ceremonies({
   };
   
   const handleShare = async (ceremony: Ceremony) => {
-      const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
+      const shareUrl = `${window.location.origin}/ceremonias/${ceremony.slug || ceremony.id}`;
       const shareText = t('shareCeremonyText', { title: ceremony.title });
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
 
