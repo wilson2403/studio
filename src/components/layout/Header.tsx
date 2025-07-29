@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2 } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -46,6 +46,15 @@ type NavLink = {
     sectionId: string;
     dynamicLabel?: string;
 };
+
+// Moved outside the component to follow the Rules of Hooks
+function usePrevious<T>(value: T): T | undefined {
+    const ref = React.useRef<T>();
+    React.useEffect(() => {
+        ref.current = value;
+    }, [value]);
+    return ref.current;
+}
 
 export default function Header() {
   const pathname = usePathname();
@@ -140,14 +149,6 @@ export default function Header() {
         logUserAction('navigate_to_page', { page: pathname });
     }
   }, [pathname, previousPathname, user]);
-
-  function usePrevious<T>(value: T): T | undefined {
-    const ref = React.useRef<T>();
-    React.useEffect(() => {
-        ref.current = value;
-    }, [value]);
-    return ref.current;
-  }
 
   const handleSignOut = async () => {
     await signOut();
