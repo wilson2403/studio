@@ -1277,11 +1277,15 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
     try {
         const q = query(
             testimonialsCollection,
-            where('consent', '==', true),
-            orderBy('createdAt', 'desc')
+            where('consent', '==', true)
         );
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial));
+        const testimonials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial));
+        
+        // Sort in-memory to avoid composite index
+        testimonials.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        
+        return testimonials;
     } catch (error) {
         console.error("Error fetching public testimonials:", error);
         logError(error, { function: 'getPublicTestimonials' });
