@@ -46,6 +46,7 @@ export default function Ceremonies({
   const router = useRouter();
   const { toast } = useToast();
   const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
+  const [labelsLoading, setLabelsLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -61,11 +62,14 @@ export default function Ceremonies({
     });
 
     const fetchSettings = async () => {
+        setLabelsLoading(true);
         try {
             const settings = await getSystemSettings();
             setButtonLabels(settings.componentButtons);
         } catch (error) {
             console.error("Failed to fetch button settings:", error);
+        } finally {
+            setLabelsLoading(false);
         }
     };
     fetchSettings();
@@ -204,7 +208,7 @@ export default function Ceremonies({
   };
 
   const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
-    if (!buttonLabels) return t(fallback);
+    if (labelsLoading || !buttonLabels) return t(fallback);
     const lang = i18n.language as 'es' | 'en';
     return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(fallback);
   };
@@ -271,7 +275,7 @@ export default function Ceremonies({
                                 </div>
                               )}
                                <Button variant="default" className="w-full" onClick={() => handleViewPlans(ceremony)}>
-                                   {isAssigned ? getButtonText('buttonViewDetails', 'View Details') : t('reserveNow')}
+                                   {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
                                </Button>
                               {isAuthorized && (
                                 <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
@@ -425,7 +429,7 @@ export default function Ceremonies({
                  {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)}>
                         <PlusCircle className="mr-2" />
-                        {getButtonText('addCeremony', 'addCeremony')}
+                        {getButtonText('addCeremony', 'Agregar Ceremonia')}
                     </Button>
                 )}
             </div>
@@ -462,7 +466,7 @@ export default function Ceremonies({
          {isAuthorized && status === 'active' && (
           <Button onClick={() => setIsAdding(true)}>
             <PlusCircle className="mr-2" />
-            {getButtonText('addCeremony', 'addCeremony')}
+            {getButtonText('addCeremony', 'Agregar Ceremonia')}
           </Button>
         )}
       </div>

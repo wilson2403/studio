@@ -35,6 +35,7 @@ export default function AllCeremoniesPage() {
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
     const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
+    const [labelsLoading, setLabelsLoading] = useState(true);
     const { t, i18n } = useTranslation();
     const router = useRouter();
     const { toast } = useToast();
@@ -55,11 +56,14 @@ export default function AllCeremoniesPage() {
         });
 
         const fetchSettings = async () => {
+            setLabelsLoading(true);
             try {
                 const settings = await getSystemSettings();
                 setButtonLabels(settings.componentButtons);
             } catch (error) {
                 console.error("Failed to fetch button settings:", error);
+            } finally {
+                setLabelsLoading(false);
             }
         };
         fetchSettings();
@@ -168,7 +172,7 @@ export default function AllCeremoniesPage() {
     };
 
     const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
-        if (!buttonLabels) return t(fallback);
+        if (labelsLoading || !buttonLabels) return t(fallback);
         const lang = i18n.language as 'es' | 'en';
         return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(fallback);
     };
@@ -237,7 +241,7 @@ export default function AllCeremoniesPage() {
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
-                        {getButtonText('addCeremony', 'addCeremony')}
+                        {getButtonText('addCeremony', 'Agregar Ceremonia')}
                     </Button>
                     )}
                 </div>
@@ -317,7 +321,7 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? getButtonText('buttonViewDetails', 'View Details') : t('reserveNow')}
+                                                {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
                                             </Button>
                                         ) : isAssigned ? (
                                             <Button asChild variant="default" className='w-full'>
@@ -386,4 +390,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-
