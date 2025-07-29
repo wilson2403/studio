@@ -23,6 +23,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const { isAdmin, content, updateContent, fetchContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({ es: '', en: '' });
+  const [displayValue, setDisplayValue] = useState(initialValue);
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const lang = i18n.language as 'es' | 'en';
@@ -33,21 +34,27 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     }
   }, [id, initialValue, fetchContent]);
 
-  const contentValue = content[id];
-  let displayValue: string;
+  useEffect(() => {
+    const contentValue = content[id];
+    let newDisplayValue: string;
 
-  if (typeof contentValue === 'object' && contentValue !== null) {
-      displayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
-  } else if (typeof contentValue === 'string') {
-      displayValue = contentValue;
-  } else {
-      displayValue = initialValue;
-  }
+    if (typeof contentValue === 'object' && contentValue !== null) {
+        newDisplayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
+    } else if (typeof contentValue === 'string') {
+        newDisplayValue = contentValue;
+    } else {
+        newDisplayValue = initialValue;
+    }
 
-  // Fallback to translation if display value is still the key
-  if (displayValue === id) {
-      displayValue = t(initialValue);
-  }
+    // Fallback to translation if display value is still the key
+    if (newDisplayValue === id || newDisplayValue === initialValue) {
+        newDisplayValue = t(initialValue);
+    }
+    
+    setDisplayValue(newDisplayValue);
+
+  }, [content, id, lang, initialValue, t]);
+
   
   const handleSave = async () => {
     const newContentValue = { ...editValues };
@@ -82,7 +89,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
         enValue = currentContent;
     }
     
-    setEditValues({ es: esValue || initialValue, en: enValue || initialValue });
+    setEditValues({ es: esValue || t(initialValue), en: enValue || t(initialValue) });
     setIsEditing(true);
   }
 

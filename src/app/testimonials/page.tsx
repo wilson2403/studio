@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -77,13 +78,13 @@ export default function TestimonialsPage() {
           <EditableTitle
               tag="h1"
               id="testimonialsPageTitle"
-              initialValue={t('testimonialsPageTitle')}
+              initialValue="testimonialsPageTitle"
               className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
           />
            <EditableTitle
               tag="p"
               id="testimonialsPageSubtitle"
-              initialValue={t('testimonialsPageSubtitle')}
+              initialValue="testimonialsPageSubtitle"
               className="max-w-2xl text-lg text-foreground/80 font-body"
           />
         </div>
@@ -130,4 +131,3 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
-
