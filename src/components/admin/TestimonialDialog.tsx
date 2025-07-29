@@ -140,7 +140,7 @@ function TestimonialDialogContent({ user, ceremony, handleClose }: { user: User;
           <X className="h-4 w-4" />
       </Button>
       <ScrollArea className="h-full w-full">
-          <div className="p-6 text-center space-y-4 flex flex-col justify-center min-h-[calc(90vh-50px)]">
+          <div className="p-6 text-center space-y-4 flex flex-col justify-center">
               <DialogHeader>
                   <DialogTitle>{t('testimonialTitle')}</DialogTitle>
                   <DialogDescription>{t('testimonialDescription')}</DialogDescription>
