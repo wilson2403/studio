@@ -91,7 +91,7 @@ export default function Ceremonies({
                     if (!a.featured && b.featured) return 1;
                     
                     const statusOrder = { finished: 1, inactive: 2 };
-                    const getOrder = (c: Ceremony) => statusOrder[c.status] || 3;
+                    const getOrder = (c: Ceremony) => statusOrder[c.status as keyof typeof statusOrder] || 3;
                     return getOrder(a) - getOrder(b);
                 });
         }
@@ -339,6 +339,13 @@ export default function Ceremonies({
                                         <Download className="h-4 w-4" />
                                     </Button>
                                 </a>
+                            )}
+                             {isAuthorized && ceremony.status !== 'active' && (
+                                <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                  <Link href={`/artesanar/${ceremony.id}`}>
+                                    <Video className="h-4 w-4"/>
+                                  </Link>
+                                </Button>
                             )}
                       </div>
                        <VideoPlayer

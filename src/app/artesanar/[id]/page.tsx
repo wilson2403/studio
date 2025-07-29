@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, logUserAction, addTestimonial, Testimonial } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, logUserAction } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -112,22 +112,22 @@ export default function CeremonyMemoryPage() {
 
     return (
         <EditableProvider>
-            <div className="flex flex-col min-h-screen bg-background">
-                <div className="w-full h-screen md:h-[calc(100vh-200px)] sticky top-0">
-                     <VideoPlayer
-                        ceremonyId={ceremony.id}
-                        videoUrl={ceremony.mediaUrl}
-                        mediaType={ceremony.mediaType}
-                        videoFit="cover"
-                        title={ceremony.title}
-                        autoplay
-                        defaultMuted={true}
-                    />
-                </div>
-                <main className="w-full bg-background rounded-t-2xl -mt-5 relative z-10 p-6 md:p-12 lg:p-16 flex flex-col items-center text-center">
-                    <div className="max-w-2xl w-full">
-                        <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
-                        <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
+            <div className="relative w-full h-screen overflow-hidden">
+                 <VideoPlayer
+                    ceremonyId={ceremony.id}
+                    videoUrl={ceremony.mediaUrl}
+                    mediaType={ceremony.mediaType}
+                    videoFit="cover"
+                    title={ceremony.title}
+                    autoplay
+                    defaultMuted={true}
+                    className="absolute inset-0 w-full h-full"
+                />
+                <div className="absolute inset-0 bg-black/50" />
+                <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center p-4">
+                    <div className="max-w-2xl w-full flex flex-col items-center justify-center">
+                        <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-white drop-shadow-lg">{ceremony.title}</h1>
+                        <div className="font-mono text-sm mb-6 space-y-1 drop-shadow-md">
                             {ceremony.date && (
                             <p className="flex items-center gap-2 justify-center">
                                 <CalendarIcon className='w-4 h-4'/> {ceremony.date}
@@ -145,12 +145,12 @@ export default function CeremonyMemoryPage() {
                                 </a>
                             )}
                         </div>
-                        {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
-                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
+                        {isAssignedToCeremony && <Badge variant="success" className="mb-4 bg-white/20 border-none text-white backdrop-blur-sm"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
+                        <p className="text-lg text-white/90 mb-8 drop-shadow-md">{ceremony.description}</p>
                     
-                        <div className="w-full max-w-sm mx-auto space-y-3">
+                        <div className="w-full max-w-xs mx-auto space-y-3">
                             {isAssignedToCeremony && ceremony.downloadUrl && (
-                                <Button asChild size="lg" className="w-full">
+                                <Button asChild size="lg" className="w-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm">
                                     <a href={ceremony.downloadUrl} download>
                                         <Download className="mr-2 h-4 w-4" />
                                         {t('downloadVideo')}
@@ -158,18 +158,18 @@ export default function CeremonyMemoryPage() {
                                 </Button>
                             )}
                             {isAssignedToCeremony && (
-                                <Button variant="outline" size="lg" className="w-full" onClick={() => setIsTestimonialDialogOpen(true)}>
+                                <Button variant="outline" size="lg" className="w-full bg-transparent hover:bg-white/10 text-white border-white/50 backdrop-blur-sm" onClick={() => setIsTestimonialDialogOpen(true)}>
                                     <MessageSquare className="mr-2 h-4 w-4" />
                                     {t('testimonialTitle')}
                                 </Button>
                             )}
-                            <Button variant="ghost" size="lg" className="w-full text-foreground/80" onClick={handleShare}>
+                            <Button variant="ghost" size="lg" className="w-full text-white/80 hover:text-white hover:bg-white/10 backdrop-blur-sm" onClick={handleShare}>
                                 <Share2 className="mr-2 h-4 w-4" />
                                 {t('shareCeremony')}
                             </Button>
                         </div>
                     </div>
-                </main>
+                </div>
             </div>
              {user && ceremony && (
                  <TestimonialDialog
