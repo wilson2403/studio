@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -56,6 +56,7 @@ export default function Header() {
     { href: '/', label: t('navHome'), sectionId: 'home' },
     { href: '/ayahuasca', label: t('navMedicine'), sectionId: 'medicine' },
     { href: '/guides', label: t('navGuides'), sectionId: 'guides' },
+    { href: '/testimonials', label: t('navTestimonials'), sectionId: 'testimonials' },
   ];
   
   const userNavLinks = [
