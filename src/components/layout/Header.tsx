@@ -40,7 +40,7 @@ import { Badge } from '../ui/badge';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 
-const APP_VERSION = '2.0';
+const APP_VERSION = '2.2';
 
 type NavLinkDef = {
     href: string;
