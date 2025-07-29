@@ -45,187 +45,184 @@ const StarRating = ({ rating, setRating, disabled = false }: { rating: number, s
     );
 };
 
-export default function TestimonialDialog({ user, ceremony, children }: TestimonialDialogProps) {
-  const { t } = useTranslation();
-  const { toast } = useToast();
-  
-  const [isOpen, setIsOpen] = useState(false);
-  const [testimonialText, setTestimonialText] = useState('');
-  const [rating, setRating] = useState(0);
-  const [consent, setConsent] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const [activeTab, setActiveTab] = useState<'text' | 'audio' | 'video'>('text');
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  
-  const [showAIAssist, setShowAIAssist] = useState(false);
-  const [aiKeywords, setAiKeywords] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  
-  const handleGenerateWithAI = async () => {
-      if (!aiKeywords.trim()) return;
-      setIsGenerating(true);
-      try {
-          const result = await generateTestimonial(aiKeywords);
-          setTestimonialText(result.testimonial);
-          setShowAIAssist(false);
-      } catch (error) {
-          toast({ title: t('aiErrorTitle'), description: t('aiErrorDescription'), variant: 'destructive' });
-      } finally {
-          setIsGenerating(false);
-      }
-  }
-
-  const handleTestimonialSubmit = async () => {
-    if (!consent || rating === 0) {
-        toast({ title: t('error'), description: t('testimonialErrorDescription'), variant: 'destructive' });
-        return;
-    }
+const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, ceremony: Ceremony, setIsOpen: (open: boolean) => void }) => {
+    const { t } = useTranslation();
+    const { toast } = useToast();
     
-    if (activeTab === 'text' && !testimonialText.trim()) {
-        toast({ title: t('error'), description: t('testimonialErrorTextRequired'), variant: 'destructive' });
-        return;
-    }
+    const [testimonialText, setTestimonialText] = useState('');
+    const [rating, setRating] = useState(0);
+    const [consent, setConsent] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
-    if (activeTab !== 'text' && !mediaFile) {
-        toast({ title: t('error'), description: t('testimonialErrorFileRequired'), variant: 'destructive' });
-        return;
-    }
+    const [activeTab, setActiveTab] = useState<'text' | 'audio' | 'video'>('text');
+    const [mediaFile, setMediaFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    
+    const [showAIAssist, setShowAIAssist] = useState(false);
+    const [aiKeywords, setAiKeywords] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
 
-    setIsSubmitting(true);
-    let finalContent = testimonialText;
-
-    if (activeTab !== 'text' && mediaFile) {
-        setIsUploading(true);
+    const handleGenerateWithAI = async () => {
+        if (!aiKeywords.trim()) return;
+        setIsGenerating(true);
         try {
-            const onProgress = (progress: number) => setUploadProgress(progress);
-            finalContent = await uploadMedia(mediaFile, onProgress, `testimonials/${activeTab}s`);
+            const result = await generateTestimonial(aiKeywords);
+            setTestimonialText(result.testimonial);
+            setShowAIAssist(false);
         } catch (error) {
-            toast({ title: t('errorUploadingFile'), variant: 'destructive' });
-            setIsSubmitting(false);
-            setIsUploading(false);
+            toast({ title: t('aiErrorTitle'), description: t('aiErrorDescription'), variant: 'destructive' });
+        } finally {
+            setIsGenerating(false);
+        }
+    }
+
+    const handleTestimonialSubmit = async () => {
+        if (!consent || rating === 0) {
+            toast({ title: t('error'), description: t('testimonialErrorDescription'), variant: 'destructive' });
             return;
         }
-        setIsUploading(false);
-    }
-    
-    try {
-        const newTestimonial: Omit<Testimonial, 'id'> = {
-            userId: user.uid,
-            ceremonyId: ceremony.id,
-            type: activeTab,
-            content: finalContent,
-            rating: rating,
-            consent: consent,
-            createdAt: new Date(),
-            userName: user.displayName || 'Anónimo',
-            userPhotoUrl: user.photoURL
-        };
-        await addTestimonial(newTestimonial);
-        toast({ title: t('testimonialSuccessTitle') });
-        setIsOpen(false); // Close dialog on success
-    } catch (error) {
-        toast({ title: t('error'), description: t('testimonialErrorSubmit'), variant: 'destructive' });
-    } finally {
-        setIsSubmitting(false);
-    }
-  };
+        
+        if (activeTab === 'text' && !testimonialText.trim()) {
+            toast({ title: t('error'), description: t('testimonialErrorTextRequired'), variant: 'destructive' });
+            return;
+        }
+        
+        if (activeTab !== 'text' && !mediaFile) {
+            toast({ title: t('error'), description: t('testimonialErrorFileRequired'), variant: 'destructive' });
+            return;
+        }
 
+        setIsSubmitting(true);
+        let finalContent = testimonialText;
+
+        if (activeTab !== 'text' && mediaFile) {
+            setIsUploading(true);
+            try {
+                const onProgress = (progress: number) => setUploadProgress(progress);
+                finalContent = await uploadMedia(mediaFile, onProgress, `testimonials/${activeTab}s`);
+            } catch (error) {
+                toast({ title: t('errorUploadingFile'), variant: 'destructive' });
+                setIsSubmitting(false);
+                setIsUploading(false);
+                return;
+            }
+            setIsUploading(false);
+        }
+        
+        try {
+            const newTestimonial: Omit<Testimonial, 'id'> = {
+                userId: user.uid,
+                ceremonyId: ceremony.id,
+                type: activeTab,
+                content: finalContent,
+                rating: rating,
+                consent: consent,
+                createdAt: new Date(),
+                userName: user.displayName || 'Anónimo',
+                userPhotoUrl: user.photoURL
+            };
+            await addTestimonial(newTestimonial);
+            toast({ title: t('testimonialSuccessTitle') });
+            setIsOpen(false);
+        } catch (error) {
+            toast({ title: t('error'), description: t('testimonialErrorSubmit'), variant: 'destructive' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <DialogContent className="sm:max-w-md p-0 border-0 flex flex-col max-h-[90vh]">
+            <ScrollArea className="h-full w-full">
+                <div className="p-6 text-center space-y-4 flex flex-col justify-center">
+                    <DialogHeader>
+                        <DialogTitle>{t('testimonialTitle')}</DialogTitle>
+                        <DialogDescription>{t('testimonialDescription')}</DialogDescription>
+                    </DialogHeader>
+
+                    <StarRating rating={rating} setRating={setRating} disabled={isSubmitting} />
+                    
+                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="text">{t('testimonialText')}</TabsTrigger>
+                            <TabsTrigger value="audio">{t('testimonialAudio')}</TabsTrigger>
+                            <TabsTrigger value="video">{t('testimonialVideo')}</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="text" className="space-y-4 pt-4">
+                            <Textarea
+                                value={testimonialText}
+                                onChange={(e) => setTestimonialText(e.target.value)}
+                                placeholder={t('testimonialPlaceholder')}
+                                rows={6}
+                                className="text-base"
+                                disabled={isSubmitting}
+                            />
+                            <Button variant="outline" size="sm" onClick={() => setShowAIAssist(!showAIAssist)}>
+                                <Wand2 className="mr-2 h-4 w-4"/> {showAIAssist ? t('cancel') : t('generateWithAI')}
+                            </Button>
+                            {showAIAssist && (
+                                <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
+                                    <Label htmlFor="ai-keywords">{t('aiKeywordsLabel')}</Label>
+                                    <Textarea 
+                                        id="ai-keywords"
+                                        value={aiKeywords}
+                                        onChange={(e) => setAiKeywords(e.target.value)}
+                                        placeholder={t('aiKeywordsPlaceholder')}
+                                        rows={2}
+                                        disabled={isGenerating}
+                                    />
+                                    <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiKeywords.trim()}>
+                                        {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> {t('generate')}</>}
+                                    </Button>
+                                </div>
+                            )}
+                        </TabsContent>
+                        <TabsContent value="audio">
+                            <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
+                                <Label htmlFor="audio-upload">{t('uploadAudioFile')}</Label>
+                                <Input id="audio-upload" type="file" accept="audio/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
+                            </div>
+                        </TabsContent>
+                        <TabsContent value="video">
+                            <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
+                                <Label htmlFor="video-upload">{t('uploadVideoFile')}</Label>
+                                <Input id="video-upload" type="file" accept="video/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+
+                    {isUploading && (
+                        <div className='space-y-1'>
+                            <Label>{t('uploadingFile')}</Label>
+                            <Progress value={uploadProgress} />
+                        </div>
+                    )}
+
+                    <div className="flex items-center space-x-2 justify-center pt-2">
+                        <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} disabled={isSubmitting} />
+                        <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
+                    </div>
+                    <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0} className="w-full">
+                        {isSubmitting ? t('sending') : t('submitTestimonial')}
+                    </Button>
+                </div>
+            </ScrollArea>
+        </DialogContent>
+    )
+}
+
+export default function TestimonialDialog({ user, ceremony, children }: TestimonialDialogProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  
   const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      // Reset state when dialog closes
-      setTestimonialText('');
-      setRating(0);
-      setConsent(false);
-      setActiveTab('text');
-      setMediaFile(null);
-      setShowAIAssist(false);
-      setAiKeywords('');
-    }
     setIsOpen(open);
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md p-0 border-0 flex flex-col max-h-[90vh]">
-        <ScrollArea className="h-full w-full">
-            <div className="p-6 text-center space-y-4 flex flex-col justify-center">
-                <DialogHeader>
-                    <DialogTitle>{t('testimonialTitle')}</DialogTitle>
-                    <DialogDescription>{t('testimonialDescription')}</DialogDescription>
-                </DialogHeader>
-
-                <StarRating rating={rating} setRating={setRating} disabled={isSubmitting} />
-                
-                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="text">{t('testimonialText')}</TabsTrigger>
-                        <TabsTrigger value="audio">{t('testimonialAudio')}</TabsTrigger>
-                        <TabsTrigger value="video">{t('testimonialVideo')}</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="text" className="space-y-4 pt-4">
-                        <Textarea
-                            value={testimonialText}
-                            onChange={(e) => setTestimonialText(e.target.value)}
-                            placeholder={t('testimonialPlaceholder')}
-                            rows={6}
-                            className="text-base"
-                            disabled={isSubmitting}
-                        />
-                        <Button variant="outline" size="sm" onClick={() => setShowAIAssist(!showAIAssist)}>
-                            <Wand2 className="mr-2 h-4 w-4"/> {showAIAssist ? t('cancel') : t('generateWithAI')}
-                        </Button>
-                        {showAIAssist && (
-                            <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
-                                <Label htmlFor="ai-keywords">{t('aiKeywordsLabel')}</Label>
-                                <Textarea 
-                                    id="ai-keywords"
-                                    value={aiKeywords}
-                                    onChange={(e) => setAiKeywords(e.target.value)}
-                                    placeholder={t('aiKeywordsPlaceholder')}
-                                    rows={2}
-                                    disabled={isGenerating}
-                                />
-                                <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiKeywords.trim()}>
-                                    {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> {t('generate')}</>}
-                                </Button>
-                            </div>
-                        )}
-                    </TabsContent>
-                    <TabsContent value="audio">
-                        <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
-                            <Label htmlFor="audio-upload">{t('uploadAudioFile')}</Label>
-                            <Input id="audio-upload" type="file" accept="audio/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value="video">
-                        <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
-                            <Label htmlFor="video-upload">{t('uploadVideoFile')}</Label>
-                            <Input id="video-upload" type="file" accept="video/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
-                        </div>
-                    </TabsContent>
-                </Tabs>
-
-                {isUploading && (
-                    <div className='space-y-1'>
-                        <Label>{t('uploadingFile')}</Label>
-                        <Progress value={uploadProgress} />
-                    </div>
-                )}
-
-                <div className="flex items-center space-x-2 justify-center pt-2">
-                    <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} disabled={isSubmitting} />
-                    <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
-                </div>
-                <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0} className="w-full">
-                    {isSubmitting ? t('sending') : t('submitTestimonial')}
-                </Button>
-            </div>
-        </ScrollArea>
-      </DialogContent>
+      {isOpen && <DialogContentWrapper user={user} ceremony={ceremony} setIsOpen={setIsOpen} />}
     </Dialog>
   );
 }
