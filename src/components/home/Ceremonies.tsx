@@ -329,14 +329,6 @@ export default function Ceremonies({
                                 {ceremony.date}
                             </p>
                            )}
-                           {isAssigned && (
-                                <Button asChild size="sm" className="pointer-events-auto mt-2">
-                                  <Link href={`/artesanar/${ceremony.id}`}>
-                                    <Video className="mr-2 h-4 w-4"/>
-                                    {t('viewMemory')}
-                                  </Link>
-                                </Button>
-                            )}
                       </div>
                        {isAuthorized && (
                         <div className="absolute bottom-16 right-4 flex-col justify-start gap-4 text-xs text-white/70 mt-3 pt-3">
