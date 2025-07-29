@@ -188,83 +188,91 @@ export default function Ceremonies({
     }
   };
 
-  const renderActiveCeremonies = () => (
-    <div className="w-full justify-center">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
-            {ceremonies.map((ceremony) => {
-              const registeredCount = ceremony.assignedUsers?.length || 0;
-              const isAssigned = userProfile?.assignedCeremonies?.some(c => (typeof c === 'string' ? c : c.ceremonyId) === ceremony.id);
-              return (
-                <div key={ceremony.id} className="px-5">
-                  <Card 
-                      className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50"
-                  >
-                      <div className="absolute top-2 right-2 z-20 flex gap-2">
-                        {isAuthorized && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
-                          <Edit className="h-4 w-4" />
-                        </Button>}
-                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleShare(ceremony); }}>
-                            <Share2 className="h-4 w-4" />
-                         </Button>
-                      </div>
-                      <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
-                          <div className="flex gap-2">
-                            {ceremony.mediaUrl && (
-                              <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                  <ExternalLink className="h-4 w-4" />
-                                </Button>
-                              </a>
-                            )}
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
-                              <Expand className="h-4 w-4" />
-                            </Button>
+  const renderActiveCeremonies = () => {
+    const isDirectVideoUrl = (url: string | undefined): boolean => {
+        if (!url) return false;
+        return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
+    };
+
+    return (
+        <div className="w-full justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
+                {ceremonies.map((ceremony) => {
+                  const registeredCount = ceremony.assignedUsers?.length || 0;
+                  const isAssigned = userProfile?.assignedCeremonies?.some(c => (typeof c === 'string' ? c : c.ceremonyId) === ceremony.id);
+                  const showExternalLink = ceremony.mediaUrl && !isDirectVideoUrl(ceremony.mediaUrl);
+                  return (
+                    <div key={ceremony.id} className="px-5">
+                      <Card 
+                          className="relative group/item flex flex-col rounded-2xl overflow-hidden shadow-2xl shadow-primary/20 border-2 border-primary/30 bg-card/50"
+                      >
+                          <div className="absolute top-2 right-2 z-20 flex gap-2">
+                            {isAuthorized && <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); setEditingCeremony(ceremony); }}>
+                              <Edit className="h-4 w-4" />
+                            </Button>}
+                             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleShare(ceremony); }}>
+                                <Share2 className="h-4 w-4" />
+                             </Button>
                           </div>
-                      </div>
-                      <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
-                           <VideoPlayer 
-                              ceremonyId={ceremony.id}
-                              videoUrl={ceremony.mediaUrl} 
-                              mediaType={ceremony.mediaType}
-                              videoFit={ceremony.videoFit}
-                              title={ceremony.title}
-                              autoplay={ceremony.autoplay}
-                              defaultMuted={ceremony.defaultMuted}
-                           />
-                      </div>
-                      <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
-                           <p className="font-mono text-xl font-bold text-white mb-2">
-                              {ceremony.title}
-                          </p>
-                          {ceremony.showParticipantCount && (
-                            <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
-                                <Users className="h-4 w-4" />
-                                <span>{t('registeredCount', { count: registeredCount })}</span>
-                            </div>
-                          )}
-                           <Button variant="default" className="w-full" onClick={() => handleViewPlans(ceremony)}>
-                               {isAssigned ? t('buttonViewDetails') : t('reserveNow')}
-                           </Button>
-                          {isAuthorized && (
-                            <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
-                                <div className='flex items-center gap-1.5'>
-                                    <Eye className="h-4 w-4" />
-                                    <span>{ceremony.viewCount || 0}</span>
+                          <div className="absolute top-2 left-2 z-20 flex flex-col gap-2 items-start">
+                              <div className="flex gap-2">
+                                {showExternalLink && (
+                                  <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                      <ExternalLink className="h-4 w-4" />
+                                    </Button>
+                                  </a>
+                                )}
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
+                                  <Expand className="h-4 w-4" />
+                                </Button>
+                              </div>
+                          </div>
+                          <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
+                               <VideoPlayer 
+                                  ceremonyId={ceremony.id}
+                                  videoUrl={ceremony.mediaUrl} 
+                                  mediaType={ceremony.mediaType}
+                                  videoFit={ceremony.videoFit}
+                                  title={ceremony.title}
+                                  autoplay={ceremony.autoplay}
+                                  defaultMuted={ceremony.defaultMuted}
+                               />
+                          </div>
+                          <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center">
+                               <p className="font-mono text-xl font-bold text-white mb-2">
+                                  {ceremony.title}
+                              </p>
+                              {ceremony.showParticipantCount && (
+                                <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
+                                    <Users className="h-4 w-4" />
+                                    <span>{t('registeredCount', { count: registeredCount })}</span>
                                 </div>
-                                <div className='flex items-center gap-1.5'>
-                                    <MousePointerClick className="h-4 w-4" />
-                                    <span>{ceremony.reserveClickCount || 0}</span>
+                              )}
+                               <Button variant="default" className="w-full" onClick={() => handleViewPlans(ceremony)}>
+                                   {isAssigned ? t('buttonViewDetails') : t('reserveNow')}
+                               </Button>
+                              {isAuthorized && (
+                                <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
+                                    <div className='flex items-center gap-1.5'>
+                                        <Eye className="h-4 w-4" />
+                                        <span>{ceremony.viewCount || 0}</span>
+                                    </div>
+                                    <div className='flex items-center gap-1.5'>
+                                        <MousePointerClick className="h-4 w-4" />
+                                        <span>{ceremony.reserveClickCount || 0}</span>
+                                    </div>
                                 </div>
-                            </div>
-                           )}
-                      </CardContent>
-                  </Card>
-                </div>
-              )
-            })}
+                               )}
+                          </CardContent>
+                      </Card>
+                    </div>
+                  )
+                })}
+            </div>
         </div>
-    </div>
-  );
+    );
+  };
 
   const renderFinishedCeremonies = () => {
     return (
@@ -485,4 +493,6 @@ interface CeremoniesProps {
     subtitleInitialValue?: string;
     hideDownloadButton?: boolean;
 }
+
+
 
