@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw, Users, Calendar, Clock, Share2, Download } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw, Users, Calendar, Clock, Share2, Download, Video } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -181,7 +181,6 @@ export default function Ceremonies({
                 url: shareUrl,
             });
         } catch (error) {
-            // Fallback to WhatsApp if share API fails
             window.open(whatsappUrl, '_blank');
         }
     } else {
@@ -267,17 +266,20 @@ export default function Ceremonies({
     </div>
   );
 
-  const renderFinishedCeremonies = () => (
+  const renderFinishedCeremonies = () => {
+    return (
      <div className="w-full relative">
         <Carousel
             opts={{
               align: 'center',
               loop: false,
             }}
-            className="w-full px-10 md:px-12"
+            className="w-full"
         >
             <CarouselContent className="-ml-2 md:-ml-4">
-            {ceremonies.map((ceremony, index) => (
+            {ceremonies.map((ceremony, index) => {
+              const isAssigned = userProfile?.assignedCeremonies?.some(c => (typeof c === 'string' ? c : c.ceremonyId) === ceremony.id);
+              return (
                 <CarouselItem key={ceremony.id} className="basis-full md:basis-1/2 lg:basis-1/3 p-0 px-2">
                   <div className="p-1 h-full">
                     <div className="relative rounded-2xl overflow-hidden aspect-[9/16] group/item shadow-2xl shadow-primary/20 border-2 border-primary/30 h-full">
@@ -327,6 +329,14 @@ export default function Ceremonies({
                                 {ceremony.date}
                             </p>
                            )}
+                           {isAssigned && (
+                                <Button asChild size="sm" className="pointer-events-auto mt-2">
+                                  <Link href={`/artesanar/${ceremony.id}`}>
+                                    <Video className="mr-2 h-4 w-4"/>
+                                    {t('viewMemory')}
+                                  </Link>
+                                </Button>
+                            )}
                       </div>
                        {isAuthorized && (
                         <div className="absolute bottom-16 right-4 flex-col justify-start gap-4 text-xs text-white/70 mt-3 pt-3">
@@ -343,7 +353,8 @@ export default function Ceremonies({
                     </div>
                   </div>
                 </CarouselItem>
-            ))}
+              )
+            })}
             </CarouselContent>
             <CarouselPrevious className="hidden md:flex left-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" />
             <CarouselNext className="hidden md:flex right-4 bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white"/>
@@ -361,7 +372,8 @@ export default function Ceremonies({
             </Button>
         </div>
      </div>
-  );
+    );
+  }
 
   if (loading) {
     const skeletonClass = status === 'active' ? 'aspect-[4/5]' : 'aspect-[9/16]';
