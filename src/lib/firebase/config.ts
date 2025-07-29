@@ -1,3 +1,4 @@
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -24,9 +25,16 @@ const storage = getStorage(app);
 // This prevents server-side crashes during build or SSR.
 let db;
 if (typeof window !== 'undefined') {
-  db = initializeFirestore(app, {
-    localCache: persistentLocalCache({ tabManager: 'single-tab' }),
-  });
+  try {
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache(/*{ tabManager: 'single-tab' }*/),
+    });
+  } catch (e) {
+    console.error("Failed to initialize persistent cache. Using memory cache.", e);
+    db = initializeFirestore(app, {
+        localCache: memoryLocalCache(),
+    });
+  }
 } else {
   // Use in-memory cache for server-side execution
   db = getFirestore(app);
