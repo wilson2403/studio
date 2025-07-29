@@ -249,7 +249,7 @@ export default function AllCeremoniesPage() {
                                         {isAuthorized && <Badge variant={statusVariant} className="capitalize">{statusText}</Badge>}
                                         {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                                         <div className='flex gap-2'>
-                                            {ceremony.mediaUrl && (
+                                            {ceremony.mediaUrl && !ceremony.mediaUrl.includes('githubusercontent') && (
                                                 <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                                                     <ExternalLink className="h-4 w-4" />
@@ -360,3 +360,4 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
