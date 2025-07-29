@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { SystemSettings } from '@/types';
+import { getSystemSettings } from '@/ai/flows/settings-flow';
 
 export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
@@ -33,6 +34,7 @@ export default function AllCeremoniesPage() {
     const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
+    const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
     const { t, i18n } = useTranslation();
     const router = useRouter();
     const { toast } = useToast();
@@ -51,6 +53,17 @@ export default function AllCeremoniesPage() {
                 fetchCeremonies(false);
             }
         });
+
+        const fetchSettings = async () => {
+            try {
+                const settings = await getSystemSettings();
+                setButtonLabels(settings.componentButtons);
+            } catch (error) {
+                console.error("Failed to fetch button settings:", error);
+            }
+        };
+        fetchSettings();
+
         return () => unsubscribe();
     }, []);
 
@@ -154,6 +167,18 @@ export default function AllCeremoniesPage() {
         setExpandedVideo(ceremony);
     };
 
+    const getButtonLabel = (key: keyof SystemSettings['componentButtons']) => {
+        const lang = i18n.language as 'es' | 'en';
+        if (buttonLabels && buttonLabels[key]) {
+            return buttonLabels[key][lang] || buttonLabels[key].es;
+        }
+        // Fallback to i18next translation if settings are not loaded or don't have the key
+        const translationKey = `componentButton${key.charAt(0).toUpperCase() + key.slice(1)}`;
+        const fallbackText = key === 'addCeremony' ? 'Agregar Ceremonia' : 'Ver Detalles';
+        return t(translationKey, fallbackText);
+    };
+
+
     if (pageLoading) {
         return (
             <div className="container py-12 md:py-16 space-y-8">
@@ -217,7 +242,7 @@ export default function AllCeremoniesPage() {
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
-                        {t('componentButtonAddCeremony', 'Agregar Ceremonia')}
+                        {getButtonLabel('addCeremony')}
                     </Button>
                     )}
                 </div>
@@ -228,6 +253,11 @@ export default function AllCeremoniesPage() {
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
                         const statusText = t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`);
                         const isAssigned = userProfile?.assignedCeremonies?.some(c => (typeof c === 'string' ? c : c.ceremonyId) === ceremony.id);
+                        const isDirectVideoUrl = (url: string | undefined): boolean => {
+                            if (!url) return false;
+                            return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
+                        };
+                        const showExternalLink = ceremony.mediaUrl && !isDirectVideoUrl(ceremony.mediaUrl);
 
                         return (
                             <div key={ceremony.id} className="px-5">
@@ -250,7 +280,7 @@ export default function AllCeremoniesPage() {
                                         {isAuthorized && <Badge variant={statusVariant} className="capitalize">{statusText}</Badge>}
                                         {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                                         <div className='flex gap-2'>
-                                            {ceremony.mediaUrl && !ceremony.mediaUrl.includes('githubusercontent') && (
+                                            {showExternalLink && (
                                                 <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                                                     <ExternalLink className="h-4 w-4" />
@@ -292,7 +322,7 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? t('componentButtonViewDetails', 'Ver Detalles') : t('reserveNow')}
+                                                {isAssigned ? getButtonLabel('buttonViewDetails') : t('reserveNow')}
                                             </Button>
                                         ) : isAssigned ? (
                                             <Button asChild variant="default" className='w-full'>
@@ -361,4 +391,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-
