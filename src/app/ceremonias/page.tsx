@@ -167,18 +167,6 @@ export default function AllCeremoniesPage() {
         setExpandedVideo(ceremony);
     };
 
-    const getButtonLabel = (key: keyof SystemSettings['componentButtons']) => {
-        const lang = i18n.language as 'es' | 'en';
-        if (buttonLabels && buttonLabels[key]) {
-            return buttonLabels[key][lang] || buttonLabels[key].es;
-        }
-        // Fallback to i18next translation if settings are not loaded or don't have the key
-        const translationKey = `componentButton${key.charAt(0).toUpperCase() + key.slice(1)}`;
-        const fallbackText = key === 'addCeremony' ? 'Agregar Ceremonia' : 'Ver Detalles';
-        return t(translationKey, fallbackText);
-    };
-
-
     if (pageLoading) {
         return (
             <div className="container py-12 md:py-16 space-y-8">
@@ -242,7 +230,7 @@ export default function AllCeremoniesPage() {
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
-                        {getButtonLabel('addCeremony')}
+                        {t('componentButtonAddCeremony', 'Agregar Ceremonia')}
                     </Button>
                     )}
                 </div>
@@ -322,7 +310,7 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? getButtonLabel('buttonViewDetails') : t('reserveNow')}
+                                                {isAssigned ? t('componentButtonViewDetails', 'View Details') : t('reserveNow')}
                                             </Button>
                                         ) : isAssigned ? (
                                             <Button asChild variant="default" className='w-full'>
@@ -391,3 +379,4 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
