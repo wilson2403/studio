@@ -342,7 +342,7 @@ export default function AllCeremoniesPage() {
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                                                 {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
                                             </Button>
-                                        ) : ceremony.status === 'finished' && isAssigned ? (
+                                        ) : (ceremony.status === 'finished' && isAssigned) ? (
                                             <Button asChild variant="default" className='w-full'>
                                                 <Link href={`/artesanar/${ceremony.id}`}>
                                                   <Video className="mr-2 h-4 w-4"/>
@@ -409,3 +409,4 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+

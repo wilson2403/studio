@@ -358,10 +358,11 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     const url = videoUrl || '';
 
     const embedUrl = 
-        (mediaType === 'video' || mediaType === 'short video') && getYoutubeEmbedUrl(url, !!autoplay)
+        (mediaType === 'video' || mediaType === 'short video') && 
+        (getYoutubeEmbedUrl(url, !!autoplay)
         || getTikTokEmbedUrl(url, !!autoplay)
         || getFacebookEmbedUrl(url, !!autoplay)
-        || getStreamableEmbedUrl(url, !!autoplay);
+        || getStreamableEmbedUrl(url, !!autoplay));
 
     if (embedUrl) {
        return <IframePlayer src={embedUrl} title={title} className={className} onPlay={handlePlay}>{children}</IframePlayer>;
