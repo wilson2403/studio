@@ -146,7 +146,7 @@ export default function CeremonyMemoryPage() {
                             )}
                         </div>
                         {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
-                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description?.replace(/Duración: \d+ horas/i, '').trim()}</p>
+                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
                     
                         <div className="w-full max-w-xs mx-auto space-y-3">
                             {isAssignedToCeremony && ceremony.downloadUrl && (
