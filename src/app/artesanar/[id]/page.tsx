@@ -3,12 +3,12 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, logUserAction } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, logUserAction, getSystemSettings } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, CheckCircle, Clock, Download, Home, MapPin, MessageSquare, Share2 } from 'lucide-react';
+import { CalendarIcon, CheckCircle, Download, Home, MessageSquare, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { getUserProfile, UserProfile } from '@/lib/firebase/firestore';
+import { SystemSettings } from '@/types';
 
 
 export default function CeremonyMemoryPage() {
@@ -25,10 +26,11 @@ export default function CeremonyMemoryPage() {
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
+    const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
     
     const params = useParams();
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const id = params.id as string;
 
     useEffect(() => {
@@ -48,8 +50,18 @@ export default function CeremonyMemoryPage() {
                 }
             }
         };
+        
+        const fetchSettings = async () => {
+            try {
+                const settings = await getSystemSettings();
+                setComponentButtons(settings.componentButtons);
+            } catch (error) {
+                console.error("Failed to fetch button settings:", error);
+            }
+        };
 
         fetchCeremonyData();
+        fetchSettings();
         
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
@@ -69,6 +81,12 @@ export default function CeremonyMemoryPage() {
     }, [id]);
 
     const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => (typeof ac === 'string' ? ac : ac.ceremonyId) === id) || false;
+
+    const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
+        const lang = i18n.language as 'es' | 'en';
+        if (!componentButtons) return t(fallback);
+        return componentButtons[key]?.[lang] || componentButtons[key]?.es || t(fallback);
+    };
 
     const handleShare = async () => {
         if (!ceremony) return;
@@ -145,27 +163,26 @@ export default function CeremonyMemoryPage() {
                             </p>
                             )}
                         </div>
-                        {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
-                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
+                        {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{getButtonText('enrolled', 'Inscrito')}</Badge>}
                     
                         <div className="w-full max-w-xs mx-auto space-y-3">
                             {isAssignedToCeremony && ceremony.downloadUrl && (
                                 <Button asChild size="lg" className="w-full">
                                     <a href={ceremony.downloadUrl} download>
                                         <Download className="mr-2 h-4 w-4" />
-                                        {t('downloadVideo')}
+                                        {getButtonText('downloadVideo', 'Descargar Video')}
                                     </a>
                                 </Button>
                             )}
                             {isAssignedToCeremony && (
                                 <Button variant="outline" size="lg" className="w-full" onClick={() => setIsTestimonialDialogOpen(true)}>
                                     <MessageSquare className="mr-2 h-4 w-4" />
-                                    {t('testimonialTitle')}
+                                    {getButtonText('leaveTestimonial', 'Dejar Testimonio')}
                                 </Button>
                             )}
                             <Button variant="ghost" size="lg" className="w-full" onClick={handleShare}>
                                 <Share2 className="mr-2 h-4 w-4" />
-                                {t('shareCeremony')}
+                                {getButtonText('shareCeremony', 'Compartir Ceremonia')}
                             </Button>
                         </div>
                     </div>
