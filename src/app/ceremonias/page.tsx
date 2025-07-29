@@ -6,14 +6,13 @@ import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick,
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, CheckCircle, Eye, MousePointerClick, Users, Share2, Download, Video } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, CheckCircle, Eye, MousePointerClick, Users, Share2, Download, Video } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
-import VideoPopupDialog from '@/components/home/VideoPopupDialog';
 import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -31,7 +30,6 @@ export default function AllCeremoniesPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
     const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
-    const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
     const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
@@ -159,12 +157,6 @@ export default function AllCeremoniesPage() {
         } else {
             router.push(`/ceremonias/${ceremony.id}`);
         }
-    };
-
-    const handleExpandVideo = (e: React.MouseEvent, ceremony: Ceremony) => {
-        e.stopPropagation();
-        setActiveVideo(null); // Stop the background video
-        setExpandedVideo(ceremony);
     };
     
     const handleShare = async (ceremony: Ceremony) => {
@@ -305,9 +297,6 @@ export default function AllCeremoniesPage() {
                                                 </Button>
                                                 </a>
                                             )}
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
-                                                <Expand className="h-4 w-4" />
-                                            </Button>
                                              {ceremony.status !== 'active' && ceremony.downloadUrl && isAssigned && (
                                                 <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download onClick={(e) => e.stopPropagation()}>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
@@ -394,19 +383,7 @@ export default function AllCeremoniesPage() {
                     onClose={() => setViewingCeremony(null)}
                     />
                 )}
-
-                {expandedVideo && (
-                    <VideoPopupDialog
-                        ceremonyId={expandedVideo.id}
-                        isOpen={!!expandedVideo}
-                        onClose={() => setExpandedVideo(null)}
-                        videoUrl={expandedVideo.downloadUrl || expandedVideo.mediaUrl}
-                        mediaType={expandedVideo.mediaType}
-                        title={expandedVideo.title}
-                    />
-                )}
             </div>
         </EditableProvider>
     );
 }
-

@@ -2,7 +2,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Edit, ExternalLink, PlusCircle, ArrowRight, Expand, Eye, MousePointerClick, RotateCcw, Users, Calendar, Clock, Share2, Download, Video } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, ArrowRight, Eye, MousePointerClick, RotateCcw, Users, Calendar, Clock, Share2, Download, Video } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -17,7 +17,6 @@ import { cn } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../ui/carousel';
 import { Skeleton } from '../ui/skeleton';
 import Link from 'next/link';
-import VideoPopupDialog from './VideoPopupDialog';
 import { Card, CardContent } from '../ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
@@ -40,7 +39,6 @@ export default function Ceremonies({
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
-  const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -177,11 +175,6 @@ export default function Ceremonies({
       router.push(`/ceremonias/${ceremony.id}`);
     }
   };
-
-  const handleExpandVideo = (e: React.MouseEvent, ceremony: Ceremony) => {
-    e.stopPropagation();
-    setExpandedVideo(ceremony);
-  };
   
   const handleShare = async (ceremony: Ceremony) => {
       const shareUrl = `${window.location.origin}/ceremonias/${ceremony.slug || ceremony.id}`;
@@ -244,9 +237,6 @@ export default function Ceremonies({
                                     </Button>
                                   </a>
                                 )}
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
-                                  <Expand className="h-4 w-4" />
-                                </Button>
                               </div>
                           </div>
                           <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
@@ -327,9 +317,6 @@ export default function Ceremonies({
                                 </Button>
                             </a>
                           )}
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
-                              <Expand className="h-4 w-4" />
-                          </Button>
                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleShare(ceremony); }}>
                             <Share2 className="h-4 w-4" />
                          </Button>
@@ -395,7 +382,6 @@ export default function Ceremonies({
             <Button asChild variant="outline">
                 <Link href="/ceremonies">
                     {t('viewAllEvents')}
-                    <ArrowRight className="ml-2 h-4 w-4"/>
                 </Link>
             </Button>
         </div>
@@ -495,16 +481,6 @@ export default function Ceremonies({
           ceremony={viewingCeremony}
           isOpen={!!viewingCeremony}
           onClose={() => setViewingCeremony(null)}
-        />
-      )}
-      {expandedVideo && (
-        <VideoPopupDialog
-            ceremonyId={expandedVideo.id}
-            isOpen={!!expandedVideo}
-            onClose={() => setExpandedVideo(null)}
-            videoUrl={expandedVideo.mediaUrl}
-            mediaType={expandedVideo.mediaType}
-            title={expandedVideo.title}
         />
       )}
     </section>
