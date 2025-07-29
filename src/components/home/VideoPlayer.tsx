@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Pause, Play, Volume2, VolumeX, Loader } from 'lucide-react';
+import { Pause, Play, Volume2, VolumeX, Loader, Expand } from 'lucide-react';
 import { getUserProfile, incrementCeremonyViewCount, updateVideoProgress, getVideoProgress, logUserAction } from '@/lib/firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';

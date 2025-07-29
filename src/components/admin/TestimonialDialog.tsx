@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -98,8 +99,8 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
                         <ScrollArea className="h-[80vh] w-full">
                             <div className="p-6 text-center space-y-4 flex flex-col justify-center min-h-[80vh]">
                                 <DialogHeader>
-                                    <DialogTitle>{steps[0].title}</DialogTitle>
-                                    <DialogDescription>{steps[0].description}</DialogDescription>
+                                    <DialogTitle>{t('testimonialTitle')}</DialogTitle>
+                                    <DialogDescription>{t('testimonialDescription')}</DialogDescription>
                                 </DialogHeader>
                                 <Textarea
                                     value={testimonialText}
@@ -121,8 +122,8 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
                      <CarouselItem>
                          <div className="p-6 text-center space-y-4 flex flex-col justify-center min-h-[80vh]">
                             <DialogHeader>
-                                <DialogTitle>{steps[1].title}</DialogTitle>
-                                <DialogDescription>{steps[1].description}</DialogDescription>
+                                <DialogTitle>{t('testimonialReviewTitle')}</DialogTitle>
+                                <DialogDescription>{t('testimonialReviewDescription')}</DialogDescription>
                             </DialogHeader>
                             {submittedTestimonial && (
                                 <Card className="text-left">
@@ -140,8 +141,8 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
                                 <ThumbsUp className="h-10 w-10 text-primary" />
                             </div>
                             <DialogHeader>
-                                <DialogTitle>{steps[2].title}</DialogTitle>
-                                <DialogDescription>{steps[2].description}</DialogDescription>
+                                <DialogTitle>{t('thanks')}</DialogTitle>
+                                <DialogDescription>{t('testimonialThanksDescription')}</DialogDescription>
                             </DialogHeader>
                             <Button onClick={() => handleClose(false)} className="w-full">{t('close')}</Button>
                         </div>
