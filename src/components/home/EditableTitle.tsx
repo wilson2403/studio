@@ -97,8 +97,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   if (isEditing) {
     const InputComponent = (Tag === 'p' || Tag === 'h3') ? Textarea : Input;
 
-    // Use a 'span' wrapper when editing a 'p' tag to avoid nesting block elements
-    const EditWrapper = Tag === 'p' ? 'span' : 'div';
+    // Use a 'div' wrapper to avoid nesting block elements inside <p> which causes hydration errors.
+    const EditWrapper = 'div';
 
     return (
       <EditWrapper className="flex flex-col gap-4 w-full max-w-3xl items-center p-4 rounded-md border bg-card">
