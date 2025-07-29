@@ -212,7 +212,7 @@ export default function SingleCeremonyPage() {
                 <main className="w-full md:w-1/2">
                 <ScrollArea className="h-full">
                     <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen relative">
-                        <Button variant="ghost" onClick={() => router.back()} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-card hover:bg-muted text-foreground">
+                        <Button variant="ghost" onClick={() => router.push('/ceremonias')} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-card hover:bg-muted text-foreground">
                             <X className="h-5 w-5" />
                         </Button>
                         <div>
