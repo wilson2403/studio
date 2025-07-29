@@ -27,7 +27,7 @@ import { useEditable } from '../home/EditableProvider';
 import { useState, useEffect } from 'react';
 
 interface TestimonialDialogProps {
-  user: User;
+  user: User | null;
   ceremony: Ceremony;
   children: React.ReactNode;
 }
@@ -92,6 +92,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
     }
 
     const handleTestimonialSubmit = async () => {
+        if (!user) return; // Should not happen if dialog is open, but for safety
         if (!consent || rating === 0) {
             toast({ title: t('error'), description: t('testimonialErrorDescription'), variant: 'destructive' });
             return;
@@ -169,7 +170,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                                         disabled={isGenerating}
                                     />
                                     <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiKeywords.trim()}>
-                                        {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> {getDisplayValue('generateButtonLabel', t('generate'))}</>}
+                                        {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> <span>{getDisplayValue('generateButtonLabel', t('generate'))}</span></>}
                                     </Button>
                                 </div>
                             )}
@@ -201,7 +202,7 @@ export default function TestimonialDialog({ user, ceremony, children }: Testimon
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      {isOpen && <DialogContentWrapper user={user} ceremony={ceremony} setIsOpen={setIsOpen} />}
+      {isOpen && user && <DialogContentWrapper user={user} ceremony={ceremony} setIsOpen={setIsOpen} />}
     </Dialog>
   );
 }

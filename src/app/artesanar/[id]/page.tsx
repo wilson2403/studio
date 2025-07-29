@@ -174,9 +174,9 @@ export default function CeremonyMemoryPage() {
                                     {getButtonText('downloadVideo', 'Descargar Video')}
                                 </a>
                             </Button>
-                            {user && ceremony && (
+                            {ceremony && (
                                 <TestimonialDialog user={user} ceremony={ceremony}>
-                                    <Button variant="outline" size="lg" className="w-full">
+                                    <Button variant="outline" size="lg" className="w-full" onClick={(e) => {if (!user) { e.preventDefault(); handleAuthAction(() => {});}}}>
                                         <MessageSquare className="mr-2 h-4 w-4" />
                                         {getButtonText('leaveTestimonial', 'Dejar Testimonio')}
                                     </Button>
