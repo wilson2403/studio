@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
-import { Video, Mic, MessageSquare } from 'lucide-react';
+import { Video, Mic, MessageSquare, Star } from 'lucide-react';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { EditableProvider } from '@/components/home/EditableProvider';
 
@@ -62,6 +62,16 @@ export default function TestimonialsPage() {
       }
   }
 
+  const renderStars = (rating: number) => {
+    return (
+        <div className="flex items-center gap-0.5">
+            {[...Array(5)].map((_, i) => (
+                <Star key={i} className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`} />
+            ))}
+        </div>
+    );
+};
+
   if (loading) {
     return (
       <div className="container py-12 md:py-24 space-y-12">
@@ -109,7 +119,10 @@ export default function TestimonialsPage() {
                                  <AvatarFallback>{testimonial.userName.charAt(0)}</AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
-                                 <p className="font-semibold">{testimonial.userName}</p>
+                                 <div className="flex items-center gap-2">
+                                    <p className="font-semibold">{testimonial.userName}</p>
+                                    {testimonial.rating && renderStars(testimonial.rating)}
+                                 </div>
                                  <p className="text-xs text-muted-foreground">{format(testimonial.createdAt, 'PPP', { locale })}</p>
                               </div>
                               {getTestimonialIcon(testimonial.type)}

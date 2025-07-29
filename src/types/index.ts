@@ -303,8 +303,7 @@ export type Testimonial = {
     ceremonyId: string;
     type: 'text' | 'audio' | 'video';
     content: string; // URL for audio/video, text for text
+    rating?: number;
     consent: boolean;
     createdAt: Date;
 }
-
-    

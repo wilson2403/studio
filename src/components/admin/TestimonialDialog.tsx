@@ -12,7 +12,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
-import { ThumbsUp, X } from 'lucide-react';
+import { ThumbsUp, X, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { User } from 'firebase/auth';
 import { Ceremony, Testimonial } from '@/types';
@@ -23,6 +23,7 @@ import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { Card, CardContent } from '../ui/card';
 import { ScrollArea } from '../ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 interface TestimonialDialogProps {
   user: User;
@@ -31,17 +32,30 @@ interface TestimonialDialogProps {
   onClose: () => void;
 }
 
+const StarRating = ({ rating, setRating }: { rating: number, setRating: (rating: number) => void }) => {
+    return (
+        <div className="flex justify-center gap-2">
+            {[1, 2, 3, 4, 5].map((star) => (
+                <button key={star} type="button" onClick={() => setRating(star)}>
+                    <Star className={cn("h-8 w-8", star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400')} />
+                </button>
+            ))}
+        </div>
+    );
+};
+
 export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: TestimonialDialogProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [api, setApi] = useState<CarouselApi>();
   const [testimonialText, setTestimonialText] = useState('');
+  const [rating, setRating] = useState(0);
   const [consent, setConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedTestimonial, setSubmittedTestimonial] = useState<Testimonial | null>(null);
 
   const handleTestimonialSubmit = async () => {
-    if (!testimonialText.trim() || !consent) {
+    if (!testimonialText.trim() || !consent || rating === 0) {
         toast({ title: t('error'), description: t('testimonialErrorDescription'), variant: 'destructive' });
         return;
     }
@@ -53,6 +67,7 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
             ceremonyId: ceremony.id,
             type: 'text',
             content: testimonialText,
+            rating: rating,
             consent: consent,
             createdAt: new Date(),
             userName: user.displayName || 'Anónimo',
@@ -80,6 +95,7 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
         setTimeout(() => {
             api?.scrollTo(0, true);
             setTestimonialText('');
+            setRating(0);
             setConsent(false);
             setSubmittedTestimonial(null);
         }, 300);
@@ -102,6 +118,7 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
                                     <DialogTitle>{t('testimonialTitle')}</DialogTitle>
                                     <DialogDescription>{t('testimonialDescription')}</DialogDescription>
                                 </DialogHeader>
+                                <StarRating rating={rating} setRating={setRating} />
                                 <Textarea
                                     value={testimonialText}
                                     onChange={(e) => setTestimonialText(e.target.value)}
@@ -113,7 +130,7 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
                                     <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} />
                                     <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
                                 </div>
-                                <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || !testimonialText.trim()} className="w-full">
+                                <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || !testimonialText.trim() || rating === 0} className="w-full">
                                     {isSubmitting ? t('sending') : t('submitTestimonial')}
                                 </Button>
                             </div>
@@ -128,7 +145,8 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
                             {submittedTestimonial && (
                                 <Card className="text-left">
                                     <CardContent className="p-4">
-                                        <p className='italic'>"{submittedTestimonial.content}"</p>
+                                        {submittedTestimonial.rating && <StarRating rating={submittedTestimonial.rating} setRating={() => {}} />}
+                                        <p className='italic mt-4'>"{submittedTestimonial.content}"</p>
                                     </CardContent>
                                 </Card>
                             )}
