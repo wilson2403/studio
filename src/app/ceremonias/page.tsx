@@ -265,8 +265,8 @@ export default function AllCeremoniesPage() {
                             return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
                         };
                         
-                        const isFinishedMemory = ceremony.status === 'finished' && isAssigned && ceremony.downloadUrl;
-                        const videoUrlToShow = isFinishedMemory ? ceremony.downloadUrl : ceremony.mediaUrl;
+                        const isFinishedMemory = ceremony.status === 'finished' && isAssigned;
+                        const videoUrlToShow = isFinishedMemory && ceremony.downloadUrl ? ceremony.downloadUrl : ceremony.mediaUrl;
                         const showExternalLink = videoUrlToShow && !isDirectVideoUrl(videoUrlToShow);
 
                         return (
@@ -297,12 +297,12 @@ export default function AllCeremoniesPage() {
                                                 </Button>
                                                 </a>
                                             )}
-                                             {ceremony.status !== 'active' && ceremony.downloadUrl && isAssigned && (
-                                                <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download onClick={(e) => e.stopPropagation()}>
+                                             {ceremony.status !== 'active' && isAssigned && (
+                                                 <Link href={`/artesanar/${ceremony.id}`} onClick={(e) => e.stopPropagation()}>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                                        <Download className="h-4 w-4" />
+                                                        <Video className="h-4 w-4" />
                                                     </Button>
-                                                </a>
+                                                </Link>
                                             )}
                                         </div>
                                     </div>
@@ -330,13 +330,6 @@ export default function AllCeremoniesPage() {
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                                                 {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
-                                            </Button>
-                                        ) : (ceremony.status === 'finished' && isAssigned) ? (
-                                            <Button asChild variant="default" className='w-full'>
-                                                <Link href={`/artesanar/${ceremony.id}`}>
-                                                  <Video className="mr-2 h-4 w-4"/>
-                                                  {t('viewMemory')}
-                                                </Link>
                                             </Button>
                                         ) : (
                                             ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
