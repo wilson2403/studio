@@ -1,8 +1,7 @@
-
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, initializeFirestore, persistentLocalCache } from "firebase/firestore";
+import { getFirestore, initializeFirestore, persistentLocalCache, memoryLocalCache } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
@@ -21,12 +20,17 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// Initialize Firestore with offline persistence.
-// This is the modern way to enable offline persistence.
-const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: 'single-tab' }),
-});
+// Initialize Firestore, but only enable offline persistence on the client
+// This prevents server-side crashes during build or SSR.
+let db;
+if (typeof window !== 'undefined') {
+  db = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: 'single-tab' }),
+  });
+} else {
+  // Use in-memory cache for server-side execution
+  db = getFirestore(app);
+}
 
 
 export { app, auth, db, storage };
-    
