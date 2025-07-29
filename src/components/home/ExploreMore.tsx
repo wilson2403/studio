@@ -7,9 +7,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { ArrowRight, Leaf, Sparkles, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getSystemSettings } from '@/ai/flows/settings-flow';
+import { SystemSettings } from '@/types';
 
 export default function ExploreMore() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const [buttonLabels, setButtonLabels] = useState<SystemSettings['homeButtons'] | null>(null);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const settings = await getSystemSettings();
+                setButtonLabels(settings.homeButtons);
+            } catch (error) {
+                console.error("Failed to fetch button settings:", error);
+            }
+        };
+        fetchSettings();
+    }, []);
 
     const sections = [
         {
@@ -18,7 +34,7 @@ export default function ExploreMore() {
             title: 'exploreMedicineTitle',
             description: 'exploreMedicineDescription',
             link: '/ayahuasca',
-            buttonText: 'exploreMedicineButton'
+            buttonLabelKey: 'medicine' as keyof SystemSettings['homeButtons'],
         },
         {
             id: 'guides',
@@ -26,7 +42,7 @@ export default function ExploreMore() {
             title: 'exploreGuidesTitle',
             description: 'exploreGuidesDescription',
             link: '/guides',
-            buttonText: 'exploreGuidesButton'
+            buttonLabelKey: 'guides' as keyof SystemSettings['homeButtons'],
         },
         {
             id: 'preparation',
@@ -34,9 +50,15 @@ export default function ExploreMore() {
             title: 'preparationCtaTitle',
             description: 'preparationCtaDescription',
             link: '/preparation',
-            buttonText: 'preparationCtaButton'
+            buttonLabelKey: 'preparation' as keyof SystemSettings['homeButtons'],
         }
     ];
+
+    const getButtonLabel = (key: keyof SystemSettings['homeButtons']) => {
+        if (!buttonLabels) return '';
+        const lang = i18n.language as 'es' | 'en';
+        return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || '';
+    };
 
     return (
         <section className="container py-12 md:py-24">
@@ -65,7 +87,7 @@ export default function ExploreMore() {
                         <div className="pt-6 w-full">
                             <Button asChild className="w-full">
                                 <Link href={section.link}>
-                                    {t(section.buttonText)}
+                                    {getButtonLabel(section.buttonLabelKey)}
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                 </Link>
                             </Button>

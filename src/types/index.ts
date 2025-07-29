@@ -224,6 +224,11 @@ export type NavLinkData = {
     visible: boolean;
 };
 
+export type HomeButtonData = {
+    es: string;
+    en: string;
+}
+
 export type SystemSettings = {
     firebaseConfig: {
         apiKey: string;
@@ -248,6 +253,11 @@ export type SystemSettings = {
         ceremonies: NavLinkData;
         journey: NavLinkData;
         preparation: NavLinkData;
+    };
+    homeButtons: {
+        medicine: HomeButtonData;
+        guides: HomeButtonData;
+        preparation: HomeButtonData;
     };
 };
 

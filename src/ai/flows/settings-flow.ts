@@ -19,6 +19,11 @@ const navLinkSchema = z.object({
   visible: z.boolean(),
 });
 
+const homeButtonSchema = z.object({
+    es: z.string(),
+    en: z.string(),
+});
+
 const settingsSchema = z.object({
     firebaseConfig: z.object({
         apiKey: z.string(),
@@ -43,6 +48,11 @@ const settingsSchema = z.object({
         ceremonies: navLinkSchema,
         journey: navLinkSchema,
         preparation: navLinkSchema,
+    }),
+    homeButtons: z.object({
+        medicine: homeButtonSchema,
+        guides: homeButtonSchema,
+        preparation: homeButtonSchema,
     }),
 });
 
@@ -69,6 +79,11 @@ export const getSystemSettings = ai.defineFlow(
           }
           return content || fallback;
       }
+      
+       const fetchHomeButtonContent = async (id: string, fallback: {es: string, en: string}) => {
+          const content = await getContent(id) as {es: string, en: string} | null;
+          return content || fallback;
+      }
 
       const navLinks = {
           home: await fetchContentWithFallback('navHome', { es: 'Inicio', en: 'Home', visible: true }),
@@ -79,6 +94,13 @@ export const getSystemSettings = ai.defineFlow(
           journey: await fetchContentWithFallback('navJourney', { es: 'Iniciar mi Viaje', en: 'Start my Journey', visible: true }),
           preparation: await fetchContentWithFallback('navPreparation', { es: 'Preparación', en: 'Preparation', visible: true }),
       };
+
+      const homeButtons = {
+          medicine: await fetchHomeButtonContent('homeButtonMedicine', { es: 'Conocer la Medicina', en: 'Know the Medicine' }),
+          guides: await fetchHomeButtonContent('homeButtonGuides', { es: 'Conocer los Guías', en: 'Meet the Guides' }),
+          preparation: await fetchHomeButtonContent('homeButtonPreparation', { es: 'Iniciar Preparación', en: 'Start Preparation' }),
+      };
+
 
       return {
         firebaseConfig: {
@@ -97,6 +119,7 @@ export const getSystemSettings = ai.defineFlow(
         tiktokUrl: await fetchStringContent('tiktokUrl', 'https://www.tiktok.com/@elartedesanarcr'),
         whatsappNumber: await fetchStringContent('whatsappNumber', '50687992560'),
         navLinks: navLinks,
+        homeButtons: homeButtons,
       };
     } catch (error: any) {
       logError(error, { function: 'getSystemSettings' });
@@ -152,6 +175,10 @@ export const updateSystemSettings = ai.defineFlow(
 
         for (const [key, value] of Object.entries(settings.navLinks)) {
             await setContent(`nav${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
+        }
+
+        for (const [key, value] of Object.entries(settings.homeButtons)) {
+            await setContent(`homeButton${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
         }
 
       return { success: true, message: 'Settings updated successfully.' };

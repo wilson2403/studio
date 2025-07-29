@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Save, AlertTriangle, Key, Link2, List } from 'lucide-react';
+import { Settings, Save, AlertTriangle, Key, Link2, List, Home } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +25,11 @@ const navLinkSchema = z.object({
   es: z.string().min(1, 'El nombre en español es requerido.'),
   en: z.string().min(1, 'El nombre en inglés es requerido.'),
   visible: z.boolean(),
+});
+
+const homeButtonSchema = z.object({
+    es: z.string().min(1, 'El nombre en español es requerido.'),
+    en: z.string().min(1, 'El nombre en inglés es requerido.'),
 });
 
 const settingsFormSchema = z.object({
@@ -51,6 +56,11 @@ const settingsFormSchema = z.object({
         ceremonies: navLinkSchema,
         journey: navLinkSchema,
         preparation: navLinkSchema,
+    }),
+    homeButtons: z.object({
+        medicine: homeButtonSchema,
+        guides: homeButtonSchema,
+        preparation: homeButtonSchema,
     }),
 });
 
@@ -149,6 +159,40 @@ export default function AdminSettingsPage() {
                          <FormField
                             control={form.control}
                             name={`navLinks.${key}.en`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>English</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+
+    const renderHomeButtons = (buttonKeys: (keyof SettingsFormValues['homeButtons'])[]) => (
+        <div className="space-y-4">
+            {buttonKeys.map((key) => (
+                <div key={key} className="p-4 border rounded-lg">
+                    <h4 className="font-semibold capitalize mb-4">{t(`homeButton${key.charAt(0).toUpperCase() + key.slice(1)}` as any, key)}</h4>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name={`homeButtons.${key}.es`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Español</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name={`homeButtons.${key}.en`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>English</FormLabel>
@@ -278,6 +322,19 @@ export default function AdminSettingsPage() {
                             </AccordionTrigger>
                             <AccordionContent className="pt-4">
                                 {renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}
+                            </AccordionContent>
+                        </AccordionItem>
+
+                        {/* Home Buttons Section */}
+                        <AccordionItem value="homeButtons" className="border rounded-lg bg-muted/20 px-4">
+                             <AccordionTrigger className="hover:no-underline">
+                                <div className="flex items-center gap-3">
+                                    <Home className="h-5 w-5 text-primary" />
+                                    <h3 className="text-lg font-semibold">{t('homeButtonsManagement')}</h3>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-4">
+                                {renderHomeButtons(['medicine', 'guides', 'preparation'])}
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
