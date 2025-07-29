@@ -41,7 +41,7 @@ import { Badge } from '../ui/badge';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 
-const APP_VERSION = '1.86';
+const APP_VERSION = '1.87';
 
 type NavLinkDef = {
     href: string;
@@ -479,5 +479,6 @@ export default function Header() {
     </>
   );
 }
+
 
 

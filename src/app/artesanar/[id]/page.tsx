@@ -216,7 +216,7 @@ export default function CeremonyMemoryPage() {
                     ceremonyId={expandedVideo.id}
                     isOpen={!!expandedVideo}
                     onClose={() => setExpandedVideo(null)}
-                    videoUrl={expandedVideo.downloadUrl || expandedVideo.mediaUrl}
+                    videoUrl={expandedVideo.mediaUrl}
                     mediaType={expandedVideo.mediaType}
                     title={expandedVideo.title}
                 />
@@ -224,3 +224,4 @@ export default function CeremonyMemoryPage() {
         </EditableProvider>
     );
 }
+
