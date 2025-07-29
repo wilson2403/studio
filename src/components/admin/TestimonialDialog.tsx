@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -12,7 +12,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
-import { ThumbsUp, X, Star, Upload, Bot, Sparkles, Wand2 } from 'lucide-react';
+import { X, Star, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { User } from 'firebase/auth';
 import { Ceremony, Testimonial } from '@/types';
@@ -20,14 +20,12 @@ import { addTestimonial, uploadMedia } from '@/lib/firebase/firestore';
 import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
-import { Card, CardContent } from '../ui/card';
-import { ScrollArea } from '../ui/scroll-area';
-import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Input } from '../ui/input';
 import { Progress } from '../ui/progress';
 import { generateTestimonial } from '@/ai/flows/testimonial-flow';
-
+import { cn } from '@/lib/utils';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface TestimonialDialogProps {
   user: User;
@@ -48,7 +46,7 @@ const StarRating = ({ rating, setRating, disabled = false }: { rating: number, s
     );
 };
 
-function TestimonialDialogContent({ user, ceremony, isOpen, onClose }: TestimonialDialogProps) {
+export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: TestimonialDialogProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   
@@ -242,9 +240,4 @@ function TestimonialDialogContent({ user, ceremony, isOpen, onClose }: Testimoni
       </DialogContent>
     </Dialog>
   );
-}
-
-export default function TestimonialDialog({ isOpen, ...props }: TestimonialDialogProps) {
-    if (!isOpen) return null;
-    return <TestimonialDialogContent isOpen={isOpen} {...props} />;
 }

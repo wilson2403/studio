@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, Download, Expand, Home, MessageSquare, Share2 } from 'lucide-react';
+import { CalendarIcon, Download, Home, MessageSquare, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -18,8 +19,6 @@ import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
-import VideoPopupDialog from '@/components/home/VideoPopupDialog';
-
 
 export default function CeremonyMemoryPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
@@ -28,7 +27,6 @@ export default function CeremonyMemoryPage() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
     const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
-    const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
     
     const params = useParams();
     const router = useRouter();
@@ -167,11 +165,7 @@ export default function CeremonyMemoryPage() {
                             autoplay={true}
                             defaultMuted={false}
                             className="w-full h-full"
-                        >
-                             <Button variant="ghost" size="icon" className="absolute top-2 left-2 z-20 h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => setExpandedVideo(ceremony)}>
-                                <Expand className="h-4 w-4" />
-                            </Button>
-                        </VideoPlayer>
+                        />
                     </div>
                 
                     <div className="max-w-2xl mx-auto text-center">
@@ -211,17 +205,6 @@ export default function CeremonyMemoryPage() {
                     onClose={() => setIsTestimonialDialogOpen(false)}
                  />
             )}
-             {expandedVideo && (
-                <VideoPopupDialog
-                    ceremonyId={expandedVideo.id}
-                    isOpen={!!expandedVideo}
-                    onClose={() => setExpandedVideo(null)}
-                    videoUrl={expandedVideo.mediaUrl}
-                    mediaType={expandedVideo.mediaType}
-                    title={expandedVideo.title}
-                />
-            )}
         </EditableProvider>
     );
 }
-
