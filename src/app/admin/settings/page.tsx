@@ -374,7 +374,7 @@ export default function AdminSettingsPage() {
                              <AccordionTrigger className="hover:no-underline">
                                 <div className="flex items-center gap-3">
                                     <Home className="h-5 w-5 text-primary" />
-                                    <h3 className="text-lg font-semibold">{t('homeButtonsManagement')}</h3>
+                                    <h3 className="text-lg font-semibold">{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</h3>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pt-4">
@@ -387,7 +387,7 @@ export default function AdminSettingsPage() {
                              <AccordionTrigger className="hover:no-underline">
                                 <div className="flex items-center gap-3">
                                     <MousePointerClick className="h-5 w-5 text-primary" />
-                                    <h3 className="text-lg font-semibold">{t('componentButtonsManagement')}</h3>
+                                    <h3 className="text-lg font-semibold">{t('componentButtonsManagement', 'Botones de Componentes')}</h3>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pt-4">

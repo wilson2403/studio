@@ -38,14 +38,18 @@ export default function AllCeremoniesPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
+    const [settingsLoading, setSettingsLoading] = useState(true);
 
      useEffect(() => {
         const fetchSettings = async () => {
+            setSettingsLoading(true);
             try {
                 const settings = await getSystemSettings();
                 setButtonLabels(settings.componentButtons);
             } catch (error) {
                 console.error("Failed to fetch button settings:", error);
+            } finally {
+                setSettingsLoading(false);
             }
         };
         fetchSettings();
@@ -176,7 +180,7 @@ export default function AllCeremoniesPage() {
     };
 
 
-    if (pageLoading) {
+    if (pageLoading || settingsLoading) {
         return (
             <div className="container py-12 md:py-16 space-y-8">
                 <Skeleton className="h-10 w-1/3 mx-auto" />
