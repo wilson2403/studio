@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -10,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
 import { X, Star, Wand2, Sparkles } from 'lucide-react';
@@ -30,8 +30,7 @@ import { ScrollArea } from '../ui/scroll-area';
 interface TestimonialDialogProps {
   user: User;
   ceremony: Ceremony;
-  isOpen: boolean;
-  onClose: () => void;
+  children: React.ReactNode;
 }
 
 const StarRating = ({ rating, setRating, disabled = false }: { rating: number, setRating: (rating: number) => void, disabled?: boolean }) => {
@@ -46,10 +45,11 @@ const StarRating = ({ rating, setRating, disabled = false }: { rating: number, s
     );
 };
 
-function TestimonialDialogContent({ user, ceremony, handleClose }: { user: User; ceremony: Ceremony; handleClose: (open: boolean) => void; }) {
+export default function TestimonialDialog({ user, ceremony, children }: TestimonialDialogProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   
+  const [isOpen, setIsOpen] = useState(false);
   const [testimonialText, setTestimonialText] = useState('');
   const [rating, setRating] = useState(0);
   const [consent, setConsent] = useState(false);
@@ -125,7 +125,7 @@ function TestimonialDialogContent({ user, ceremony, handleClose }: { user: User;
         };
         await addTestimonial(newTestimonial);
         toast({ title: t('testimonialSuccessTitle') });
-        handleClose(false);
+        setIsOpen(false); // Close dialog on success
     } catch (error) {
         toast({ title: t('error'), description: t('testimonialErrorSubmit'), variant: 'destructive' });
     } finally {
@@ -133,114 +133,99 @@ function TestimonialDialogContent({ user, ceremony, handleClose }: { user: User;
     }
   };
 
-
-  return (
-    <DialogContent className="sm:max-w-md p-0 border-0 flex flex-col max-h-[90vh]">
-      <Button variant="ghost" size="icon" onClick={() => handleClose(false)} className="absolute top-2 right-2 z-20 h-8 w-8 rounded-full">
-          <X className="h-4 w-4" />
-      </Button>
-      <ScrollArea className="h-full w-full">
-          <div className="p-6 text-center space-y-4 flex flex-col justify-center">
-              <DialogHeader>
-                  <DialogTitle>{t('testimonialTitle')}</DialogTitle>
-                  <DialogDescription>{t('testimonialDescription')}</DialogDescription>
-              </DialogHeader>
-
-              <StarRating rating={rating} setRating={setRating} disabled={isSubmitting} />
-              
-              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-                  <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="text">{t('testimonialText')}</TabsTrigger>
-                      <TabsTrigger value="audio">{t('testimonialAudio')}</TabsTrigger>
-                      <TabsTrigger value="video">{t('testimonialVideo')}</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="text" className="space-y-4 pt-4">
-                      <Textarea
-                          value={testimonialText}
-                          onChange={(e) => setTestimonialText(e.target.value)}
-                          placeholder={t('testimonialPlaceholder')}
-                          rows={6}
-                          className="text-base"
-                          disabled={isSubmitting}
-                      />
-                       <Button variant="outline" size="sm" onClick={() => setShowAIAssist(!showAIAssist)}>
-                         <Wand2 className="mr-2 h-4 w-4"/> {showAIAssist ? t('cancel') : t('generateWithAI')}
-                      </Button>
-                      {showAIAssist && (
-                         <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
-                             <Label htmlFor="ai-keywords">{t('aiKeywordsLabel')}</Label>
-                             <Textarea 
-                                 id="ai-keywords"
-                                 value={aiKeywords}
-                                 onChange={(e) => setAiKeywords(e.target.value)}
-                                 placeholder={t('aiKeywordsPlaceholder')}
-                                 rows={2}
-                                 disabled={isGenerating}
-                             />
-                             <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiKeywords.trim()}>
-                                 {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> {t('generate')}</>}
-                             </Button>
-                         </div>
-                      )}
-                  </TabsContent>
-                  <TabsContent value="audio">
-                      <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
-                         <Label htmlFor="audio-upload">{t('uploadAudioFile')}</Label>
-                         <Input id="audio-upload" type="file" accept="audio/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
-                      </div>
-                  </TabsContent>
-                  <TabsContent value="video">
-                       <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
-                         <Label htmlFor="video-upload">{t('uploadVideoFile')}</Label>
-                         <Input id="video-upload" type="file" accept="video/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
-                      </div>
-                  </TabsContent>
-              </Tabs>
-
-              {isUploading && (
-                  <div className='space-y-1'>
-                      <Label>{t('uploadingFile')}</Label>
-                      <Progress value={uploadProgress} />
-                  </div>
-              )}
-
-              <div className="flex items-center space-x-2 justify-center pt-2">
-                  <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} disabled={isSubmitting} />
-                  <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
-              </div>
-              <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0} className="w-full">
-                  {isSubmitting ? t('sending') : t('submitTestimonial')}
-              </Button>
-          </div>
-      </ScrollArea>
-    </DialogContent>
-  );
-}
-
-export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: TestimonialDialogProps) {
-  const [internalIsOpen, setInternalIsOpen] = useState(isOpen);
-
-  useEffect(() => {
-    setInternalIsOpen(isOpen);
-  }, [isOpen]);
-
-  const handleClose = (open: boolean) => {
+  const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setInternalIsOpen(false);
-      // Give animation time to finish before calling parent onClose
-      setTimeout(() => {
-        onClose();
-      }, 300);
-    } else {
-      setInternalIsOpen(true);
+      // Reset state when dialog closes
+      setTestimonialText('');
+      setRating(0);
+      setConsent(false);
+      setActiveTab('text');
+      setMediaFile(null);
+      setShowAIAssist(false);
+      setAiKeywords('');
     }
-  };
-  
-  if (!isOpen) return null;
+    setIsOpen(open);
+  }
 
   return (
-    <Dialog open={internalIsOpen} onOpenChange={handleClose}>
-        <TestimonialDialogContent user={user} ceremony={ceremony} handleClose={handleClose} />
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="sm:max-w-md p-0 border-0 flex flex-col max-h-[90vh]">
+        <ScrollArea className="h-full w-full">
+            <div className="p-6 text-center space-y-4 flex flex-col justify-center">
+                <DialogHeader>
+                    <DialogTitle>{t('testimonialTitle')}</DialogTitle>
+                    <DialogDescription>{t('testimonialDescription')}</DialogDescription>
+                </DialogHeader>
+
+                <StarRating rating={rating} setRating={setRating} disabled={isSubmitting} />
+                
+                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
+                    <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="text">{t('testimonialText')}</TabsTrigger>
+                        <TabsTrigger value="audio">{t('testimonialAudio')}</TabsTrigger>
+                        <TabsTrigger value="video">{t('testimonialVideo')}</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="text" className="space-y-4 pt-4">
+                        <Textarea
+                            value={testimonialText}
+                            onChange={(e) => setTestimonialText(e.target.value)}
+                            placeholder={t('testimonialPlaceholder')}
+                            rows={6}
+                            className="text-base"
+                            disabled={isSubmitting}
+                        />
+                        <Button variant="outline" size="sm" onClick={() => setShowAIAssist(!showAIAssist)}>
+                            <Wand2 className="mr-2 h-4 w-4"/> {showAIAssist ? t('cancel') : t('generateWithAI')}
+                        </Button>
+                        {showAIAssist && (
+                            <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
+                                <Label htmlFor="ai-keywords">{t('aiKeywordsLabel')}</Label>
+                                <Textarea 
+                                    id="ai-keywords"
+                                    value={aiKeywords}
+                                    onChange={(e) => setAiKeywords(e.target.value)}
+                                    placeholder={t('aiKeywordsPlaceholder')}
+                                    rows={2}
+                                    disabled={isGenerating}
+                                />
+                                <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiKeywords.trim()}>
+                                    {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> {t('generate')}</>}
+                                </Button>
+                            </div>
+                        )}
+                    </TabsContent>
+                    <TabsContent value="audio">
+                        <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
+                            <Label htmlFor="audio-upload">{t('uploadAudioFile')}</Label>
+                            <Input id="audio-upload" type="file" accept="audio/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="video">
+                        <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
+                            <Label htmlFor="video-upload">{t('uploadVideoFile')}</Label>
+                            <Input id="video-upload" type="file" accept="video/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
+                        </div>
+                    </TabsContent>
+                </Tabs>
+
+                {isUploading && (
+                    <div className='space-y-1'>
+                        <Label>{t('uploadingFile')}</Label>
+                        <Progress value={uploadProgress} />
+                    </div>
+                )}
+
+                <div className="flex items-center space-x-2 justify-center pt-2">
+                    <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} disabled={isSubmitting} />
+                    <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
+                </div>
+                <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0} className="w-full">
+                    {isSubmitting ? t('sending') : t('submitTestimonial')}
+                </Button>
+            </div>
+        </ScrollArea>
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -23,7 +22,6 @@ export default function CeremonyMemoryPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
-    const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
     const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
     
     const params = useParams();
@@ -173,10 +171,14 @@ export default function CeremonyMemoryPage() {
                                     {getButtonText('downloadVideo', 'Descargar Video')}
                                 </a>
                             </Button>
-                            <Button variant="outline" size="lg" className="w-full" onClick={() => handleAuthAction(() => setIsTestimonialDialogOpen(true))}>
-                                <MessageSquare className="mr-2 h-4 w-4" />
-                                {getButtonText('leaveTestimonial', 'Dejar Testimonio')}
-                            </Button>
+                            {user && ceremony && (
+                                <TestimonialDialog user={user} ceremony={ceremony}>
+                                    <Button variant="outline" size="lg" className="w-full">
+                                        <MessageSquare className="mr-2 h-4 w-4" />
+                                        {getButtonText('leaveTestimonial', 'Dejar Testimonio')}
+                                    </Button>
+                                </TestimonialDialog>
+                            )}
                             <Button variant="ghost" size="lg" className="w-full" onClick={handleShare}>
                                 <Share2 className="mr-2 h-4 w-4" />
                                 {getButtonText('shareCeremony', 'Compartir Ceremonia')}
@@ -185,14 +187,6 @@ export default function CeremonyMemoryPage() {
                     </div>
                 </div>
             </div>
-             {user && ceremony && isTestimonialDialogOpen && (
-                 <TestimonialDialog
-                    user={user}
-                    ceremony={ceremony}
-                    isOpen={isTestimonialDialogOpen}
-                    onClose={() => setIsTestimonialDialogOpen(false)}
-                 />
-            )}
         </EditableProvider>
     );
 }
