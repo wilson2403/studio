@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -16,6 +17,7 @@ import { getQuestionnaire, QuestionnaireAnswers, UserProfile } from '@/lib/fireb
 import { ScrollArea } from '../ui/scroll-area';
 import { Button } from '../ui/button';
 import { User } from 'firebase/auth';
+import { cn } from '@/lib/utils';
 
 interface ViewAnswersDialogProps {
   user: User | UserProfile;
@@ -54,7 +56,7 @@ export default function ViewAnswersDialog({ user, isOpen, onClose }: ViewAnswers
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 py-3 border-b">
         <dt className="font-semibold text-foreground/90 md:col-span-1">{label}</dt>
         <dd className="text-muted-foreground md:col-span-2">
-          {value && <span className={`font-medium ${value === 'yes' ? 'text-destructive' : 'text-primary'}`}>{displayValue}</span>}
+          {value && <span className={cn('font-medium', { 'text-destructive': value === 'yes', 'text-primary': value === 'no' })}>{displayValue}</span>}
           {details && <p className="mt-1 text-sm whitespace-pre-wrap">{details}</p>}
         </dd>
       </div>
