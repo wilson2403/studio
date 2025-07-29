@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -49,16 +50,12 @@ export const EditableProvider = ({ children }: { children: React.ReactNode }) =>
         [id]: initialValue,
     }));
     
-    try {
-        const existingValue = await getContent(id);
-        if (existingValue !== null) {
-            setContentState((prev) => ({
-                ...prev,
-                [id]: existingValue,
-            }));
-        }
-    } catch (error) {
-        console.warn(`Could not fetch content for id "${id}" offline. Using initial value.`);
+    const existingValue = await getContent(id);
+    if (existingValue !== null) {
+        setContentState((prev) => ({
+            ...prev,
+            [id]: existingValue,
+        }));
     }
   }, [content]);
 

@@ -69,7 +69,11 @@ export const getContent = async (id: string): Promise<string | { [key: string]: 
       return docSnap.data().value;
     }
     return null;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 'unavailable') {
+        console.warn(`Could not fetch content for id "${id}" while offline. Returning null.`);
+        return null;
+    }
     console.error("Error getting content: ", error);
     logError(error, { function: 'getContent', id });
     return null;
@@ -242,21 +246,30 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
 export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null> => {
     try {
+        // First, try to get by document ID, which is the most efficient
+        const docRef = doc(db, 'ceremonies', idOrSlug);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() } as Ceremony;
+        }
+
+        // If not found by ID, try to query by slug
         const q = query(collection(db, "ceremonies"), where('slug', '==', idOrSlug));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
             const doc = querySnapshot.docs[0];
             return { id: doc.id, ...doc.data() } as Ceremony;
-        } else {
-            const docRef = doc(db, 'ceremonies', idOrSlug);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-                return { id: docSnap.id, ...docSnap.data() } as Ceremony;
-            }
         }
+
+        // If still not found, return null
         return null;
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'unavailable') {
+            console.warn(`Could not fetch ceremony by id "${idOrSlug}" while offline. Returning null.`);
+            return null;
+        }
         console.error("Error getting ceremony by ID or slug: ", error);
         logError(error, { function: 'getCeremonyById', idOrSlug });
         return null;
@@ -580,7 +593,11 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
             return docSnap.data() as UserProfile;
         }
         return null;
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'unavailable') {
+            console.warn(`Could not fetch user profile for uid "${uid}" while offline. Returning null.`);
+            return null;
+        }
         console.error("Error getting user profile:", error);
         logError(error, { function: 'getUserProfile', uid });
         return null;
@@ -679,7 +696,11 @@ export const getThemeSettings = async (): Promise<ThemeSettings | null> => {
             return docSnap.data() as ThemeSettings;
         }
         return null;
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'unavailable') {
+            console.warn(`Could not fetch theme settings while offline. Returning null.`);
+            return null;
+        }
         console.error("Error getting theme settings:", error);
         logError(error, { function: 'getThemeSettings' });
         return null;
@@ -746,7 +767,11 @@ export const getChat = async (chatId: string): Promise<Chat | null> => {
             return docSnap.data() as Chat;
         }
         return null;
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'unavailable') {
+            console.warn(`Could not fetch chat for id "${chatId}" while offline. Returning null.`);
+            return null;
+        }
         console.error("Error getting chat:", error);
         logError(error, { function: 'getChat', chatId });
         return null;
@@ -827,7 +852,11 @@ export const getQuestionnaire = async (uid: string): Promise<QuestionnaireAnswer
             return docSnap.data() as QuestionnaireAnswers;
         }
         return null;
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'unavailable') {
+            console.warn(`Could not fetch questionnaire for uid "${uid}" while offline. Returning null.`);
+            return null;
+        }
         console.error("Error getting questionnaire:", error);
         logError(error, { function: 'getQuestionnaire', uid });
         return null;
