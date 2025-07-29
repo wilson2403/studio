@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -221,8 +220,11 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
 
     try {
       const ceremonyData = { ...data, slug: finalSlug, mediaUrl: finalMediaUrl, mediaType: finalMediaType, features: data.features.map(f => f.value), plans: data.plans?.map(p => ({...p, id: p.id || uuidv4()})) };
+      
       if (ceremonyData.priceType === 'exact') {
         delete ceremonyData.plans;
+      } else {
+        ceremonyData.plans = ceremonyData.plans || [];
       }
       
       if (isEditMode && ceremony) {
@@ -288,7 +290,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
             title: newTitle,
             slug: newSlug,
             featured: false, // Duplicates are not featured by default
-            plans: originalData.plans?.map(p => ({...p, id: uuidv4()})),
+            plans: originalData.plans?.map(p => ({...p, id: uuidv4()})) || [],
         };
         const newId = await addCeremony(duplicatedData);
         onDuplicate({ ...duplicatedData, id: newId });
@@ -814,6 +816,5 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     </Dialog>
   );
 }
-
 
     
