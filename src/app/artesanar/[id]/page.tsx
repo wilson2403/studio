@@ -95,7 +95,7 @@ export default function CeremonyMemoryPage() {
 
     const handleShare = async () => {
         if (!ceremony) return;
-        const shareUrl = window.location.href;
+        const shareUrl = `${window.location.origin}/artesanar/${ceremony.slug || ceremony.id}`;
         const shareText = t('shareCeremonyText', { title: ceremony.title });
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
 
