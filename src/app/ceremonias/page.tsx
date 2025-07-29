@@ -34,8 +34,7 @@ export default function AllCeremoniesPage() {
     const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
-    const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
-    const [labelsLoading, setLabelsLoading] = useState(true);
+    const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
     const { t, i18n } = useTranslation();
     const router = useRouter();
     const { toast } = useToast();
@@ -54,16 +53,13 @@ export default function AllCeremoniesPage() {
                 fetchCeremonies(false);
             }
         });
-
+        
         const fetchSettings = async () => {
-            setLabelsLoading(true);
             try {
                 const settings = await getSystemSettings();
-                setButtonLabels(settings.componentButtons);
+                setComponentButtons(settings.componentButtons);
             } catch (error) {
                 console.error("Failed to fetch button settings:", error);
-            } finally {
-                setLabelsLoading(false);
             }
         };
         fetchSettings();
@@ -172,9 +168,9 @@ export default function AllCeremoniesPage() {
     };
 
     const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
-        if (labelsLoading || !buttonLabels) return t(fallback);
+        if (!componentButtons) return t(fallback);
         const lang = i18n.language as 'es' | 'en';
-        return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(fallback);
+        return componentButtons[key]?.[lang] || componentButtons[key]?.es || t(fallback);
     };
 
 
@@ -321,9 +317,9 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? getButtonText('buttonViewDetails', 'buttonViewDetails') : t('reserveNow')}
+                                                {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
                                             </Button>
-                                        ) : ceremony.status === 'finished' && isAssigned ? (
+                                        ) : ceremony.status === 'finished' ? (
                                             <Button asChild variant="default" className='w-full'>
                                                 <Link href={`/artesanar/${ceremony.id}`}>
                                                   <Video className="mr-2 h-4 w-4"/>
