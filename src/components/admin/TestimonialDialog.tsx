@@ -143,13 +143,8 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
 
                     <StarRating rating={rating} setRating={setRating} disabled={isSubmitting} />
                     
-                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
-                        <TabsList className="grid w-full grid-cols-3">
-                            <TabsTrigger value="text">{t('testimonialText')}</TabsTrigger>
-                            <TabsTrigger value="audio">{t('testimonialAudio')}</TabsTrigger>
-                            <TabsTrigger value="video">{t('testimonialVideo')}</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="text" className="space-y-4 pt-4">
+                    <div className="w-full">
+                        <div className="space-y-4 pt-4">
                             <Textarea
                                 value={testimonialText}
                                 onChange={(e) => setTestimonialText(e.target.value)}
@@ -177,20 +172,8 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                                     </Button>
                                 </div>
                             )}
-                        </TabsContent>
-                        <TabsContent value="audio">
-                            <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
-                                <Label htmlFor="audio-upload">{t('uploadAudioFile')}</Label>
-                                <Input id="audio-upload" type="file" accept="audio/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
-                            </div>
-                        </TabsContent>
-                        <TabsContent value="video">
-                            <div className="p-4 border-2 border-dashed rounded-lg space-y-2">
-                                <Label htmlFor="video-upload">{t('uploadVideoFile')}</Label>
-                                <Input id="video-upload" type="file" accept="video/*" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} disabled={isSubmitting}/>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                        </div>
+                    </div>
 
                     {isUploading && (
                         <div className='space-y-1'>
