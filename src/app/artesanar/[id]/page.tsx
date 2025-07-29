@@ -197,7 +197,7 @@ export default function CeremonyMemoryPage() {
                     </div>
                 </div>
             </div>
-             {user && ceremony && (
+             {user && ceremony && isTestimonialDialogOpen && (
                  <TestimonialDialog
                     user={user}
                     ceremony={ceremony}
