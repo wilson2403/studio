@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { sendEmailToAllUsers } from '@/ai/flows/email-flow';
-import QuestionnaireDialog from '@/components/admin/QuestionnaireDialog';
+import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { WhatsappIcon } from '@/components/icons/WhatsappIcon';
 import EditProfileDialog from '@/components/auth/EditProfileDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
@@ -1040,10 +1040,10 @@ export default function AdminUsersPage() {
                 </TabsContent>
             </Tabs>
             {viewingUserQuestionnaire && (
-                <QuestionnaireDialog 
+                <TestimonialDialog 
                     user={viewingUserQuestionnaire} 
                     isOpen={!!viewingUserQuestionnaire} 
-                    onClose={() => setViewingUserQuestionnaire(null)} 
+                    onClose={() => setViewingUserQuestionnaire(null)}
                 />
             )}
              {viewingUserCourses && (
@@ -1123,8 +1123,6 @@ export default function AdminUsersPage() {
 
 
 
-
-    
 
     
 

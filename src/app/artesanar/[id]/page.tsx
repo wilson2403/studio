@@ -3,37 +3,32 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick, getUserProfile, UserProfile, logUserAction, addTestimonial, Testimonial } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, logUserAction, addTestimonial, Testimonial } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, CheckCircle, Clock, Download, Home, Share2 } from 'lucide-react';
+import { CalendarIcon, CheckCircle, Clock, Download, Home, MessageSquare, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import Ceremonies from '@/components/home/Ceremonies';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { EditableProvider } from '@/components/home/EditableProvider';
+import TestimonialDialog from '@/components/admin/TestimonialDialog';
+import { getUserProfile, UserProfile } from '@/lib/firebase/firestore';
+
 
 export default function CeremonyMemoryPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-    const [testimonialText, setTestimonialText] = useState('');
-    const [consent, setConsent] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
+    
     const params = useParams();
     const router = useRouter();
     const { t } = useTranslation();
-    const { toast } = useToast();
     const id = params.id as string;
 
     useEffect(() => {
@@ -58,7 +53,7 @@ export default function CeremonyMemoryPage() {
         
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
-            if (currentUser) {
+             if (currentUser) {
                 try {
                     const profile = await getUserProfile(currentUser.uid);
                     setUserProfile(profile);
@@ -89,7 +84,6 @@ export default function CeremonyMemoryPage() {
                     url: shareUrl,
                 });
             } catch (error) {
-                // Fallback to WhatsApp if share API fails or is denied
                 window.open(whatsappUrl, '_blank');
             }
         } else {
@@ -97,59 +91,9 @@ export default function CeremonyMemoryPage() {
         }
     };
     
-    const handleTestimonialSubmit = async () => {
-        if (!user || !ceremony || !testimonialText.trim() || !consent) {
-            toast({
-                title: t('error'),
-                description: t('testimonialErrorDescription'),
-                variant: 'destructive'
-            });
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            const testimonialData: Omit<Testimonial, 'id'> = {
-                userId: user.uid,
-                ceremonyId: ceremony.id,
-                type: 'text',
-                content: testimonialText,
-                consent: consent,
-                createdAt: new Date(),
-                userName: user.displayName || 'Anónimo',
-                userPhotoUrl: user.photoURL
-            };
-            await addTestimonial(testimonialData);
-            toast({
-                title: t('testimonialSuccessTitle'),
-                description: t('testimonialSuccessDescription'),
-            });
-            setTestimonialText('');
-            setConsent(false);
-        } catch (error) {
-            toast({
-                title: t('error'),
-                description: t('testimonialErrorSubmit'),
-                variant: 'destructive'
-            });
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
 
     if (loading) {
-        return (
-            <div className="flex flex-col md:flex-row min-h-screen bg-background">
-                <Skeleton className="w-full md:w-1/2 h-64 md:h-screen" />
-                <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 space-y-6">
-                    <Skeleton className="h-10 w-3/4" />
-                    <Skeleton className="h-6 w-1/2" />
-                    <Skeleton className="h-20 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                </div>
-            </div>
-        );
+        return <Skeleton className="w-screen h-screen" />;
     }
 
     if (!ceremony) {
@@ -168,9 +112,8 @@ export default function CeremonyMemoryPage() {
 
     return (
         <EditableProvider>
-        <div>
-            <div className="flex flex-col md:flex-row min-h-screen bg-background relative">
-                <div className="w-full md:w-1/2 md:h-screen sticky top-0">
+            <div className="h-screen w-screen relative">
+                <div className="absolute inset-0 z-0">
                      <VideoPlayer
                         ceremonyId={ceremony.id}
                         videoUrl={ceremony.mediaUrl}
@@ -179,81 +122,59 @@ export default function CeremonyMemoryPage() {
                         title={ceremony.title}
                         autoplay
                         defaultMuted={true}
-                    >
-                        <Button variant="ghost" onClick={handleShare} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
-                            <Share2 className="h-5 w-5" />
-                        </Button>
-                    </VideoPlayer>
+                    />
                 </div>
-                <main className="w-full md:w-1/2">
-                    <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen">
-                        <div>
-                            <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary mt-12">{ceremony.title}</h1>
-                            <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
-                                {ceremony.date && (
-                                <p className="flex items-center gap-2">
-                                    <CalendarIcon className='w-4 h-4'/> {ceremony.date}
-                                </p>
-                                )}
-                                {ceremony.horario && (
-                                <p className="flex items-center gap-2">
-                                    <Clock className='w-4 h-4'/> {ceremony.horario}
-                                </p>
-                                )}
-                            </div>
-                            {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
-                            <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
-                        </div>
-                        <div className="mt-12">
-                             {isAssignedToCeremony && ceremony.downloadUrl && (
-                                <Button asChild size="lg" className="w-full">
-                                    <a href={ceremony.downloadUrl} download>
-                                        <Download className="mr-2 h-4 w-4" />
-                                        {t('downloadVideo')}
-                                    </a>
-                                </Button>
+                <div className="absolute inset-0 z-10 bg-black/50"></div>
+                <main className="relative z-20 flex flex-col items-center justify-center text-center text-white h-full p-4">
+                    <div className='flex-grow flex flex-col items-center justify-center'>
+                        <h1 className="text-4xl lg:text-6xl font-headline mb-4 drop-shadow-lg animate-in fade-in-0 slide-in-from-bottom-5 duration-1000">{ceremony.title}</h1>
+                        <div className="font-mono text-sm text-white/80 mb-6 space-y-1 drop-shadow-md animate-in fade-in-0 slide-in-from-bottom-5 duration-1000 delay-200">
+                            {ceremony.date && (
+                            <p className="flex items-center gap-2">
+                                <CalendarIcon className='w-4 h-4'/> {ceremony.date}
+                            </p>
+                            )}
+                            {ceremony.horario && (
+                            <p className="flex items-center gap-2">
+                                <Clock className='w-4 h-4'/> {ceremony.horario}
+                            </p>
                             )}
                         </div>
+                        {isAssignedToCeremony && <Badge variant="success" className="mb-4 animate-in fade-in-0 duration-1000 delay-300"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
+                        <p className="text-lg text-white/90 mb-8 max-w-2xl drop-shadow animate-in fade-in-0 slide-in-from-bottom-5 duration-1000 delay-400">{ceremony.description}</p>
+                    </div>
+
+                    <div className="w-full max-w-md space-y-3 animate-in fade-in-0 slide-in-from-bottom-10 duration-1000 delay-500">
+                        {isAssignedToCeremony && ceremony.downloadUrl && (
+                            <Button asChild size="lg" className="w-full">
+                                <a href={ceremony.downloadUrl} download>
+                                    <Download className="mr-2 h-4 w-4" />
+                                    {t('downloadVideo')}
+                                </a>
+                            </Button>
+                        )}
+                        {isAssignedToCeremony && (
+                            <Button variant="outline" size="lg" className="w-full bg-white/10 border-white/20 hover:bg-white/20" onClick={() => setIsTestimonialDialogOpen(true)}>
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                {t('testimonialTitle')}
+                            </Button>
+                        )}
+                         <Button variant="ghost" size="lg" className="w-full text-white/80 hover:text-white hover:bg-white/10" onClick={handleShare}>
+                            <Share2 className="mr-2 h-4 w-4" />
+                            {t('shareCeremony')}
+                        </Button>
                     </div>
                 </main>
             </div>
-            
-            {isAssignedToCeremony && (
-                <section className="py-12 md:py-24 bg-muted">
-                    <div className="container">
-                        <Card className="max-w-2xl mx-auto">
-                            <CardHeader>
-                                <CardTitle>{t('testimonialTitle')}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                               <p className="text-muted-foreground">{t('testimonialDescription')}</p>
-                               <Textarea
-                                   value={testimonialText}
-                                   onChange={(e) => setTestimonialText(e.target.value)}
-                                   placeholder={t('testimonialPlaceholder')}
-                                   rows={5}
-                               />
-                               <div className="flex items-center space-x-2">
-                                   <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} />
-                                   <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
-                               </div>
-                               <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || !testimonialText.trim()}>
-                                    {isSubmitting ? t('sending') : t('submitTestimonial')}
-                               </Button>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </section>
+             {user && ceremony && (
+                 <TestimonialDialog
+                    user={user}
+                    ceremony={ceremony}
+                    isOpen={isTestimonialDialogOpen}
+                    onClose={() => setIsTestimonialDialogOpen(false)}
+                 />
             )}
-
-            <Ceremonies
-                status="finished"
-                id="eventos-anteriores"
-                titleId="pastEventsTitle"
-                titleInitialValue={t('pastEventsTitle')}
-                hideDownloadButton={false}
-            />
-        </div>
         </EditableProvider>
     );
 }
+
