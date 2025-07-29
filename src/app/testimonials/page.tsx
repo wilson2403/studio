@@ -17,8 +17,8 @@ import { EditableProvider } from '@/components/home/EditableProvider';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { Button } from '../ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 
 export default function TestimonialsPage() {
@@ -156,7 +156,7 @@ export default function TestimonialsPage() {
                                       <p className="font-semibold">{testimonial.userName}</p>
                                       {testimonial.rating && renderStars(testimonial.rating)}
                                    </div>
-                                   <p className="text-xs text-muted-foreground">{format(testimonial.createdAt.toDate(), 'PPP', { locale })}</p>
+                                   <p className="text-xs text-muted-foreground">{format(testimonial.createdAt, 'PPP', { locale })}</p>
                                 </div>
                                 {getTestimonialIcon(testimonial.type)}
                               </div>
