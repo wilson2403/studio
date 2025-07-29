@@ -12,17 +12,14 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '../ui/button';
-import { X, Star, Wand2, Sparkles } from 'lucide-react';
+import { Star, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { User } from 'firebase/auth';
 import { Ceremony, Testimonial } from '@/types';
-import { addTestimonial, uploadMedia } from '@/lib/firebase/firestore';
+import { addTestimonial } from '@/lib/firebase/firestore';
 import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Input } from '../ui/input';
-import { Progress } from '../ui/progress';
 import { generateTestimonial } from '@/ai/flows/testimonial-flow';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
@@ -54,11 +51,6 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
     const [consent, setConsent] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
-    const [activeTab, setActiveTab] = useState<'text' | 'audio' | 'video'>('text');
-    const [mediaFile, setMediaFile] = useState<File | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
-    
     const [showAIAssist, setShowAIAssist] = useState(false);
     const [aiKeywords, setAiKeywords] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
@@ -83,39 +75,19 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
             return;
         }
         
-        if (activeTab === 'text' && !testimonialText.trim()) {
+        if (!testimonialText.trim()) {
             toast({ title: t('error'), description: t('testimonialErrorTextRequired'), variant: 'destructive' });
-            return;
-        }
-        
-        if (activeTab !== 'text' && !mediaFile) {
-            toast({ title: t('error'), description: t('testimonialErrorFileRequired'), variant: 'destructive' });
             return;
         }
 
         setIsSubmitting(true);
-        let finalContent = testimonialText;
-
-        if (activeTab !== 'text' && mediaFile) {
-            setIsUploading(true);
-            try {
-                const onProgress = (progress: number) => setUploadProgress(progress);
-                finalContent = await uploadMedia(mediaFile, onProgress, `testimonials/${activeTab}s`);
-            } catch (error) {
-                toast({ title: t('errorUploadingFile'), variant: 'destructive' });
-                setIsSubmitting(false);
-                setIsUploading(false);
-                return;
-            }
-            setIsUploading(false);
-        }
         
         try {
             const newTestimonial: Omit<Testimonial, 'id'> = {
                 userId: user.uid,
                 ceremonyId: ceremony.id,
-                type: activeTab,
-                content: finalContent,
+                type: 'text',
+                content: testimonialText,
                 rating: rating,
                 consent: consent,
                 createdAt: new Date(),
@@ -175,18 +147,11 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                         </div>
                     </div>
 
-                    {isUploading && (
-                        <div className='space-y-1'>
-                            <Label>{t('uploadingFile')}</Label>
-                            <Progress value={uploadProgress} />
-                        </div>
-                    )}
-
                     <div className="flex items-center space-x-2 justify-center pt-2">
                         <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} disabled={isSubmitting} />
                         <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
                     </div>
-                    <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0} className="w-full">
+                    <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0 || !testimonialText.trim()} className="w-full">
                         {isSubmitting ? t('sending') : t('submitTestimonial')}
                     </Button>
                 </div>

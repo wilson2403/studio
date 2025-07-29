@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, logUserAction } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, logUserAction, getUserProfile } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -38,7 +38,10 @@ export default function CeremonyMemoryPage() {
                     const data = await getCeremonyById(id);
                     setCeremony(data);
                     if (data) {
-                        logUserAction('navigate_to_page', { targetId: data.slug, targetType: 'ceremony_memory' });
+                        const profile = auth.currentUser ? await getUserProfile(auth.currentUser.uid) : null;
+                        if(profile?.role !== 'admin') {
+                            logUserAction('navigate_to_page', { targetId: data.slug, targetType: 'ceremony_memory' });
+                        }
                     }
                 } catch (error) {
                     console.error("Failed to fetch ceremony", error);
