@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, getUserProfile, UserProfile, logUserAction } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, getUserProfile, UserProfile, logUserAction, addTestimonial, Testimonial } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -19,7 +19,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { addTestimonial, Testimonial } from '@/lib/firebase/firestore';
 import { EditableProvider } from '@/components/home/EditableProvider';
 
 export default function CeremonyMemoryPage() {
@@ -90,7 +89,7 @@ export default function CeremonyMemoryPage() {
                     url: shareUrl,
                 });
             } catch (error) {
-                console.error('Error sharing:', error);
+                // Fallback to WhatsApp if share API fails or is denied
                 window.open(whatsappUrl, '_blank');
             }
         } else {
@@ -258,4 +257,3 @@ export default function CeremonyMemoryPage() {
         </EditableProvider>
     );
 }
-

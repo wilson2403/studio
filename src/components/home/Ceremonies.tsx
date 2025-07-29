@@ -181,7 +181,7 @@ export default function Ceremonies({
                 url: shareUrl,
             });
         } catch (error) {
-            console.error('Error sharing:', error);
+            // Fallback to WhatsApp if share API fails
             window.open(whatsappUrl, '_blank');
         }
     } else {
@@ -481,5 +481,3 @@ interface CeremoniesProps {
     subtitleInitialValue?: string;
     hideDownloadButton?: boolean;
 }
-
-
