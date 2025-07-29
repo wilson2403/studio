@@ -242,21 +242,19 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
 export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null> => {
     try {
-        const docRef = doc(db, 'ceremonies', idOrSlug);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            return { id: docSnap.id, ...docSnap.data() } as Ceremony;
-        }
-
-        const q = query(ceremoniesCollection, where("slug", "==", idOrSlug), limit(1));
+        const q = query(collection(db, "ceremonies"), where('slug', '==', idOrSlug));
         const querySnapshot = await getDocs(q);
-        
+
         if (!querySnapshot.empty) {
             const doc = querySnapshot.docs[0];
             return { id: doc.id, ...doc.data() } as Ceremony;
+        } else {
+            const docRef = doc(db, 'ceremonies', idOrSlug);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                return { id: docSnap.id, ...docSnap.data() } as Ceremony;
+            }
         }
-
         return null;
     } catch (error) {
         console.error("Error getting ceremony by ID or slug: ", error);
@@ -267,7 +265,7 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
-        const docRef = doc(ceremoniesCollection); 
+        const docRef = doc(ceremoniesCollection, ceremony.slug || uuidv4()); 
         const newCeremony = {
             ...ceremony,
             id: docRef.id,
@@ -1360,9 +1358,5 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
 
 export type { Chat };
 export type { UserProfile };
-
-  
-
-    
 
     
