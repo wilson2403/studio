@@ -1045,28 +1045,30 @@ export default function AdminUsersPage() {
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="destructive" >
-                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                {t('deleteAllAuditLogs')}
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>{t('deleteAllAuditLogsConfirmTitle')}</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    {t('deleteAllAuditLogsConfirmDescription')}
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                <AlertDialogAction onClick={handleDeleteAuditLogs}>
-                                                    {t('continue')}
-                                                </AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
+                                    {isSuperAdmin && (
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="destructive" >
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    {t('deleteAllAuditLogs')}
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>{t('deleteAllAuditLogsConfirmTitle')}</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        {t('deleteAllAuditLogsConfirmDescription')}
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={handleDeleteAuditLogs}>
+                                                        {t('continue')}
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    )}
                                 </div>
                                 </>
                             )}
@@ -1151,3 +1153,4 @@ export default function AdminUsersPage() {
 }
 
     
+
