@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, getUserProfile, UserProfile, logUserAction, addTestimonial, Testimonial } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, Plan, incrementCeremonyWhatsappClick, getUserProfile, UserProfile, logUserAction, addTestimonial, Testimonial } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';

@@ -238,7 +238,6 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
 export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null> => {
     try {
-        // First, try to get by direct ID
         const docRef = doc(db, 'ceremonies', idOrSlug);
         const docSnap = await getDoc(docRef);
 
@@ -246,7 +245,6 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
             return { id: docSnap.id, ...docSnap.data() } as Ceremony;
         }
 
-        // If not found, try to query by slug
         const q = query(ceremoniesCollection, where("id", "==", idOrSlug));
         const querySnapshot = await getDocs(q);
         
@@ -265,7 +263,7 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
-        const docRef = doc(ceremoniesCollection); // Generate a new document reference with an auto-generated ID
+        const docRef = doc(ceremoniesCollection); 
         const newCeremony = {
             ...ceremony,
             id: docRef.id,
@@ -273,7 +271,7 @@ export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<strin
             reserveClickCount: 0,
             whatsappClickCount: 0,
         };
-        await setDoc(docRef, newCeremony); // Use setDoc with the new reference
+        await setDoc(docRef, newCeremony);
         await logUserAction('create_ceremony', { targetId: docRef.id, targetType: 'ceremony', changes: ceremony });
         return docRef.id;
     } catch(error) {
