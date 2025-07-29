@@ -65,11 +65,6 @@ function TestimonialDialogContent({ user, ceremony, isOpen, onClose }: Testimoni
   const [showAIAssist, setShowAIAssist] = useState(false);
   const [aiKeywords, setAiKeywords] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-
-  const steps = useMemo(() => [
-    { id: 'form', title: t('testimonialTitle'), description: t('testimonialDescription') },
-    { id: 'thanks', title: t('thanks'), description: t('testimonialThanksDescription') }
-  ], [t]);
   
   const resetState = () => {
     setTestimonialText('');
@@ -173,8 +168,8 @@ function TestimonialDialogContent({ user, ceremony, isOpen, onClose }: Testimoni
         <ScrollArea className="h-full w-full">
             <div className="p-6 text-center space-y-4 flex flex-col justify-center min-h-[calc(90vh-50px)]">
                 <DialogHeader>
-                    <DialogTitle>{steps[0].title}</DialogTitle>
-                    <DialogDescription>{steps[0].description}</DialogDescription>
+                    <DialogTitle>{t('testimonialTitle')}</DialogTitle>
+                    <DialogDescription>{t('testimonialDescription')}</DialogDescription>
                 </DialogHeader>
 
                 <StarRating rating={rating} setRating={setRating} disabled={isSubmitting} />
