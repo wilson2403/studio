@@ -129,42 +129,26 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
       </EditWrapper>
     );
   }
-
-  if (Tag === 'p' && !isAdmin) {
-    // Return a fragment or just text if it's a non-admin view of a paragraph
-    return <>{displayValue}</>;
-  }
   
-  if (Tag === 'p' && isAdmin) {
-    return (
-        <span className={cn("relative group inline-flex items-center justify-center gap-2", className)}>
-            <span className={className}>{displayValue}</span>
-             <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={handleEditClick}
-                >
-                <Edit className="h-4 w-4" />
-            </Button>
-        </span>
-    )
-  }
-
+  const Wrapper = Tag === 'p' ? 'span' : 'div';
 
   return (
-    <div className={cn("relative group flex items-center justify-center gap-2", Tag !== 'p' && "w-full")}>
+    <Wrapper className={cn(
+      "relative group flex items-center justify-center gap-2", 
+      Tag !== 'p' && "w-full",
+      Tag === 'p' && 'inline-flex' // Make span behave like flex container
+    )}>
       <Tag className={className}>{displayValue}</Tag>
       {isAdmin && (
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity absolute right-[-40px]"
+          className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
           onClick={handleEditClick}
         >
           <Edit className="h-4 w-4" />
         </Button>
       )}
-    </div>
+    </Wrapper>
   );
 };

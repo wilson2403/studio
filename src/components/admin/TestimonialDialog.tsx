@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -24,6 +23,7 @@ import { generateTestimonial } from '@/ai/flows/testimonial-flow';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { EditableTitle } from '../home/EditableTitle';
+import { useState } from 'react';
 
 interface TestimonialDialogProps {
   user: User;
