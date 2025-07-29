@@ -45,8 +45,7 @@ export default function Ceremonies({
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { toast } = useToast();
-  const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
-  const [labelsLoading, setLabelsLoading] = useState(true);
+  const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -60,16 +59,13 @@ export default function Ceremonies({
           setIsAuthorized(false);
       }
     });
-
+    
     const fetchSettings = async () => {
-        setLabelsLoading(true);
         try {
             const settings = await getSystemSettings();
-            setButtonLabels(settings.componentButtons);
+            setComponentButtons(settings.componentButtons);
         } catch (error) {
             console.error("Failed to fetch button settings:", error);
-        } finally {
-            setLabelsLoading(false);
         }
     };
     fetchSettings();
@@ -208,9 +204,9 @@ export default function Ceremonies({
   };
 
   const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
-    if (labelsLoading || !buttonLabels) return t(fallback);
     const lang = i18n.language as 'es' | 'en';
-    return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(fallback);
+    if (!componentButtons) return t(fallback);
+    return componentButtons[key]?.[lang] || componentButtons[key]?.es || t(fallback);
   };
 
   const renderActiveCeremonies = () => {
