@@ -25,6 +25,8 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolea
     playlist: videoId,
     mute: defaultMuted ? '1' : '0',
     vq: 'hd2160',
+    rel: '0',
+    showinfo: '0',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
@@ -105,7 +107,7 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
                   title={title}
                   frameBorder="0"
                   scrolling="no"
-                  allow="autoplay; encrypted-media; picture-in-picture"
+                  allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
                   allowFullScreen
                   className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
                   onLoad={handleLoad}
