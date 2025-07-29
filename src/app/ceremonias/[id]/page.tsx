@@ -77,7 +77,7 @@ export default function SingleCeremonyPage() {
 
     }, [id]);
     
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => ac === id) || false;
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => (typeof ac === 'string' ? ac : ac.ceremonyId) === id) || false;
 
     const assignedPlan = ceremony?.plans?.find(p => 
         userProfile?.assignedCeremonies?.some(ac => 
@@ -231,7 +231,7 @@ export default function SingleCeremonyPage() {
                                 {user && ceremony.status === 'active' && isAssignedToCeremony && ceremony.locationLink && (
                                     <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
                                         <MapPin className='w-4 h-4'/>
-                                        <EditableTitle tag="p" id="buttonViewLocation" initialValue={t('viewLocation')} />
+                                        <p>{t('viewLocation')}</p>
                                     </a>
                                 )}
                             </div>
