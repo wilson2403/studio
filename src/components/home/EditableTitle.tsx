@@ -39,19 +39,20 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     let newDisplayValue: string;
 
     if (typeof contentValue === 'object' && contentValue !== null) {
+        // It's a structured content object like { es: 'Hola', en: 'Hello' }
         newDisplayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
     } else if (typeof contentValue === 'string') {
+        // It's a simple string, probably from initial state or older data
         newDisplayValue = contentValue;
     } else {
+        // No content found, use the initial value
         newDisplayValue = initialValue;
     }
-
-    // Fallback to translation if display value is still the key
-    if (newDisplayValue === id || newDisplayValue === initialValue) {
-        newDisplayValue = t(initialValue);
-    }
     
-    setDisplayValue(newDisplayValue);
+    // The initialValue can either be a translation KEY or a pre-translated string.
+    // We try to translate it. If it's a key, t() will work. If it's already translated,
+    // t() will just return the same string, which is fine.
+    setDisplayValue(t(newDisplayValue));
 
   }, [content, id, lang, initialValue, t]);
 
