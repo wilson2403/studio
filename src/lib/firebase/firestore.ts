@@ -2,7 +2,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from './config';
 
@@ -19,6 +19,7 @@ const ceremonyInvitationMessagesCollection = collection(db, 'ceremonyInvitationM
 const analyticsCollection = collection(db, 'analytics');
 const coursesCollection = collection(db, 'courses');
 const auditLogsCollection = collection(db, 'audit_logs');
+const testimonialsCollection = collection(db, 'testimonials');
 
 
 export const logError = (error: any, context?: Record<string, any>) => {
@@ -1241,6 +1242,52 @@ export const getAuditLogsForUser = async (userId: string): Promise<AuditLog[]> =
         return [];
     }
 }
+
+// --- Testimonials ---
+export const addTestimonial = async (testimonial: Omit<Testimonial, 'id'>): Promise<string> => {
+    try {
+        const docRef = await addDoc(testimonialsCollection, testimonial);
+        return docRef.id;
+    } catch (error) {
+        console.error("Error adding testimonial:", error);
+        logError(error, { function: 'addTestimonial' });
+        throw error;
+    }
+};
+
+export const getTestimonialsByCeremonyId = async (ceremonyId: string): Promise<Testimonial[]> => {
+    try {
+        const q = query(
+            testimonialsCollection,
+            where('ceremonyId', '==', ceremonyId),
+            where('consent', '==', true),
+            orderBy('createdAt', 'desc')
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial));
+    } catch (error) {
+        console.error("Error fetching testimonials:", error);
+        logError(error, { function: 'getTestimonialsByCeremonyId', ceremonyId });
+        return [];
+    }
+};
+
+export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
+    try {
+        const q = query(
+            testimonialsCollection,
+            where('consent', '==', true),
+            orderBy('createdAt', 'desc')
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial));
+    } catch (error) {
+        console.error("Error fetching public testimonials:", error);
+        logError(error, { function: 'getPublicTestimonials' });
+        return [];
+    }
+};
+
 
 export type { Chat };
 export type { UserProfile };
