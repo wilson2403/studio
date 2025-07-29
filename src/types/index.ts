@@ -38,6 +38,7 @@ export type Ceremony = {
   reserveClickCount?: number;
   whatsappClickCount?: number;
   assignedUsers?: UserProfile[];
+  testimonials?: Testimonial[];
 };
 
 export type PastCeremony = {
@@ -76,7 +77,7 @@ export type UserProfile = {
     questionnaireCompleted?: boolean;
     status?: UserStatus;
     preparationStep?: number;
-    assignedCeremonies?: string[] | { ceremonyId: string; planId: string }[];
+    assignedCeremonies?: (string | { ceremonyId: string; planId: string })[];
     completedCourses?: string[];
     videoProgress?: { [videoId: string]: number };
     hasLogs?: boolean;
@@ -237,7 +238,9 @@ export type SystemSettings = {
         home: { es: string; en: string };
         medicine: { es: string; en: string };
         guides: { es: string; en: string };
+        testimonials: { es: string; en: string };
         ceremonies: { es: string; en: string };
+        journey: { es: string; en: string };
         preparation: { es: string; en: string };
     };
 };

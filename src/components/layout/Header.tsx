@@ -32,13 +32,20 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { getUserProfile, logUserAction, UserProfile, getNewErrorLogsCount } from '@/lib/firebase/firestore';
+import { getUserProfile, logUserAction, UserProfile, getNewErrorLogsCount, getContent } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 
 const APP_VERSION = '1.62';
+
+type NavLink = {
+    href: string;
+    labelKey: string;
+    sectionId: string;
+    dynamicLabel?: string;
+};
 
 export default function Header() {
   const pathname = usePathname();
@@ -47,21 +54,22 @@ export default function Header() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const previousPathname = usePrevious(pathname);
   const [newErrorCount, setNewErrorCount] = useState(0);
+  const [navLinkLabels, setNavLinkLabels] = useState<Record<string, string>>({});
 
 
-  const navLinks = [
+  const navLinks: NavLink[] = [
     { href: '/', labelKey: 'navHome', sectionId: 'home' },
     { href: '/ayahuasca', labelKey: 'navMedicine', sectionId: 'medicine' },
     { href: '/guides', labelKey: 'navGuides', sectionId: 'guides' },
     { href: '/testimonials', labelKey: 'navTestimonials', sectionId: 'testimonials' },
   ];
   
-  const userNavLinks = [
+  const userNavLinks: NavLink[] = [
      { href: '/ceremonies', labelKey: 'navCeremonies', sectionId: 'ceremonies' },
-     { href: '/artedesanar', labelKey: 'navStartJourney', sectionId: 'journey' },
+     { href: '/artedesanar', labelKey: 'navJourney', sectionId: 'journey' },
      { href: '/preparation', labelKey: 'navPreparation', sectionId: 'preparation' },
   ];
 
@@ -78,6 +86,26 @@ export default function Header() {
   const isAdmin = userProfile?.role === 'admin';
   const isOrganizer = userProfile?.role === 'organizer';
   const organizerHasPerms = isOrganizer && (userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses || userProfile?.permissions?.canEditUsers);
+
+  useEffect(() => {
+    const fetchNavLabels = async () => {
+        const allLinks = [...navLinks, ...userNavLinks];
+        const labels: Record<string, string> = {};
+        for (const link of allLinks) {
+            const content = await getContent(link.labelKey);
+            if (typeof content === 'object' && content !== null) {
+                labels[link.labelKey] = content[i18n.language as 'es' | 'en'] || content['es'] || t(link.labelKey);
+            } else if (typeof content === 'string') {
+                 labels[link.labelKey] = content;
+            } else {
+                 labels[link.labelKey] = t(link.labelKey);
+            }
+        }
+        setNavLinkLabels(labels);
+    };
+
+    fetchNavLabels();
+  }, [i18n.language, t]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -131,6 +159,39 @@ export default function Header() {
       logUserAction('click_section', { targetId: sectionId });
     }
   }
+  
+  const getNavLink = (link: NavLink) => {
+    const label = navLinkLabels[link.labelKey] || t(link.labelKey);
+    return (
+        <Link
+            key={link.href}
+            href={link.href}
+            onMouseDown={() => handleLinkMouseDown(link.sectionId)}
+            className={cn(
+            'transition-colors hover:text-primary',
+            (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
+                ? 'text-primary'
+                : 'text-foreground/60'
+            )}
+        >
+            {label}
+        </Link>
+    );
+  };
+   const getMobileNavLink = (link: NavLink) => {
+      const label = navLinkLabels[link.labelKey] || t(link.labelKey);
+      return (
+        <SheetClose asChild key={link.href}>
+          <Link
+            href={link.href}
+            onMouseDown={() => handleLinkMouseDown(link.sectionId)}
+            className="transition-colors hover:text-primary"
+          >
+            {label}
+          </Link>
+        </SheetClose>
+      );
+    }
 
   const AuthContent = () => {
     if (loading) {
@@ -266,36 +327,8 @@ export default function Header() {
             </Link>
           </div>
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onMouseDown={() => handleLinkMouseDown(link.sectionId)}
-                className={cn(
-                  'transition-colors hover:text-primary',
-                  (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
-                    ? 'text-primary'
-                    : 'text-foreground/60'
-                )}
-              >
-                {t(link.labelKey)}
-              </Link>
-            ))}
-            {user && userNavLinks.map((link) => (
-               <Link
-                key={link.href}
-                href={link.href}
-                onMouseDown={() => handleLinkMouseDown(link.sectionId)}
-                className={cn(
-                  'transition-colors hover:text-primary',
-                  (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
-                    ? 'text-primary'
-                    : 'text-foreground/60'
-                )}
-              >
-                {t(link.labelKey)}
-              </Link>
-            ))}
+            {navLinks.map(getNavLink)}
+            {user && userNavLinks.map(getNavLink)}
           </nav>
           <div className="flex flex-1 items-center justify-end space-x-2">
             <ThemeSwitcher />
@@ -394,28 +427,8 @@ export default function Header() {
                           <DropdownMenuSeparator />
                         </>
                       )}
-                      {navLinks.map((link) => (
-                        <SheetClose asChild key={link.href}>
-                          <Link
-                            href={link.href}
-                            onMouseDown={() => handleLinkMouseDown(link.sectionId)}
-                            className="transition-colors hover:text-primary"
-                          >
-                            {t(link.labelKey)}
-                          </Link>
-                        </SheetClose>
-                      ))}
-                      {user && userNavLinks.map((link) => (
-                        <SheetClose asChild key={link.href}>
-                          <Link
-                            href={link.href}
-                            onMouseDown={() => handleLinkMouseDown(link.sectionId)}
-                            className="transition-colors hover:text-primary"
-                          >
-                            {t(link.labelKey)}
-                          </Link>
-                        </SheetClose>
-                      ))}
+                      {navLinks.map(getMobileNavLink)}
+                      {user && userNavLinks.map(getMobileNavLink)}
                     </nav>
                   </div>
                 </ScrollArea>

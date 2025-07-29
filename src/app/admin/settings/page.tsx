@@ -45,7 +45,9 @@ const settingsFormSchema = z.object({
         home: navLinkSchema,
         medicine: navLinkSchema,
         guides: navLinkSchema,
+        testimonials: navLinkSchema,
         ceremonies: navLinkSchema,
+        journey: navLinkSchema,
         preparation: navLinkSchema,
     }),
 });
@@ -113,7 +115,7 @@ export default function AdminSettingsPage() {
         <div className="space-y-4">
             {navLinks.map((key) => (
                 <div key={key} className="p-4 border rounded-lg">
-                    <h4 className="font-semibold capitalize mb-2">{key}</h4>
+                    <h4 className="font-semibold capitalize mb-2">{t(`nav${key.charAt(0).toUpperCase() + key.slice(1)}` as any, key)}</h4>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                             control={form.control}
@@ -257,7 +259,7 @@ export default function AdminSettingsPage() {
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pt-4">
-                                {renderNavLinks(['home', 'medicine', 'guides', 'ceremonies', 'preparation'])}
+                                {renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>

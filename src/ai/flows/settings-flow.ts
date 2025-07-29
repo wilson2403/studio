@@ -38,7 +38,9 @@ const settingsSchema = z.object({
         home: navLinkSchema,
         medicine: navLinkSchema,
         guides: navLinkSchema,
+        testimonials: navLinkSchema,
         ceremonies: navLinkSchema,
+        journey: navLinkSchema,
         preparation: navLinkSchema,
     }),
 });
@@ -67,7 +69,9 @@ export const getSystemSettings = ai.defineFlow(
           home: await fetchContentWithFallback('navHome', { es: 'Inicio', en: 'Home' }),
           medicine: await fetchContentWithFallback('navMedicine', { es: 'Medicina', en: 'Medicine' }),
           guides: await fetchContentWithFallback('navGuides', { es: 'Guías', en: 'Guides' }),
+          testimonials: await fetchContentWithFallback('navTestimonials', { es: 'Testimonios', en: 'Testimonials' }),
           ceremonies: await fetchContentWithFallback('navCeremonies', { es: 'Ceremonias', en: 'Ceremonies' }),
+          journey: await fetchContentWithFallback('navJourney', { es: 'Iniciar mi Viaje', en: 'Start my Journey' }),
           preparation: await fetchContentWithFallback('navPreparation', { es: 'Preparación', en: 'Preparation' }),
       };
 
