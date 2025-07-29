@@ -235,17 +235,29 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
   }
 };
 
-export const getCeremonyById = async (id: string): Promise<Ceremony | null> => {
+export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null> => {
     try {
-        const docRef = doc(db, 'ceremonies', id);
+        // First, try to get by direct ID
+        const docRef = doc(db, 'ceremonies', idOrSlug);
         const docSnap = await getDoc(docRef);
+
         if (docSnap.exists()) {
             return { id: docSnap.id, ...docSnap.data() } as Ceremony;
         }
+
+        // If not found, try to query by slug
+        const q = query(ceremoniesCollection, where("id", "==", idOrSlug));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+            const doc = querySnapshot.docs[0];
+            return { id: doc.id, ...doc.data() } as Ceremony;
+        }
+
         return null;
     } catch (error) {
-        console.error("Error getting ceremony by ID: ", error);
-        logError(error, { function: 'getCeremonyById', id });
+        console.error("Error getting ceremony by ID or slug: ", error);
+        logError(error, { function: 'getCeremonyById', idOrSlug });
         return null;
     }
 }
