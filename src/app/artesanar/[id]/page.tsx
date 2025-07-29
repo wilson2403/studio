@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, logUserAction, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, getUserProfile, UserProfile, incrementCeremonyDownloadCount, logUserAction } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -41,7 +41,8 @@ export default function CeremonyMemoryPage() {
                     if (data) {
                          const profile = currentUser ? await getUserProfile(currentUser.uid) : null;
                         if(profile?.role !== 'admin') {
-                            logUserAction('navigate_to_page', { targetId: data.slug, targetType: 'ceremony_memory' });
+                            // This is handled by the VideoPlayer now
+                            // logUserAction('navigate_to_page', { targetId: data.slug, targetType: 'ceremony_memory' });
                         }
                     }
                 } catch (error) {
@@ -121,23 +122,25 @@ export default function CeremonyMemoryPage() {
     };
 
     const handleDownload = () => {
-        if (!user || !ceremony?.downloadUrl) {
-            handleAuthAction(() => {});
-            return;
-        }
+        handleAuthAction(() => {
+            if (!ceremony?.downloadUrl) return;
 
-        logUserAction('download_ceremony_memory', {
-            targetId: ceremony.id,
-            targetType: 'ceremony',
-            changes: { role: userProfile?.role }
+            if (userProfile?.role !== 'admin' && userProfile?.role !== 'organizer') {
+                incrementCeremonyDownloadCount(ceremony.id);
+                logUserAction('download_ceremony_memory', {
+                    targetId: ceremony.id,
+                    targetType: 'ceremony',
+                    changes: { role: userProfile?.role }
+                });
+            }
+            
+            const link = document.createElement('a');
+            link.href = ceremony.downloadUrl;
+            link.download = `${ceremony.title}-recuerdo.mp4`; 
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
-        
-        const link = document.createElement('a');
-        link.href = ceremony.downloadUrl;
-        link.download = `${ceremony.title}-recuerdo.mp4`; 
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
     };
 
     if (loading) {

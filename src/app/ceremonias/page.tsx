@@ -266,7 +266,7 @@ export default function AllCeremoniesPage() {
                         };
                         
                         const isFinishedMemory = ceremony.status === 'finished' && isAssigned;
-                        const videoUrlToShow = isFinishedMemory && ceremony.downloadUrl ? ceremony.downloadUrl : ceremony.mediaUrl;
+                        const videoUrlToShow = ceremony.mediaUrl;
                         const showExternalLink = videoUrlToShow && !isDirectVideoUrl(videoUrlToShow);
 
                         return (
@@ -297,8 +297,8 @@ export default function AllCeremoniesPage() {
                                                 </Button>
                                                 </a>
                                             )}
-                                             {ceremony.status !== 'active' && isAssigned && (
-                                                 <Link href={`/artesanar/${ceremony.id}`} onClick={(e) => e.stopPropagation()}>
+                                             {ceremony.status !== 'active' && isAssigned && !isAuthorized && (
+                                                 <Link href={`/artesanar/${ceremony.slug || ceremony.id}`} onClick={(e) => e.stopPropagation()}>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                                                         <Video className="h-4 w-4" />
                                                     </Button>
@@ -343,6 +343,10 @@ export default function AllCeremoniesPage() {
                                                 <div className='flex items-center gap-1.5'>
                                                     <MousePointerClick className="h-4 w-4" />
                                                     <span>{ceremony.reserveClickCount || 0}</span>
+                                                </div>
+                                                <div className='flex items-center gap-1.5'>
+                                                    <Download className="h-4 w-4" />
+                                                    <span>{ceremony.downloadCount || 0}</span>
                                                 </div>
                                             </div>
                                         )}

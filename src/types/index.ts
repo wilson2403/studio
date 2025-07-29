@@ -38,6 +38,7 @@ export type Ceremony = {
   viewCount?: number;
   reserveClickCount?: number;
   whatsappClickCount?: number;
+  downloadCount?: number;
   assignedUsers?: UserProfile[];
   testimonials?: Testimonial[];
 };
@@ -266,6 +267,9 @@ export type SystemSettings = {
         addCeremony: ComponentButtonData;
         buttonViewDetails: ComponentButtonData;
         whatsappCommunityButton: ComponentButtonData;
+        downloadVideo: ComponentButtonData;
+        leaveTestimonial: ComponentButtonData;
+        shareCeremony: ComponentButtonData;
     };
 };
 

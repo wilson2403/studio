@@ -285,6 +285,7 @@ export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<strin
             viewCount: 0,
             reserveClickCount: 0,
             whatsappClickCount: 0,
+            downloadCount: 0,
         };
         await setDoc(docRef, newCeremony);
         await logUserAction('create_ceremony', { targetId: docRef.id, targetType: 'ceremony', changes: ceremony });
@@ -330,6 +331,16 @@ export const incrementCeremonyViewCount = async (id: string): Promise<void> => {
         // Non-critical, just log it
         console.error("Error incrementing view count:", error);
         logError(error, { function: 'incrementCeremonyViewCount', id });
+    }
+}
+
+export const incrementCeremonyDownloadCount = async (id: string): Promise<void> => {
+    try {
+        const ceremonyRef = doc(db, 'ceremonies', id);
+        await updateDoc(ceremonyRef, { downloadCount: increment(1) });
+    } catch (error) {
+        console.error("Error incrementing download count:", error);
+        logError(error, { function: 'incrementCeremonyDownloadCount', id });
     }
 }
 

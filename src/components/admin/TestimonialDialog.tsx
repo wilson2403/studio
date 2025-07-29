@@ -46,7 +46,7 @@ const StarRating = ({ rating, setRating, disabled = false }: { rating: number, s
     );
 };
 
-const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, ceremony?: Ceremony, setIsOpen: (open: boolean) => void }) => {
+const DialogContentWrapper = ({ user, ceremony, isOpen, setIsOpen }: { user: User, ceremony?: Ceremony, isOpen: boolean, setIsOpen: (open: boolean) => void }) => {
     const { t, i18n } = useTranslation();
     const { toast } = useToast();
     const { content, fetchContent } = useEditable();
@@ -225,7 +225,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                             />
                             <Button variant="outline" size="sm" onClick={() => setShowAIAssist(!showAIAssist)}>
                                 <Wand2 className="mr-2 h-4 w-4"/>
-                                <EditableTitle tag="span" id="generateWithAI" initialValue={t('generateWithAI')} />
+                                <span className='flex-grow'>{getDisplayValue('generateWithAI', 'Generar con IA')}</span>
                             </Button>
                             {showAIAssist && (
                                 <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
@@ -241,7 +241,8 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                                         disabled={isGenerating}
                                     />
                                     <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiKeywords.trim()}>
-                                        {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> <EditableTitle tag="span" id="generateButtonLabel" initialValue={t('generate')} /></>}
+                                        <Sparkles className="mr-2 h-4 w-4"/>
+                                        {isGenerating ? t('generating') : getDisplayValue('generateButtonLabel', 'Generar')}
                                     </Button>
                                 </div>
                             )}
@@ -255,7 +256,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                         </Label>
                     </div>
                      <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0 || !testimonialText.trim() || !selectedCeremonyId}>
-                         {isSubmitting ? t('sending') : <EditableTitle tag="span" id="submitTestimonial" initialValue={t('submitTestimonial')} />}
+                         {isSubmitting ? t('sending') : getDisplayValue('submitTestimonial', 'Enviar Testimonio')}
                     </Button>
                 </div>
             </ScrollArea>
@@ -273,8 +274,7 @@ export default function TestimonialDialog({ user, ceremony, children }: Testimon
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      {isOpen && user && <DialogContentWrapper user={user} ceremony={ceremony} setIsOpen={setIsOpen} />}
+      {isOpen && user && <DialogContentWrapper user={user} ceremony={ceremony} isOpen={isOpen} setIsOpen={setIsOpen} />}
     </Dialog>
   );
 }
-

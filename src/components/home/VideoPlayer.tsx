@@ -79,7 +79,7 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
             const user = auth.currentUser;
             if (user) {
                 const profile = await getUserProfile(user.uid);
-                isAdmin.current = !!profile?.role;
+                isAdmin.current = !!profile?.isAdmin;
             }
         };
         checkAdmin();
@@ -320,7 +320,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
       setUser(currentUser);
       if (currentUser) {
         const profile = await getUserProfile(currentUser.uid);
-        setIsAdmin(profile?.role === 'admin');
+        setIsAdmin(profile?.role === 'admin' || profile?.role === 'organizer');
       } else {
         setIsAdmin(false);
       }
