@@ -363,10 +363,12 @@ export default function Ceremonies({
                       </div>
                        {(ceremony.showAnalytics || isAuthorized) && (
                         <div className="absolute bottom-16 right-4 flex-col justify-start gap-4 text-xs text-white/70 mt-3 pt-3">
-                            <div className='flex items-center gap-1.5'>
-                                <Eye className="h-4 w-4" />
-                                <span>{ceremony.viewCount || 0}</span>
-                            </div>
+                            {ceremony.showAnalytics &&
+                                <div className='flex items-center gap-1.5'>
+                                    <Eye className="h-4 w-4" />
+                                    <span>{ceremony.viewCount || 0}</span>
+                                </div>
+                            }
                            {isAuthorized && (
                              <>
                                 <div className='flex items-center gap-1.5'>
