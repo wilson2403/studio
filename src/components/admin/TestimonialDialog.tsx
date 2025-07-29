@@ -23,6 +23,7 @@ import { Label } from '../ui/label';
 import { generateTestimonial } from '@/ai/flows/testimonial-flow';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
+import { EditableTitle } from '../home/EditableTitle';
 
 interface TestimonialDialogProps {
   user: User;
@@ -109,8 +110,12 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
             <ScrollArea className="h-full w-full">
                 <div className="p-6 text-center space-y-4 flex flex-col justify-center">
                     <DialogHeader>
-                        <DialogTitle>{t('testimonialTitle')}</DialogTitle>
-                        <DialogDescription>{t('testimonialDescription')}</DialogDescription>
+                        <DialogTitle>
+                           <EditableTitle tag="h2" id="testimonialDialogTitle" initialValue={t('testimonialTitle')} className="text-2xl" />
+                        </DialogTitle>
+                        <DialogDescription>
+                            <EditableTitle tag="p" id="testimonialDialogDescription" initialValue={t('testimonialDescription')} />
+                        </DialogDescription>
                     </DialogHeader>
 
                     <StarRating rating={rating} setRating={setRating} disabled={isSubmitting} />
