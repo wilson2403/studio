@@ -10,18 +10,17 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { getQuestionnaire, QuestionnaireAnswers, UserProfile, addTestimonial, Testimonial } from '@/lib/firebase/firestore';
 import { Button } from '../ui/button';
 import { ThumbsUp, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { User } from 'firebase/auth';
-import { Ceremony } from '@/types';
+import { Ceremony, Testimonial, addTestimonial } from '@/types';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '../ui/carousel';
-import { cn } from '@/lib/utils';
 import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { Card, CardContent } from '../ui/card';
+import { ScrollArea } from '../ui/scroll-area';
 
 interface TestimonialDialogProps {
   user: User;
@@ -34,16 +33,10 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
   const { t } = useTranslation();
   const { toast } = useToast();
   const [api, setApi] = useState<CarouselApi>();
-  const [currentStep, setCurrentStep] = useState(0);
   const [testimonialText, setTestimonialText] = useState('');
   const [consent, setConsent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedTestimonial, setSubmittedTestimonial] = useState<Testimonial | null>(null);
-
-  useEffect(() => {
-    if (!api) return;
-    api.on("select", () => setCurrentStep(api.selectedScrollSnap()));
-  }, [api]);
 
   const handleTestimonialSubmit = async () => {
     if (!testimonialText.trim() || !consent) {
@@ -94,33 +87,38 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md p-0 border-0">
-            <Carousel setApi={setApi} opts={{ watchDrag: false, duration: 20 }}>
+      <DialogContent className="sm:max-w-md p-0 border-0 flex flex-col max-h-[90vh]">
+            <Button variant="ghost" size="icon" onClick={() => handleClose(false)} className="absolute top-2 right-2 z-20 h-8 w-8 rounded-full">
+                <X className="h-4 w-4" />
+            </Button>
+            <Carousel setApi={setApi} opts={{ watchDrag: false, duration: 20 }} className="w-full">
                 <CarouselContent>
                     <CarouselItem>
-                        <div className="p-6 text-center space-y-4">
-                            <DialogHeader>
-                                <DialogTitle>{steps[0].title}</DialogTitle>
-                                <DialogDescription>{steps[0].description}</DialogDescription>
-                            </DialogHeader>
-                            <Textarea
-                                value={testimonialText}
-                                onChange={(e) => setTestimonialText(e.target.value)}
-                                placeholder={t('testimonialPlaceholder')}
-                                rows={6}
-                                className="text-base"
-                            />
-                            <div className="flex items-center space-x-2 justify-center pt-2">
-                                <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} />
-                                <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
+                        <ScrollArea className="h-[80vh] w-full">
+                            <div className="p-6 text-center space-y-4 flex flex-col justify-center min-h-[80vh]">
+                                <DialogHeader>
+                                    <DialogTitle>{steps[0].title}</DialogTitle>
+                                    <DialogDescription>{steps[0].description}</DialogDescription>
+                                </DialogHeader>
+                                <Textarea
+                                    value={testimonialText}
+                                    onChange={(e) => setTestimonialText(e.target.value)}
+                                    placeholder={t('testimonialPlaceholder')}
+                                    rows={8}
+                                    className="text-base flex-grow"
+                                />
+                                <div className="flex items-center space-x-2 justify-center pt-2">
+                                    <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} />
+                                    <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
+                                </div>
+                                <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || !testimonialText.trim()} className="w-full">
+                                    {isSubmitting ? t('sending') : t('submitTestimonial')}
+                                </Button>
                             </div>
-                            <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || !testimonialText.trim()} className="w-full">
-                                {isSubmitting ? t('sending') : t('submitTestimonial')}
-                            </Button>
-                        </div>
+                        </ScrollArea>
                     </CarouselItem>
                      <CarouselItem>
-                         <div className="p-6 text-center space-y-4">
+                         <div className="p-6 text-center space-y-4 flex flex-col justify-center min-h-[80vh]">
                             <DialogHeader>
                                 <DialogTitle>{steps[1].title}</DialogTitle>
                                 <DialogDescription>{steps[1].description}</DialogDescription>
@@ -136,7 +134,7 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
                         </div>
                     </CarouselItem>
                     <CarouselItem>
-                       <div className="p-6 text-center space-y-4 flex flex-col items-center justify-center min-h-[300px]">
+                       <div className="p-6 text-center space-y-4 flex flex-col items-center justify-center min-h-[80vh]">
                             <div className="p-4 bg-primary/10 rounded-full">
                                 <ThumbsUp className="h-10 w-10 text-primary" />
                             </div>
@@ -149,13 +147,7 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
                     </CarouselItem>
                 </CarouselContent>
             </Carousel>
-             <div className="absolute top-4 right-4 z-10">
-                <Button variant="ghost" size="icon" onClick={() => handleClose(false)}>
-                    <X className="h-4 w-4" />
-                </Button>
-            </div>
       </DialogContent>
     </Dialog>
   );
 }
-
