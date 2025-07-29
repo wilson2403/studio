@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -9,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizonal, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions, CeremonyInvitationMessage, getCeremonyInvitationMessages, addCeremonyInvitationMessage, updateCeremonyInvitationMessage, deleteCeremonyInvitationMessage, getShareMemoryMessages, addShareMemoryMessage, updateShareMemoryMessage, deleteShareMemoryMessage, ShareMemoryMessage } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions, CeremonyInvitationMessage, getCeremonyInvitationMessages, addCeremonyInvitationMessage, updateCeremonyInvitationMessage, deleteCeremonyInvitationMessage, getShareMemoryMessages, addShareMemoryMessage, updateShareMemoryMessage, deleteShareMemoryMessage, ShareMemoryMessage, deleteAllAuditLogs } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
@@ -432,6 +433,15 @@ export default function AdminUsersPage() {
             toast({ title: t('analyticsResetSuccess') });
         } catch (error: any) {
             toast({ title: t('analyticsResetError'), variant: 'destructive' });
+        }
+    }
+
+    const handleDeleteAuditLogs = async () => {
+        try {
+            await deleteAllAuditLogs();
+            toast({ title: t('auditLogResetSuccess') });
+        } catch (error: any) {
+            toast({ title: t('auditLogResetError'), variant: 'destructive' });
         }
     }
     
@@ -1012,28 +1022,52 @@ export default function AdminUsersPage() {
                                 {analytics.length === 0 && (
                                     <p className="text-center text-muted-foreground py-8">{t('noAnalyticsData')}</p>
                                 )}
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" className="mt-6">
-                                            <History className="mr-2 h-4 w-4" />
-                                            {t('resetAnalytics')}
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>{t('resetAnalyticsConfirmTitle')}</AlertDialogTitle>
-                                            <AlertDialogDescription>
-                                                {t('resetAnalyticsConfirmDescription')}
-                                            </AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                            <AlertDialogAction onClick={handleResetAnalytics}>
-                                                {t('continue')}
-                                            </AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
+                                <div className='flex flex-wrap gap-2 mt-6'>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive" >
+                                                <History className="mr-2 h-4 w-4" />
+                                                {t('resetAnalytics')}
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>{t('resetAnalyticsConfirmTitle')}</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    {t('resetAnalyticsConfirmDescription')}
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleResetAnalytics}>
+                                                    {t('continue')}
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive" >
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                {t('deleteAllAuditLogs')}
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>{t('deleteAllAuditLogsConfirmTitle')}</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    {t('deleteAllAuditLogsConfirmDescription')}
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleDeleteAuditLogs}>
+                                                    {t('continue')}
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
                                 </>
                             )}
                         </CardContent>
@@ -1117,109 +1151,3 @@ export default function AdminUsersPage() {
 }
 
     
-```
-  </change>
-  <change>
-    <file>src/components/questionnaire/ViewAnswersDialog.tsx</file>
-    <content><![CDATA[
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from '@/components/ui/dialog';
-import { Skeleton } from '@/components/ui/skeleton';
-import { getQuestionnaire, QuestionnaireAnswers, UserProfile } from '@/lib/firebase/firestore';
-import { ScrollArea } from '../ui/scroll-area';
-import { Button } from '../ui/button';
-import { User } from 'firebase/auth';
-
-interface ViewAnswersDialogProps {
-  user: User | UserProfile;
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export default function ViewAnswersDialog({ user, isOpen, onClose }: ViewAnswersDialogProps) {
-  const [answers, setAnswers] = useState<QuestionnaireAnswers | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    if (isOpen && user) {
-      const fetchAnswers = async () => {
-        setLoading(true);
-        const data = await getQuestionnaire(user.uid);
-        setAnswers(data);
-        setLoading(false);
-      };
-      fetchAnswers();
-    }
-  }, [isOpen, user]);
-
-  const renderAnswer = (label: string, value?: string, details?: string) => {
-    if (value === undefined && details === undefined) return null;
-
-    let displayValue: string;
-    if (value) {
-        displayValue = t(value);
-    } else {
-        displayValue = details || t('noDetailsProvided');
-    }
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 py-3 border-b">
-        <dt className="font-semibold text-foreground/90 md:col-span-1">{label}</dt>
-        <dd className="text-muted-foreground md:col-span-2">
-          {value && <span className={`font-medium ${value === 'yes' ? 'text-destructive' : 'text-primary'}`}>{displayValue}</span>}
-          {details && <p className="mt-1 text-sm whitespace-pre-wrap">{details}</p>}
-        </dd>
-      </div>
-    );
-  };
-  
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{t('myQuestionnaireAnswers')}</DialogTitle>
-          <DialogDescription>{t('myQuestionnaireAnswersDescription')}</DialogDescription>
-        </DialogHeader>
-        <ScrollArea className="max-h-[60vh] p-1">
-            <div className="py-4 pr-4">
-            {loading ? (
-                <div className="space-y-4">
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-8 w-full" />
-                <Skeleton className="h-16 w-full" />
-                <Skeleton className="h-8 w-full" />
-                </div>
-            ) : answers ? (
-                <dl>
-                {renderAnswer(t('questionnaireMedicalConditions'), answers.hasMedicalConditions, answers.medicalConditionsDetails)}
-                {renderAnswer(t('questionnaireMedication'), answers.isTakingMedication, answers.medicationDetails)}
-                {renderAnswer(t('questionnaireMentalHealth'), answers.hasMentalHealthHistory, answers.mentalHealthDetails)}
-                {renderAnswer(t('questionnaireExperience'), answers.hasPreviousExperience, answers.previousExperienceDetails)}
-                {renderAnswer(t('questionnaireIntention'), undefined, answers.mainIntention)}
-                </dl>
-            ) : (
-                <p className="text-center text-muted-foreground py-8">{t('noAnswersSubmitted')}</p>
-            )}
-            </div>
-        </ScrollArea>
-        <DialogFooter>
-            <DialogClose asChild>
-                <Button variant="outline">{t('close')}</Button>
-            </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}

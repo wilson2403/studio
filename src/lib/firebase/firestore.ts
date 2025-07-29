@@ -1317,6 +1317,22 @@ export const getAuditLogsForUser = async (userId: string): Promise<AuditLog[]> =
     }
 }
 
+export const deleteAllAuditLogs = async (): Promise<void> => {
+    try {
+        const snapshot = await getDocs(auditLogsCollection);
+        const batch = writeBatch(db);
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+        await logUserAction('delete_all_audit_logs');
+    } catch (error) {
+        console.error("Error deleting all audit logs:", error);
+        logError(error, { function: 'deleteAllAuditLogs' });
+        throw error;
+    }
+}
+
 // --- Testimonials ---
 export const addTestimonial = async (testimonial: Omit<Testimonial, 'id'>): Promise<string> => {
     try {
