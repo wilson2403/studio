@@ -6,13 +6,14 @@ import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getCeremonies, updateUserAssignedCeremonies, UserProfile, Ceremony, CeremonyInvitationMessage } from '@/lib/firebase/firestore';
+import { getCeremonies, updateUserAssignedCeremonies, UserProfile, Ceremony, CeremonyInvitationMessage, ShareMemoryMessage } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
 import { SendHorizonal, Share2 } from 'lucide-react';
 import InviteToCeremonyDialog from './InviteToCeremonyDialog';
+import ShareMemoryDialog from './ShareMemoryDialog';
 
 interface AssignCeremonyDialogProps {
   user: UserProfile;
@@ -20,15 +21,17 @@ interface AssignCeremonyDialogProps {
   onClose: () => void;
   onUpdate: (user: UserProfile) => void;
   invitationTemplates: CeremonyInvitationMessage[];
+  shareMemoryTemplates: ShareMemoryMessage[];
 }
 
-export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, invitationTemplates }: AssignCeremonyDialogProps) {
+export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, invitationTemplates, shareMemoryTemplates }: AssignCeremonyDialogProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCeremonies, setSelectedCeremonies] = useState<(string | { ceremonyId: string; planId: string })[]>([]);
   const [invitingToCeremony, setInvitingToCeremony] = useState<Ceremony | null>(null);
+  const [sharingMemory, setSharingMemory] = useState<Ceremony | null>(null);
 
   useEffect(() => {
     async function fetchAllCeremonies() {
@@ -67,10 +70,7 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
   
   const handleShareClick = (e: React.MouseEvent, ceremony: Ceremony) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/artesanar/${ceremony.id}`;
-    const message = t('shareCeremonyMemoryAdminText', { user: user.displayName, ceremony: ceremony.title, link: shareUrl });
-    const whatsappUrl = `https://wa.me/${user.phone?.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    setSharingMemory(ceremony);
   }
 
   return (
@@ -145,7 +145,18 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
           invitationTemplates={invitationTemplates}
         />
       )}
+
+      {sharingMemory && (
+        <ShareMemoryDialog
+            user={user}
+            ceremony={sharingMemory}
+            isOpen={!!sharingMemory}
+            onClose={() => setSharingMemory(null)}
+            shareMemoryTemplates={shareMemoryTemplates}
+        />
+      )}
     </>
   );
 }
 
+    

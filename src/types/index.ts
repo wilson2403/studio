@@ -183,6 +183,13 @@ export type CeremonyInvitationMessage = {
   en: string;
 };
 
+export type ShareMemoryMessage = {
+  id: string;
+  name: string;
+  es: string;
+  en: string;
+};
+
 export type BackupData = {
     users: UserProfile[];
     ceremonies: Ceremony[];
@@ -298,3 +305,5 @@ export type Testimonial = {
     consent: boolean;
     createdAt: Date;
 }
+
+    

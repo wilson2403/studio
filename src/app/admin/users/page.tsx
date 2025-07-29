@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizonal, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions, CeremonyInvitationMessage, getCeremonyInvitationMessages, addCeremonyInvitationMessage, updateCeremonyInvitationMessage, deleteCeremonyInvitationMessage } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions, CeremonyInvitationMessage, getCeremonyInvitationMessages, addCeremonyInvitationMessage, updateCeremonyInvitationMessage, deleteCeremonyInvitationMessage, getShareMemoryMessages, addShareMemoryMessage, updateShareMemoryMessage, deleteShareMemoryMessage, ShareMemoryMessage } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
@@ -66,9 +66,21 @@ const ceremonyMessagesFormSchema = (t: (key: string, options?: any) => string) =
     ceremonyTemplates: z.array(ceremonyMessageTemplateSchema(t)),
 });
 
+const shareMemoryMessageTemplateSchema = (t: (key: string, options?: any) => string) => z.object({
+    id: z.string(),
+    name: z.string().min(1, t('errorRequired', { field: t('templateName') })),
+    es: z.string().min(1, t('errorRequired', { field: t('templateMessageES') })),
+    en: z.string().min(1, t('errorRequired', { field: t('templateMessageEN') })),
+});
+
+const shareMemoryMessagesFormSchema = (t: (key: string, options?: any) => string) => z.object({
+    shareMemoryTemplates: z.array(shareMemoryMessageTemplateSchema(t)),
+});
+
 type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
 type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
 type CeremonyMessagesFormValues = z.infer<ReturnType<typeof ceremonyMessagesFormSchema>>;
+type ShareMemoryMessagesFormValues = z.infer<ReturnType<typeof shareMemoryMessagesFormSchema>>;
 
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 const userRoles: UserRole[] = ['user', 'organizer', 'admin'];
@@ -83,6 +95,12 @@ const defaultCeremonyInvitationMessage = (t: (key: string) => string): Omit<Cere
     name: t('defaultCeremonyInvitationName'),
     es: '¡Hola {{userName}}! Te confirmamos tu inscripción a la ceremonia "{{ceremonyTitle}}" del {{ceremonyDate}} a las {{ceremonyHorario}}. Aquí tienes el enlace con los detalles y la ubicación: {{ceremonyLink}}.\n\nUbicación: {{locationLink}}\n\n¡Te esperamos!',
     en: 'Hello {{userName}}! We are confirming your registration for the "{{ceremonyTitle}}" ceremony on {{ceremonyDate}} at {{ceremonyHorario}}. Here is the link with the details and location: {{ceremonyLink}}.\n\nLocation: {{locationLink}}\n\nWe look forward to seeing you!',
+});
+
+const defaultShareMemoryMessage = (t: (key: string) => string): Omit<ShareMemoryMessage, 'id'> => ({
+    name: t('defaultShareMemoryName'),
+    es: '¡Hola {{userName}}! ✨ Esperamos que te encuentres muy bien. Queríamos compartir contigo el recuerdo en video de la ceremonia "{{ceremonyTitle}}". ¡Fue un honor compartir ese espacio sagrado contigo!\n\nPuedes verlo aquí: {{memoryLink}}\n\nCon cariño,\nEl equipo de El Arte de Sanar',
+    en: 'Hello {{userName}}! ✨ We hope you are doing well. We wanted to share the video memory of the "{{ceremonyTitle}}" ceremony with you. It was an honor to share that sacred space with you!\n\nYou can watch it here: {{memoryLink}}\n\nWith love,\nThe El Arte de Sanar Team',
 });
 
 
@@ -100,6 +118,7 @@ export default function AdminUsersPage() {
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
     const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
     const [ceremonyInvitationTemplates, setCeremonyInvitationTemplates] = useState<CeremonyInvitationMessage[]>([]);
+    const [shareMemoryTemplates, setShareMemoryTemplates] = useState<ShareMemoryMessage[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
     const [assigningUser, setAssigningUser] = useState<UserProfile | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
@@ -134,6 +153,16 @@ export default function AdminUsersPage() {
         name: "ceremonyTemplates",
     });
 
+    const shareMemoryMessagesForm = useForm<ShareMemoryMessagesFormValues>({
+        resolver: zodResolver(shareMemoryMessagesFormSchema(t)),
+        defaultValues: { shareMemoryTemplates: [] },
+    });
+
+    const { fields: shareMemoryTemplateFields, append: appendShareMemoryTemplate, remove: removeShareMemoryTemplate } = useFieldArray({
+        control: shareMemoryMessagesForm.control,
+        name: "shareMemoryTemplates",
+    });
+
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -147,6 +176,7 @@ export default function AdminUsersPage() {
 
         const fetchInvitationMessages = async () => {
             setLoadingMessages(true);
+            // Questionnaire Invites
             let templates = await getInvitationMessages();
             if(templates.length === 0) {
                 const newId = uuidv4();
@@ -157,6 +187,7 @@ export default function AdminUsersPage() {
             setInvitationTemplates(templates);
             messagesForm.reset({ templates });
 
+            // Ceremony Invites
             let ceremonyTemplates = await getCeremonyInvitationMessages();
             if(ceremonyTemplates.length === 0) {
                 const newId = uuidv4();
@@ -166,6 +197,18 @@ export default function AdminUsersPage() {
             }
             setCeremonyInvitationTemplates(ceremonyTemplates);
             ceremonyMessagesForm.reset({ ceremonyTemplates });
+
+            // Share Memory Invites
+            let memoryTemplates = await getShareMemoryMessages();
+            if(memoryTemplates.length === 0) {
+                const newId = uuidv4();
+                const defaultMemoryTemplate = { id: newId, ...defaultShareMemoryMessage(t) };
+                await addShareMemoryMessage(defaultMemoryTemplate);
+                memoryTemplates = [defaultMemoryTemplate];
+            }
+            setShareMemoryTemplates(memoryTemplates);
+            shareMemoryMessagesForm.reset({ shareMemoryTemplates: memoryTemplates });
+
 
             setLoadingMessages(false);
         };
@@ -200,7 +243,7 @@ export default function AdminUsersPage() {
         });
 
         return () => unsubscribe();
-    }, [router, toast, t, messagesForm, ceremonyMessagesForm]);
+    }, [router, toast, t, messagesForm, ceremonyMessagesForm, shareMemoryMessagesForm]);
 
 
     const handleRoleChange = async (uid: string, role: UserRole) => {
@@ -340,6 +383,41 @@ export default function AdminUsersPage() {
             await deleteCeremonyInvitationMessage(templateId);
             removeCeremonyTemplate(index);
             setCeremonyInvitationTemplates(prev => prev.filter(t => t.id !== templateId));
+            toast({ title: t('templateDeleted') });
+        } catch(error: any) {
+             toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
+        }
+    }
+
+    const onShareMemoryMessagesSubmit = async (data: ShareMemoryMessagesFormValues) => {
+        try {
+            for (const template of data.shareMemoryTemplates) {
+                await updateShareMemoryMessage(template);
+            }
+            setShareMemoryTemplates(data.shareMemoryTemplates);
+            toast({ title: t('messagesUpdatedSuccess') });
+        } catch (error: any) {
+            toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
+        }
+    };
+
+    const handleAddShareMemoryTemplate = async () => {
+        const newTemplate: ShareMemoryMessage = {
+            id: uuidv4(),
+            name: t('newShareMemoryTemplateName', { count: shareMemoryTemplateFields.length + 1 }),
+            es: t('defaultShareMemoryName'),
+            en: 'Default share memory message',
+        }
+        await addShareMemoryMessage(newTemplate);
+        appendShareMemoryTemplate(newTemplate);
+        setShareMemoryTemplates(prev => [...prev, newTemplate]);
+    }
+
+    const handleDeleteShareMemoryTemplate = async (templateId: string, index: number) => {
+        try {
+            await deleteShareMemoryMessage(templateId);
+            removeShareMemoryTemplate(index);
+            setShareMemoryTemplates(prev => prev.filter(t => t.id !== templateId));
             toast({ title: t('templateDeleted') });
         } catch(error: any) {
              toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
@@ -827,6 +905,75 @@ export default function AdminUsersPage() {
                                             </Form>
                                         </AccordionContent>
                                     </AccordionItem>
+                                    <AccordionItem value="share-memory-templates">
+                                        <AccordionTrigger>{t('shareMemoryTemplates')}</AccordionTrigger>
+                                        <AccordionContent>
+                                            <Form {...shareMemoryMessagesForm}>
+                                                <form onSubmit={shareMemoryMessagesForm.handleSubmit(onShareMemoryMessagesSubmit)} className="space-y-6">
+                                                    <div className='space-y-4'>
+                                                    {shareMemoryTemplateFields.map((field, index) => (
+                                                        <Card key={field.id} className="p-4 bg-muted/30">
+                                                            <FormField
+                                                                control={shareMemoryMessagesForm.control}
+                                                                name={`shareMemoryTemplates.${index}.name`}
+                                                                render={({ field }) => (
+                                                                    <FormItem className='mb-4'>
+                                                                        <FormLabel>{t('templateName')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Input {...field} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                control={shareMemoryMessagesForm.control}
+                                                                name={`shareMemoryTemplates.${index}.es`}
+                                                                render={({ field }) => (
+                                                                    <FormItem className='mb-2'>
+                                                                        <FormLabel>{t('templateMessageES')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Textarea {...field} rows={10}/>
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                            <FormField
+                                                                control={shareMemoryMessagesForm.control}
+                                                                name={`shareMemoryTemplates.${index}.en`}
+                                                                render={({ field }) => (
+                                                                    <FormItem>
+                                                                        <FormLabel>{t('templateMessageEN')}</FormLabel>
+                                                                        <FormControl>
+                                                                            <Textarea {...field} rows={10} />
+                                                                        </FormControl>
+                                                                        <FormMessage />
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                             <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>
+                                                            <Button type="button" variant="destructive" size="sm" className="mt-4" onClick={() => handleDeleteShareMemoryTemplate(field.id, index)}>
+                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                {t('deleteTemplate')}
+                                                            </Button>
+                                                        </Card>
+                                                    ))}
+                                                    </div>
+                                                    <div className='flex gap-2'>
+                                                        <Button type="button" variant="outline" onClick={handleAddShareMemoryTemplate}>
+                                                            <PlusCircle className="mr-2 h-4 w-4" />
+                                                            {t('addShareMemoryTemplate')}
+                                                        </Button>
+                                                        <Button type="submit" disabled={shareMemoryMessagesForm.formState.isSubmitting}>
+                                                            <Save className="mr-2 h-4 w-4"/>
+                                                            {shareMemoryMessagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
+                                                        </Button>
+                                                    </div>
+                                                </form>
+                                            </Form>
+                                        </AccordionContent>
+                                    </AccordionItem>
                                 </Accordion>
                             )}
                         </CardContent>
@@ -936,6 +1083,7 @@ export default function AdminUsersPage() {
                     onClose={() => setAssigningUser(null)}
                     onUpdate={handleCeremonyAssignmentUpdate}
                     invitationTemplates={ceremonyInvitationTemplates}
+                    shareMemoryTemplates={shareMemoryTemplates}
                 />
             )}
              {invitingUser && (
@@ -975,6 +1123,8 @@ export default function AdminUsersPage() {
 
 
 
+
+    
 
     
 

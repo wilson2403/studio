@@ -2,7 +2,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from './config';
 
@@ -16,6 +16,7 @@ const questionnairesCollection = collection(db, 'questionnaires');
 const errorLogsCollection = collection(db, 'error_logs');
 const invitationMessagesCollection = collection(db, 'invitationMessages');
 const ceremonyInvitationMessagesCollection = collection(db, 'ceremonyInvitationMessages');
+const shareMemoryMessagesCollection = collection(db, 'shareMemoryMessages');
 const analyticsCollection = collection(db, 'analytics');
 const coursesCollection = collection(db, 'courses');
 const auditLogsCollection = collection(db, 'audit_logs');
@@ -1008,6 +1009,51 @@ export const deleteCeremonyInvitationMessage = async (id: string): Promise<void>
     }
 };
 
+// --- Share Memory Messages ---
+export const getShareMemoryMessages = async (): Promise<ShareMemoryMessage[]> => {
+    try {
+        const snapshot = await getDocs(shareMemoryMessagesCollection);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ShareMemoryMessage));
+    } catch (error) {
+        console.error("Error getting share memory messages:", error);
+        logError(error, { function: 'getShareMemoryMessages' });
+        return [];
+    }
+};
+
+export const addShareMemoryMessage = async (message: ShareMemoryMessage): Promise<void> => {
+    try {
+        const docRef = doc(db, 'shareMemoryMessages', message.id);
+        await setDoc(docRef, message);
+    } catch (error) {
+        console.error("Error adding share memory message:", error);
+        logError(error, { function: 'addShareMemoryMessage' });
+        throw error;
+    }
+};
+
+export const updateShareMemoryMessage = async (message: ShareMemoryMessage): Promise<void> => {
+    try {
+        const docRef = doc(db, 'shareMemoryMessages', message.id);
+        await updateDoc(docRef, message);
+    } catch (error) {
+        console.error("Error updating share memory message:", error);
+        logError(error, { function: 'updateShareMemoryMessage' });
+        throw error;
+    }
+};
+
+export const deleteShareMemoryMessage = async (id: string): Promise<void> => {
+    try {
+        const docRef = doc(db, 'shareMemoryMessages', id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error("Error deleting share memory message:", error);
+        logError(error, { function: 'deleteShareMemoryMessage' });
+        throw error;
+    }
+};
+
 
 // --- Backup & Restore ---
 export const exportAllData = async (): Promise<BackupData> => {
@@ -1298,3 +1344,5 @@ export type { Chat };
 export type { UserProfile };
 
   
+
+    
