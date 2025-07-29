@@ -11,7 +11,7 @@ import { getUserProfile, incrementCeremonyViewCount, updateVideoProgress, getVid
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
-const getYoutubeEmbedUrl = (url: string, autoplay: boolean): string | null => {
+const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
   if (!url) return null;
   const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
   const match = url.match(youtubeRegex);
@@ -23,38 +23,38 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean): string | null => {
     loop: '1',
     controls: '1',
     playlist: videoId,
-    mute: '1',
+    mute: defaultMuted ? '1' : '0',
     vq: 'hd1080',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
 
-const getTikTokEmbedUrl = (url: string, autoplay: boolean): string | null => {
+const getTikTokEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
     if (!url) return null;
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
     const autoplayParam = autoplay ? '1' : '0';
-    const mute = '1';
-    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplayParam}&loop=0&controls=1&mute=${mute}`;
+    const muteParam = defaultMuted ? '1' : '0';
+    return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplayParam}&loop=0&controls=1&mute=${muteParam}`;
 };
 
-const getFacebookEmbedUrl = (url: string, autoplay: boolean): string | null => {
+const getFacebookEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
     if (url.includes('/videos/') || url.includes('/share/v/')) {
         const autoplayParam = autoplay ? '1' : '0';
-        const mute = '1';
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplayParam}&mute=${mute}&loop=1&controls=1`;
+        const muteParam = defaultMuted ? '1' : '0';
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplayParam}&mute=${muteParam}&loop=1&controls=1`;
     }
     return null;
 };
 
-const getStreamableEmbedUrl = (url: string, autoplay: boolean): string | null => {
+const getStreamableEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
   if (!url) return null;
   const match = url.match(/streamable\.com\/(?:e\/)?([a-zA-Z0-9]+)/);
   if (!match || !match[1]) return null;
   const params = new URLSearchParams({
     autoplay: autoplay ? '1' : '0',
-    mute: '1',
+    mute: defaultMuted ? '1' : '0',
     loop: '1',
     controls: '1',
   });
@@ -356,13 +356,15 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     }
     
     const url = videoUrl || '';
+    const useAutoplay = !!autoplay;
+    const useMuted = defaultMuted === undefined ? true : defaultMuted;
 
     const embedUrl = 
         (mediaType === 'video' || mediaType === 'short video') && 
-        (getYoutubeEmbedUrl(url, !!autoplay)
-        || getTikTokEmbedUrl(url, !!autoplay)
-        || getFacebookEmbedUrl(url, !!autoplay)
-        || getStreamableEmbedUrl(url, !!autoplay));
+        (getYoutubeEmbedUrl(url, useAutoplay, useMuted)
+        || getTikTokEmbedUrl(url, useAutoplay, useMuted)
+        || getFacebookEmbedUrl(url, useAutoplay, useMuted)
+        || getStreamableEmbedUrl(url, useAutoplay, useMuted));
 
     if (embedUrl) {
        return <IframePlayer src={embedUrl} title={title} className={className} onPlay={handlePlay}>{children}</IframePlayer>;
