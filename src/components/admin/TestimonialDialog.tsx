@@ -63,6 +63,8 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
         fetchContent('generateWithAI', 'Generar con IA');
         fetchContent('submitTestimonial', 'Enviar Testimonio');
         fetchContent('testimonialConsent', 'Doy mi consentimiento para que este testimonio se muestre públicamente en el sitio web.');
+        fetchContent('aiKeywordsLabel', 'Describe tu experiencia con palabras clave (ej: sanador, conexión, paz):');
+        fetchContent('aiKeywordsPlaceholder', 'Ej: sanador, conexión, paz');
     }, [fetchContent]);
 
     const getDisplayValue = (id: string, fallback: string) => {
@@ -154,12 +156,14 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                             </Button>
                             {showAIAssist && (
                                 <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
-                                    <Label htmlFor="ai-keywords">{t('aiKeywordsLabel')}</Label>
+                                    <Label htmlFor="ai-keywords">
+                                        <EditableTitle tag="p" id="aiKeywordsLabel" initialValue={t('aiKeywordsLabel')} />
+                                    </Label>
                                     <Textarea 
                                         id="ai-keywords"
                                         value={aiKeywords}
                                         onChange={(e) => setAiKeywords(e.target.value)}
-                                        placeholder={t('aiKeywordsPlaceholder')}
+                                        placeholder={getDisplayValue('aiKeywordsPlaceholder', t('aiKeywordsPlaceholder'))}
                                         rows={2}
                                         disabled={isGenerating}
                                     />
@@ -174,7 +178,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                     <div className="flex items-center space-x-2 justify-center pt-2">
                         <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} disabled={isSubmitting} />
                         <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">
-                            <EditableTitle tag="p" id="testimonialConsent" initialValue={t('testimonialConsent')} />
+                             <EditableTitle tag="p" id="testimonialConsent" initialValue={t('testimonialConsent')} />
                         </Label>
                     </div>
                     <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0 || !testimonialText.trim()} className="w-full">
