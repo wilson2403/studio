@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -53,25 +53,25 @@ export default function Header() {
 
 
   const navLinks = [
-    { href: '/', label: t('navHome'), sectionId: 'home' },
-    { href: '/ayahuasca', label: t('navMedicine'), sectionId: 'medicine' },
-    { href: '/guides', label: t('navGuides'), sectionId: 'guides' },
-    { href: '/testimonials', label: t('navTestimonials'), sectionId: 'testimonials' },
+    { href: '/', labelKey: 'navHome', sectionId: 'home' },
+    { href: '/ayahuasca', labelKey: 'navMedicine', sectionId: 'medicine' },
+    { href: '/guides', labelKey: 'navGuides', sectionId: 'guides' },
+    { href: '/testimonials', labelKey: 'navTestimonials', sectionId: 'testimonials' },
   ];
   
   const userNavLinks = [
-     { href: '/ceremonies', label: t('navCeremonies'), sectionId: 'ceremonies' },
-     { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
+     { href: '/ceremonies', labelKey: 'navCeremonies', sectionId: 'ceremonies' },
+     { href: '/preparation', labelKey: 'navPreparation', sectionId: 'preparation' },
   ];
 
   const adminNavLinks = [
-      { href: '/admin', label: t('adminPanel'), icon: ShieldCheck },
-      { href: '/admin/users', label: t('userManagementTitle'), icon: UserIcon },
-      { href: '/admin/theme', label: t('themeTab'), icon: Palette },
-      { href: '/admin/backup', label: t('backupTitle'), icon: History },
-      { href: '/admin/chats', label: t('chatHistoryTitle'), icon: MessageSquare },
-      { href: '/admin/logs', label: t('errorLogsTitle'), icon: Terminal, id: 'error-logs' },
-      { href: '/admin/settings', label: t('systemSettings'), icon: Settings }
+      { href: '/admin', labelKey: 'adminPanel', icon: ShieldCheck },
+      { href: '/admin/users', labelKey: 'userManagementTitle', icon: UserIcon },
+      { href: '/admin/theme', labelKey: 'themeTab', icon: Palette },
+      { href: '/admin/backup', labelKey: 'backupTitle', icon: History },
+      { href: '/admin/chats', labelKey: 'chatHistoryTitle', icon: MessageSquare },
+      { href: '/admin/logs', labelKey: 'errorLogsTitle', icon: Terminal, id: 'error-logs' },
+      { href: '/admin/settings', labelKey: 'systemSettings', icon: Settings }
   ];
   
   const isAdmin = userProfile?.role === 'admin';
@@ -198,7 +198,7 @@ export default function Header() {
                         <DropdownMenuItem key={link.href} onMouseDown={() => router.push(link.href)} className="flex justify-between items-center">
                             <div className='flex items-center'>
                                 <link.icon className="mr-2 h-4 w-4" />
-                                <span>{link.label}</span>
+                                <span>{t(link.labelKey)}</span>
                             </div>
                             {link.id === 'error-logs' && newErrorCount > 0 && (
                                 <Badge variant="destructive_solid" className="h-5">{newErrorCount}</Badge>
@@ -277,7 +277,7 @@ export default function Header() {
                     : 'text-foreground/60'
                 )}
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
             {user && userNavLinks.map((link) => (
@@ -292,7 +292,7 @@ export default function Header() {
                     : 'text-foreground/60'
                 )}
               >
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             ))}
           </nav>
@@ -378,7 +378,7 @@ export default function Header() {
                                             <Link href={link.href} className="transition-colors hover:text-primary flex justify-between items-center gap-2 w-full">
                                               <div className='flex items-center gap-2'>
                                                 <link.icon className="h-5 w-5" />
-                                                <span>{link.label}</span>
+                                                <span>{t(link.labelKey)}</span>
                                               </div>
                                                 {link.id === 'error-logs' && newErrorCount > 0 && (
                                                   <Badge variant="destructive_solid">{newErrorCount}</Badge>
@@ -400,7 +400,7 @@ export default function Header() {
                             onMouseDown={() => handleLinkMouseDown(link.sectionId)}
                             className="transition-colors hover:text-primary"
                           >
-                            {link.label}
+                            {t(link.labelKey)}
                           </Link>
                         </SheetClose>
                       ))}
@@ -411,7 +411,7 @@ export default function Header() {
                             onMouseDown={() => handleLinkMouseDown(link.sectionId)}
                             className="transition-colors hover:text-primary"
                           >
-                            {link.label}
+                            {t(link.labelKey)}
                           </Link>
                         </SheetClose>
                       ))}
@@ -434,3 +434,4 @@ export default function Header() {
     </>
   );
 }
+

@@ -627,7 +627,7 @@ export const updateUserStatus = async (uid: string, status: UserStatus): Promise
     }
 };
 
-export const updateUserAssignedCeremonies = async (uid: string, ceremonyIds: string[]): Promise<void> => {
+export const updateUserAssignedCeremonies = async (uid: string, ceremonyIds: (string | { ceremonyId: string; planId: string })[]): Promise<void> => {
     try {
         const userRef = doc(db, 'users', uid);
         await updateDoc(userRef, { assignedCeremonies: ceremonyIds });
@@ -638,6 +638,7 @@ export const updateUserAssignedCeremonies = async (uid: string, ceremonyIds: str
         throw error;
     }
 }
+
 
 export const getUsersForCeremony = async (ceremonyId: string): Promise<UserProfile[]> => {
     try {
