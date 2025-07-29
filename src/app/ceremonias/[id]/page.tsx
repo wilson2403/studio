@@ -202,7 +202,7 @@ export default function SingleCeremonyPage() {
                         videoFit="cover"
                         title={ceremony.title}
                         autoplay
-                        defaultMuted={true}
+                        defaultMuted={false}
                     >
                         <Button variant="ghost" onClick={handleShare} className="absolute top-2 right-2 z-20 h-10 w-10 p-0 rounded-full bg-black/20 hover:bg-black/40 text-white">
                             <Share2 className="h-5 w-5" />
