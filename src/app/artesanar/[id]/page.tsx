@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, logUserAction, getUserProfile } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, logUserAction, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -22,6 +22,7 @@ export default function CeremonyMemoryPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
     
     const params = useParams();
@@ -31,14 +32,14 @@ export default function CeremonyMemoryPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        const fetchCeremonyData = async () => {
+        const fetchCeremonyData = async (currentUser: User | null) => {
             if (id) {
                 setLoading(true);
                 try {
                     const data = await getCeremonyById(id);
                     setCeremony(data);
                     if (data) {
-                        const profile = auth.currentUser ? await getUserProfile(auth.currentUser.uid) : null;
+                         const profile = currentUser ? await getUserProfile(currentUser.uid) : null;
                         if(profile?.role !== 'admin') {
                             logUserAction('navigate_to_page', { targetId: data.slug, targetType: 'ceremony_memory' });
                         }
@@ -60,14 +61,20 @@ export default function CeremonyMemoryPage() {
             }
         };
 
-        fetchCeremonyData();
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            setUser(currentUser);
+            if (currentUser) {
+                const profile = await getUserProfile(currentUser.uid);
+                setUserProfile(profile);
+            } else {
+                setUserProfile(null);
+            }
+            await fetchCeremonyData(currentUser);
+        });
+
         fetchSettings();
         
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            setUser(currentUser);
-        });
         return () => unsubscribe();
-
     }, [id]);
     
     const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
@@ -111,6 +118,26 @@ export default function CeremonyMemoryPage() {
                 action: <Button asChild><Link href={`/login?redirect=/artesanar/${id}`}>{t('signIn')}</Link></Button>
             });
         }
+    };
+
+    const handleDownload = () => {
+        if (!user || !ceremony?.downloadUrl) {
+            handleAuthAction(() => {});
+            return;
+        }
+
+        logUserAction('download_ceremony_memory', {
+            targetId: ceremony.id,
+            targetType: 'ceremony',
+            changes: { role: userProfile?.role }
+        });
+        
+        const link = document.createElement('a');
+        link.href = ceremony.downloadUrl;
+        link.download = `${ceremony.title}-recuerdo.mp4`; 
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     if (loading) {
@@ -168,11 +195,9 @@ export default function CeremonyMemoryPage() {
                         </div>
                     
                         <div className="w-full max-w-xs mx-auto space-y-3">
-                             <Button asChild={!!user} size="lg" className="w-full" onClick={() => handleAuthAction(() => {})}>
-                                <a href={user ? ceremony.downloadUrl : undefined} download>
-                                    <Download className="mr-2 h-4 w-4" />
-                                    {getButtonText('downloadVideo', 'Descargar Video')}
-                                </a>
+                             <Button size="lg" className="w-full" onClick={handleDownload}>
+                                <Download className="mr-2 h-4 w-4" />
+                                {getButtonText('downloadVideo', 'Descargar Video')}
                             </Button>
                             {ceremony && (
                                 <TestimonialDialog user={user} ceremony={ceremony}>

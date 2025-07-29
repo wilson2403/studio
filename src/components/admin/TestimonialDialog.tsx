@@ -15,7 +15,7 @@ import { Star, Wand2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { User } from 'firebase/auth';
 import { Ceremony, Testimonial } from '@/types';
-import { addTestimonial } from '@/lib/firebase/firestore';
+import { addTestimonial, logUserAction, getCeremonies, getUserProfile } from '@/lib/firebase/firestore';
 import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
@@ -24,11 +24,13 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { EditableTitle } from '../home/EditableTitle';
 import { useEditable } from '../home/EditableProvider';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
+import { Skeleton } from '../ui/skeleton';
 
 interface TestimonialDialogProps {
   user: User | null;
-  ceremony: Ceremony;
+  ceremony?: Ceremony; // Now optional
   children: React.ReactNode;
 }
 
@@ -44,7 +46,7 @@ const StarRating = ({ rating, setRating, disabled = false }: { rating: number, s
     );
 };
 
-const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, ceremony: Ceremony, setIsOpen: (open: boolean) => void }) => {
+const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, ceremony?: Ceremony, setIsOpen: (open: boolean) => void }) => {
     const { t, i18n } = useTranslation();
     const { toast } = useToast();
     const { content, fetchContent } = useEditable();
@@ -57,6 +59,10 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
     const [showAIAssist, setShowAIAssist] = useState(false);
     const [aiKeywords, setAiKeywords] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    
+    const [assignedCeremonies, setAssignedCeremonies] = useState<Ceremony[]>([]);
+    const [selectedCeremonyId, setSelectedCeremonyId] = useState<string | undefined>(ceremony?.id);
+    const [loadingCeremonies, setLoadingCeremonies] = useState(!ceremony);
 
     useEffect(() => {
         fetchContent('testimonialPlaceholder', 'Escribe tu testimonio aquí...');
@@ -67,6 +73,26 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
         fetchContent('aiKeywordsPlaceholder', 'Ej: sanador, conexión, paz');
         fetchContent('generateButtonLabel', 'Generar');
     }, [fetchContent]);
+
+     useEffect(() => {
+        const fetchUserCeremonies = async () => {
+            if (user && !ceremony) {
+                setLoadingCeremonies(true);
+                const profile = await getUserProfile(user.uid);
+                const assignedIds = profile?.assignedCeremonies?.map(c => typeof c === 'string' ? c : c.ceremonyId) || [];
+                if (assignedIds.length > 0) {
+                    const allCeremonies = await getCeremonies();
+                    const userCeremonies = allCeremonies.filter(c => assignedIds.includes(c.id));
+                    setAssignedCeremonies(userCeremonies);
+                }
+                setLoadingCeremonies(false);
+            }
+        };
+
+        if (isOpen) {
+            fetchUserCeremonies();
+        }
+    }, [user, ceremony, isOpen]);
 
     const getDisplayValue = (id: string, fallback: string) => {
         const value = content[id];
@@ -92,7 +118,12 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
     }
 
     const handleTestimonialSubmit = async () => {
-        if (!user) return; // Should not happen if dialog is open, but for safety
+        if (!user || !selectedCeremonyId) {
+            if (!selectedCeremonyId) {
+                toast({ title: t('error'), description: t('errorSelectCeremony'), variant: 'destructive' });
+            }
+            return;
+        };
         if (!consent || rating === 0) {
             toast({ title: t('error'), description: t('testimonialErrorDescription'), variant: 'destructive' });
             return;
@@ -108,7 +139,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
         try {
             const newTestimonial: Omit<Testimonial, 'id'> = {
                 userId: user.uid,
-                ceremonyId: ceremony.id,
+                ceremonyId: selectedCeremonyId,
                 type: 'text',
                 content: testimonialText,
                 rating: rating,
@@ -117,7 +148,14 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                 userName: user.displayName || 'Anónimo',
                 userPhotoUrl: user.photoURL
             };
-            await addTestimonial(newTestimonial);
+            const newTestimonialId = await addTestimonial(newTestimonial);
+            
+            await logUserAction('submit_testimonial', {
+                targetId: newTestimonialId,
+                targetType: 'testimonial',
+                changes: { ceremonyId: selectedCeremonyId, rating }
+            });
+
             toast({ title: t('testimonialSuccessTitle') });
             setIsOpen(false);
         } catch (error) {
@@ -126,6 +164,20 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
             setIsSubmitting(false);
         }
     };
+    
+    const handleClose = useCallback(() => {
+        setIsOpen(false);
+        // Reset state after closing animation
+        setTimeout(() => {
+            setTestimonialText('');
+            setRating(0);
+            setConsent(false);
+            setShowAIAssist(false);
+            setAiKeywords('');
+            setSelectedCeremonyId(ceremony?.id);
+        }, 300);
+    }, [setIsOpen, ceremony]);
+
 
     return (
         <DialogContent className="sm:max-w-md p-0 border-0 flex flex-col max-h-[90vh]">
@@ -136,9 +188,28 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                            <EditableTitle tag="h2" id="testimonialDialogTitle" initialValue={t('testimonialTitle')} className="text-2xl" />
                         </DialogTitle>
                         <DialogDescription>
-                            <EditableTitle tag="p" id="testimonialDialogDescription" initialValue={t('testimonialDescription')} />
+                             <EditableTitle tag="p" id="testimonialDialogDescription" initialValue={t('testimonialDescription')} />
                         </DialogDescription>
                     </DialogHeader>
+
+                     {!ceremony && (
+                        <div className="text-left space-y-2">
+                             <Label htmlFor="ceremony-select">{t('selectCeremonyForTestimonial')}</Label>
+                             {loadingCeremonies ? <Skeleton className="h-10 w-full" /> : (
+                                <Select onValueChange={setSelectedCeremonyId} value={selectedCeremonyId}>
+                                    <SelectTrigger id="ceremony-select">
+                                        <SelectValue placeholder={t('selectCeremony')} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    {assignedCeremonies.map(c => (
+                                        <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
+                             )}
+                        </div>
+                    )}
+
 
                     <StarRating rating={rating} setRating={setRating} disabled={isSubmitting} />
                     
@@ -147,30 +218,30 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                             <Textarea
                                 value={testimonialText}
                                 onChange={(e) => setTestimonialText(e.target.value)}
-                                placeholder={getDisplayValue('testimonialPlaceholder', t('testimonialPlaceholder'))}
+                                placeholder={getDisplayValue('testimonialPlaceholder', 'Escribe tu testimonio aquí...')}
                                 rows={6}
                                 className="text-base"
                                 disabled={isSubmitting}
                             />
                             <Button variant="outline" size="sm" onClick={() => setShowAIAssist(!showAIAssist)}>
                                 <Wand2 className="mr-2 h-4 w-4"/>
-                                <span>{getDisplayValue('generateWithAI', showAIAssist ? t('cancel') : t('generateWithAI'))}</span>
+                                <EditableTitle tag="span" id="generateWithAI" initialValue={t('generateWithAI')} />
                             </Button>
                             {showAIAssist && (
                                 <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
                                     <Label htmlFor="ai-keywords">
-                                        <EditableTitle tag="p" id="aiKeywordsLabel" initialValue={t('aiKeywordsLabel')} />
+                                       <EditableTitle tag="span" id="aiKeywordsLabel" initialValue={t('aiKeywordsLabel')} />
                                     </Label>
                                     <Textarea 
                                         id="ai-keywords"
                                         value={aiKeywords}
                                         onChange={(e) => setAiKeywords(e.target.value)}
-                                        placeholder={getDisplayValue('aiKeywordsPlaceholder', t('aiKeywordsPlaceholder'))}
+                                        placeholder={getDisplayValue('aiKeywordsPlaceholder', 'Ej: sanador, conexión, paz')}
                                         rows={2}
                                         disabled={isGenerating}
                                     />
                                     <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiKeywords.trim()}>
-                                        {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> <span>{getDisplayValue('generateButtonLabel', t('generate'))}</span></>}
+                                        {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> <EditableTitle tag="span" id="generateButtonLabel" initialValue={t('generate')} /></>}
                                     </Button>
                                 </div>
                             )}
@@ -180,11 +251,11 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                     <div className="flex items-center space-x-2 justify-center pt-2">
                         <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} disabled={isSubmitting} />
                         <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">
-                             <EditableTitle tag="p" id="testimonialConsent" initialValue={t('testimonialConsent')} />
+                            <EditableTitle tag="span" id="testimonialConsent" initialValue={t('testimonialConsent')} />
                         </Label>
                     </div>
-                    <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0 || !testimonialText.trim()} className="w-full">
-                         {isSubmitting ? t('sending') : <span>{getDisplayValue('submitTestimonial', t('submitTestimonial'))}</span>}
+                     <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0 || !testimonialText.trim() || !selectedCeremonyId}>
+                         {isSubmitting ? t('sending') : <EditableTitle tag="span" id="submitTestimonial" initialValue={t('submitTestimonial')} />}
                     </Button>
                 </div>
             </ScrollArea>
@@ -206,3 +277,4 @@ export default function TestimonialDialog({ user, ceremony, children }: Testimon
     </Dialog>
   );
 }
+

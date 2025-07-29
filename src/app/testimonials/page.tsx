@@ -20,31 +20,20 @@ import { auth } from '@/lib/firebase/config';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import TestimonialDialog from '@/components/admin/TestimonialDialog';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
   const [ceremoniesWithTestimonials, setCeremoniesWithTestimonials] = useState<Ceremony[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { user, userProfile, loading: authLoading } = useAuth();
   const locale = i18n.language === 'es' ? es : enUS;
   const { toast } = useToast();
 
   const isAuthorized = userProfile?.role === 'admin' || userProfile?.role === 'organizer';
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-        onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                const profile = await getUserProfile(currentUser.uid);
-                setUserProfile(profile);
-            }
-            fetchTestimonials(currentUser);
-        });
-    }
-    fetchUserData();
-  }, []);
-
-  const fetchTestimonials = async (currentUser: User | null) => {
+  const fetchTestimonials = async () => {
       setLoading(true);
       try {
         const testimonials = await getPublicTestimonials();
@@ -72,6 +61,12 @@ export default function TestimonialsPage() {
         setLoading(false);
       }
     };
+  
+  useEffect(() => {
+    if (!authLoading) {
+        fetchTestimonials();
+    }
+  }, [authLoading]);
 
   const getTestimonialIcon = (type: 'text' | 'audio' | 'video') => {
       switch(type) {
@@ -95,16 +90,14 @@ export default function TestimonialsPage() {
       try {
           await deleteTestimonial(testimonialId);
           toast({ title: t('testimonialDeletedSuccess') });
-          // Refetch testimonials to update the UI
-          const user = auth.currentUser;
-          fetchTestimonials(user);
+          fetchTestimonials();
       } catch (error) {
            toast({ title: t('testimonialDeletedError'), variant: 'destructive' });
       }
   };
 
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="container py-12 md:py-24 space-y-12">
         <Skeleton className="h-12 w-1/2 mx-auto" />
@@ -129,6 +122,14 @@ export default function TestimonialsPage() {
               initialValue={t('testimonialsPageSubtitle')}
               className="max-w-2xl text-lg text-foreground/80 font-body"
           />
+           {user && (
+                <TestimonialDialog user={user}>
+                    <Button>
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        {t('leaveMyTestimonial')}
+                    </Button>
+                </TestimonialDialog>
+            )}
         </div>
         
         {ceremoniesWithTestimonials.length > 0 ? (
@@ -214,3 +215,4 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
