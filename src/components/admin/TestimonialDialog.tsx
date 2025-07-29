@@ -23,7 +23,8 @@ import { generateTestimonial } from '@/ai/flows/testimonial-flow';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import { EditableTitle } from '../home/EditableTitle';
-import { useState } from 'react';
+import { useEditable } from '../home/EditableProvider';
+import { useState, useEffect } from 'react';
 
 interface TestimonialDialogProps {
   user: User;
@@ -44,8 +45,9 @@ const StarRating = ({ rating, setRating, disabled = false }: { rating: number, s
 };
 
 const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, ceremony: Ceremony, setIsOpen: (open: boolean) => void }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { toast } = useToast();
+    const { content, fetchContent } = useEditable();
     
     const [testimonialText, setTestimonialText] = useState('');
     const [rating, setRating] = useState(0);
@@ -55,6 +57,18 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
     const [showAIAssist, setShowAIAssist] = useState(false);
     const [aiKeywords, setAiKeywords] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+
+    useEffect(() => {
+        fetchContent('testimonialPlaceholder', 'Escribe tu testimonio aquí...');
+    }, [fetchContent]);
+
+    const getDisplayValue = (id: string, fallback: string) => {
+        const value = content[id];
+        if (typeof value === 'object' && value !== null) {
+            return (value as any)[i18n.language as 'es' | 'en'] || (value as any)['es'] || fallback;
+        }
+        return (value as string) || fallback;
+    };
 
     const handleGenerateWithAI = async () => {
         if (!aiKeywords.trim()) return;
@@ -125,13 +139,14 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                             <Textarea
                                 value={testimonialText}
                                 onChange={(e) => setTestimonialText(e.target.value)}
-                                placeholder={t('testimonialPlaceholder')}
+                                placeholder={getDisplayValue('testimonialPlaceholder', t('testimonialPlaceholder'))}
                                 rows={6}
                                 className="text-base"
                                 disabled={isSubmitting}
                             />
                             <Button variant="outline" size="sm" onClick={() => setShowAIAssist(!showAIAssist)}>
-                                <Wand2 className="mr-2 h-4 w-4"/> {showAIAssist ? t('cancel') : t('generateWithAI')}
+                                <Wand2 className="mr-2 h-4 w-4"/>
+                                <EditableTitle tag="p" id="generateWithAI" initialValue={showAIAssist ? t('cancel') : t('generateWithAI')} />
                             </Button>
                             {showAIAssist && (
                                 <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
@@ -159,7 +174,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                         </Label>
                     </div>
                     <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0 || !testimonialText.trim()} className="w-full">
-                        {isSubmitting ? t('sending') : t('submitTestimonial')}
+                        {isSubmitting ? t('sending') : <EditableTitle tag="p" id="submitTestimonial" initialValue={t('submitTestimonial')} />}
                     </Button>
                 </div>
             </ScrollArea>
@@ -181,4 +196,3 @@ export default function TestimonialDialog({ user, ceremony, children }: Testimon
     </Dialog>
   );
 }
-
