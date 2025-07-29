@@ -78,7 +78,11 @@ export default function SingleCeremonyPage() {
 
     }, [id]);
     
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => (typeof ac === 'string' ? ac : ac.ceremonyId) === id) || false;
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => {
+        const ceremonyId = typeof ac === 'string' ? ac : ac.ceremonyId;
+        return ceremonyId === id;
+    }) || false;
+
 
     const assignedPlan = ceremony?.plans?.find(p => 
         userProfile?.assignedCeremonies?.some(ac => 
@@ -229,12 +233,6 @@ export default function SingleCeremonyPage() {
                                     <Clock className='w-4 h-4'/> {ceremony.horario}
                                 </p>
                                 )}
-                                {user && ceremony.status === 'active' && isAssignedToCeremony && ceremony.locationLink && (
-                                    <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
-                                        <MapPin className='w-4 h-4'/>
-                                        <p>{t('buttonViewLocation', 'Ver Ubicación')}</p>
-                                    </a>
-                                )}
                             </div>
                             {isAssignedToCeremony && ceremony.status === 'active' && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                             <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
@@ -252,14 +250,26 @@ export default function SingleCeremonyPage() {
                             </ul>
                         </div>
                         <div className="mt-12">
-                            {isAssignedToCeremony && assignedPlan && ceremony.status === 'active' ? (
+                            {isAssignedToCeremony && ceremony.status === 'active' ? (
                                 <div className='space-y-4 mb-4'>
-                                    <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
-                                    <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
-                                        <p className="font-semibold">{assignedPlan.name}</p>
-                                        <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
-                                        <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
-                                    </div>
+                                    {assignedPlan && (
+                                        <>
+                                            <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
+                                            <div className='p-4 border rounded-lg bg-primary/10 border-primary'>
+                                                <p className="font-semibold">{assignedPlan.name}</p>
+                                                <p className="text-sm text-muted-foreground">{assignedPlan.description}</p>
+                                                <p className="font-bold text-lg mt-2">{formatPrice(assignedPlan.price, assignedPlan.priceUntil)}</p>
+                                            </div>
+                                        </>
+                                    )}
+                                    {ceremony.locationLink && (
+                                         <Button asChild size="lg" className="w-full">
+                                            <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer">
+                                                <MapPin className="mr-2 h-4 w-4"/>
+                                                {t('buttonViewLocation', 'Ver Ubicación')}
+                                            </a>
+                                        </Button>
+                                    )}
                                 </div>
                             ) : null}
                             {!isAssignedToCeremony && ceremony.status === 'active' ? (
