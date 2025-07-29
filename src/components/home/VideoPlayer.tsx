@@ -34,7 +34,7 @@ const getTikTokEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean
     const videoId = url.split('video/')[1]?.split('?')[0];
     if (!videoId) return null;
     const autoplayParam = autoplay ? '1' : '0';
-    const muteParam = defaultMuted ? '0' : '1';
+    const muteParam = defaultMuted ? '1' : '0';
     return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplayParam}&loop=0&controls=1&mute=${muteParam}`;
 };
 
@@ -42,7 +42,7 @@ const getFacebookEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boole
     if (!url || !url.includes('facebook.com')) return null;
     if (url.includes('/videos/') || url.includes('/share/v/')) {
         const autoplayParam = autoplay ? '1' : '0';
-        const muteParam = defaultMuted ? '0' : '1';
+        const muteParam = defaultMuted ? '1' : '0';
         return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560&autoplay=${autoplayParam}&mute=${muteParam}&loop=1&controls=1`;
     }
     return null;
@@ -414,4 +414,5 @@ interface VideoPlayerProps {
   userId?: string | null;
   children?: React.ReactNode;
 }
+
 
