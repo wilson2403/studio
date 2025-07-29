@@ -168,8 +168,8 @@ export default function AllCeremoniesPage() {
     };
 
     const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
-        if (!componentButtons) return t(fallback);
         const lang = i18n.language as 'es' | 'en';
+        if (!componentButtons) return t(fallback);
         return componentButtons[key]?.[lang] || componentButtons[key]?.es || t(fallback);
     };
 
@@ -252,7 +252,10 @@ export default function AllCeremoniesPage() {
                             if (!url) return false;
                             return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
                         };
-                        const showExternalLink = ceremony.mediaUrl && !isDirectVideoUrl(ceremony.mediaUrl);
+                        
+                        const isFinishedMemory = ceremony.status === 'finished' && isAssigned && ceremony.downloadUrl;
+                        const videoUrlToShow = isFinishedMemory ? ceremony.downloadUrl : ceremony.mediaUrl;
+                        const showExternalLink = videoUrlToShow && !isDirectVideoUrl(videoUrlToShow);
 
                         return (
                             <div key={ceremony.id} className="px-5">
@@ -276,7 +279,7 @@ export default function AllCeremoniesPage() {
                                         {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                                         <div className='flex gap-2'>
                                             {showExternalLink && (
-                                                <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                                <a href={videoUrlToShow} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                                                     <ExternalLink className="h-4 w-4" />
                                                 </Button>
@@ -297,7 +300,7 @@ export default function AllCeremoniesPage() {
                                     <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
                                         <VideoPlayer 
                                             ceremonyId={ceremony.id}
-                                            videoUrl={ceremony.mediaUrl} 
+                                            videoUrl={videoUrlToShow} 
                                             mediaType={ceremony.mediaType}
                                             videoFit={ceremony.videoFit}
                                             title={ceremony.title}
@@ -377,7 +380,7 @@ export default function AllCeremoniesPage() {
                         ceremonyId={expandedVideo.id}
                         isOpen={!!expandedVideo}
                         onClose={() => setExpandedVideo(null)}
-                        videoUrl={expandedVideo.mediaUrl}
+                        videoUrl={expandedVideo.downloadUrl || expandedVideo.mediaUrl}
                         mediaType={expandedVideo.mediaType}
                         title={expandedVideo.title}
                     />

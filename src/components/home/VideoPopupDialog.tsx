@@ -14,7 +14,7 @@ interface VideoPopupDialogProps {
   isOpen: boolean;
   onClose: () => void;
   videoUrl?: string;
-  mediaType?: 'image' | 'video';
+  mediaType?: 'image' | 'video' | 'short video';
   title: string;
 }
 
