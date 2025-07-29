@@ -32,6 +32,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Separator } from '../ui/separator';
 import { v4 as uuidv4 } from 'uuid';
 
+const createSlug = (title: string) => {
+    return title
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '') // remove non-word chars
+        .replace(/[\s_-]+/g, '-') // collapse whitespace and replace by -
+        .replace(/^-+|-+$/g, ''); // trim -
+};
+
 const planSchema = (t: (key: string, options?: any) => string) => z.object({
   id: z.string().default(() => uuidv4()),
   name: z.string().min(1, t('errorRequired', { field: t('planName') })),
@@ -42,6 +50,7 @@ const planSchema = (t: (key: string, options?: any) => string) => z.object({
 
 const formSchema = (t: (key: string, options?: any) => string) => z.object({
   title: z.string().min(1, t('errorRequired', { field: t('formTitle') })),
+  slug: z.string().optional(),
   description: z.string().min(1, t('errorRequired', { field: t('formDescription') })),
   price: z.coerce.number().min(0, t('errorPositiveNumber', { field: t('formPrice') })),
   priceType: z.enum(['exact', 'from']),
@@ -89,6 +98,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     resolver: zodResolver(formSchema(t)),
     defaultValues: {
       title: '',
+      slug: '',
       description: '',
       price: 80000,
       priceType: 'from',
@@ -124,6 +134,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     } else {
       form.reset({
         title: '',
+        slug: '',
         description: '',
         price: 80000,
         priceType: 'from',
@@ -185,6 +196,8 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     setIsUploading(true);
     let finalMediaUrl = data.mediaUrl;
     let finalMediaType = data.mediaType;
+    
+    const finalSlug = data.slug || createSlug(data.title);
 
     if (mediaFile) {
         finalMediaType = mediaFile.type.startsWith('video/') ? 'video' : 'image';
@@ -207,7 +220,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     }
 
     try {
-      const ceremonyData = { ...data, mediaUrl: finalMediaUrl, mediaType: finalMediaType, features: data.features.map(f => f.value), plans: data.plans?.map(p => ({...p, id: p.id || uuidv4()})) };
+      const ceremonyData = { ...data, slug: finalSlug, mediaUrl: finalMediaUrl, mediaType: finalMediaType, features: data.features.map(f => f.value), plans: data.plans?.map(p => ({...p, id: p.id || uuidv4()})) };
       if (ceremonyData.priceType === 'exact') {
         delete ceremonyData.plans;
       }
@@ -268,9 +281,12 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     if (!ceremony) return;
     try {
         const { id, ...originalData } = ceremony;
+        const newTitle = `${originalData.title} (Copia)`;
+        const newSlug = createSlug(newTitle);
         const duplicatedData: Omit<Ceremony, 'id'> = {
             ...originalData,
-            title: `${originalData.title} (Copia)`,
+            title: newTitle,
+            slug: newSlug,
             featured: false, // Duplicates are not featured by default
             plans: originalData.plans?.map(p => ({...p, id: uuidv4()})),
         };

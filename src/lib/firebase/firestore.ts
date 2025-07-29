@@ -95,6 +95,7 @@ export const seedCeremonies = async () => {
   const initialCeremonies: Omit<Ceremony, 'id'>[] = [
     {
       title: 'Sábado 26 de julio – Guanacaste',
+      slug: 'sabado-26-de-julio-guanacaste',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
       price: 100000,
       priceType: 'exact',
@@ -118,6 +119,7 @@ export const seedCeremonies = async () => {
     },
     {
       title: 'Sábado 2 de agosto – San Carlos',
+      slug: 'sabado-2-de-agosto-san-carlos',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
       price: 80000,
       priceType: 'from',
@@ -145,6 +147,7 @@ export const seedCeremonies = async () => {
     },
     {
       title: 'Transformación Interior',
+      slug: 'transformacion-interior',
       description: '“Una experiencia que cambió mi perspectiva por completo.”',
       date: 'Junio 2024',
       mediaType: 'video',
@@ -164,6 +167,7 @@ export const seedCeremonies = async () => {
     },
      {
       title: 'Ceremonia Inactiva de Prueba',
+      slug: 'ceremonia-inactiva-de-prueba',
       description: 'Este es un ejemplo de una ceremonia inactiva.',
       date: 'Enero 2024',
       mediaType: 'image',
@@ -245,7 +249,7 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
             return { id: docSnap.id, ...docSnap.data() } as Ceremony;
         }
 
-        const q = query(ceremoniesCollection, where("id", "==", idOrSlug));
+        const q = query(ceremoniesCollection, where("slug", "==", idOrSlug), limit(1));
         const querySnapshot = await getDocs(q);
         
         if (!querySnapshot.empty) {

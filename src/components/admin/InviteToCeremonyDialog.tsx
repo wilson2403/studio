@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -38,7 +39,7 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
     const lang = i18n.language as 'es' | 'en';
     let message = selectedTemplate[lang] || selectedTemplate.es;
     
-    const ceremonyLink = `${window.location.origin}/ceremonias/${ceremony.id}`;
+    const ceremonyLink = `${window.location.origin}/ceremonias/${ceremony.slug || ceremony.id}`;
 
     message = message.replace(/{{userName}}/g, user.displayName || 'participante');
     message = message.replace(/{{ceremonyTitle}}/g, ceremony.title || '');

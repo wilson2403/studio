@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -36,7 +37,7 @@ export default function ShareMemoryDialog({ user, ceremony, isOpen, onClose, sha
     const lang = i18n.language as 'es' | 'en';
     let message = selectedTemplate[lang] || selectedTemplate.es;
     
-    const memoryLink = `${window.location.origin}/artesanar/${ceremony.id}`;
+    const memoryLink = `${window.location.origin}/artesanar/${ceremony.slug || ceremony.id}`;
 
     message = message.replace(/{{userName}}/g, user.displayName || 'participante');
     message = message.replace(/{{ceremonyTitle}}/g, ceremony.title || '');

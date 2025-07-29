@@ -12,6 +12,7 @@ export type Plan = {
 
 export type Ceremony = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   date?: string;
