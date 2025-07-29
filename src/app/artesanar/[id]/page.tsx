@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, CheckCircle, Clock, Download, Home, MessageSquare, Share2 } from 'lucide-react';
+import { CalendarIcon, CheckCircle, Clock, Download, Home, MapPin, MessageSquare, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -93,7 +93,7 @@ export default function CeremonyMemoryPage() {
     
 
     if (loading) {
-        return <Skeleton className="w-screen h-screen" />;
+        return <Skeleton className="w-full h-screen" />;
     }
 
     if (!ceremony) {
@@ -112,8 +112,8 @@ export default function CeremonyMemoryPage() {
 
     return (
         <EditableProvider>
-            <div className="h-screen w-screen relative">
-                <div className="absolute inset-0 z-0">
+            <div className="flex flex-col min-h-screen bg-background">
+                <div className="w-full h-screen md:h-[calc(100vh-200px)] sticky top-0">
                      <VideoPlayer
                         ceremonyId={ceremony.id}
                         videoUrl={ceremony.mediaUrl}
@@ -124,11 +124,10 @@ export default function CeremonyMemoryPage() {
                         defaultMuted={true}
                     />
                 </div>
-                <div className="absolute inset-0 z-10 bg-black/50"></div>
-                <main className="relative z-20 flex flex-col items-center justify-between text-center text-white h-full p-4">
-                    <div className='flex-grow flex flex-col items-center justify-start pt-20'>
-                        <h1 className="text-4xl lg:text-6xl font-headline mb-4 drop-shadow-lg animate-in fade-in-0 slide-in-from-bottom-5 duration-1000">{ceremony.title}</h1>
-                        <div className="font-mono text-sm text-white/80 mb-6 space-y-1 drop-shadow-md animate-in fade-in-0 slide-in-from-bottom-5 duration-1000 delay-200">
+                <main className="w-full bg-background rounded-t-2xl -mt-5 relative z-10 p-6 md:p-12 lg:p-16 flex flex-col items-center text-center">
+                    <div className="max-w-2xl w-full">
+                        <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary">{ceremony.title}</h1>
+                        <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
                             {ceremony.date && (
                             <p className="flex items-center gap-2 justify-center">
                                 <CalendarIcon className='w-4 h-4'/> {ceremony.date}
@@ -139,30 +138,36 @@ export default function CeremonyMemoryPage() {
                                 <Clock className='w-4 h-4'/> {ceremony.horario}
                             </p>
                             )}
-                        </div>
-                        {isAssignedToCeremony && <Badge variant="success" className="mb-4 animate-in fade-in-0 duration-1000 delay-300"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
-                        <p className="text-lg text-white/90 mb-8 max-w-2xl drop-shadow animate-in fade-in-0 slide-in-from-bottom-5 duration-1000 delay-400">{ceremony.description}</p>
-                    </div>
-
-                    <div className="w-full max-w-md space-y-3 pb-8 animate-in fade-in-0 slide-in-from-bottom-10 duration-1000 delay-500">
-                        {isAssignedToCeremony && ceremony.downloadUrl && (
-                            <Button asChild size="lg" className="w-full">
-                                <a href={ceremony.downloadUrl} download>
-                                    <Download className="mr-2 h-4 w-4" />
-                                    {t('downloadVideo')}
+                            {user && ceremony.status !== 'active' && isAssignedToCeremony && ceremony.locationLink && (
+                                <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary justify-center">
+                                    <MapPin className='w-4 h-4'/>
+                                    <p>{t('buttonViewLocation', 'Ver Ubicación')}</p>
                                 </a>
+                            )}
+                        </div>
+                        {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
+                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
+                    
+                        <div className="w-full max-w-sm mx-auto space-y-3">
+                            {isAssignedToCeremony && ceremony.downloadUrl && (
+                                <Button asChild size="lg" className="w-full">
+                                    <a href={ceremony.downloadUrl} download>
+                                        <Download className="mr-2 h-4 w-4" />
+                                        {t('downloadVideo')}
+                                    </a>
+                                </Button>
+                            )}
+                            {isAssignedToCeremony && (
+                                <Button variant="outline" size="lg" className="w-full" onClick={() => setIsTestimonialDialogOpen(true)}>
+                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                    {t('testimonialTitle')}
+                                </Button>
+                            )}
+                            <Button variant="ghost" size="lg" className="w-full text-foreground/80" onClick={handleShare}>
+                                <Share2 className="mr-2 h-4 w-4" />
+                                {t('shareCeremony')}
                             </Button>
-                        )}
-                        {isAssignedToCeremony && (
-                            <Button variant="outline" size="lg" className="w-full bg-white/10 border-white/20 hover:bg-white/20" onClick={() => setIsTestimonialDialogOpen(true)}>
-                                <MessageSquare className="mr-2 h-4 w-4" />
-                                {t('testimonialTitle')}
-                            </Button>
-                        )}
-                         <Button variant="ghost" size="lg" className="w-full text-white/80 hover:text-white hover:bg-white/10" onClick={handleShare}>
-                            <Share2 className="mr-2 h-4 w-4" />
-                            {t('shareCeremony')}
-                        </Button>
+                        </div>
                     </div>
                 </main>
             </div>
@@ -177,3 +182,4 @@ export default function CeremonyMemoryPage() {
         </EditableProvider>
     );
 }
+
