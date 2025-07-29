@@ -4,25 +4,47 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getCeremonies, getPublicTestimonials, Ceremony, Testimonial, UserProfile, getUserProfile } from '@/lib/firebase/firestore';
+import { getCeremonies, getPublicTestimonials, Ceremony, Testimonial, deleteTestimonial, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
-import { Video, Mic, MessageSquare, Star } from 'lucide-react';
+import { Video, Mic, MessageSquare, Star, Trash2 } from 'lucide-react';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { EditableProvider } from '@/components/home/EditableProvider';
+import { VideoPlayer } from '@/components/home/VideoPlayer';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from '@/lib/firebase/config';
+import { Button } from '../ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
   const [ceremoniesWithTestimonials, setCeremoniesWithTestimonials] = useState<Ceremony[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const locale = i18n.language === 'es' ? es : enUS;
+  const { toast } = useToast();
+
+  const isAuthorized = userProfile?.role === 'admin' || userProfile?.role === 'organizer';
 
   useEffect(() => {
-    const fetchTestimonials = async () => {
+    const fetchUserData = async () => {
+        onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                const profile = await getUserProfile(currentUser.uid);
+                setUserProfile(profile);
+            }
+            fetchTestimonials(currentUser);
+        });
+    }
+    fetchUserData();
+  }, []);
+
+  const fetchTestimonials = async (currentUser: User | null) => {
       setLoading(true);
       try {
         const testimonials = await getPublicTestimonials();
@@ -51,9 +73,6 @@ export default function TestimonialsPage() {
       }
     };
 
-    fetchTestimonials();
-  }, []);
-
   const getTestimonialIcon = (type: 'text' | 'audio' | 'video') => {
       switch(type) {
           case 'video': return <Video className="h-4 w-4 text-muted-foreground" />;
@@ -70,7 +89,20 @@ export default function TestimonialsPage() {
             ))}
         </div>
     );
-};
+  };
+  
+  const handleDelete = async (testimonialId: string) => {
+      try {
+          await deleteTestimonial(testimonialId);
+          toast({ title: t('testimonialDeletedSuccess') });
+          // Refetch testimonials to update the UI
+          const user = auth.currentUser;
+          fetchTestimonials(user);
+      } catch (error) {
+           toast({ title: t('testimonialDeletedError'), variant: 'destructive' });
+      }
+  };
+
 
   if (loading) {
     return (
@@ -88,13 +120,13 @@ export default function TestimonialsPage() {
           <EditableTitle
               tag="h1"
               id="testimonialsPageTitle"
-              initialValue="testimonialsPageTitle"
+              initialValue={t('testimonialsPageTitle')}
               className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent"
           />
            <EditableTitle
               tag="p"
               id="testimonialsPageSubtitle"
-              initialValue="testimonialsPageSubtitle"
+              initialValue={t('testimonialsPageSubtitle')}
               className="max-w-2xl text-lg text-foreground/80 font-body"
           />
         </div>
@@ -113,22 +145,60 @@ export default function TestimonialsPage() {
                   <div className="space-y-6 pt-4 border-t">
                     {ceremony.testimonials?.map(testimonial => (
                        <Card key={testimonial.id} className="overflow-hidden">
-                           <CardHeader className="flex flex-row items-center gap-4 p-4 bg-muted/30">
-                              <Avatar>
-                                 <AvatarImage src={testimonial.userPhotoUrl || undefined} alt={testimonial.userName} />
-                                 <AvatarFallback>{testimonial.userName.charAt(0)}</AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1">
-                                 <div className="flex items-center gap-2">
-                                    <p className="font-semibold">{testimonial.userName}</p>
-                                    {testimonial.rating && renderStars(testimonial.rating)}
-                                 </div>
-                                 <p className="text-xs text-muted-foreground">{format(testimonial.createdAt, 'PPP', { locale })}</p>
+                           <CardHeader className="flex flex-row items-start justify-between gap-4 p-4 bg-muted/30">
+                              <div className='flex items-center gap-4'>
+                                <Avatar>
+                                   <AvatarImage src={testimonial.userPhotoUrl || undefined} alt={testimonial.userName} />
+                                   <AvatarFallback>{testimonial.userName.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1">
+                                   <div className="flex items-center gap-2">
+                                      <p className="font-semibold">{testimonial.userName}</p>
+                                      {testimonial.rating && renderStars(testimonial.rating)}
+                                   </div>
+                                   <p className="text-xs text-muted-foreground">{format(testimonial.createdAt.toDate(), 'PPP', { locale })}</p>
+                                </div>
+                                {getTestimonialIcon(testimonial.type)}
                               </div>
-                              {getTestimonialIcon(testimonial.type)}
+                              {isAuthorized && (
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                                            <Trash2 className="h-4 w-4"/>
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>{t('deleteTestimonialConfirmTitle')}</AlertDialogTitle>
+                                            <AlertDialogDescription>{t('deleteTestimonialConfirmDescription')}</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDelete(testimonial.id)}>{t('delete')}</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                              )}
                            </CardHeader>
-                           <CardContent className="p-4">
-                              <p className="text-foreground/80 italic">"{testimonial.content}"</p>
+                           <CardContent className="p-4 space-y-4">
+                                {testimonial.type === 'text' && <p className="text-foreground/80 italic">"{testimonial.content}"</p>}
+                                {testimonial.type === 'video' && (
+                                    <div className="aspect-video relative rounded-md overflow-hidden">
+                                        <VideoPlayer
+                                            ceremonyId={testimonial.id}
+                                            videoUrl={testimonial.content}
+                                            mediaType="video"
+                                            title={t('testimonialFrom', { name: testimonial.userName })}
+                                            autoplay={false}
+                                            defaultMuted={true}
+                                        />
+                                    </div>
+                                )}
+                                {testimonial.type === 'audio' && (
+                                    <audio controls src={testimonial.content} className="w-full">
+                                        {t('audioNotSupported')}
+                                    </audio>
+                                )}
                            </CardContent>
                        </Card>
                     ))}
