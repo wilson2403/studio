@@ -167,6 +167,13 @@ export default function AllCeremoniesPage() {
         setExpandedVideo(ceremony);
     };
 
+    const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
+        if (!buttonLabels) return t(fallback);
+        const lang = i18n.language as 'es' | 'en';
+        return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(fallback);
+    };
+
+
     if (pageLoading) {
         return (
             <div className="container py-12 md:py-16 space-y-8">
@@ -230,7 +237,7 @@ export default function AllCeremoniesPage() {
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
-                        {t('componentButtonAddCeremony', 'Agregar Ceremonia')}
+                        {getButtonText('addCeremony', 'addCeremony')}
                     </Button>
                     )}
                 </div>
@@ -310,7 +317,7 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? t('componentButtonViewDetails', 'View Details') : t('reserveNow')}
+                                                {isAssigned ? getButtonText('buttonViewDetails', 'View Details') : t('reserveNow')}
                                             </Button>
                                         ) : isAssigned ? (
                                             <Button asChild variant="default" className='w-full'>

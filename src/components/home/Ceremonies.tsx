@@ -45,7 +45,8 @@ export default function Ceremonies({
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { toast } = useToast();
-  
+  const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
@@ -58,6 +59,17 @@ export default function Ceremonies({
           setIsAuthorized(false);
       }
     });
+
+    const fetchSettings = async () => {
+        try {
+            const settings = await getSystemSettings();
+            setButtonLabels(settings.componentButtons);
+        } catch (error) {
+            console.error("Failed to fetch button settings:", error);
+        }
+    };
+    fetchSettings();
+
 
     return () => unsubscribe();
   }, []);
@@ -191,6 +203,12 @@ export default function Ceremonies({
     }
   };
 
+  const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
+    if (!buttonLabels) return t(fallback);
+    const lang = i18n.language as 'es' | 'en';
+    return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(fallback);
+  };
+
   const renderActiveCeremonies = () => {
     const isDirectVideoUrl = (url: string | undefined): boolean => {
         if (!url) return false;
@@ -253,7 +271,7 @@ export default function Ceremonies({
                                 </div>
                               )}
                                <Button variant="default" className="w-full" onClick={() => handleViewPlans(ceremony)}>
-                                   {isAssigned ? t('componentButtonViewDetails', 'View Details') : t('reserveNow')}
+                                   {isAssigned ? getButtonText('buttonViewDetails', 'View Details') : t('reserveNow')}
                                </Button>
                               {isAuthorized && (
                                 <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
@@ -407,7 +425,7 @@ export default function Ceremonies({
                  {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)}>
                         <PlusCircle className="mr-2" />
-                        {t('componentButtonAddCeremony', 'Agregar Ceremonia')}
+                        {getButtonText('addCeremony', 'addCeremony')}
                     </Button>
                 )}
             </div>
@@ -444,7 +462,7 @@ export default function Ceremonies({
          {isAuthorized && status === 'active' && (
           <Button onClick={() => setIsAdding(true)}>
             <PlusCircle className="mr-2" />
-            {t('componentButtonAddCeremony', 'Agregar Ceremonia')}
+            {getButtonText('addCeremony', 'addCeremony')}
           </Button>
         )}
       </div>
@@ -496,4 +514,3 @@ interface CeremoniesProps {
     subtitleInitialValue?: string;
     hideDownloadButton?: boolean;
 }
-
