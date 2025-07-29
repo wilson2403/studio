@@ -44,10 +44,8 @@ type NavLink = {
     href: string;
     labelKey: string;
     sectionId: string;
-    dynamicLabel?: string;
 };
 
-// Moved outside the component to follow the Rules of Hooks
 function usePrevious<T>(value: T): T | undefined {
     const ref = React.useRef<T>();
     React.useEffect(() => {
@@ -63,11 +61,9 @@ export default function Header() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const previousPathname = usePrevious(pathname);
   const [newErrorCount, setNewErrorCount] = useState(0);
-  const [navLinkLabels, setNavLinkLabels] = useState<Record<string, string>>({});
-
 
   const navLinks: NavLink[] = [
     { href: '/', labelKey: 'navHome', sectionId: 'home' },
@@ -95,26 +91,6 @@ export default function Header() {
   const isAdmin = userProfile?.role === 'admin';
   const isOrganizer = userProfile?.role === 'organizer';
   const organizerHasPerms = isOrganizer && (userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses || userProfile?.permissions?.canEditUsers);
-
-  useEffect(() => {
-    const fetchNavLabels = async () => {
-        const allLinks = [...navLinks, ...userNavLinks];
-        const labels: Record<string, string> = {};
-        for (const link of allLinks) {
-            const content = await getContent(link.labelKey);
-            if (typeof content === 'object' && content !== null) {
-                labels[link.labelKey] = content[i18n.language as 'es' | 'en'] || content['es'] || t(link.labelKey);
-            } else if (typeof content === 'string') {
-                 labels[link.labelKey] = content;
-            } else {
-                 labels[link.labelKey] = t(link.labelKey);
-            }
-        }
-        setNavLinkLabels(labels);
-    };
-
-    fetchNavLabels();
-  }, [i18n.language, t]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -162,7 +138,6 @@ export default function Header() {
   }
   
   const getNavLink = (link: NavLink) => {
-    const label = navLinkLabels[link.labelKey] || t(link.labelKey);
     return (
         <Link
             key={link.href}
@@ -175,12 +150,11 @@ export default function Header() {
                 : 'text-foreground/60'
             )}
         >
-            {label}
+            {t(link.labelKey)}
         </Link>
     );
   };
    const getMobileNavLink = (link: NavLink) => {
-      const label = navLinkLabels[link.labelKey] || t(link.labelKey);
       return (
         <SheetClose asChild key={link.href}>
           <Link
@@ -188,7 +162,7 @@ export default function Header() {
             onMouseDown={() => handleLinkMouseDown(link.sectionId)}
             className="transition-colors hover:text-primary"
           >
-            {label}
+            {t(link.labelKey)}
           </Link>
         </SheetClose>
       );
