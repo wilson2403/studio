@@ -18,19 +18,6 @@ import { SystemSettings } from "@/types";
 export default function Contact() {
     const { t, i18n } = useTranslation();
     const { content, fetchContent } = useEditable();
-    const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
-
-     useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const settings = await getSystemSettings();
-                setButtonLabels(settings.componentButtons);
-            } catch (error) {
-                console.error("Failed to fetch button settings:", error);
-            }
-        };
-        fetchSettings();
-    }, []);
     
     const initialValues = {
         whatsappCommunityLink: 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ',
@@ -68,12 +55,6 @@ export default function Contact() {
         setWhatsappNumber(getStringValue('whatsappNumber', initialValues.whatsappNumber));
 
     }, [content]);
-
-    const getButtonLabel = (key: keyof SystemSettings['componentButtons']) => {
-        if (!buttonLabels) return t(key as any);
-        const lang = i18n.language as 'es' | 'en';
-        return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(key as any);
-    };
 
     const whatsappContactUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hola, vengo de la página web y quisiera más información sobre El Arte de Sanar')}`;
 
@@ -138,7 +119,7 @@ export default function Contact() {
                             <Button asChild>
                                 <Link href={communityLink} target="_blank">
                                     <WhatsappIcon className="mr-2" />
-                                    {getButtonLabel('whatsappCommunityButton')}
+                                    {t('componentButtonWhatsappCommunityButton', 'Unirse a la Comunidad')}
                                 </Link>
                             </Button>
                         )}

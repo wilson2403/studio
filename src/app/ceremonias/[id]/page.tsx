@@ -231,7 +231,7 @@ export default function SingleCeremonyPage() {
                                 {user && ceremony.status === 'active' && isAssignedToCeremony && ceremony.locationLink && (
                                     <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary">
                                         <MapPin className='w-4 h-4'/>
-                                        <p>{t('buttonViewLocation')}</p>
+                                        <p>{t('buttonViewLocation', 'Ver Ubicación')}</p>
                                     </a>
                                 )}
                             </div>
