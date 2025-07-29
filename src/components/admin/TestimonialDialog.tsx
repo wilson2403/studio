@@ -14,7 +14,8 @@ import { Button } from '../ui/button';
 import { ThumbsUp, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { User } from 'firebase/auth';
-import { Ceremony, Testimonial, addTestimonial } from '@/types';
+import { Ceremony, Testimonial } from '@/types';
+import { addTestimonial } from '@/lib/firebase/firestore';
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from '../ui/carousel';
 import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
@@ -56,8 +57,8 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
             userName: user.displayName || 'Anónimo',
             userPhotoUrl: user.photoURL
         };
-        await addTestimonial(newTestimonial);
-        setSubmittedTestimonial({ ...newTestimonial, id: 'temp-id' });
+        const newId = await addTestimonial(newTestimonial);
+        setSubmittedTestimonial({ ...newTestimonial, id: newId, createdAt: new Date(newTestimonial.createdAt) });
         toast({ title: t('testimonialSuccessTitle') });
         if (api?.canScrollNext()) api.scrollNext();
     } catch (error) {
