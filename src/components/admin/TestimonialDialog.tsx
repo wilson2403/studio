@@ -60,12 +60,16 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
 
     useEffect(() => {
         fetchContent('testimonialPlaceholder', 'Escribe tu testimonio aquí...');
+        fetchContent('generateWithAI', 'Generar con IA');
+        fetchContent('submitTestimonial', 'Enviar Testimonio');
+        fetchContent('testimonialConsent', 'Doy mi consentimiento para que este testimonio se muestre públicamente en el sitio web.');
     }, [fetchContent]);
 
     const getDisplayValue = (id: string, fallback: string) => {
         const value = content[id];
         if (typeof value === 'object' && value !== null) {
-            return (value as any)[i18n.language as 'es' | 'en'] || (value as any)['es'] || fallback;
+            const lang = i18n.language as 'es' | 'en';
+            return (value as any)[lang] || (value as any)['es'] || fallback;
         }
         return (value as string) || fallback;
     };
@@ -146,7 +150,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                             />
                             <Button variant="outline" size="sm" onClick={() => setShowAIAssist(!showAIAssist)}>
                                 <Wand2 className="mr-2 h-4 w-4"/>
-                                <EditableTitle tag="p" id="generateWithAI" initialValue={showAIAssist ? t('cancel') : t('generateWithAI')} />
+                                <span>{getDisplayValue('generateWithAI', showAIAssist ? t('cancel') : t('generateWithAI'))}</span>
                             </Button>
                             {showAIAssist && (
                                 <div className="p-4 border rounded-lg bg-muted/50 space-y-2 animate-in fade-in-0">
@@ -174,7 +178,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                         </Label>
                     </div>
                     <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0 || !testimonialText.trim()} className="w-full">
-                        {isSubmitting ? t('sending') : <EditableTitle tag="p" id="submitTestimonial" initialValue={t('submitTestimonial')} />}
+                         {isSubmitting ? t('sending') : <span>{getDisplayValue('submitTestimonial', t('submitTestimonial'))}</span>}
                     </Button>
                 </div>
             </ScrollArea>
