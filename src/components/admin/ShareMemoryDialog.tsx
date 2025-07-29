@@ -99,5 +99,3 @@ export default function ShareMemoryDialog({ user, ceremony, isOpen, onClose, sha
     </Dialog>
   );
 }
-
-    
