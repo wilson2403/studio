@@ -1,3 +1,4 @@
+
 'use client';
 
 import { I18nextProvider } from 'react-i18next';
@@ -8,11 +9,15 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    const init = async () => {
-      await i18n.init();
+    // i18next.init() is now called inside i18n.ts, so we just check for initialization
+    if (i18n.isInitialized) {
       setIsInitialized(true);
-    };
-    init();
+    } else {
+      // If it's not initialized, wait for the 'initialized' event
+      i18n.on('initialized', () => {
+        setIsInitialized(true);
+      });
+    }
   }, []);
 
   if (!isInitialized) {
