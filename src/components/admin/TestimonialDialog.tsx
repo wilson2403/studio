@@ -154,7 +154,9 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
 
                     <div className="flex items-center space-x-2 justify-center pt-2">
                         <Checkbox id="consent" checked={consent} onCheckedChange={(checked) => setConsent(!!checked)} disabled={isSubmitting} />
-                        <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">{t('testimonialConsent')}</Label>
+                        <Label htmlFor="consent" className="text-sm font-normal text-muted-foreground">
+                            <EditableTitle tag="p" id="testimonialConsent" initialValue={t('testimonialConsent')} />
+                        </Label>
                     </div>
                     <Button onClick={handleTestimonialSubmit} disabled={isSubmitting || !consent || rating === 0 || !testimonialText.trim()} className="w-full">
                         {isSubmitting ? t('sending') : t('submitTestimonial')}
@@ -179,3 +181,4 @@ export default function TestimonialDialog({ user, ceremony, children }: Testimon
     </Dialog>
   );
 }
+
