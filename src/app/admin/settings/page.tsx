@@ -11,14 +11,14 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { getSystemSettings, updateSystemSettings } from '@/ai/flows/settings-flow';
+import { getSystemSettings, updateSystemSettings, getSystemEnvironment, updateSystemEnvironment } from '@/ai/flows/settings-flow';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { SystemSettings } from '@/types';
+import { SystemSettings, EnvironmentSettings } from '@/types';
 import { Checkbox } from '@/components/ui/checkbox';
 
 const navLinkSchema = z.object({
@@ -38,16 +38,6 @@ const componentButtonSchema = z.object({
 });
 
 const settingsFormSchema = z.object({
-    firebaseConfig: z.object({
-        apiKey: z.string(),
-        authDomain: z.string(),
-        projectId: z.string(),
-        storageBucket: z.string(),
-        messagingSenderId: z.string(),
-        appId: z.string(),
-    }),
-    googleApiKey: z.string(),
-    resendApiKey: z.string(),
     whatsappCommunityLink: z.string().url('Debe ser una URL válida.'),
     instagramUrl: z.string().url('Debe ser una URL válida.'),
     facebookUrl: z.string().url('Debe ser una URL válida.'),
@@ -74,7 +64,21 @@ const settingsFormSchema = z.object({
     }),
 });
 
+const environmentFormSchema = z.object({
+    firebaseConfig: z.object({
+        apiKey: z.string(),
+        authDomain: z.string(),
+        projectId: z.string(),
+        storageBucket: z.string(),
+        messagingSenderId: z.string(),
+        appId: z.string(),
+    }),
+    googleApiKey: z.string(),
+    resendApiKey: z.string(),
+});
+
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+type EnvironmentFormValues = z.infer<typeof environmentFormSchema>;
 
 export default function AdminSettingsPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -86,12 +90,20 @@ export default function AdminSettingsPage() {
     const form = useForm<SettingsFormValues>({
         resolver: zodResolver(settingsFormSchema),
     });
+    
+    const envForm = useForm<EnvironmentFormValues>({
+        resolver: zodResolver(environmentFormSchema),
+    });
 
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const settings = await getSystemSettings();
+                const [settings, envSettings] = await Promise.all([
+                    getSystemSettings(),
+                    getSystemEnvironment()
+                ]);
                 form.reset(settings);
+                envForm.reset(envSettings);
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
                 toast({ title: t('errorFetchSettings'), variant: 'destructive' });
@@ -109,7 +121,7 @@ export default function AdminSettingsPage() {
         });
 
         return () => unsubscribe();
-    }, [router, toast, t, form]);
+    }, [router, toast, t, form, envForm]);
 
     const onSubmit = async (data: SettingsFormValues) => {
         try {
@@ -121,6 +133,19 @@ export default function AdminSettingsPage() {
             }
         } catch (error: any) {
             toast({ title: t('errorUpdatingSettings'), description: error.message, variant: 'destructive' });
+        }
+    };
+    
+    const onEnvSubmit = async (data: EnvironmentFormValues) => {
+        try {
+            const result = await updateSystemEnvironment(data);
+            if (result.success) {
+                toast({ title: t('envSettingsUpdatedSuccess') });
+            } else {
+                 toast({ title: t('errorUpdatingEnvSettings'), description: result.message, variant: 'destructive' });
+            }
+        } catch (error: any) {
+            toast({ title: t('errorUpdatingEnvSettings'), description: error.message, variant: 'destructive' });
         }
     };
     
@@ -260,30 +285,30 @@ export default function AdminSettingsPage() {
                 <p className="mt-2 text-lg text-foreground/80 font-body">{t('systemSettingsDescription')}</p>
             </div>
             
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <Accordion type="multiple" defaultValue={['apis']} className="w-full space-y-4">
-                        
-                        {/* API Keys Section */}
-                        <AccordionItem value="apis" className="border rounded-lg bg-muted/20 px-4">
-                            <AccordionTrigger className="hover:no-underline">
-                                <div className="flex items-center gap-3">
-                                    <Key className="h-5 w-5 text-primary" />
-                                    <h3 className="text-lg font-semibold">{t('apiKeys')}</h3>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-4">
+            <Accordion type="multiple" defaultValue={['apis']} className="w-full space-y-4">
+                
+                {/* API Keys Section */}
+                <AccordionItem value="apis" className="border rounded-lg bg-muted/20 px-4">
+                    <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <Key className="h-5 w-5 text-primary" />
+                            <h3 className="text-lg font-semibold">{t('apiKeys')}</h3>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <Form {...envForm}>
+                            <form onSubmit={envForm.handleSubmit(onEnvSubmit)} className="space-y-8">
                                 <Card>
                                     <CardHeader>
                                         <CardTitle>{t('firebaseConfig')}</CardTitle>
-                                         <CardDescription className='flex items-center gap-2 pt-2'><AlertTriangle className='h-4 w-4 text-destructive'/> {t('firebaseConfigWarning')}</CardDescription>
+                                            <CardDescription className='flex items-center gap-2 pt-2'><AlertTriangle className='h-4 w-4 text-destructive'/> {t('firebaseConfigWarning')}</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
-                                        {Object.keys(form.getValues('firebaseConfig') || {}).map((key) => (
+                                        {Object.keys(envForm.getValues('firebaseConfig') || {}).map((key) => (
                                             <FormField
                                                 key={key}
-                                                control={form.control}
-                                                name={`firebaseConfig.${key as keyof SettingsFormValues['firebaseConfig']}`}
+                                                control={envForm.control}
+                                                name={`firebaseConfig.${key as keyof EnvironmentFormValues['firebaseConfig']}`}
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <FormLabel className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</FormLabel>
@@ -298,110 +323,63 @@ export default function AdminSettingsPage() {
                                 <Card className="mt-4">
                                     <CardHeader><CardTitle>Otras APIs</CardTitle></CardHeader>
                                     <CardContent className="space-y-4">
-                                        <FormField control={form.control} name="googleApiKey" render={({ field }) => (
+                                        <FormField control={envForm.control} name="googleApiKey" render={({ field }) => (
                                             <FormItem><FormLabel>Google API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                         )}/>
-                                        <FormField control={form.control} name="resendApiKey" render={({ field }) => (
+                                        <FormField control={envForm.control} name="resendApiKey" render={({ field }) => (
                                             <FormItem><FormLabel>Resend API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                         )}/>
                                     </CardContent>
                                 </Card>
-                            </AccordionContent>
-                        </AccordionItem>
-                        
-                        {/* Content Management Section */}
-                        <AccordionItem value="content" className="border rounded-lg bg-muted/20 px-4">
-                             <AccordionTrigger className="hover:no-underline">
-                                <div className="flex items-center gap-3">
-                                    <Link2 className="h-5 w-5 text-primary" />
-                                    <h3 className="text-lg font-semibold">{t('contentManagement')}</h3>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-4 space-y-4">
+                                <Button type="submit" disabled={envForm.formState.isSubmitting}>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    {envForm.formState.isSubmitting ? t('saving') : t('saveApiKeys')}
+                                </Button>
+                            </form>
+                        </Form>
+                    </AccordionContent>
+                </AccordionItem>
+
+                {/* Other Settings Sections */}
+                <AccordionItem value="content" className="border rounded-lg bg-muted/20 px-4">
+                     <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <Link2 className="h-5 w-5 text-primary" />
+                            <h3 className="text-lg font-semibold">{t('contentManagement')}</h3>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                                 <FormField control={form.control} name="whatsappCommunityLink" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t('whatsappCommunityLink')}</FormLabel>
-                                        <FormControl><Input {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                                    <FormItem><FormLabel>{t('whatsappCommunityLink')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                 <FormField control={form.control} name="instagramUrl" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t('instagramUrl')}</FormLabel>
-                                        <FormControl><Input {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                                    <FormItem><FormLabel>{t('instagramUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                 <FormField control={form.control} name="facebookUrl" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t('facebookUrl')}</FormLabel>
-                                        <FormControl><Input {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                                    <FormItem><FormLabel>{t('facebookUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                 <FormField control={form.control} name="tiktokUrl" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t('tiktokUrl')}</FormLabel>
-                                        <FormControl><Input {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                                    <FormItem><FormLabel>{t('tiktokUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                 <FormField control={form.control} name="whatsappNumber" render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>{t('whatsappNumber')}</FormLabel>
-                                        <FormControl><Input {...field} placeholder="50688888888" /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                                    <FormItem><FormLabel>{t('whatsappNumber')}</FormLabel><FormControl><Input {...field} placeholder="50688888888" /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        {/* Navigation Section */}
-                        <AccordionItem value="navigation" className="border rounded-lg bg-muted/20 px-4">
-                             <AccordionTrigger className="hover:no-underline">
-                                <div className="flex items-center gap-3">
-                                    <List className="h-5 w-5 text-primary" />
-                                    <h3 className="text-lg font-semibold">{t('navigationManagement')}</h3>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-4">
-                                {renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        {/* Home Buttons Section */}
-                        <AccordionItem value="homeButtons" className="border rounded-lg bg-muted/20 px-4">
-                             <AccordionTrigger className="hover:no-underline">
-                                <div className="flex items-center gap-3">
-                                    <Home className="h-5 w-5 text-primary" />
-                                    <h3 className="text-lg font-semibold">{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</h3>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-4">
-                                {renderHomeButtons(['medicine', 'guides', 'preparation'])}
-                            </AccordionContent>
-                        </AccordionItem>
-
-                        {/* Component Buttons Section */}
-                        <AccordionItem value="componentButtons" className="border rounded-lg bg-muted/20 px-4">
-                             <AccordionTrigger className="hover:no-underline">
-                                <div className="flex items-center gap-3">
-                                    <MousePointerClick className="h-5 w-5 text-primary" />
-                                    <h3 className="text-lg font-semibold">{t('componentButtonsManagement', 'Botones de Componentes')}</h3>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-4">
-                                {renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton'])}
-                            </AccordionContent>
-                        </AccordionItem>
-                    </Accordion>
-                    
-                    <Button type="submit" disabled={form.formState.isSubmitting}>
-                        <Save className="mr-2 h-4 w-4" />
-                        {form.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                    </Button>
-                </form>
-            </Form>
+                                <Accordion type="multiple" className="w-full space-y-4">
+                                    <AccordionItem value="navigation"><AccordionTrigger>{t('navigationManagement')}</AccordionTrigger><AccordionContent className="pt-4">{renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}</AccordionContent></AccordionItem>
+                                    <AccordionItem value="homeButtons"><AccordionTrigger>{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</AccordionTrigger><AccordionContent className="pt-4">{renderHomeButtons(['medicine', 'guides', 'preparation'])}</AccordionContent></AccordionItem>
+                                    <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton'])}</AccordionContent></AccordionItem>
+                                </Accordion>
+                                <Button type="submit" disabled={form.formState.isSubmitting}>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    {form.formState.isSubmitting ? t('saving') : t('saveContentSettings')}
+                                </Button>
+                            </form>
+                        </Form>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
         </div>
     );
 }

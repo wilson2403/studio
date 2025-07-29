@@ -11,7 +11,9 @@ import { z } from 'zod';
 import { getContent, setContent, logError } from '@/lib/firebase/firestore';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { SystemSettings } from '@/types';
+import { SystemSettings, EnvironmentSettings } from '@/types';
+import { getDoc, setDoc, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 
 const navLinkSchema = z.object({
   es: z.string(),
@@ -30,21 +32,11 @@ const componentButtonSchema = z.object({
 });
 
 const settingsSchema = z.object({
-    firebaseConfig: z.object({
-        apiKey: z.string(),
-        authDomain: z.string(),
-        projectId: z.string(),
-        storageBucket: z.string(),
-        messagingSenderId: z.string(),
-        appId: z.string(),
-    }),
-    googleApiKey: z.string(),
-    resendApiKey: z.string(),
-    whatsappCommunityLink: z.string(),
-    instagramUrl: z.string(),
-    facebookUrl: z.string(),
-    tiktokUrl: z.string(),
-    whatsappNumber: z.string(),
+    whatsappCommunityLink: z.string().url('Debe ser una URL válida.'),
+    instagramUrl: z.string().url('Debe ser una URL válida.'),
+    facebookUrl: z.string().url('Debe ser una URL válida.'),
+    tiktokUrl: z.string().url('Debe ser una URL válida.'),
+    whatsappNumber: z.string().min(8, 'Debe ser un número de teléfono válido.'),
     navLinks: z.object({
         home: navLinkSchema,
         medicine: navLinkSchema,
@@ -66,6 +58,19 @@ const settingsSchema = z.object({
     }),
 });
 
+const environmentSchema = z.object({
+    firebaseConfig: z.object({
+        apiKey: z.string(),
+        authDomain: z.string(),
+        projectId: z.string(),
+        storageBucket: z.string(),
+        messagingSenderId: z.string(),
+        appId: z.string(),
+    }),
+    googleApiKey: z.string(),
+    resendApiKey: z.string(),
+});
+
 export const getSystemSettings = ai.defineFlow(
   {
     name: 'getSystemSettingsFlow',
@@ -83,7 +88,6 @@ export const getSystemSettings = ai.defineFlow(
       
       const fetchContentWithFallback = async (id: string, fallback: {es: string, en: string, visible: boolean}) => {
           const content = await getContent(id) as {es: string, en: string, visible: boolean} | null;
-          // Ensure 'visible' has a default value if missing from Firestore
           if (content && typeof content.visible === 'undefined') {
               content.visible = fallback.visible;
           }
@@ -124,16 +128,6 @@ export const getSystemSettings = ai.defineFlow(
 
 
       return {
-        firebaseConfig: {
-            apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
-            authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
-            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
-            storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
-            messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-            appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
-        },
-        googleApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
-        resendApiKey: process.env.RESEND_API_KEY || '',
         whatsappCommunityLink: await fetchStringContent('whatsappCommunityLink', 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ'),
         instagramUrl: await fetchStringContent('instagramUrl', 'https://www.instagram.com/elartedesanarcr'),
         facebookUrl: await fetchStringContent('facebookUrl', 'https://www.facebook.com/profile.php?id=61574627625274'),
@@ -159,36 +153,6 @@ export const updateSystemSettings = ai.defineFlow(
   },
   async (settings) => {
     try {
-        // Update .env file
-        const envPath = path.resolve(process.cwd(), '.env');
-        let envContent = '';
-        try {
-            envContent = await fs.readFile(envPath, 'utf-8');
-        } catch (e) {
-            // File might not exist, that's okay
-        }
-
-        const updateEnvVar = (content: string, key: string, value: string) => {
-            const regex = new RegExp(`^${key}=.*$`, 'm');
-            if (regex.test(content)) {
-                return content.replace(regex, `${key}="${value}"`);
-            } else {
-                return content + `\n${key}="${value}"`;
-            }
-        };
-
-        envContent = updateEnvVar(envContent, 'NEXT_PUBLIC_FIREBASE_API_KEY', settings.firebaseConfig.apiKey);
-        envContent = updateEnvVar(envContent, 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN', settings.firebaseConfig.authDomain);
-        envContent = updateEnvVar(envContent, 'NEXT_PUBLIC_FIREBASE_PROJECT_ID', settings.firebaseConfig.projectId);
-        envContent = updateEnvVar(envContent, 'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET', settings.firebaseConfig.storageBucket);
-        envContent = updateEnvVar(envContent, 'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID', settings.firebaseConfig.messagingSenderId);
-        envContent = updateEnvVar(envContent, 'NEXT_PUBLIC_FIREBASE_APP_ID', settings.firebaseConfig.appId);
-        envContent = updateEnvVar(envContent, 'NEXT_PUBLIC_GOOGLE_API_KEY', settings.googleApiKey);
-        envContent = updateEnvVar(envContent, 'RESEND_API_KEY', settings.resendApiKey);
-
-        await fs.writeFile(envPath, envContent.trim());
-      
-        // Update Firestore content
         await setContent('whatsappCommunityLink', { es: settings.whatsappCommunityLink, en: settings.whatsappCommunityLink });
         await setContent('instagramUrl', { es: settings.instagramUrl, en: settings.instagramUrl });
         await setContent('facebookUrl', { es: settings.facebookUrl, en: settings.facebookUrl });
@@ -213,4 +177,56 @@ export const updateSystemSettings = ai.defineFlow(
       return { success: false, message: `Failed to update settings: ${error.message}` };
     }
   }
+);
+
+export const getSystemEnvironment = ai.defineFlow(
+    {
+        name: 'getSystemEnvironmentFlow',
+        outputSchema: environmentSchema,
+    },
+    async () => {
+        try {
+            const docRef = doc(db, 'settings', 'environment');
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                return docSnap.data() as EnvironmentSettings;
+            } else {
+                // Return defaults from process.env if not found in Firestore
+                return {
+                    firebaseConfig: {
+                        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+                        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+                        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+                        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+                        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+                        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+                    },
+                    googleApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
+                    resendApiKey: process.env.RESEND_API_KEY || '',
+                };
+            }
+        } catch (error: any) {
+            logError(error, { function: 'getSystemEnvironment' });
+            throw new Error(`Failed to get system environment: ${error.message}`);
+        }
+    }
+);
+
+export const updateSystemEnvironment = ai.defineFlow(
+    {
+        name: 'updateSystemEnvironmentFlow',
+        inputSchema: environmentSchema,
+        outputSchema: z.object({ success: z.boolean(), message: z.string() }),
+    },
+    async (settings) => {
+        try {
+            const docRef = doc(db, 'settings', 'environment');
+            await setDoc(docRef, settings, { merge: true });
+            return { success: true, message: 'Environment settings updated successfully.' };
+        } catch (error: any) {
+            logError(error, { function: 'updateSystemEnvironment' });
+            return { success: false, message: `Failed to update environment settings: ${error.message}` };
+        }
+    }
 );

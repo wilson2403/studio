@@ -235,16 +235,6 @@ export type ComponentButtonData = {
 }
 
 export type SystemSettings = {
-    firebaseConfig: {
-        apiKey: string;
-        authDomain: string;
-        projectId: string;
-        storageBucket: string;
-        messagingSenderId: string;
-        appId: string;
-    };
-    googleApiKey: string;
-    resendApiKey: string;
     whatsappCommunityLink: string;
     instagramUrl: string;
     facebookUrl: string;
@@ -270,6 +260,20 @@ export type SystemSettings = {
         whatsappCommunityButton: ComponentButtonData;
     };
 };
+
+export type EnvironmentSettings = {
+    firebaseConfig: {
+        apiKey: string;
+        authDomain: string;
+        projectId: string;
+        storageBucket: string;
+        messagingSenderId: string;
+        appId: string;
+    };
+    googleApiKey: string;
+    resendApiKey: string;
+}
+
 
 export type AuditLog = {
     id: string;
