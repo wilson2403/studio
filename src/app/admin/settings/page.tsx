@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Save, AlertTriangle, Key, Link2, List, Home } from 'lucide-react';
+import { Settings, Save, AlertTriangle, Key, Link2, List, Home, MousePointerClick } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +28,11 @@ const navLinkSchema = z.object({
 });
 
 const homeButtonSchema = z.object({
+    es: z.string().min(1, 'El nombre en español es requerido.'),
+    en: z.string().min(1, 'El nombre en inglés es requerido.'),
+});
+
+const componentButtonSchema = z.object({
     es: z.string().min(1, 'El nombre en español es requerido.'),
     en: z.string().min(1, 'El nombre en inglés es requerido.'),
 });
@@ -61,6 +66,10 @@ const settingsFormSchema = z.object({
         medicine: homeButtonSchema,
         guides: homeButtonSchema,
         preparation: homeButtonSchema,
+    }),
+    componentButtons: z.object({
+        addCeremony: componentButtonSchema,
+        buttonViewDetails: componentButtonSchema,
     }),
 });
 
@@ -207,6 +216,40 @@ export default function AdminSettingsPage() {
         </div>
     );
 
+    const renderComponentButtons = (buttonKeys: (keyof SettingsFormValues['componentButtons'])[]) => (
+        <div className="space-y-4">
+            {buttonKeys.map((key) => (
+                <div key={key} className="p-4 border rounded-lg">
+                    <h4 className="font-semibold capitalize mb-4">{t(key as any, key)}</h4>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={form.control}
+                            name={`componentButtons.${key}.es`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Español</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name={`componentButtons.${key}.en`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>English</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+
     return (
         <div className="container py-12 md:py-16 space-y-12">
             <div className="text-center">
@@ -337,6 +380,19 @@ export default function AdminSettingsPage() {
                                 {renderHomeButtons(['medicine', 'guides', 'preparation'])}
                             </AccordionContent>
                         </AccordionItem>
+
+                        {/* Component Buttons Section */}
+                        <AccordionItem value="componentButtons" className="border rounded-lg bg-muted/20 px-4">
+                             <AccordionTrigger className="hover:no-underline">
+                                <div className="flex items-center gap-3">
+                                    <MousePointerClick className="h-5 w-5 text-primary" />
+                                    <h3 className="text-lg font-semibold">{t('componentButtonsManagement')}</h3>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-4">
+                                {renderComponentButtons(['addCeremony', 'buttonViewDetails'])}
+                            </AccordionContent>
+                        </AccordionItem>
                     </Accordion>
                     
                     <Button type="submit" disabled={form.formState.isSubmitting}>
@@ -348,3 +404,5 @@ export default function AdminSettingsPage() {
         </div>
     );
 }
+
+    

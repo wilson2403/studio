@@ -24,6 +24,11 @@ const homeButtonSchema = z.object({
     en: z.string(),
 });
 
+const componentButtonSchema = z.object({
+    es: z.string(),
+    en: z.string(),
+});
+
 const settingsSchema = z.object({
     firebaseConfig: z.object({
         apiKey: z.string(),
@@ -53,6 +58,10 @@ const settingsSchema = z.object({
         medicine: homeButtonSchema,
         guides: homeButtonSchema,
         preparation: homeButtonSchema,
+    }),
+    componentButtons: z.object({
+        addCeremony: componentButtonSchema,
+        buttonViewDetails: componentButtonSchema,
     }),
 });
 
@@ -85,6 +94,11 @@ export const getSystemSettings = ai.defineFlow(
           return content || fallback;
       }
 
+      const fetchComponentButtonContent = async (id: string, fallback: {es: string, en: string}) => {
+          const content = await getContent(id) as {es: string, en: string} | null;
+          return content || fallback;
+      }
+
       const navLinks = {
           home: await fetchContentWithFallback('navHome', { es: 'Inicio', en: 'Home', visible: true }),
           medicine: await fetchContentWithFallback('navMedicine', { es: 'Medicina', en: 'Medicine', visible: true }),
@@ -99,6 +113,11 @@ export const getSystemSettings = ai.defineFlow(
           medicine: await fetchHomeButtonContent('homeButtonMedicine', { es: 'Conocer la Medicina', en: 'Know the Medicine' }),
           guides: await fetchHomeButtonContent('homeButtonGuides', { es: 'Conocer los Guías', en: 'Meet the Guides' }),
           preparation: await fetchHomeButtonContent('homeButtonPreparation', { es: 'Iniciar Preparación', en: 'Start Preparation' }),
+      };
+
+      const componentButtons = {
+          addCeremony: await fetchComponentButtonContent('componentButtonAddCeremony', { es: 'Agregar Ceremonia', en: 'Add Ceremony' }),
+          buttonViewDetails: await fetchComponentButtonContent('componentButtonViewDetails', { es: 'Ver Detalles', en: 'View Details' }),
       };
 
 
@@ -120,6 +139,7 @@ export const getSystemSettings = ai.defineFlow(
         whatsappNumber: await fetchStringContent('whatsappNumber', '50687992560'),
         navLinks: navLinks,
         homeButtons: homeButtons,
+        componentButtons: componentButtons,
       };
     } catch (error: any) {
       logError(error, { function: 'getSystemSettings' });
@@ -181,6 +201,10 @@ export const updateSystemSettings = ai.defineFlow(
             await setContent(`homeButton${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
         }
 
+        for (const [key, value] of Object.entries(settings.componentButtons)) {
+            await setContent(`componentButton${key.charAt(0).toUpperCase() + key.slice(1)}`, value);
+        }
+
       return { success: true, message: 'Settings updated successfully.' };
     } catch (error: any) {
       logError(error, { function: 'updateSystemSettings' });
@@ -188,3 +212,5 @@ export const updateSystemSettings = ai.defineFlow(
     }
   }
 );
+
+    

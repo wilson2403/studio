@@ -229,6 +229,11 @@ export type HomeButtonData = {
     en: string;
 }
 
+export type ComponentButtonData = {
+    es: string;
+    en: string;
+}
+
 export type SystemSettings = {
     firebaseConfig: {
         apiKey: string;
@@ -259,6 +264,10 @@ export type SystemSettings = {
         guides: HomeButtonData;
         preparation: HomeButtonData;
     };
+    componentButtons: {
+        addCeremony: ComponentButtonData;
+        buttonViewDetails: ComponentButtonData;
+    };
 };
 
 export type AuditLog = {
@@ -284,3 +293,5 @@ export type Testimonial = {
     consent: boolean;
     createdAt: Date;
 }
+
+    
