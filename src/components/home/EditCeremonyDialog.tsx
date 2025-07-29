@@ -70,7 +70,7 @@ const formSchema = (t: (key: string, options?: any) => string) => z.object({
   horario: z.string().optional(),
   registerRequired: z.boolean().default(false),
   showParticipantCount: z.boolean().default(false),
-  showAnalytics: z.boolean().default(false),
+  showAnalytics: z.boolean().default(true),
 });
 
 type EditCeremonyFormValues = z.infer<ReturnType<typeof formSchema>>;
@@ -118,7 +118,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
       horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
       registerRequired: false,
       showParticipantCount: false,
-      showAnalytics: false,
+      showAnalytics: true,
     },
   });
   
@@ -154,7 +154,7 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
         horario: '4:00 p.m. (sábado) – 7:00 a.m. (domingo)⏰',
         registerRequired: false,
         showParticipantCount: false,
-        showAnalytics: false,
+        showAnalytics: true,
       });
     }
   }, [ceremony, isEditMode, form, t]);

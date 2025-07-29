@@ -321,12 +321,20 @@ export default function AllCeremoniesPage() {
                                         <p className="font-mono text-xl font-bold text-white mb-2">
                                             {ceremony.title}
                                         </p>
-                                        {isAuthorized && ceremony.showParticipantCount && (
-                                            <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
-                                                <Users className="h-4 w-4" />
-                                                <span>{t('registeredCount', { count: registeredCount })}</span>
-                                            </div>
-                                        )}
+                                        <div className="flex justify-center gap-4 text-xs text-white/70 mb-4">
+                                            {isAuthorized && ceremony.showParticipantCount && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <Users className="h-4 w-4" />
+                                                    <span>{t('registeredCount', { count: registeredCount })}</span>
+                                                </div>
+                                            )}
+                                            {ceremony.showAnalytics && (
+                                                <div className='flex items-center gap-1.5'>
+                                                    <Eye className="h-4 w-4" />
+                                                    <span>{ceremony.viewCount || 0} {t('views')}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
                                                 {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
@@ -336,10 +344,6 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {isAuthorized && (
                                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
-                                                <div className='flex items-center gap-1.5'>
-                                                    <Eye className="h-4 w-4" />
-                                                    <span>{ceremony.viewCount || 0}</span>
-                                                </div>
                                                 <div className='flex items-center gap-1.5'>
                                                     <MousePointerClick className="h-4 w-4" />
                                                     <span>{ceremony.reserveClickCount || 0}</span>
