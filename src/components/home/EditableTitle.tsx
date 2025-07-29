@@ -39,19 +39,13 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     let newDisplayValue: string;
 
     if (typeof contentValue === 'object' && contentValue !== null) {
-        // It's a structured content object like { es: 'Hola', en: 'Hello' }
         newDisplayValue = (contentValue as any)[lang] || (contentValue as any)['es'] || initialValue;
     } else if (typeof contentValue === 'string') {
-        // It's a simple string, probably from initial state or older data
         newDisplayValue = contentValue;
     } else {
-        // No content found, use the initial value
         newDisplayValue = initialValue;
     }
     
-    // The initialValue can either be a translation KEY or a pre-translated string.
-    // We try to translate it. If it's a key, t() will work. If it's already translated,
-    // t() will just return the same string, which is fine.
     setDisplayValue(t(newDisplayValue));
 
   }, [content, id, lang, initialValue, t]);
@@ -96,8 +90,6 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
 
   if (isEditing) {
     const InputComponent = (Tag === 'p' || Tag === 'h3') ? Textarea : Input;
-
-    // Use a 'div' wrapper to avoid nesting block elements inside <p> which causes hydration errors.
     const EditWrapper = 'div';
 
     return (
@@ -130,15 +122,20 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     );
   }
   
-  const Wrapper = Tag === 'p' ? 'span' : 'div';
+  // Use a 'div' for block-level tags and 'span' for inline tags to prevent nesting errors.
+  const Wrapper = (Tag === 'h1' || Tag === 'h2' || Tag === 'h3') ? 'div' : 'span';
+  
+  // IMPORTANT: If the tag is 'p', we render a 'span' to avoid <p> inside <p> which is invalid HTML
+  // and causes hydration errors. For other tags, we use the tag itself.
+  const RenderTag = Tag === 'p' ? 'span' : Tag;
 
   return (
     <Wrapper className={cn(
       "relative group flex items-center justify-center gap-2", 
       Tag !== 'p' && "w-full",
-      Tag === 'p' && 'inline-flex' // Make span behave like flex container
+      Tag === 'p' && 'inline' // Render as inline to not break text flow
     )}>
-      <Tag className={className}>{displayValue}</Tag>
+      <RenderTag className={className}>{displayValue}</RenderTag>
       {isAdmin && (
         <Button
           variant="ghost"
