@@ -61,6 +61,7 @@ export default function Header() {
   
   const userNavLinks = [
      { href: '/ceremonies', labelKey: 'navCeremonies', sectionId: 'ceremonies' },
+     { href: '/artedesanar', labelKey: 'navStartJourney', sectionId: 'journey' },
      { href: '/preparation', labelKey: 'navPreparation', sectionId: 'preparation' },
   ];
 
@@ -434,4 +435,3 @@ export default function Header() {
     </>
   );
 }
-
