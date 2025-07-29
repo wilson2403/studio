@@ -1,4 +1,3 @@
-
 'use client';
 
 import Ceremonies from '@/components/home/Ceremonies';
@@ -24,7 +23,7 @@ export default function Home() {
         id="eventos-anteriores"
         titleId="pastEventsTitle"
         titleInitialValue={t('pastEventsTitle')}
-        hideDownloadButton={false}
+        hideDownloadButton={true}
       />
       <ExploreMore />
       <Contact />
