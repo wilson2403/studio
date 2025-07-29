@@ -84,12 +84,6 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
     }
   };
 
-  const steps = [
-    { id: 'form', title: t('testimonialTitle'), description: t('testimonialDescription') },
-    { id: 'review', title: t('testimonialReviewTitle'), description: t('testimonialReviewDescription') },
-    { id: 'thanks', title: t('thanks'), description: t('testimonialThanksDescription') }
-  ];
-
   const handleClose = (open: boolean) => {
     if (!open) {
         setTimeout(() => {
