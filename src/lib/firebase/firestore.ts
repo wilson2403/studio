@@ -5,6 +5,7 @@ import { db, storage } from './config';
 import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from './config';
+import { v4 as uuidv4 } from 'uuid';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
 const contentCollection = collection(db, 'content');
@@ -264,12 +265,15 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
-        const docRef = await addDoc(ceremoniesCollection, {
+        const docRef = doc(ceremoniesCollection); // Generate a new document reference with an auto-generated ID
+        const newCeremony = {
             ...ceremony,
+            id: docRef.id,
             viewCount: 0,
             reserveClickCount: 0,
-            whatsappClickCount: 0
-        });
+            whatsappClickCount: 0,
+        };
+        await setDoc(docRef, newCeremony); // Use setDoc with the new reference
         await logUserAction('create_ceremony', { targetId: docRef.id, targetType: 'ceremony', changes: ceremony });
         return docRef.id;
     } catch(error) {
@@ -1356,5 +1360,7 @@ export type { Chat };
 export type { UserProfile };
 
   
+
+    
 
     

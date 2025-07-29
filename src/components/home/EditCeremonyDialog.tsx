@@ -267,19 +267,19 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
   const handleDuplicate = async () => {
     if (!ceremony) return;
     try {
-      const { id, ...originalData } = ceremony;
-      const duplicatedData: Omit<Ceremony, 'id'> = {
-        ...originalData,
-        title: `${originalData.title} (Copia)`,
-        featured: false, // Duplicates are not featured by default
-        plans: originalData.plans?.map(p => ({...p, id: uuidv4()})),
-      };
-      const newId = await addCeremony(duplicatedData);
-      onDuplicate({ ...duplicatedData, id: newId });
-      toast({
-        title: t('ceremonyDuplicated'),
-      });
-      onClose();
+        const { id, ...originalData } = ceremony;
+        const duplicatedData: Omit<Ceremony, 'id'> = {
+            ...originalData,
+            title: `${originalData.title} (Copia)`,
+            featured: false, // Duplicates are not featured by default
+            plans: originalData.plans?.map(p => ({...p, id: uuidv4()})),
+        };
+        const newId = await addCeremony(duplicatedData);
+        onDuplicate({ ...duplicatedData, id: newId });
+        toast({
+            title: t('ceremonyDuplicated'),
+        });
+        onClose();
     } catch (error) {
        toast({
         title: 'Error',
@@ -799,3 +799,5 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
   );
 }
 
+
+    
