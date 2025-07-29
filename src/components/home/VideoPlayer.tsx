@@ -281,22 +281,20 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
                 loop={true}
                 playsInline
                 muted={isMuted}
-                onPlay={autoplay ? () => {} : undefined}
+                onPlay={handlePlay}
                 className={cn("w-full h-full", videoFit === 'cover' ? 'object-cover' : 'object-contain', className)}
             />
             {children}
-            {!autoplay && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
-                  <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={togglePlay}
-                      className="h-14 w-14 rounded-full text-white bg-black/50 hover:bg-black/70 hover:text-white"
-                  >
-                      {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
-                  </Button>
-              </div>
-            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={togglePlay}
+                    className="h-14 w-14 rounded-full text-white bg-black/50 hover:bg-black/70 hover:text-white"
+                >
+                    {isPlaying ? <Pause className="h-8 w-8" /> : <Play className="h-8 w-8" />}
+                </Button>
+            </div>
              <div className="absolute bottom-2 right-2 flex items-center gap-2 opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
                 <Button
                     variant="ghost"

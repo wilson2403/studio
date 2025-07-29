@@ -39,7 +39,7 @@ export default function CeremonyMemoryPage() {
                     const data = await getCeremonyById(id);
                     setCeremony(data);
                     if (data) {
-                        logUserAction('navigate_to_page', { targetId: data.id, targetType: 'ceremony_memory' });
+                        logUserAction('navigate_to_page', { targetId: data.slug, targetType: 'ceremony_memory' });
                     }
                 } catch (error) {
                     console.error("Failed to fetch ceremony", error);
@@ -125,17 +125,17 @@ export default function CeremonyMemoryPage() {
                     />
                 </div>
                 <div className="absolute inset-0 z-10 bg-black/50"></div>
-                <main className="relative z-20 flex flex-col items-center justify-center text-center text-white h-full p-4">
-                    <div className='flex-grow flex flex-col items-center justify-center'>
+                <main className="relative z-20 flex flex-col items-center justify-between text-center text-white h-full p-4">
+                    <div className='flex-grow flex flex-col items-center justify-start pt-20'>
                         <h1 className="text-4xl lg:text-6xl font-headline mb-4 drop-shadow-lg animate-in fade-in-0 slide-in-from-bottom-5 duration-1000">{ceremony.title}</h1>
                         <div className="font-mono text-sm text-white/80 mb-6 space-y-1 drop-shadow-md animate-in fade-in-0 slide-in-from-bottom-5 duration-1000 delay-200">
                             {ceremony.date && (
-                            <p className="flex items-center gap-2">
+                            <p className="flex items-center gap-2 justify-center">
                                 <CalendarIcon className='w-4 h-4'/> {ceremony.date}
                             </p>
                             )}
                             {ceremony.horario && (
-                            <p className="flex items-center gap-2">
+                            <p className="flex items-center gap-2 justify-center">
                                 <Clock className='w-4 h-4'/> {ceremony.horario}
                             </p>
                             )}
@@ -144,7 +144,7 @@ export default function CeremonyMemoryPage() {
                         <p className="text-lg text-white/90 mb-8 max-w-2xl drop-shadow animate-in fade-in-0 slide-in-from-bottom-5 duration-1000 delay-400">{ceremony.description}</p>
                     </div>
 
-                    <div className="w-full max-w-md space-y-3 animate-in fade-in-0 slide-in-from-bottom-10 duration-1000 delay-500">
+                    <div className="w-full max-w-md space-y-3 pb-8 animate-in fade-in-0 slide-in-from-bottom-10 duration-1000 delay-500">
                         {isAssignedToCeremony && ceremony.downloadUrl && (
                             <Button asChild size="lg" className="w-full">
                                 <a href={ceremony.downloadUrl} download>
