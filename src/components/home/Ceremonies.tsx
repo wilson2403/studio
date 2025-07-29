@@ -113,7 +113,7 @@ export default function Ceremonies({
 
   const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
     // If status changed, remove from current list
-    if (updatedCeremony.status !== status) {
+    if (updatedCeremony.status !== status && status !== 'finished') {
         setCeremonies(ceremonies.filter(c => c.id !== updatedCeremony.id));
     } else {
         const ceremonyExists = ceremonies.some(c => c.id === updatedCeremony.id);
@@ -127,7 +127,7 @@ export default function Ceremonies({
   };
   
   const handleCeremonyAdd = (newCeremony: Ceremony) => {
-    if (newCeremony.status === status) {
+    if (newCeremony.status === status || (status === 'finished' && newCeremony.status === 'inactive')) {
         setCeremonies([...ceremonies, newCeremony]);
     }
     setIsAdding(false);
@@ -312,7 +312,7 @@ export default function Ceremonies({
                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleShare(ceremony); }}>
                             <Share2 className="h-4 w-4" />
                          </Button>
-                           {!hideDownloadButton && ceremony.downloadUrl && isAssigned && (
+                           {!hideDownloadButton && ceremony.downloadUrl && isAssigned && user && (
                                 <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download onClick={(e) => e.stopPropagation()}>
                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                                         <Download className="h-4 w-4" />
@@ -493,6 +493,7 @@ interface CeremoniesProps {
     subtitleInitialValue?: string;
     hideDownloadButton?: boolean;
 }
+
 
 
 

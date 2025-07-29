@@ -169,10 +169,10 @@ export default function AllCeremoniesPage() {
         setExpandedVideo(ceremony);
     };
     
-     const getButtonLabel = (key: keyof SystemSettings['componentButtons']) => {
-        if (!buttonLabels) return t(key as any);
+     const getButtonLabel = (key: keyof SystemSettings['componentButtons'], fallbackKey: string) => {
+        if (!buttonLabels) return t(fallbackKey);
         const lang = i18n.language as 'es' | 'en';
-        return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(key as any);
+        return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(fallbackKey);
     };
 
 
@@ -239,7 +239,7 @@ export default function AllCeremoniesPage() {
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
-                        {getButtonLabel('addCeremony')}
+                        {getButtonLabel('addCeremony', 'addCeremony')}
                     </Button>
                     )}
                 </div>
@@ -314,7 +314,7 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? getButtonLabel('buttonViewDetails') : t('reserveNow')}
+                                                {isAssigned ? getButtonLabel('buttonViewDetails', 'buttonViewDetails') : t('reserveNow')}
                                             </Button>
                                         ) : isAssigned ? (
                                             <Button asChild variant="default" className='w-full'>
