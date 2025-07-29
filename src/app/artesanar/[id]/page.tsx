@@ -168,7 +168,7 @@ export default function CeremonyMemoryPage() {
                             defaultMuted={false}
                             className="w-full h-full"
                         >
-                            <Button variant="ghost" size="icon" className="absolute top-2 right-2 z-20 h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => setExpandedVideo(ceremony)}>
+                             <Button variant="ghost" size="icon" className="absolute top-2 left-2 z-20 h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => setExpandedVideo(ceremony)}>
                                 <Expand className="h-4 w-4" />
                             </Button>
                         </VideoPlayer>
@@ -185,21 +185,19 @@ export default function CeremonyMemoryPage() {
                         </div>
                     
                         <div className="w-full max-w-xs mx-auto space-y-3">
-                            {ceremony.downloadUrl && (
-                                <Button asChild={!!user} size="lg" className="w-full" onClick={() => handleAuthAction(() => {})}>
-                                    <a href={user ? ceremony.downloadUrl : undefined} download>
-                                        <Download className="mr-2 h-4 w-4" />
-                                        {t('downloadVideo', 'Descargar Video')}
-                                    </a>
-                                </Button>
-                            )}
+                             <Button asChild={!!user} size="lg" className="w-full" onClick={() => handleAuthAction(() => {})}>
+                                <a href={user ? ceremony.downloadUrl : undefined} download>
+                                    <Download className="mr-2 h-4 w-4" />
+                                    {getButtonText('downloadVideo', 'Descargar Video')}
+                                </a>
+                            </Button>
                             <Button variant="outline" size="lg" className="w-full" onClick={() => handleAuthAction(() => setIsTestimonialDialogOpen(true))}>
                                 <MessageSquare className="mr-2 h-4 w-4" />
-                                {t('leaveTestimonial', 'Dejar Testimonio')}
+                                {getButtonText('leaveTestimonial', 'Dejar Testimonio')}
                             </Button>
                             <Button variant="ghost" size="lg" className="w-full" onClick={handleShare}>
                                 <Share2 className="mr-2 h-4 w-4" />
-                                {t('shareCeremony', 'Compartir Ceremonia')}
+                                {getButtonText('shareCeremony', 'Compartir Ceremonia')}
                             </Button>
                         </div>
                     </div>
@@ -226,4 +224,3 @@ export default function CeremonyMemoryPage() {
         </EditableProvider>
     );
 }
-

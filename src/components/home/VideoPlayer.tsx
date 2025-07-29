@@ -384,6 +384,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
                 data-ai-hint="error"
                 className='object-cover'
             />
+             {children}
         </div>
     );
   };
