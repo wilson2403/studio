@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, logUserAction, getSystemSettings } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, logUserAction } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -18,6 +18,7 @@ import { EditableProvider } from '@/components/home/EditableProvider';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { SystemSettings } from '@/types';
+import { getSystemSettings } from '@/ai/flows/settings-flow';
 
 
 export default function CeremonyMemoryPage() {
@@ -163,7 +164,7 @@ export default function CeremonyMemoryPage() {
                             </p>
                             )}
                         </div>
-                        {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{getButtonText('enrolled', 'Inscrito')}</Badge>}
+                        {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{getButtonText('buttonViewDetails', 'Inscrito')}</Badge>}
                     
                         <div className="w-full max-w-xs mx-auto space-y-3">
                             {isAssignedToCeremony && ceremony.downloadUrl && (
