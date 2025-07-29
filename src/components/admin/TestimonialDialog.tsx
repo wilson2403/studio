@@ -65,6 +65,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
         fetchContent('testimonialConsent', 'Doy mi consentimiento para que este testimonio se muestre públicamente en el sitio web.');
         fetchContent('aiKeywordsLabel', 'Describe tu experiencia con palabras clave (ej: sanador, conexión, paz):');
         fetchContent('aiKeywordsPlaceholder', 'Ej: sanador, conexión, paz');
+        fetchContent('generateButtonLabel', 'Generar');
     }, [fetchContent]);
 
     const getDisplayValue = (id: string, fallback: string) => {
@@ -168,7 +169,7 @@ const DialogContentWrapper = ({ user, ceremony, setIsOpen }: { user: User, cerem
                                         disabled={isGenerating}
                                     />
                                     <Button onClick={handleGenerateWithAI} disabled={isGenerating || !aiKeywords.trim()}>
-                                        {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> {t('generate')}</>}
+                                        {isGenerating ? t('generating') : <><Sparkles className="mr-2 h-4 w-4"/> {getDisplayValue('generateButtonLabel', t('generate'))}</>}
                                     </Button>
                                 </div>
                             )}
