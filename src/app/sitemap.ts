@@ -11,7 +11,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/guides',
     '/ceremonies',
     '/preparation',
-    '/artedesanar',
     '/login',
     '/register'
   ].map(route => ({
@@ -22,15 +21,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dynamic routes for ceremonies
-  const ceremonies = await getCeremonies('active'); 
+  const ceremonies = await getCeremonies(); 
   const ceremonyRoutes = ceremonies.map(ceremony => ({
     url: `${BASE_URL}/ceremonias/${ceremony.id}`,
     lastModified: new Date().toISOString(),
     changeFrequency: 'daily' as 'daily',
     priority: 0.9,
   }));
+  
+  const ceremonyMemoryRoutes = ceremonies.map(ceremony => ({
+    url: `${BASE_URL}/artesanar/${ceremony.id}`,
+    lastModified: new Date().toISOString(),
+    changeFrequency: 'monthly' as 'monthly',
+    priority: 0.7,
+  }));
 
-  return [...staticRoutes, ...ceremonyRoutes];
+  return [...staticRoutes, ...ceremonyRoutes, ...ceremonyMemoryRoutes];
 }
-
     

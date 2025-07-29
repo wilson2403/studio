@@ -169,20 +169,24 @@ export default function Ceremonies({
   };
   
   const handleShare = async (ceremony: Ceremony) => {
-      const shareUrl = `${window.location.origin}/ceremonias/${ceremony.id}`;
-      const shareText = t('shareCeremonyText', { title: ceremony.title });
+      const shareUrl = `${window.location.origin}/artesanar/${ceremony.id}`;
+      const shareText = t('shareCeremonyMemoryText', { title: ceremony.title });
       const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
 
-      if (ceremony.mediaUrl && ceremony.mediaUrl.includes('githubusercontent')) {
-          try {
-              await navigator.clipboard.writeText(shareUrl);
-              toast({ title: t('linkCopied') });
-          } catch (error) {
-              toast({ title: t('errorCopyingLink'), variant: 'destructive' });
-          }
-      } else {
-          window.open(whatsappUrl, '_blank');
-      }
+      if (navigator.share) {
+        try {
+            await navigator.share({
+                title: ceremony.title,
+                text: shareText,
+                url: shareUrl,
+            });
+        } catch (error) {
+            console.error('Error sharing:', error);
+            window.open(whatsappUrl, '_blank');
+        }
+    } else {
+        window.open(whatsappUrl, '_blank');
+    }
   };
 
   const renderActiveCeremonies = () => (
@@ -190,6 +194,7 @@ export default function Ceremonies({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch justify-center">
             {ceremonies.map((ceremony) => {
               const registeredCount = ceremony.assignedUsers?.length || 0;
+              const isAssigned = userProfile?.assignedCeremonies?.some(c => (typeof c === 'string' ? c : c.ceremonyId) === ceremony.id);
               return (
                 <div key={ceremony.id} className="px-5">
                   <Card 
@@ -238,9 +243,9 @@ export default function Ceremonies({
                                 <span>{t('registeredCount', { count: registeredCount })}</span>
                             </div>
                           )}
-                          <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                            {t('reserveNow')}
-                          </Button>
+                           <Button variant="default" className="w-full" onClick={() => handleViewPlans(ceremony)}>
+                               {isAssigned ? t('buttonViewDetails') : t('reserveNow')}
+                           </Button>
                           {isAuthorized && (
                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                 <div className='flex items-center gap-1.5'>
@@ -294,6 +299,9 @@ export default function Ceremonies({
                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
                               <Expand className="h-4 w-4" />
                           </Button>
+                           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleShare(ceremony); }}>
+                            <Share2 className="h-4 w-4" />
+                         </Button>
                            {!hideDownloadButton && ceremony.downloadUrl && (
                                 <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download onClick={(e) => e.stopPropagation()}>
                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
@@ -473,4 +481,5 @@ interface CeremoniesProps {
     subtitleInitialValue?: string;
     hideDownloadButton?: boolean;
 }
+
 

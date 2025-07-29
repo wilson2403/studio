@@ -76,7 +76,7 @@ export type UserProfile = {
     questionnaireCompleted?: boolean;
     status?: UserStatus;
     preparationStep?: number;
-    assignedCeremonies?: string[];
+    assignedCeremonies?: string[] | { ceremonyId: string; planId: string }[];
     completedCourses?: string[];
     videoProgress?: { [videoId: string]: number };
     hasLogs?: boolean;
@@ -252,4 +252,16 @@ export type AuditLog = {
     changes?: Record<string, any>; // For 'update' actions, store what changed
     timestamp: Timestamp;
     page: string; // The page where the action was performed
+}
+
+export type Testimonial = {
+    id: string;
+    userId: string;
+    userName: string;
+    userPhotoUrl?: string | null;
+    ceremonyId: string;
+    type: 'text' | 'audio' | 'video';
+    content: string; // URL for audio/video, text for text
+    consent: boolean;
+    createdAt: Date;
 }

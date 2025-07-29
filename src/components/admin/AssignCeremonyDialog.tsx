@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import { Label } from '../ui/label';
-import { SendHorizonal } from 'lucide-react';
+import { SendHorizonal, Share2 } from 'lucide-react';
 import InviteToCeremonyDialog from './InviteToCeremonyDialog';
 
 interface AssignCeremonyDialogProps {
@@ -27,7 +27,7 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
   const { toast } = useToast();
   const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCeremonies, setSelectedCeremonies] = useState<string[]>([]);
+  const [selectedCeremonies, setSelectedCeremonies] = useState<(string | { ceremonyId: string; planId: string })[]>([]);
   const [invitingToCeremony, setInvitingToCeremony] = useState<Ceremony | null>(null);
 
   useEffect(() => {
@@ -42,10 +42,10 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
     }
     fetchAllCeremonies();
   }, [isOpen, user]);
-
+  
   const handleCheckboxChange = (ceremonyId: string, checked: boolean) => {
     setSelectedCeremonies(prev => 
-      checked ? [...prev, ceremonyId] : prev.filter(id => id !== ceremonyId)
+      checked ? [...prev, ceremonyId] : prev.filter(id => (typeof id === 'string' ? id : id.ceremonyId) !== ceremonyId)
     );
   };
 
@@ -63,6 +63,14 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
   const handleInviteClick = (e: React.MouseEvent, ceremony: Ceremony) => {
     e.stopPropagation(); // Prevent the label from toggling the checkbox
     setInvitingToCeremony(ceremony);
+  }
+  
+  const handleShareClick = (e: React.MouseEvent, ceremony: Ceremony) => {
+    e.stopPropagation();
+    const shareUrl = `${window.location.origin}/artesanar/${ceremony.id}`;
+    const message = t('shareCeremonyMemoryAdminText', { user: user.displayName, ceremony: ceremony.title, link: shareUrl });
+    const whatsappUrl = `https://wa.me/${user.phone?.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   }
 
   return (
@@ -83,7 +91,7 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
                 </div>
               ) : ceremonies.length > 0 ? (
                 ceremonies.map(ceremony => {
-                  const isAssigned = selectedCeremonies.includes(ceremony.id);
+                  const isAssigned = selectedCeremonies.some(id => (typeof id === 'string' ? id : id.ceremonyId) === ceremony.id);
                   const isInviteable = !!user.phone;
                   return (
                     <div key={ceremony.id} className="flex items-center space-x-3 rounded-md border p-3">
@@ -97,12 +105,20 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
                         <span className="text-xs text-muted-foreground capitalize">({t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`)})</span>
                         {ceremony.date && <span className="text-xs text-muted-foreground">{ceremony.date}</span>}
                       </Label>
-                      {isInviteable && (
-                        <Button variant="outline" size="sm" onClick={(e) => handleInviteClick(e, ceremony)}>
-                          <SendHorizonal className="h-4 w-4" />
-                          <span className="sr-only">{t('inviteToCeremonyButton')}</span>
-                        </Button>
-                      )}
+                      <div className='flex gap-2'>
+                        {isInviteable && (
+                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={(e) => handleInviteClick(e, ceremony)}>
+                            <SendHorizonal className="h-4 w-4" />
+                            <span className="sr-only">{t('inviteToCeremonyButton')}</span>
+                          </Button>
+                        )}
+                        {isInviteable && ceremony.status !== 'active' && (
+                          <Button variant="outline" size="icon" className="h-8 w-8" onClick={(e) => handleShareClick(e, ceremony)}>
+                              <Share2 className="h-4 w-4" />
+                              <span className="sr-only">{t('shareCeremonyMemoryButton')}</span>
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   )
                 })
@@ -132,3 +148,4 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
     </>
   );
 }
+

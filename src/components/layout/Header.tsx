@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -37,7 +38,7 @@ import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 
-const APP_VERSION = '1.61';
+const APP_VERSION = '1.62';
 
 export default function Header() {
   const pathname = usePathname();
@@ -60,7 +61,6 @@ export default function Header() {
   const userNavLinks = [
      { href: '/ceremonies', label: t('navCeremonies'), sectionId: 'ceremonies' },
      { href: '/preparation', label: t('navPreparation'), sectionId: 'preparation' },
-     { href: '/artedesanar', label: t('navQuestionnaire'), sectionId: 'questionnaire' }
   ];
 
   const adminNavLinks = [
