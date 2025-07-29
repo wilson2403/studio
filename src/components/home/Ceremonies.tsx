@@ -327,6 +327,13 @@ export default function Ceremonies({
                                     </Button>
                                 </a>
                             )}
+                            {ceremony.status !== 'active' && isAssigned && !isAuthorized && (
+                                <Link href={`/artesanar/${ceremony.slug || ceremony.id}`} onClick={(e) => e.stopPropagation()}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
+                                    <Video className="h-4 w-4" />
+                                </Button>
+                                </Link>
+                            )}
                       </div>
                        <VideoPlayer
                           ceremonyId={ceremony.id}
