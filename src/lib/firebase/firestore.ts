@@ -1318,6 +1318,18 @@ export const addTestimonial = async (testimonial: Omit<Testimonial, 'id'>): Prom
     }
 };
 
+export const deleteTestimonial = async (id: string): Promise<void> => {
+    try {
+        const testimonialRef = doc(db, 'testimonials', id);
+        await deleteDoc(testimonialRef);
+        await logUserAction('delete_testimonial', { targetId: id, targetType: 'testimonial' });
+    } catch(error) {
+        console.error("Error deleting testimonial: ", error);
+        logError(error, { function: 'deleteTestimonial', id });
+        throw error;
+    }
+};
+
 export const getTestimonialsByCeremonyId = async (ceremonyId: string): Promise<Testimonial[]> => {
     try {
         const q = query(
