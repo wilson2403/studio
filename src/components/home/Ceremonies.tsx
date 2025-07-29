@@ -335,7 +335,7 @@ export default function Ceremonies({
                                     </Button>
                                 </a>
                             )}
-                            {ceremony.status !== 'active' && isAssigned && !isAuthorized && (
+                            {ceremony.status !== 'active' && isAssigned && (
                                 <Link href={`/artesanar/${ceremony.slug || ceremony.id}`} onClick={(e) => e.stopPropagation()}>
                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                                     <Video className="h-4 w-4" />
@@ -361,7 +361,7 @@ export default function Ceremonies({
                             </p>
                            )}
                       </div>
-                       {ceremony.showAnalytics && (
+                       {(ceremony.showAnalytics || isAuthorized) && (
                         <div className="absolute bottom-16 right-4 flex-col justify-start gap-4 text-xs text-white/70 mt-3 pt-3">
                             <div className='flex items-center gap-1.5'>
                                 <Eye className="h-4 w-4" />
