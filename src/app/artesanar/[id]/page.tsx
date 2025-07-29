@@ -8,12 +8,11 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, CheckCircle, Download, Expand, Home, MessageSquare, Share2 } from 'lucide-react';
+import { CalendarIcon, Download, Expand, Home, MessageSquare, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { getUserProfile, UserProfile } from '@/lib/firebase/firestore';
@@ -35,6 +34,7 @@ export default function CeremonyMemoryPage() {
     const router = useRouter();
     const { t, i18n } = useTranslation();
     const id = params.id as string;
+    const { toast } = useToast();
 
     useEffect(() => {
         const fetchCeremonyData = async () => {
@@ -82,9 +82,7 @@ export default function CeremonyMemoryPage() {
         return () => unsubscribe();
 
     }, [id]);
-
-    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => (typeof ac === 'string' ? ac : ac.ceremonyId) === id) || false;
-
+    
     const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
         const lang = i18n.language as 'es' | 'en';
         if (!componentButtons) return t(fallback);
@@ -116,6 +114,17 @@ export default function CeremonyMemoryPage() {
         }
     };
     
+    const handleAuthAction = (callback: () => void) => {
+        if (user) {
+            callback();
+        } else {
+            toast({
+                title: t('authRequiredTitle'),
+                description: t('authRequiredActionDescription'),
+                action: <Button asChild><Link href={`/login?redirect=/artesanar/${id}`}>{t('signIn')}</Link></Button>
+            });
+        }
+    };
 
     if (loading) {
         return (
@@ -132,7 +141,7 @@ export default function CeremonyMemoryPage() {
 
     if (!ceremony) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen text-center p-4">
+            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center p-4">
                 <h1 className="text-2xl font-bold mb-4">{t('ceremonyNotFound')}</h1>
                 <Button asChild>
                     <Link href="/">
@@ -146,7 +155,7 @@ export default function CeremonyMemoryPage() {
 
     return (
         <EditableProvider>
-            <div className="container py-8 md:py-12">
+            <div className="container pt-8 md:pt-12">
                  <div className="max-w-4xl mx-auto">
                     <div className="aspect-video w-full mb-8 rounded-lg overflow-hidden shadow-2xl bg-black">
                         <VideoPlayer
@@ -174,26 +183,23 @@ export default function CeremonyMemoryPage() {
                             </p>
                             )}
                         </div>
-                        {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{getButtonText('buttonViewDetails', 'Inscrito')}</Badge>}
                     
                         <div className="w-full max-w-xs mx-auto space-y-3">
-                            {isAssignedToCeremony && ceremony.downloadUrl && (
-                                <Button asChild size="lg" className="w-full">
-                                    <a href={ceremony.downloadUrl} download>
+                            {ceremony.downloadUrl && (
+                                <Button asChild={!!user} size="lg" className="w-full" onClick={() => handleAuthAction(() => {})}>
+                                    <a href={user ? ceremony.downloadUrl : undefined} download>
                                         <Download className="mr-2 h-4 w-4" />
-                                        {getButtonText('downloadVideo', 'Descargar Video')}
+                                        {t('downloadVideo', 'Descargar Video')}
                                     </a>
                                 </Button>
                             )}
-                            {isAssignedToCeremony && (
-                                <Button variant="outline" size="lg" className="w-full" onClick={() => setIsTestimonialDialogOpen(true)}>
-                                    <MessageSquare className="mr-2 h-4 w-4" />
-                                    {getButtonText('leaveTestimonial', 'Dejar Testimonio')}
-                                </Button>
-                            )}
+                            <Button variant="outline" size="lg" className="w-full" onClick={() => handleAuthAction(() => setIsTestimonialDialogOpen(true))}>
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                {t('leaveTestimonial', 'Dejar Testimonio')}
+                            </Button>
                             <Button variant="ghost" size="lg" className="w-full" onClick={handleShare}>
                                 <Share2 className="mr-2 h-4 w-4" />
-                                {getButtonText('shareCeremony', 'Compartir Ceremonia')}
+                                {t('shareCeremony', 'Compartir Ceremonia')}
                             </Button>
                         </div>
                     </div>

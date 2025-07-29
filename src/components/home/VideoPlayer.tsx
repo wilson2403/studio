@@ -24,7 +24,7 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolea
     controls: '1',
     playlist: videoId,
     mute: defaultMuted ? '1' : '0',
-    vq: 'hd1080',
+    vq: 'hd2160',
   });
   return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 };
@@ -414,3 +414,4 @@ interface VideoPlayerProps {
   userId?: string | null;
   children?: React.ReactNode;
 }
+
