@@ -122,7 +122,7 @@ export default function CeremonyMemoryPage() {
     return (
         <EditableProvider>
             <div className="container py-8 md:py-12">
-                <div className="max-w-4xl mx-auto">
+                 <div className="max-w-4xl mx-auto">
                     <div className="aspect-video w-full mb-8 rounded-lg overflow-hidden shadow-2xl bg-black">
                         <VideoPlayer
                             ceremonyId={ceremony.id}
@@ -130,7 +130,7 @@ export default function CeremonyMemoryPage() {
                             mediaType={ceremony.mediaType}
                             videoFit="contain"
                             title={ceremony.title}
-                            autoplay
+                            autoplay={false}
                             defaultMuted={false}
                             className="w-full h-full"
                         />
@@ -146,7 +146,7 @@ export default function CeremonyMemoryPage() {
                             )}
                         </div>
                         {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
-                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
+                        <p className="text-lg text-foreground/80 mb-8">{ceremony.description?.replace(/Duración: \d+ horas/i, '').trim()}</p>
                     
                         <div className="w-full max-w-xs mx-auto space-y-3">
                             {isAssignedToCeremony && ceremony.downloadUrl && (
