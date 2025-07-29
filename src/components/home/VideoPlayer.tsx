@@ -67,7 +67,7 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
 };
 
-const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: string, className?: string, onPlay: () => void }) => {
+const IframePlayer = ({ src, title, className, onPlay, children }: { src: string, title: string, className?: string, onPlay: () => void, children?: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
     const hasPlayed = useRef(false);
     const isAdmin = useRef(false);
@@ -111,6 +111,7 @@ const IframePlayer = ({ src, title, className, onPlay }: { src: string, title: s
                   onLoad={handleLoad}
               ></iframe>
             </div>
+             {children}
         </div>
     );
 };
@@ -351,6 +352,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
             className={cn('object-cover', className)}
             data-ai-hint="spiritual event"
             />
+             {children}
         </div>
       );
     }
@@ -364,7 +366,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
         || getStreamableEmbedUrl(url, !!autoplay);
 
     if (embedUrl) {
-       return <IframePlayer src={embedUrl} title={title} className={className} onPlay={handlePlay} />;
+       return <IframePlayer src={embedUrl} title={title} className={className} onPlay={handlePlay}>{children}</IframePlayer>;
     }
 
     if (isDirectVideoUrl(url)) {
