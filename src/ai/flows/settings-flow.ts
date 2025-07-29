@@ -16,6 +16,7 @@ import { SystemSettings } from '@/types';
 const navLinkSchema = z.object({
   es: z.string(),
   en: z.string(),
+  visible: z.boolean(),
 });
 
 const settingsSchema = z.object({
@@ -60,19 +61,23 @@ export const getSystemSettings = ai.defineFlow(
           return content || fallback;
       }
       
-      const fetchContentWithFallback = async (id: string, fallback: {es: string, en: string}) => {
-          const content = await getContent(id) as {es: string, en: string} | null;
+      const fetchContentWithFallback = async (id: string, fallback: {es: string, en: string, visible: boolean}) => {
+          const content = await getContent(id) as {es: string, en: string, visible: boolean} | null;
+          // Ensure 'visible' has a default value if missing from Firestore
+          if (content && typeof content.visible === 'undefined') {
+              content.visible = fallback.visible;
+          }
           return content || fallback;
       }
 
       const navLinks = {
-          home: await fetchContentWithFallback('navHome', { es: 'Inicio', en: 'Home' }),
-          medicine: await fetchContentWithFallback('navMedicine', { es: 'Medicina', en: 'Medicine' }),
-          guides: await fetchContentWithFallback('navGuides', { es: 'Guías', en: 'Guides' }),
-          testimonials: await fetchContentWithFallback('navTestimonials', { es: 'Testimonios', en: 'Testimonials' }),
-          ceremonies: await fetchContentWithFallback('navCeremonies', { es: 'Ceremonias', en: 'Ceremonies' }),
-          journey: await fetchContentWithFallback('navJourney', { es: 'Iniciar mi Viaje', en: 'Start my Journey' }),
-          preparation: await fetchContentWithFallback('navPreparation', { es: 'Preparación', en: 'Preparation' }),
+          home: await fetchContentWithFallback('navHome', { es: 'Inicio', en: 'Home', visible: true }),
+          medicine: await fetchContentWithFallback('navMedicine', { es: 'Medicina', en: 'Medicine', visible: true }),
+          guides: await fetchContentWithFallback('navGuides', { es: 'Guías', en: 'Guides', visible: true }),
+          testimonials: await fetchContentWithFallback('navTestimonials', { es: 'Testimonios', en: 'Testimonials', visible: true }),
+          ceremonies: await fetchContentWithFallback('navCeremonies', { es: 'Ceremonias', en: 'Ceremonies', visible: true }),
+          journey: await fetchContentWithFallback('navJourney', { es: 'Iniciar mi Viaje', en: 'Start my Journey', visible: true }),
+          preparation: await fetchContentWithFallback('navPreparation', { es: 'Preparación', en: 'Preparation', visible: true }),
       };
 
       return {

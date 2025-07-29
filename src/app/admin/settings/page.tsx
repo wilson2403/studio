@@ -19,10 +19,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { SystemSettings } from '@/types';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const navLinkSchema = z.object({
   es: z.string().min(1, 'El nombre en español es requerido.'),
   en: z.string().min(1, 'El nombre en inglés es requerido.'),
+  visible: z.boolean(),
 });
 
 const settingsFormSchema = z.object({
@@ -115,7 +117,23 @@ export default function AdminSettingsPage() {
         <div className="space-y-4">
             {navLinks.map((key) => (
                 <div key={key} className="p-4 border rounded-lg">
-                    <h4 className="font-semibold capitalize mb-2">{t(`nav${key.charAt(0).toUpperCase() + key.slice(1)}` as any, key)}</h4>
+                    <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-semibold capitalize">{t(`nav${key.charAt(0).toUpperCase() + key.slice(1)}` as any, key)}</h4>
+                        <FormField
+                            control={form.control}
+                            name={`navLinks.${key}.visible`}
+                            render={({ field }) => (
+                                <FormItem className="flex items-center gap-2 space-y-0">
+                                    <FormControl>
+                                        <Checkbox checked={field.value} onCheckedChange={field.onChange} id={`visible-${key}`} />
+                                    </FormControl>
+                                    <FormLabel htmlFor={`visible-${key}`} className='text-sm'>
+                                        {t('visible')}
+                                    </FormLabel>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormField
                             control={form.control}

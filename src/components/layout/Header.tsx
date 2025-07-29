@@ -37,13 +37,16 @@ import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
+import { SystemSettings } from '@/types';
+import { getSystemSettings } from '@/ai/flows/settings-flow';
 
-const APP_VERSION = '1.62';
+const APP_VERSION = '1.63';
 
-type NavLink = {
+type NavLinkDef = {
     href: string;
-    labelKey: string;
+    labelKey: keyof SystemSettings['navLinks'];
     sectionId: string;
+    requiresAuth: boolean;
 };
 
 function usePrevious<T>(value: T): T | undefined {
@@ -61,21 +64,19 @@ export default function Header() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const previousPathname = usePrevious(pathname);
   const [newErrorCount, setNewErrorCount] = useState(0);
+  const [navSettings, setNavSettings] = useState<SystemSettings['navLinks'] | null>(null);
 
-  const navLinks: NavLink[] = [
-    { href: '/', labelKey: 'navHome', sectionId: 'home' },
-    { href: '/ayahuasca', labelKey: 'navMedicine', sectionId: 'medicine' },
-    { href: '/guides', labelKey: 'navGuides', sectionId: 'guides' },
-    { href: '/testimonials', labelKey: 'navTestimonials', sectionId: 'testimonials' },
-  ];
-  
-  const userNavLinks: NavLink[] = [
-     { href: '/ceremonies', labelKey: 'navCeremonies', sectionId: 'ceremonies' },
-     { href: '/artedesanar', labelKey: 'navJourney', sectionId: 'journey' },
-     { href: '/preparation', labelKey: 'navPreparation', sectionId: 'preparation' },
+  const allNavLinks: NavLinkDef[] = [
+    { href: '/', labelKey: 'home', sectionId: 'home', requiresAuth: false },
+    { href: '/ayahuasca', labelKey: 'medicine', sectionId: 'medicine', requiresAuth: false },
+    { href: '/guides', labelKey: 'guides', sectionId: 'guides', requiresAuth: false },
+    { href: '/testimonials', labelKey: 'testimonials', sectionId: 'testimonials', requiresAuth: false },
+    { href: '/ceremonies', labelKey: 'ceremonies', sectionId: 'ceremonies', requiresAuth: true },
+    { href: '/artedesanar', labelKey: 'journey', sectionId: 'journey', requiresAuth: true },
+    { href: '/preparation', labelKey: 'preparation', sectionId: 'preparation', requiresAuth: true },
   ];
 
   const adminNavLinks = [
@@ -103,6 +104,14 @@ export default function Header() {
       }
       setLoading(false);
     });
+
+    const fetchNavSettings = async () => {
+        const settings = await getSystemSettings();
+        setNavSettings(settings.navLinks);
+    };
+
+    fetchNavSettings();
+
     return () => unsubscribe();
   }, []);
 
@@ -137,32 +146,47 @@ export default function Header() {
     }
   }
   
-  const getNavLink = (link: NavLink) => {
+  const getNavLink = (linkDef: NavLinkDef) => {
+    if (!navSettings) return null;
+    
+    const linkInfo = navSettings[linkDef.labelKey];
+    if (!linkInfo || !linkInfo.visible) return null;
+
+    const label = linkInfo[i18n.language as 'es' | 'en'] || linkInfo.es;
+    
     return (
         <Link
-            key={link.href}
-            href={link.href}
-            onMouseDown={() => handleLinkMouseDown(link.sectionId)}
+            key={linkDef.href}
+            href={linkDef.href}
+            onMouseDown={() => handleLinkMouseDown(linkDef.sectionId)}
             className={cn(
             'transition-colors hover:text-primary',
-            (pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href) && link.href.length > 1))
+            (pathname === linkDef.href || (linkDef.href !== '/' && pathname.startsWith(linkDef.href) && linkDef.href.length > 1))
                 ? 'text-primary'
                 : 'text-foreground/60'
             )}
         >
-            {t(link.labelKey)}
+            {label}
         </Link>
     );
   };
-   const getMobileNavLink = (link: NavLink) => {
+
+   const getMobileNavLink = (linkDef: NavLinkDef) => {
+      if (!navSettings) return null;
+      
+      const linkInfo = navSettings[linkDef.labelKey];
+      if (!linkInfo || !linkInfo.visible) return null;
+
+      const label = linkInfo[i18n.language as 'es' | 'en'] || linkInfo.es;
+
       return (
-        <SheetClose asChild key={link.href}>
+        <SheetClose asChild key={linkDef.href}>
           <Link
-            href={link.href}
-            onMouseDown={() => handleLinkMouseDown(link.sectionId)}
+            href={linkDef.href}
+            onMouseDown={() => handleLinkMouseDown(linkDef.sectionId)}
             className="transition-colors hover:text-primary"
           >
-            {t(link.labelKey)}
+            {label}
           </Link>
         </SheetClose>
       );
@@ -285,6 +309,9 @@ export default function Header() {
     );
   };
 
+  const visiblePublicLinks = allNavLinks.filter(link => !link.requiresAuth);
+  const visibleUserLinks = allNavLinks.filter(link => link.requiresAuth);
+
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur">
@@ -302,8 +329,8 @@ export default function Header() {
             </Link>
           </div>
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            {navLinks.map(getNavLink)}
-            {user && userNavLinks.map(getNavLink)}
+            {visiblePublicLinks.map(getNavLink)}
+            {user && visibleUserLinks.map(getNavLink)}
           </nav>
           <div className="flex flex-1 items-center justify-end space-x-2">
             <ThemeSwitcher />
@@ -402,8 +429,8 @@ export default function Header() {
                           <DropdownMenuSeparator />
                         </>
                       )}
-                      {navLinks.map(getMobileNavLink)}
-                      {user && userNavLinks.map(getMobileNavLink)}
+                      {visiblePublicLinks.map(getMobileNavLink)}
+                      {user && visibleUserLinks.map(getMobileNavLink)}
                     </nav>
                   </div>
                 </ScrollArea>

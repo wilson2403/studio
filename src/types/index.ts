@@ -218,6 +218,12 @@ export type VideoProgress = {
     }
 }
 
+export type NavLinkData = {
+    es: string;
+    en: string;
+    visible: boolean;
+};
+
 export type SystemSettings = {
     firebaseConfig: {
         apiKey: string;
@@ -235,13 +241,13 @@ export type SystemSettings = {
     tiktokUrl: string;
     whatsappNumber: string;
     navLinks: {
-        home: { es: string; en: string };
-        medicine: { es: string; en: string };
-        guides: { es: string; en: string };
-        testimonials: { es: string; en: string };
-        ceremonies: { es: string; en: string };
-        journey: { es: string; en: string };
-        preparation: { es: string; en: string };
+        home: NavLinkData;
+        medicine: NavLinkData;
+        guides: NavLinkData;
+        testimonials: NavLinkData;
+        ceremonies: NavLinkData;
+        journey: NavLinkData;
+        preparation: NavLinkData;
     };
 };
 
