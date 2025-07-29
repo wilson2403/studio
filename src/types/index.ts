@@ -267,6 +267,7 @@ export type SystemSettings = {
     componentButtons: {
         addCeremony: ComponentButtonData;
         buttonViewDetails: ComponentButtonData;
+        whatsappCommunityButton: ComponentButtonData;
     };
 };
 
@@ -293,5 +294,3 @@ export type Testimonial = {
     consent: boolean;
     createdAt: Date;
 }
-
-    

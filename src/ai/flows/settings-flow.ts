@@ -62,6 +62,7 @@ const settingsSchema = z.object({
     componentButtons: z.object({
         addCeremony: componentButtonSchema,
         buttonViewDetails: componentButtonSchema,
+        whatsappCommunityButton: componentButtonSchema,
     }),
 });
 
@@ -118,6 +119,7 @@ export const getSystemSettings = ai.defineFlow(
       const componentButtons = {
           addCeremony: await fetchComponentButtonContent('componentButtonAddCeremony', { es: 'Agregar Ceremonia', en: 'Add Ceremony' }),
           buttonViewDetails: await fetchComponentButtonContent('componentButtonViewDetails', { es: 'Ver Detalles', en: 'View Details' }),
+          whatsappCommunityButton: await fetchComponentButtonContent('componentButtonWhatsappCommunityButton', { es: 'Unirse a la Comunidad', en: 'Join the Community' }),
       };
 
 
@@ -212,5 +214,3 @@ export const updateSystemSettings = ai.defineFlow(
     }
   }
 );
-
-    

@@ -20,6 +20,8 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
+import { getSystemSettings } from '@/ai/flows/settings-flow';
+import { SystemSettings } from '@/types';
 
 export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
@@ -32,9 +34,23 @@ export default function AllCeremoniesPage() {
     const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const router = useRouter();
     const { toast } = useToast();
+    const [buttonLabels, setButtonLabels] = useState<SystemSettings['componentButtons'] | null>(null);
+
+     useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const settings = await getSystemSettings();
+                setButtonLabels(settings.componentButtons);
+            } catch (error) {
+                console.error("Failed to fetch button settings:", error);
+            }
+        };
+        fetchSettings();
+    }, []);
+
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -153,6 +169,13 @@ export default function AllCeremoniesPage() {
         setExpandedVideo(ceremony);
     };
     
+     const getButtonLabel = (key: keyof SystemSettings['componentButtons']) => {
+        if (!buttonLabels) return t(key as any);
+        const lang = i18n.language as 'es' | 'en';
+        return buttonLabels[key]?.[lang] || buttonLabels[key]?.es || t(key as any);
+    };
+
+
     if (pageLoading) {
         return (
             <div className="container py-12 md:py-16 space-y-8">
@@ -216,7 +239,7 @@ export default function AllCeremoniesPage() {
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
-                        {t('addCeremony')}
+                        {getButtonLabel('addCeremony')}
                     </Button>
                     )}
                 </div>
@@ -291,7 +314,7 @@ export default function AllCeremoniesPage() {
                                         )}
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? t('buttonViewDetails') : t('reserveNow')}
+                                                {isAssigned ? getButtonLabel('buttonViewDetails') : t('reserveNow')}
                                             </Button>
                                         ) : isAssigned ? (
                                             <Button asChild variant="default" className='w-full'>
@@ -360,4 +383,3 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
-

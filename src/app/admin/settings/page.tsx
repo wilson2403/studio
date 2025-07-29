@@ -70,6 +70,7 @@ const settingsFormSchema = z.object({
     componentButtons: z.object({
         addCeremony: componentButtonSchema,
         buttonViewDetails: componentButtonSchema,
+        whatsappCommunityButton: componentButtonSchema,
     }),
 });
 
@@ -390,7 +391,7 @@ export default function AdminSettingsPage() {
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pt-4">
-                                {renderComponentButtons(['addCeremony', 'buttonViewDetails'])}
+                                {renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton'])}
                             </AccordionContent>
                         </AccordionItem>
                     </Accordion>
@@ -404,5 +405,3 @@ export default function AdminSettingsPage() {
         </div>
     );
 }
-
-    
