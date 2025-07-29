@@ -144,17 +144,6 @@ export default function CeremonyMemoryPage() {
                                 <CalendarIcon className='w-4 h-4'/> {ceremony.date}
                             </p>
                             )}
-                            {ceremony.horario && (
-                            <p className="flex items-center gap-2 justify-center">
-                                <Clock className='w-4 h-4'/> {ceremony.horario}
-                            </p>
-                            )}
-                            {user && ceremony.status !== 'active' && isAssignedToCeremony && ceremony.locationLink && (
-                                <a href={ceremony.locationLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary justify-center">
-                                    <MapPin className='w-4 h-4'/>
-                                    <p>{t('buttonViewLocation', 'Ver Ubicación')}</p>
-                                </a>
-                            )}
                         </div>
                         {isAssignedToCeremony && <Badge variant="success" className="mb-4"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                         <p className="text-lg text-foreground/80 mb-8">{ceremony.description}</p>
