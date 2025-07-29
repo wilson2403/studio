@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -235,6 +236,8 @@ export default function TestimonialDialog({ user, ceremony, isOpen, onClose }: T
     }
   };
   
+  if (!isOpen) return null;
+
   return (
     <Dialog open={internalIsOpen} onOpenChange={handleClose}>
         <TestimonialDialogContent user={user} ceremony={ceremony} handleClose={handleClose} />

@@ -16,7 +16,6 @@ import { auth } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
-import { getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 
@@ -24,7 +23,6 @@ export default function CeremonyMemoryPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [isTestimonialDialogOpen, setIsTestimonialDialogOpen] = useState(false);
     const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
     
@@ -64,18 +62,8 @@ export default function CeremonyMemoryPage() {
         fetchCeremonyData();
         fetchSettings();
         
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-             if (currentUser) {
-                try {
-                    const profile = await getUserProfile(currentUser.uid);
-                    setUserProfile(profile);
-                } catch (error) {
-                    console.error("Failed to fetch user profile", error);
-                }
-            } else {
-                setUserProfile(null);
-            }
         });
         return () => unsubscribe();
 
