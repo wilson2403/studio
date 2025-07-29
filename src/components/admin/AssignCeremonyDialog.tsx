@@ -106,13 +106,13 @@ export default function AssignCeremonyDialog({ user, isOpen, onClose, onUpdate, 
                         {ceremony.date && <span className="text-xs text-muted-foreground">{ceremony.date}</span>}
                       </Label>
                       <div className='flex gap-2'>
-                        {isInviteable && (
+                        {isAssigned && isInviteable && ceremony.status === 'active' && (
                           <Button variant="outline" size="icon" className="h-8 w-8" onClick={(e) => handleInviteClick(e, ceremony)}>
                             <SendHorizonal className="h-4 w-4" />
                             <span className="sr-only">{t('inviteToCeremonyButton')}</span>
                           </Button>
                         )}
-                        {isInviteable && ceremony.status !== 'active' && (
+                        {isAssigned && isInviteable && ceremony.status !== 'active' && (
                           <Button variant="outline" size="icon" className="h-8 w-8" onClick={(e) => handleShareClick(e, ceremony)}>
                               <Share2 className="h-4 w-4" />
                               <span className="sr-only">{t('shareCeremonyMemoryButton')}</span>
