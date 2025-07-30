@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Label } from '../ui/label';
 
 interface EditableTitleProps {
-  tag: 'h1' | 'h2' | 'p' | 'h3';
+  tag: 'h1' | 'h2' | 'p' | 'h3' | 'span';
   id: string;
   initialValue: string;
   className?: string;
@@ -25,8 +25,9 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   const [editValues, setEditValues] = useState({ es: '', en: '' });
   const [displayValue, setDisplayValue] = useState(initialValue);
   const { toast } = useToast();
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const lang = i18n.language as 'es' | 'en';
+  const t = (key: string) => i18n.t(key) || key;
 
   useEffect(() => {
     if (id) {
@@ -68,7 +69,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     setIsEditing(false);
   };
   
-  const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEditClick = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
     
@@ -89,7 +90,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
   }
 
   if (isEditing) {
-    const InputComponent = (Tag === 'p' || Tag === 'h3') ? Textarea : Input;
+    const InputComponent = (Tag === 'p' || Tag === 'h3' || Tag === 'span') ? Textarea : Input;
     const EditWrapper = 'div';
 
     return (
@@ -101,7 +102,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
                     id={`${id}-es`}
                     value={editValues.es} 
                     onChange={(e) => setEditValues(prev => ({...prev, es: e.target.value}))} 
-                    className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
+                    className={cn("bg-background text-foreground", Tag === 'p' || Tag === 'span' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
                 />
             </div>
              <div className='space-y-2'>
@@ -110,7 +111,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
                     id={`${id}-en`}
                     value={editValues.en} 
                     onChange={(e) => setEditValues(prev => ({...prev, en: e.target.value}))} 
-                    className={cn("bg-background text-foreground", Tag === 'p' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
+                    className={cn("bg-background text-foreground", Tag === 'p' || Tag === 'span' ? 'text-lg p-2' : 'text-4xl md:text-6xl font-headline tracking-tight text-center h-auto p-2')}
                 />
             </div>
         </div>
@@ -122,29 +123,27 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     );
   }
   
-  // Use a 'div' for block-level tags and 'span' for inline tags to prevent nesting errors.
   const Wrapper = (Tag === 'h1' || Tag === 'h2' || Tag === 'h3') ? 'div' : 'span';
-  
-  // IMPORTANT: If the tag is 'p', we render a 'span' to avoid <p> inside <p> which is invalid HTML
-  // and causes hydration errors. For other tags, we use the tag itself.
-  const RenderTag = Tag === 'p' ? 'span' : Tag;
+  const RenderTag = (Tag === 'p' || Tag === 'span') ? 'span' : Tag;
 
   return (
     <Wrapper className={cn(
       "relative group flex items-center justify-center gap-2", 
-      Tag !== 'p' && "w-full",
-      Tag === 'p' && 'inline' // Render as inline to not break text flow
+      Tag !== 'p' && Tag !== 'span' && "w-full",
+      (Tag === 'p' || Tag === 'span') && 'inline'
     )}>
       <RenderTag className={className}>{displayValue}</RenderTag>
       {isAdmin && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        <div
+          className={cn(
+            'h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center',
+            'absolute -right-8 top-1/2 -translate-y-1/2',
+            'group-hover:bg-accent cursor-pointer'
+          )}
           onClick={handleEditClick}
         >
-          <Edit className="h-4 w-4" />
-        </Button>
+          <Edit className="h-4 w-4 text-accent-foreground" />
+        </div>
       )}
     </Wrapper>
   );
