@@ -35,10 +35,10 @@ import { v4 as uuidv4 } from 'uuid';
 const createSlug = (title: string) => {
     return title
         .toLowerCase()
-        .replace(/–/g, '-') 
+        .replace(/–/g, ' ') 
         .replace(/[^\w\s-]/g, '') 
-        .replace(/[\s-]+/g, '-') 
-        .replace(/^-+|-+$/g, '');
+        .trim()
+        .replace(/[\s-]+/g, '-');
 };
 
 const planSchema = (t: (key: string, options?: any) => string) => z.object({
@@ -818,3 +818,4 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     </Dialog>
   );
 }
+

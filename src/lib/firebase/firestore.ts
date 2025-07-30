@@ -257,8 +257,14 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-            const doc = querySnapshot.docs[0];
-            return { id: doc.id, ...doc.data() } as Ceremony;
+            // If multiple ceremonies have the same slug, return the most recent one.
+            const ceremonies = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
+            ceremonies.sort((a, b) => {
+                const dateA = a.date ? new Date(a.date.split(' de ')[2], new Date(`${a.date.split(' de ')[1]} 1, 2000`).getMonth(), a.date.split(' de ')[0]) : new Date(0);
+                const dateB = b.date ? new Date(b.date.split(' de ')[2], new Date(`${b.date.split(' de ')[1]} 1, 2000`).getMonth(), b.date.split(' de ')[0]) : new Date(0);
+                return dateB.getTime() - dateA.getTime();
+            });
+            return ceremonies[0];
         }
 
         return null;
