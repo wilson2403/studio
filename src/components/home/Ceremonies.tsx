@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -275,7 +276,7 @@ export default function Ceremonies({
                                <Button variant="default" className="w-full" onClick={() => handleViewPlans(ceremony)}>
                                    {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
                                </Button>
-                              {isAuthorized && (
+                              {isAuthorized && ceremony.showAnalytics && (
                                 <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                     <div className='flex items-center gap-1.5'>
                                         <MousePointerClick className="h-4 w-4" />

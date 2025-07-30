@@ -35,13 +35,9 @@ import { v4 as uuidv4 } from 'uuid';
 const createSlug = (title: string) => {
     return title
         .toLowerCase()
-        // Replace en-dash with a regular hyphen surrounded by spaces
-        .replace(/–/g, ' - ') 
-        // Remove all non-word chars except for hyphens and spaces
+        .replace(/–/g, '--') // Replace en-dash with double hyphen
         .replace(/[^\w\s-]/g, '') 
-        // Replace all spaces and consecutive hyphens with a single hyphen
         .replace(/[\s-]+/g, '-') 
-        // Trim any leading or trailing hyphens
         .replace(/^-+|-+$/g, '');
 };
 
