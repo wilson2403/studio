@@ -6,7 +6,7 @@ import { Edit, ExternalLink, PlusCircle, ArrowRight, Eye, MousePointerClick, Rot
 import { useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters, getUsersForCeremony, UserProfile, logUserAction } from '@/lib/firebase/firestore';
+import { getCeremonies, Ceremony, seedCeremonies, incrementCeremonyReserveClick, getUserProfile, resetCeremonyCounters, getUsersForCeremony, UserProfile, logUserAction, incrementCeremonyViewCount } from '@/lib/firebase/firestore';
 import EditCeremonyDialog from './EditCeremonyDialog';
 import { EditableTitle } from './EditableTitle';
 import { useTranslation } from 'react-i18next';
@@ -159,8 +159,12 @@ export default function Ceremonies({
 
   const handleViewPlans = (ceremony: Ceremony) => {
     if (!isAuthorized) {
-      incrementCeremonyReserveClick(ceremony.id);
-      logUserAction('click_ceremony_details', { targetId: ceremony.id, targetType: 'ceremony' });
+        incrementCeremonyReserveClick(ceremony.id);
+        logUserAction('click_ceremony_details', { targetId: ceremony.id, targetType: 'ceremony' });
+        // If it's an image, also count it as a "view" since there's no video play event.
+        if (ceremony.mediaType === 'image') {
+            incrementCeremonyViewCount(ceremony.id);
+        }
     }
 
     if (ceremony.registerRequired && !user) {
