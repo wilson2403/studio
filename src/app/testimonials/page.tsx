@@ -21,8 +21,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { cn } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -156,7 +156,7 @@ export default function TestimonialsPage() {
                 <TestimonialDialog user={user}>
                      <Button>
                         <MessageSquare className="mr-2 h-4 w-4" />
-                         <span className="relative group flex items-center justify-center gap-2">
+                        <span className="relative group flex items-center justify-center gap-2">
                            <EditableTitle tag="span" id="leaveMyTestimonial" initialValue={t('leaveMyTestimonial')} />
                         </span>
                     </Button>
@@ -228,7 +228,7 @@ export default function TestimonialsPage() {
                            <CardContent className="p-4 space-y-4">
                                 {testimonial.type === 'text' && <p className="text-foreground/80 italic">"{testimonial.content}"</p>}
                                 {testimonial.type === 'video' && (
-                                    <div className="w-full max-w-xs mx-auto aspect-video relative rounded-md overflow-hidden">
+                                    <div className="w-full aspect-video relative rounded-md overflow-hidden">
                                         <VideoPlayer
                                             ceremonyId={testimonial.id}
                                             videoUrl={testimonial.content}
@@ -259,4 +259,5 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
 
