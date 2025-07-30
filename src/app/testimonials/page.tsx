@@ -11,19 +11,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
-import { Video, Mic, MessageSquare, Star, Trash2 } from 'lucide-react';
+import { Video, Mic, MessageSquare, Star, Trash2, Edit } from 'lucide-react';
 import { EditableTitle } from '@/components/home/EditableTitle';
-import { EditableProvider, useEditable } from '@/components/home/EditableProvider';
+import { EditableProvider } from '@/components/home/EditableProvider';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
-import { useAuth } from '@/hooks/useAuth';
-import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -219,10 +216,3 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
-
-
-
-
-
-
-
