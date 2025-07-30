@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
-import { Video, Mic, MessageSquare, Star, Trash2, Edit } from 'lucide-react';
+import { Video, Mic, MessageSquare, Star, Trash2 } from 'lucide-react';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -37,19 +37,14 @@ export default function TestimonialsPage() {
   const fetchTestimonials = async () => {
       setLoading(true);
       try {
-        let testimonials = [];
+        let testimonials: Testimonial[] = [];
         if (isAuthorized) {
             testimonials = await getAllTestimonialsForAdmin();
         } else {
             testimonials = await getPublicTestimonials();
         }
         
-        // This part needs adjustment. We'll group by ceremony title manually.
-        const groupedByCeremony: { [key: string]: { ceremonyTitle: string; ceremonyDate?: string; testimonials: Testimonial[] } } = {};
-
-        // We can't rely on getting all ceremonies anymore just for the title, so we build the groups from testimonials themselves.
-        // Let's assume for now that we don't have ceremony details easily available and just group by ID
-         const testimonialsByCeremonyId = testimonials.reduce((acc, testimonial) => {
+        const testimonialsByCeremonyId = testimonials.reduce((acc, testimonial) => {
             const { ceremonyId } = testimonial;
             if (!acc[ceremonyId]) {
                 acc[ceremonyId] = [];
@@ -58,10 +53,6 @@ export default function TestimonialsPage() {
             return acc;
         }, {} as Record<string, Testimonial[]>);
         
-        // This is a simplified structure. In a real app, you might fetch ceremony details for the titles.
-        // For now, we will just use ceremonyId as the group key. This part of the logic needs to be revisited
-        // if ceremony titles are strictly required. Let's create a temporary structure.
-
         const ceremoniesArray = Object.entries(testimonialsByCeremonyId).map(([ceremonyId, tests]) => ({
             id: ceremonyId,
             title: tests[0]?.ceremonyTitle || ceremonyId, // Fallback to ID if title isn't stored on testimonial
@@ -69,7 +60,6 @@ export default function TestimonialsPage() {
             testimonials: tests,
         })).sort((a,b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
         
-        // This is a hacky way to make it fit the old structure. Ideally, the data model would be more robust.
         setCeremoniesWithTestimonials(ceremoniesArray as any);
 
       } catch (error) {
@@ -153,7 +143,9 @@ export default function TestimonialsPage() {
                 <TestimonialDialog user={user}>
                     <Button>
                         <MessageSquare className="mr-2 h-4 w-4" />
-                        <EditableTitle tag="span" id="leaveMyTestimonial" initialValue={t('leaveMyTestimonial')} />
+                        <span className='flex-grow'>
+                            <EditableTitle tag="span" id="leaveMyTestimonial" initialValue={t('leaveMyTestimonial')} />
+                        </span>
                     </Button>
                 </TestimonialDialog>
             )}
@@ -166,7 +158,7 @@ export default function TestimonialsPage() {
                 <AccordionTrigger className="hover:no-underline">
                    <div className="flex flex-col text-left">
                      <h3 className="text-xl font-bold">{ceremony.title}</h3>
-                     {ceremony.date && <p className="text-sm text-muted-foreground">{ceremony.date}</p>}
+                     {ceremony.date && <p className="text-sm text-muted-foreground">{format(new Date(ceremony.date), 'PPP', { locale })}</p>}
                    </div>
                 </AccordionTrigger>
                 <AccordionContent>

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useTranslation } from 'react-i18next';
@@ -78,7 +79,7 @@ const DialogContentWrapper = ({ user, ceremony, isOpen, setIsOpen }: { user: Use
 
      useEffect(() => {
         const fetchUserCeremonies = async () => {
-            if (user) {
+            if (user && !ceremony) {
                 setLoadingCeremonies(true);
                 const profile = await getUserProfile(user.uid);
                 const assignedIds = profile?.assignedCeremonies?.map(c => typeof c === 'string' ? c : c.ceremonyId) || [];
@@ -142,9 +143,12 @@ const DialogContentWrapper = ({ user, ceremony, isOpen, setIsOpen }: { user: Use
         setIsSubmitting(true);
         
         try {
+            const ceremonyDetails = assignedCeremonies.find(c => c.id === selectedCeremonyId) || ceremony;
             const newTestimonial: Omit<Testimonial, 'id'> = {
                 userId: user.uid,
                 ceremonyId: selectedCeremonyId,
+                ceremonyTitle: ceremonyDetails?.title,
+                ceremonyDate: ceremonyDetails?.date,
                 type: 'text',
                 content: testimonialText,
                 rating: rating,

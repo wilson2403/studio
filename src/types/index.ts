@@ -305,6 +305,8 @@ export type Testimonial = {
     userName: string;
     userPhotoUrl?: string | null;
     ceremonyId: string;
+    ceremonyTitle?: string;
+    ceremonyDate?: string;
     type: 'text' | 'audio' | 'video';
     content: string; // URL for audio/video, text for text
     rating?: number;
