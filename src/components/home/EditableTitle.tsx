@@ -69,7 +69,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     setIsEditing(false);
   };
   
-  const handleEditClick = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement>) => {
+  const handleEditClick = (e: React.MouseEvent<HTMLDivElement | HTMLButtonElement | HTMLSpanElement>) => {
     e.stopPropagation();
     e.preventDefault();
     
@@ -134,7 +134,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     )}>
       <RenderTag className={className}>{displayValue}</RenderTag>
       {isAdmin && (
-        <div
+        <span
           className={cn(
             'h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center',
             'absolute -right-8 top-1/2 -translate-y-1/2',
@@ -143,7 +143,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
           onClick={handleEditClick}
         >
           <Edit className="h-4 w-4 text-accent-foreground" />
-        </div>
+        </span>
       )}
     </Wrapper>
   );
