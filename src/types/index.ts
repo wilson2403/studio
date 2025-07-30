@@ -310,5 +310,5 @@ export type Testimonial = {
     rating?: number;
     consent: boolean;
     createdAt: Date;
-    isPublic: boolean;
+    isPublic?: boolean;
 }

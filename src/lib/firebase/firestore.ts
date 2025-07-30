@@ -1336,11 +1336,23 @@ export const deleteAllAuditLogs = async (): Promise<void> => {
 // --- Testimonials ---
 export const addTestimonial = async (testimonial: Omit<Testimonial, 'id'>): Promise<string> => {
     try {
-        const docRef = await addDoc(testimonialsCollection, testimonial);
+        const docRef = await addDoc(testimonialsCollection, { ...testimonial, isPublic: false });
         return docRef.id;
     } catch (error) {
         console.error("Error adding testimonial:", error);
         logError(error, { function: 'addTestimonial' });
+        throw error;
+    }
+};
+
+export const updateTestimonialPublicStatus = async (id: string, isPublic: boolean): Promise<void> => {
+    try {
+        const testimonialRef = doc(db, 'testimonials', id);
+        await updateDoc(testimonialRef, { isPublic });
+        await logUserAction('update_testimonial_status', { targetId: id, targetType: 'testimonial', changes: { isPublic } });
+    } catch(error) {
+        console.error("Error updating testimonial status: ", error);
+        logError(error, { function: 'updateTestimonialPublicStatus', id, isPublic });
         throw error;
     }
 };
@@ -1362,7 +1374,7 @@ export const getTestimonialsByCeremonyId = async (ceremonyId: string): Promise<T
         const q = query(
             testimonialsCollection,
             where('ceremonyId', '==', ceremonyId),
-            where('consent', '==', true),
+            where('isPublic', '==', true),
             orderBy('createdAt', 'desc')
         );
         const snapshot = await getDocs(q);
@@ -1374,11 +1386,27 @@ export const getTestimonialsByCeremonyId = async (ceremonyId: string): Promise<T
     }
 };
 
+export const getAllTestimonialsForAdmin = async (): Promise<Testimonial[]> => {
+    try {
+        const q = query(testimonialsCollection, orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => {
+            const data = doc.data();
+            const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
+            return { id: doc.id, ...data, createdAt } as Testimonial
+        });
+    } catch (error) {
+        console.error("Error fetching all testimonials for admin:", error);
+        logError(error, { function: 'getAllTestimonialsForAdmin' });
+        return [];
+    }
+}
+
 export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
     try {
         const q = query(
             testimonialsCollection,
-            where('consent', '==', true)
+            where('isPublic', '==', true)
         );
         const snapshot = await getDocs(q);
         const testimonials = snapshot.docs.map(doc => {

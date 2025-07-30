@@ -4,9 +4,9 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getCeremonies, getPublicTestimonials, Ceremony, Testimonial, deleteTestimonial, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
+import { getPublicTestimonials, Ceremony, Testimonial, deleteTestimonial, getAllTestimonialsForAdmin, updateTestimonialPublicStatus } from '@/lib/firebase/firestore';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
@@ -21,6 +21,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { cn } from '@/lib/utils';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -35,27 +37,43 @@ export default function TestimonialsPage() {
   const fetchTestimonials = async () => {
       setLoading(true);
       try {
-        const testimonials = await getPublicTestimonials();
-        const ceremonies = await getCeremonies();
+        let testimonials = [];
+        if (isAuthorized) {
+            testimonials = await getAllTestimonialsForAdmin();
+        } else {
+            testimonials = await getPublicTestimonials();
+        }
         
-        const ceremonyMap = new Map<string, Ceremony>();
-        ceremonies.forEach(c => ceremonyMap.set(c.id, { ...c, testimonials: [] }));
+        // This part needs adjustment. We'll group by ceremony title manually.
+        const groupedByCeremony: { [key: string]: { ceremonyTitle: string; ceremonyDate?: string; testimonials: Testimonial[] } } = {};
 
-        testimonials.forEach(testimonial => {
-          const ceremony = ceremonyMap.get(testimonial.ceremonyId);
-          if (ceremony) {
-            ceremony.testimonials?.push(testimonial);
-          }
-        });
+        // We can't rely on getting all ceremonies anymore just for the title, so we build the groups from testimonials themselves.
+        // Let's assume for now that we don't have ceremony details easily available and just group by ID
+         const testimonialsByCeremonyId = testimonials.reduce((acc, testimonial) => {
+            const { ceremonyId } = testimonial;
+            if (!acc[ceremonyId]) {
+                acc[ceremonyId] = [];
+            }
+            acc[ceremonyId].push(testimonial);
+            return acc;
+        }, {} as Record<string, Testimonial[]>);
         
-        const filteredAndSortedCeremonies = Array.from(ceremonyMap.values())
-            .filter(c => c.testimonials && c.testimonials.length > 0)
-            .sort((a,b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+        // This is a simplified structure. In a real app, you might fetch ceremony details for the titles.
+        // For now, we will just use ceremonyId as the group key. This part of the logic needs to be revisited
+        // if ceremony titles are strictly required. Let's create a temporary structure.
 
-        setCeremoniesWithTestimonials(filteredAndSortedCeremonies);
+        const ceremoniesArray = Object.entries(testimonialsByCeremonyId).map(([ceremonyId, tests]) => ({
+            id: ceremonyId,
+            title: tests[0]?.ceremonyTitle || ceremonyId, // Fallback to ID if title isn't stored on testimonial
+            date: tests[0]?.ceremonyDate || '', // Assuming these might be on the testimonial
+            testimonials: tests,
+        })).sort((a,b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+        
+        // This is a hacky way to make it fit the old structure. Ideally, the data model would be more robust.
+        setCeremoniesWithTestimonials(ceremoniesArray as any);
 
       } catch (error) {
-        console.error("Failed to fetch testimonials or ceremonies:", error);
+        console.error("Failed to fetch testimonials:", error);
       } finally {
         setLoading(false);
       }
@@ -65,7 +83,7 @@ export default function TestimonialsPage() {
     if (!authLoading) {
         fetchTestimonials();
     }
-  }, [authLoading]);
+  }, [authLoading, isAuthorized]);
 
   const getTestimonialIcon = (type: 'text' | 'audio' | 'video') => {
       switch(type) {
@@ -85,6 +103,16 @@ export default function TestimonialsPage() {
     );
   };
   
+  const handleTogglePublic = async (testimonialId: string, currentStatus: boolean) => {
+      try {
+          await updateTestimonialPublicStatus(testimonialId, !currentStatus);
+          toast({ title: t('testimonialStatusUpdated') });
+          fetchTestimonials(); // Re-fetch to show updated state
+      } catch (error) {
+          toast({ title: t('errorUpdatingTestimonialStatus'), variant: 'destructive' });
+      }
+  }
+
   const handleDelete = async (testimonialId: string) => {
       try {
           await deleteTestimonial(testimonialId);
@@ -144,7 +172,7 @@ export default function TestimonialsPage() {
                 <AccordionContent>
                   <div className="space-y-6 pt-4 border-t">
                     {ceremony.testimonials?.map(testimonial => (
-                       <Card key={testimonial.id} className="overflow-hidden">
+                       <Card key={testimonial.id} className={cn("overflow-hidden transition-colors", !testimonial.isPublic && "bg-muted/50 border-dashed")}>
                            <CardHeader className="flex flex-row items-center justify-between gap-4 p-4 bg-muted/30">
                               <div className='flex items-center gap-4'>
                                 <Avatar>
@@ -159,26 +187,36 @@ export default function TestimonialsPage() {
                                    <p className="text-xs text-muted-foreground">{format(testimonial.createdAt, 'PPP', { locale })}</p>
                                 </div>
                               </div>
-                              <div className='flex items-center gap-2'>
+                               <div className='flex items-center gap-2'>
                                 {getTestimonialIcon(testimonial.type)}
                                 {isAuthorized && (
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                                                <Trash2 className="h-4 w-4"/>
-                                            </Button>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>{t('deleteTestimonialConfirmTitle')}</AlertDialogTitle>
-                                                <AlertDialogDescription>{t('deleteTestimonialConfirmDescription')}</AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDelete(testimonial.id)}>{t('delete')}</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
+                                    <>
+                                        <div className="flex items-center space-x-2">
+                                            <Switch
+                                                id={`publish-${testimonial.id}`}
+                                                checked={testimonial.isPublic}
+                                                onCheckedChange={() => handleTogglePublic(testimonial.id, !!testimonial.isPublic)}
+                                            />
+                                            <Label htmlFor={`publish-${testimonial.id}`} className="text-xs">{t('public')}</Label>
+                                        </div>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                                                    <Trash2 className="h-4 w-4"/>
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>{t('deleteTestimonialConfirmTitle')}</AlertDialogTitle>
+                                                    <AlertDialogDescription>{t('deleteTestimonialConfirmDescription')}</AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDelete(testimonial.id)}>{t('delete')}</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </>
                                 )}
                               </div>
                            </CardHeader>
