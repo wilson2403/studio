@@ -246,15 +246,13 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
 export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null> => {
     try {
-        // First, try to get by document ID, which is the most efficient
         const docRef = doc(db, 'ceremonies', idOrSlug);
         const docSnap = await getDoc(docRef);
-        
+
         if (docSnap.exists()) {
-            return { id: docSnap.id, ...docSnap.data() } as Ceremony;
+            return { id: docSnap.id, ...docSnap.data(), slug: docSnap.data().slug || idOrSlug } as Ceremony;
         }
 
-        // If not found by ID, try to query by slug
         const q = query(collection(db, "ceremonies"), where('slug', '==', idOrSlug));
         const querySnapshot = await getDocs(q);
 
@@ -263,7 +261,6 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
             return { id: doc.id, ...doc.data() } as Ceremony;
         }
 
-        // If still not found, return null
         return null;
     } catch (error: any) {
         if (error.code === 'unavailable') {

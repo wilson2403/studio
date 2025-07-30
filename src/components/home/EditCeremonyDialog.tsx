@@ -34,6 +34,7 @@ import { v4 as uuidv4 } from 'uuid';
 const createSlug = (title: string) => {
     return title
         .toLowerCase()
+        .replace(/–/g, '-') // Replace en-dash with hyphen
         .replace(/[^\w\s-]/g, '') // remove non-word chars
         .replace(/[\s_-]+/g, '-') // collapse whitespace and replace by -
         .replace(/^-+|-+$/g, ''); // trim -
