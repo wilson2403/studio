@@ -24,6 +24,7 @@ import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { useEditable } from '@/components/home/EditableProvider';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -128,7 +129,11 @@ export default function TestimonialsPage() {
                 <TestimonialDialog user={user}>
                     <Button>
                         <MessageSquare className="mr-2 h-4 w-4" />
-                        {t('leaveMyTestimonial')}
+                         <EditableTitle
+                            tag="span"
+                            id="leaveMyTestimonial"
+                            initialValue={t('leaveMyTestimonial')}
+                         />
                     </Button>
                 </TestimonialDialog>
             )}
@@ -161,9 +166,9 @@ export default function TestimonialsPage() {
                                    </div>
                                    <p className="text-xs text-muted-foreground">{format(testimonial.createdAt, 'PPP', { locale })}</p>
                                 </div>
-                                {getTestimonialIcon(testimonial.type)}
                               </div>
-                              <div className='flex flex-col gap-2 items-end'>
+                              <div className='flex flex-row gap-2 items-center'>
+                                {getTestimonialIcon(testimonial.type)}
                                 {isAuthorized && (
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
@@ -182,9 +187,6 @@ export default function TestimonialsPage() {
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
-                                )}
-                                {!testimonial.isPublic && isAuthorized && (
-                                     <Badge variant="warning">{t('pendingApproval')}</Badge>
                                 )}
                               </div>
                            </CardHeader>
@@ -222,5 +224,6 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
 
 
