@@ -80,7 +80,7 @@ export default function SingleCeremonyPage() {
     
     const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => {
         const ceremonyId = typeof ac === 'string' ? ac : ac.ceremonyId;
-        return ceremonyId === id;
+        return ceremonyId === ceremony?.id;
     }) || false;
 
 
