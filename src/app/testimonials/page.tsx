@@ -129,7 +129,7 @@ export default function TestimonialsPage() {
                 <TestimonialDialog user={user}>
                     <Button>
                         <MessageSquare className="mr-2 h-4 w-4" />
-                        <span>{t('leaveMyTestimonial')}</span>
+                        <EditableTitle tag="span" id="leaveMyTestimonial" initialValue={t('leaveMyTestimonial')} />
                     </Button>
                 </TestimonialDialog>
             )}
@@ -149,7 +149,7 @@ export default function TestimonialsPage() {
                   <div className="space-y-6 pt-4 border-t">
                     {ceremony.testimonials?.map(testimonial => (
                        <Card key={testimonial.id} className="overflow-hidden">
-                           <CardHeader className="flex flex-row items-start justify-between gap-4 p-4 bg-muted/30">
+                           <CardHeader className="flex flex-row items-center justify-between gap-4 p-4 bg-muted/30">
                               <div className='flex items-center gap-4'>
                                 <Avatar>
                                    <AvatarImage src={testimonial.userPhotoUrl || undefined} alt={testimonial.userName} />
@@ -163,7 +163,7 @@ export default function TestimonialsPage() {
                                    <p className="text-xs text-muted-foreground">{format(testimonial.createdAt, 'PPP', { locale })}</p>
                                 </div>
                               </div>
-                              <div className='flex flex-row items-center gap-2'>
+                              <div className='flex items-center gap-2'>
                                 {getTestimonialIcon(testimonial.type)}
                                 {isAuthorized && (
                                     <AlertDialog>
@@ -220,6 +220,7 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
 
 
 
