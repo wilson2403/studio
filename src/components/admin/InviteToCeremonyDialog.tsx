@@ -7,10 +7,9 @@ import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { UserProfile, Ceremony, CeremonyInvitationMessage } from '@/lib/firebase/firestore';
-import { ScrollArea } from '../ui/scroll-area';
-import { WhatsappIcon } from '../icons/WhatsappIcon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Label } from '../ui/label';
+import { WhatsappIcon } from '../icons/WhatsappIcon';
 import { EditableTitle } from '../home/EditableTitle';
 
 interface InviteToCeremonyDialogProps {
