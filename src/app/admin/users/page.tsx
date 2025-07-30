@@ -782,7 +782,7 @@ export default function AdminUsersPage() {
                                 <Accordion type="multiple" defaultValue={['questionnaire-templates']}>
                                     <AccordionItem value="questionnaire-templates">
                                         <AccordionTrigger>
-                                            <EditableTitle tag="h3" id="questionnaireInvitationTemplates" initialValue={t('questionnaireInvitationTemplates')} />
+                                            <EditableTitle tag="h3" id="questionnaireInvitationTemplates" initialValue={t('questionnaireInvitationTemplates')} isInsideButton />
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <Form {...messagesForm}>
@@ -852,7 +852,7 @@ export default function AdminUsersPage() {
                                     </AccordionItem>
                                     <AccordionItem value="ceremony-templates">
                                         <AccordionTrigger>
-                                            <EditableTitle tag="h3" id="ceremonyInvitationTemplates" initialValue={t('ceremonyInvitationTemplates')} />
+                                            <EditableTitle tag="h3" id="ceremonyInvitationTemplates" initialValue={t('ceremonyInvitationTemplates')} isInsideButton />
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <Form {...ceremonyMessagesForm}>
@@ -923,7 +923,7 @@ export default function AdminUsersPage() {
                                     </AccordionItem>
                                     <AccordionItem value="share-memory-templates">
                                         <AccordionTrigger>
-                                            <EditableTitle tag="h3" id="shareMemoryTemplates" initialValue={t('shareMemoryTemplates')} />
+                                            <EditableTitle tag="h3" id="shareMemoryTemplates" initialValue={t('shareMemoryTemplates')} isInsideButton />
                                         </AccordionTrigger>
                                         <AccordionContent>
                                             <Form {...shareMemoryMessagesForm}>
@@ -1158,11 +1158,3 @@ export default function AdminUsersPage() {
         </div>
     );
 }
-
-    
-
-
-
-
-
-    
