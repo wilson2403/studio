@@ -255,7 +255,7 @@ export default function Ceremonies({
                                   {ceremony.title}
                               </p>
                               <div className="flex justify-center gap-4 text-xs text-white/70 mb-4">
-                                {isAuthorized && ceremony.showParticipantCount && (
+                                {(isAuthorized && ceremony.showParticipantCount) && (
                                     <div className="flex items-center gap-1.5">
                                         <Users className="h-4 w-4" />
                                         <span>{t('registeredCount', { count: registeredCount })}</span>
