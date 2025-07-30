@@ -135,8 +135,9 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
     );
   }
   
-  const RenderTag = (Tag === 'p' || Tag === 'span') ? 'span' : Tag;
-  
+  const RenderTag = Tag === 'p' ? 'span' : Tag;
+  const WrapperTag = Tag === 'p' ? 'p' : 'div';
+
   const EditTrigger = ({ children }: { children: React.ReactNode }) => {
       if (isInsideButton) {
           return (
@@ -155,7 +156,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
 
 
   return (
-    <div className={cn(
+    <WrapperTag className={cn(
       "relative group flex items-center justify-center gap-2", 
       Tag !== 'p' && Tag !== 'span' && "w-full",
       (Tag === 'p' || Tag === 'span') && 'inline-block'
@@ -174,6 +175,6 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
             </span>
         </EditTrigger>
       )}
-    </div>
+    </WrapperTag>
   );
 };
