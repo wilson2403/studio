@@ -21,8 +21,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { cn } from '@/lib/utils';
-import { Label } from '../ui/label';
-import { Switch } from '../ui/switch';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -194,7 +194,7 @@ export default function TestimonialsPage() {
                                         <div className="flex items-center space-x-2">
                                             <Switch
                                                 id={`publish-${testimonial.id}`}
-                                                checked={testimonial.isPublic}
+                                                checked={!!testimonial.isPublic}
                                                 onCheckedChange={() => handleTogglePublic(testimonial.id, !!testimonial.isPublic)}
                                             />
                                             <Label htmlFor={`publish-${testimonial.id}`} className="text-xs">{t('public')}</Label>
