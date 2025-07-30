@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -21,8 +20,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { cn } from '@/lib/utils';
-import { Label } from '../ui/label';
-import { Switch } from '../ui/switch';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -259,5 +258,3 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
-
-
