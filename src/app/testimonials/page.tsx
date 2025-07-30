@@ -129,11 +129,7 @@ export default function TestimonialsPage() {
                 <TestimonialDialog user={user}>
                     <Button>
                         <MessageSquare className="mr-2 h-4 w-4" />
-                         <EditableTitle
-                            tag="span"
-                            id="leaveMyTestimonial"
-                            initialValue={t('leaveMyTestimonial')}
-                         />
+                        <span>{t('leaveMyTestimonial')}</span>
                     </Button>
                 </TestimonialDialog>
             )}
@@ -167,7 +163,7 @@ export default function TestimonialsPage() {
                                    <p className="text-xs text-muted-foreground">{format(testimonial.createdAt, 'PPP', { locale })}</p>
                                 </div>
                               </div>
-                              <div className='flex flex-row gap-2 items-center'>
+                              <div className='flex flex-row items-center gap-2'>
                                 {getTestimonialIcon(testimonial.type)}
                                 {isAuthorized && (
                                     <AlertDialog>
@@ -224,6 +220,7 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
 
 
 
