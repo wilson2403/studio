@@ -72,6 +72,7 @@ const DialogContentWrapper = ({ user, ceremony, isOpen, setIsOpen }: { user: Use
         fetchContent('aiKeywordsLabel', 'Describe tu experiencia con palabras clave (ej: sanador, conexión, paz):');
         fetchContent('aiKeywordsPlaceholder', 'Ej: sanador, conexión, paz');
         fetchContent('generateButtonLabel', 'Generar');
+        fetchContent('selectCeremonyForTestimonial', 'Selecciona la ceremonia para tu testimonio:');
     }, [fetchContent]);
 
      useEffect(() => {
@@ -194,7 +195,9 @@ const DialogContentWrapper = ({ user, ceremony, isOpen, setIsOpen }: { user: Use
 
                      {!ceremony && (
                         <div className="text-left space-y-2">
-                             <Label htmlFor="ceremony-select">{t('selectCeremonyForTestimonial')}</Label>
+                             <Label htmlFor="ceremony-select">
+                                <EditableTitle tag="span" id="selectCeremonyForTestimonial" initialValue={t('selectCeremonyForTestimonial')} />
+                             </Label>
                              {loadingCeremonies ? <Skeleton className="h-10 w-full" /> : (
                                 <Select onValueChange={setSelectedCeremonyId} value={selectedCeremonyId}>
                                     <SelectTrigger id="ceremony-select">
