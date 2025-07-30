@@ -78,7 +78,7 @@ const DialogContentWrapper = ({ user, ceremony, isOpen, setIsOpen }: { user: Use
 
      useEffect(() => {
         const fetchUserCeremonies = async () => {
-            if (user && !ceremony) {
+            if (user) {
                 setLoadingCeremonies(true);
                 const profile = await getUserProfile(user.uid);
                 const assignedIds = profile?.assignedCeremonies?.map(c => typeof c === 'string' ? c : c.ceremonyId) || [];
@@ -93,6 +93,9 @@ const DialogContentWrapper = ({ user, ceremony, isOpen, setIsOpen }: { user: Use
 
         if (isOpen) {
             fetchUserCeremonies();
+            if (ceremony) {
+                setSelectedCeremonyId(ceremony.id);
+            }
         }
     }, [user, ceremony, isOpen]);
 
