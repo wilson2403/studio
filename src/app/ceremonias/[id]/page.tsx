@@ -216,11 +216,11 @@ export default function SingleCeremonyPage() {
                 </div>
                 <main className="w-full md:w-1/2">
                 <ScrollArea className="h-full">
-                    <div className="p-8 md:p-12 lg:p-16 flex flex-col justify-between min-h-screen relative">
-                        <Button variant="ghost" onClick={() => router.push('/ceremonias')} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-card hover:bg-muted text-foreground">
+                    <div className="p-8 md:p-12 lg:p-16 flex flex-col min-h-full">
+                        <Button variant="ghost" onClick={() => router.push('/ceremonies')} className="absolute top-4 right-4 z-20 h-10 w-10 p-0 rounded-full bg-card hover:bg-muted text-foreground">
                             <X className="h-5 w-5" />
                         </Button>
-                        <div>
+                        <div className="flex-grow">
                             <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary mt-12">{ceremony.title}</h1>
                             <div className="font-mono text-sm text-muted-foreground mb-6 space-y-1">
                                 {ceremony.date && (
@@ -251,7 +251,7 @@ export default function SingleCeremonyPage() {
                         </div>
                         <div className="mt-12">
                             {isAssignedToCeremony && ceremony.status === 'active' ? (
-                                <div className='space-y-4 mb-4'>
+                                <div className='space-y-4'>
                                     {assignedPlan && (
                                         <>
                                             <h4 className='font-bold text-center'>{t('yourSelectedPlan')}</h4>
