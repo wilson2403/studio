@@ -35,7 +35,7 @@ import { v4 as uuidv4 } from 'uuid';
 const createSlug = (title: string) => {
     return title
         .toLowerCase()
-        .replace(/–/g, '--') // Replace en-dash with double hyphen
+        .replace(/–/g, '-') 
         .replace(/[^\w\s-]/g, '') 
         .replace(/[\s-]+/g, '-') 
         .replace(/^-+|-+$/g, '');
@@ -284,14 +284,14 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
   const handleDuplicate = async () => {
     if (!ceremony) return;
     try {
-        const { id, ...originalData } = ceremony;
+        const { id, viewCount, reserveClickCount, whatsappClickCount, downloadCount, ...originalData } = ceremony;
         const newTitle = `${originalData.title} (Copia)`;
         const newSlug = createSlug(newTitle);
         const duplicatedData: Omit<Ceremony, 'id'> = {
             ...originalData,
             title: newTitle,
             slug: newSlug,
-            featured: false, // Duplicates are not featured by default
+            featured: false, 
             plans: originalData.plans?.map(p => ({...p, id: uuidv4()})) || [],
         };
         const newId = await addCeremony(duplicatedData);

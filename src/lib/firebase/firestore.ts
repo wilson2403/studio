@@ -275,16 +275,14 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
 
 export const addCeremony = async (ceremony: Omit<Ceremony, 'id'>): Promise<string> => {
     try {
-        const docRef = doc(ceremoniesCollection, ceremony.slug || uuidv4()); 
         const newCeremony = {
             ...ceremony,
-            id: docRef.id,
             viewCount: 0,
             reserveClickCount: 0,
             whatsappClickCount: 0,
             downloadCount: 0,
         };
-        await setDoc(docRef, newCeremony);
+        const docRef = await addDoc(ceremoniesCollection, newCeremony);
         await logUserAction('create_ceremony', { targetId: docRef.id, targetType: 'ceremony', changes: ceremony });
         return docRef.id;
     } catch(error) {
