@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getPublicTestimonials, Ceremony, Testimonial, deleteTestimonial, getAllTestimonialsForAdmin, updateTestimonialPublicStatus } from '@/lib/firebase/firestore';
+import { getPublicTestimonials, Ceremony, Testimonial, deleteTestimonial, getAllTestimonialsForAdmin, updateTestimonialPublicStatus, getCeremonyById } from '@/lib/firebase/firestore';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -52,13 +52,26 @@ export default function TestimonialsPage() {
             acc[ceremonyId].push(testimonial);
             return acc;
         }, {} as Record<string, Testimonial[]>);
+
+        const ceremonyDetailsPromises = Object.keys(testimonialsByCeremonyId).map(id => getCeremonyById(id));
+        const ceremonyDetailsResults = await Promise.all(ceremonyDetailsPromises);
+        const ceremonyDetailsMap = ceremonyDetailsResults.reduce((acc, ceremony) => {
+            if (ceremony) {
+                acc[ceremony.id] = ceremony;
+            }
+            return acc;
+        }, {} as Record<string, Ceremony>);
+
         
-        const ceremoniesArray = Object.entries(testimonialsByCeremonyId).map(([ceremonyId, tests]) => ({
-            id: ceremonyId,
-            title: tests[0]?.ceremonyTitle || ceremonyId, // Fallback to ID if title isn't stored on testimonial
-            date: tests[0]?.ceremonyDate || '', // Assuming these might be on the testimonial
-            testimonials: tests,
-        })).sort((a,b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+        const ceremoniesArray = Object.entries(testimonialsByCeremonyId).map(([ceremonyId, tests]) => {
+            const ceremonyInfo = ceremonyDetailsMap[ceremonyId];
+            return {
+                id: ceremonyId,
+                title: ceremonyInfo?.title || tests[0]?.ceremonyTitle || ceremonyId,
+                date: ceremonyInfo?.date || tests[0]?.ceremonyDate || '',
+                testimonials: tests,
+            }
+        }).sort((a,b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
         
         setCeremoniesWithTestimonials(ceremoniesArray as any);
 
@@ -141,10 +154,10 @@ export default function TestimonialsPage() {
           />
            {user && (
                 <TestimonialDialog user={user}>
-                    <Button>
+                     <Button>
                         <MessageSquare className="mr-2 h-4 w-4" />
-                        <span className='flex-grow'>
-                            <EditableTitle tag="span" id="leaveMyTestimonial" initialValue={t('leaveMyTestimonial')} />
+                         <span className="relative group flex items-center justify-center gap-2">
+                           <EditableTitle tag="span" id="leaveMyTestimonial" initialValue={t('leaveMyTestimonial')} />
                         </span>
                     </Button>
                 </TestimonialDialog>
@@ -215,7 +228,7 @@ export default function TestimonialsPage() {
                            <CardContent className="p-4 space-y-4">
                                 {testimonial.type === 'text' && <p className="text-foreground/80 italic">"{testimonial.content}"</p>}
                                 {testimonial.type === 'video' && (
-                                    <div className="aspect-video relative rounded-md overflow-hidden">
+                                    <div className="w-full max-w-xs mx-auto aspect-video relative rounded-md overflow-hidden">
                                         <VideoPlayer
                                             ceremonyId={testimonial.id}
                                             videoUrl={testimonial.content}
@@ -246,3 +259,4 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
