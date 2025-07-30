@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { Video, Mic, MessageSquare, Star, Trash2 } from 'lucide-react';
 import { EditableTitle } from '@/components/home/EditableTitle';
-import { EditableProvider } from '@/components/home/EditableProvider';
+import { EditableProvider, useEditable } from '@/components/home/EditableProvider';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -24,7 +24,6 @@ import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { useEditable } from '@/components/home/EditableProvider';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -220,6 +219,7 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
 
 
 
