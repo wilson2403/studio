@@ -35,7 +35,7 @@ import { v4 as uuidv4 } from 'uuid';
 const createSlug = (title: string) => {
     return title
         .toLowerCase()
-        .replace(/–/g, ' ') 
+        .replace(/–/g, '--')
         .replace(/[^\w\s-]/g, '') 
         .trim()
         .replace(/[\s-]+/g, '-');
@@ -198,7 +198,8 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     let finalMediaUrl = data.mediaUrl;
     let finalMediaType = data.mediaType;
     
-    const finalSlug = data.slug || createSlug(data.title);
+    // Always regenerate slug from the title on submit
+    const finalSlug = createSlug(data.title);
 
     if (mediaFile) {
         finalMediaType = mediaFile.type.startsWith('video/') ? 'video' : 'image';
@@ -818,4 +819,3 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     </Dialog>
   );
 }
-
