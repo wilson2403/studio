@@ -40,6 +40,7 @@ import { Label } from '@/components/ui/label';
 import ViewUserAuditLogDialog from '@/components/admin/ViewUserAuditLogDialog';
 import InviteToCeremonyDialog from '@/components/admin/InviteToCeremonyDialog';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
+import { EditableTitle } from '@/components/home/EditableTitle';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -780,7 +781,9 @@ export default function AdminUsersPage() {
                             ) : (
                                 <Accordion type="multiple" defaultValue={['questionnaire-templates']}>
                                     <AccordionItem value="questionnaire-templates">
-                                        <AccordionTrigger>{t('questionnaireInvitationTemplates')}</AccordionTrigger>
+                                        <AccordionTrigger>
+                                            <EditableTitle tag="h3" id="questionnaireInvitationTemplates" initialValue={t('questionnaireInvitationTemplates')} />
+                                        </AccordionTrigger>
                                         <AccordionContent>
                                             <Form {...messagesForm}>
                                                 <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-6">
@@ -848,7 +851,9 @@ export default function AdminUsersPage() {
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="ceremony-templates">
-                                        <AccordionTrigger>{t('ceremonyInvitationTemplates')}</AccordionTrigger>
+                                        <AccordionTrigger>
+                                            <EditableTitle tag="h3" id="ceremonyInvitationTemplates" initialValue={t('ceremonyInvitationTemplates')} />
+                                        </AccordionTrigger>
                                         <AccordionContent>
                                             <Form {...ceremonyMessagesForm}>
                                                 <form onSubmit={ceremonyMessagesForm.handleSubmit(onCeremonyMessagesSubmit)} className="space-y-6">
@@ -917,7 +922,9 @@ export default function AdminUsersPage() {
                                         </AccordionContent>
                                     </AccordionItem>
                                     <AccordionItem value="share-memory-templates">
-                                        <AccordionTrigger>{t('shareMemoryTemplates')}</AccordionTrigger>
+                                        <AccordionTrigger>
+                                            <EditableTitle tag="h3" id="shareMemoryTemplates" initialValue={t('shareMemoryTemplates')} />
+                                        </AccordionTrigger>
                                         <AccordionContent>
                                             <Form {...shareMemoryMessagesForm}>
                                                 <form onSubmit={shareMemoryMessagesForm.handleSubmit(onShareMemoryMessagesSubmit)} className="space-y-6">
@@ -1156,3 +1163,6 @@ export default function AdminUsersPage() {
 
 
 
+
+
+    

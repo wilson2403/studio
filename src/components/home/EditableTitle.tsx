@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEditable } from './EditableProvider';
@@ -17,9 +18,10 @@ interface EditableTitleProps {
   id: string;
   initialValue: string;
   className?: string;
+  isInsideButton?: boolean;
 }
 
-export const EditableTitle = ({ tag: Tag, id, initialValue, className }: EditableTitleProps) => {
+export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideButton }: EditableTitleProps) => {
   const { isAdmin, content, updateContent, fetchContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({ es: '', en: '' });
@@ -137,7 +139,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
         <span
           className={cn(
             'h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center',
-            'absolute -right-8 top-1/2 -translate-y-1/2',
+            isInsideButton ? 'cursor-pointer' : 'absolute -right-8 top-1/2 -translate-y-1/2',
             'group-hover:bg-accent cursor-pointer'
           )}
           onClick={handleEditClick}
@@ -148,3 +150,5 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className }: Editabl
     </Wrapper>
   );
 };
+
+    
