@@ -81,23 +81,19 @@ export default function Ceremonies({
         
         if (status === 'active') {
           ceremoniesData = await getCeremonies('active');
-          // Sort active ceremonies: featured first
           ceremoniesData.sort((a, b) => {
             if (a.featured && !b.featured) return -1;
             if (!a.featured && b.featured) return 1;
             return 0;
           });
-        } else if (status === 'finished') { // Special logic for "past events"
-            const allCeremonies = await getCeremonies(); // Fetch all
+        } else if (status === 'finished') {
+            const allCeremonies = await getCeremonies();
             ceremoniesData = allCeremonies
-                .filter(c => c.status === 'finished' || c.status === 'inactive')
+                .filter(c => c.status === 'finished')
                 .sort((a, b) => {
                     if (a.featured && !b.featured) return -1;
                     if (!a.featured && b.featured) return 1;
-                    
-                    const statusOrder = { finished: 1, inactive: 2 };
-                    const getOrder = (c: Ceremony) => statusOrder[c.status as keyof typeof statusOrder] || 3;
-                    return getOrder(a) - getOrder(b);
+                    return 0;
                 });
         }
 
@@ -132,7 +128,6 @@ export default function Ceremonies({
   }, [status]);
 
   const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
-    // If status changed, remove from current list
     if (updatedCeremony.status !== status && status !== 'finished') {
         setCeremonies(ceremonies.filter(c => c.id !== updatedCeremony.id));
     } else {
@@ -168,7 +163,6 @@ export default function Ceremonies({
     if (!isAuthorized) {
         incrementCeremonyReserveClick(ceremony.id);
         logUserAction('click_ceremony_details', { targetId: ceremony.id, targetType: 'ceremony' });
-        // If it's an image, also count it as a "view" since there's no video play event.
         if (ceremony.mediaType === 'image') {
             incrementCeremonyViewCount(ceremony.id);
         }
