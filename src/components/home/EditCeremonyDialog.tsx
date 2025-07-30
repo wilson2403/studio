@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -34,8 +35,8 @@ import { v4 as uuidv4 } from 'uuid';
 const createSlug = (title: string) => {
     return title
         .toLowerCase()
-        .replace(/–/g, ' ') // Replace en-dash with a space first
-        .replace(/[^\w\s-]/g, '') // Remove non-word chars
+        .replace(/–/g, ' - ') // Replace en-dash with a space-hyphen-space to ensure separation
+        .replace(/[^\w\s-]/g, '') // Remove non-word chars except hyphen
         .replace(/[\s_-]+/g, '-') // Collapse whitespace and dashes to a single dash
         .replace(/^-+|-+$/g, ''); // Trim leading/trailing dashes
 };
