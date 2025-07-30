@@ -81,6 +81,12 @@ export default function Ceremonies({
         
         if (status === 'active') {
           ceremoniesData = await getCeremonies('active');
+          // Sort active ceremonies: featured first
+          ceremoniesData.sort((a, b) => {
+            if (a.featured && !b.featured) return -1;
+            if (!a.featured && b.featured) return 1;
+            return 0;
+          });
         } else if (status === 'finished') { // Special logic for "past events"
             const allCeremonies = await getCeremonies(); // Fetch all
             ceremoniesData = allCeremonies
