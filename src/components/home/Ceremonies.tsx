@@ -172,7 +172,7 @@ export default function Ceremonies({
           )
       })
     } else {
-      router.push(`/ceremonias/${ceremony.id}`);
+      router.push(`/ceremonias/${ceremony.slug || ceremony.id}`);
     }
   };
   
