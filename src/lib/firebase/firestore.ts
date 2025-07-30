@@ -123,7 +123,7 @@ export const seedCeremonies = async () => {
     },
     {
       title: 'Sábado 2 de agosto – San Carlos',
-      slug: 'sabado-2-de-agosto-san-carlos',
+      slug: 'sabado-2-de-agosto--san-carlos',
       description: 'Horario: 4:00 p.m. a 7:00 a.m. del día siguiente',
       price: 80000,
       priceType: 'from',
@@ -246,20 +246,22 @@ export const getCeremonies = async (status?: 'active' | 'finished' | 'inactive')
 
 export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null> => {
     try {
+        // First, try to fetch by direct ID match, which is the most reliable.
         const docRef = doc(db, 'ceremonies', idOrSlug);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            return { id: docSnap.id, ...docSnap.data(), slug: docSnap.data().slug || idOrSlug } as Ceremony;
+            return { id: docSnap.id, ...docSnap.data() } as Ceremony;
         }
 
+        // If not found by ID, query by slug. This handles cases where the URL uses the slug.
         const q = query(collection(db, "ceremonies"), where('slug', '==', idOrSlug));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
             // If multiple ceremonies have the same slug, return the most recent one.
             const ceremonies = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ceremony));
-            ceremonies.sort((a, b) => {
+             ceremonies.sort((a, b) => {
                 const dateA = a.date ? new Date(a.date.split(' de ')[2], new Date(`${a.date.split(' de ')[1]} 1, 2000`).getMonth(), a.date.split(' de ')[0]) : new Date(0);
                 const dateB = b.date ? new Date(b.date.split(' de ')[2], new Date(`${b.date.split(' de ')[1]} 1, 2000`).getMonth(), b.date.split(' de ')[0]) : new Date(0);
                 return dateB.getTime() - dateA.getTime();
