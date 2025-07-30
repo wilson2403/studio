@@ -34,10 +34,10 @@ import { v4 as uuidv4 } from 'uuid';
 const createSlug = (title: string) => {
     return title
         .toLowerCase()
-        .replace(/–/g, '-') // Replace en-dash with hyphen
-        .replace(/[^\w\s-]/g, '') // remove non-word chars
-        .replace(/[\s_-]+/g, '-') // collapse whitespace and replace by -
-        .replace(/^-+|-+$/g, ''); // trim -
+        .replace(/–/g, ' ') // Replace en-dash with a space first
+        .replace(/[^\w\s-]/g, '') // Remove non-word chars
+        .replace(/[\s_-]+/g, '-') // Collapse whitespace and dashes to a single dash
+        .replace(/^-+|-+$/g, ''); // Trim leading/trailing dashes
 };
 
 const planSchema = (t: (key: string, options?: any) => string) => z.object({
@@ -817,5 +817,3 @@ export default function EditCeremonyDialog({ ceremony, isOpen, onClose, onUpdate
     </Dialog>
   );
 }
-
-    
