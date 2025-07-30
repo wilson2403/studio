@@ -22,6 +22,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { useAuth } from '@/hooks/useAuth';
+import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -161,25 +163,30 @@ export default function TestimonialsPage() {
                                 </div>
                                 {getTestimonialIcon(testimonial.type)}
                               </div>
-                              {isAuthorized && (
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
-                                            <Trash2 className="h-4 w-4"/>
-                                        </Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader>
-                                            <AlertDialogTitle>{t('deleteTestimonialConfirmTitle')}</AlertDialogTitle>
-                                            <AlertDialogDescription>{t('deleteTestimonialConfirmDescription')}</AlertDialogDescription>
-                                        </AlertDialogHeader>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDelete(testimonial.id)}>{t('delete')}</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                              )}
+                              <div className='flex flex-col gap-2 items-end'>
+                                {isAuthorized && (
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive">
+                                                <Trash2 className="h-4 w-4"/>
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>{t('deleteTestimonialConfirmTitle')}</AlertDialogTitle>
+                                                <AlertDialogDescription>{t('deleteTestimonialConfirmDescription')}</AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(testimonial.id)}>{t('delete')}</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                )}
+                                {!testimonial.isPublic && isAuthorized && (
+                                     <Badge variant="warning">{t('pendingApproval')}</Badge>
+                                )}
+                              </div>
                            </CardHeader>
                            <CardContent className="p-4 space-y-4">
                                 {testimonial.type === 'text' && <p className="text-foreground/80 italic">"{testimonial.content}"</p>}
@@ -215,4 +222,5 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
 
