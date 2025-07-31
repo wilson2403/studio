@@ -32,6 +32,7 @@ const componentButtonSchema = z.object({
 });
 
 const settingsSchema = z.object({
+    logoUrl: z.string().url('Debe ser una URL válida.'),
     whatsappCommunityLink: z.string().url('Debe ser una URL válida.'),
     instagramUrl: z.string().url('Debe ser una URL válida.'),
     facebookUrl: z.string().url('Debe ser una URL válida.'),
@@ -55,6 +56,9 @@ const settingsSchema = z.object({
         addCeremony: componentButtonSchema,
         buttonViewDetails: componentButtonSchema,
         whatsappCommunityButton: componentButtonSchema,
+        downloadVideo: componentButtonSchema,
+        leaveTestimonial: componentButtonSchema,
+        shareCeremony: componentButtonSchema,
     }),
 });
 
@@ -124,10 +128,14 @@ export const getSystemSettings = ai.defineFlow(
           addCeremony: await fetchComponentButtonContent('componentButtonAddCeremony', { es: 'Agregar Ceremonia', en: 'Add Ceremony' }),
           buttonViewDetails: await fetchComponentButtonContent('componentButtonViewDetails', { es: 'Ver Detalles', en: 'View Details' }),
           whatsappCommunityButton: await fetchComponentButtonContent('componentButtonWhatsappCommunityButton', { es: 'Unirse a la Comunidad', en: 'Join the Community' }),
+          downloadVideo: await fetchComponentButtonContent('downloadVideo', { es: 'Descargar Video', en: 'Download Video' }),
+          leaveTestimonial: await fetchComponentButtonContent('leaveTestimonial', { es: 'Dejar Testimonio', en: 'Leave Testimonial' }),
+          shareCeremony: await fetchComponentButtonContent('shareCeremony', { es: 'Compartir Ceremonia', en: 'Share Ceremony' }),
       };
 
 
       return {
+        logoUrl: await fetchStringContent('logoUrl', 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg'),
         whatsappCommunityLink: await fetchStringContent('whatsappCommunityLink', 'https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ'),
         instagramUrl: await fetchStringContent('instagramUrl', 'https://www.instagram.com/elartedesanarcr'),
         facebookUrl: await fetchStringContent('facebookUrl', 'https://www.facebook.com/profile.php?id=61574627625274'),
@@ -153,6 +161,7 @@ export const updateSystemSettings = ai.defineFlow(
   },
   async (settings) => {
     try {
+        await setContent('logoUrl', { es: settings.logoUrl, en: settings.logoUrl });
         await setContent('whatsappCommunityLink', { es: settings.whatsappCommunityLink, en: settings.whatsappCommunityLink });
         await setContent('instagramUrl', { es: settings.instagramUrl, en: settings.instagramUrl });
         await setContent('facebookUrl', { es: settings.facebookUrl, en: settings.facebookUrl });

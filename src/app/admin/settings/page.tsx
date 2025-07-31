@@ -38,6 +38,7 @@ const componentButtonSchema = z.object({
 });
 
 const settingsFormSchema = z.object({
+    logoUrl: z.string().url('Debe ser una URL válida.'),
     whatsappCommunityLink: z.string().url('Debe ser una URL válida.'),
     instagramUrl: z.string().url('Debe ser una URL válida.'),
     facebookUrl: z.string().url('Debe ser una URL válida.'),
@@ -61,6 +62,9 @@ const settingsFormSchema = z.object({
         addCeremony: componentButtonSchema,
         buttonViewDetails: componentButtonSchema,
         whatsappCommunityButton: componentButtonSchema,
+        downloadVideo: componentButtonSchema,
+        leaveTestimonial: componentButtonSchema,
+        shareCeremony: componentButtonSchema,
     }),
 });
 
@@ -351,6 +355,9 @@ export default function AdminSettingsPage() {
                     <AccordionContent className="pt-4">
                         <Form {...form}>
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                                <FormField control={form.control} name="logoUrl" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('logoUrl', 'URL del Logo')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
                                 <FormField control={form.control} name="whatsappCommunityLink" render={({ field }) => (
                                     <FormItem><FormLabel>{t('whatsappCommunityLink')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
@@ -369,7 +376,7 @@ export default function AdminSettingsPage() {
                                 <Accordion type="multiple" className="w-full space-y-4">
                                     <AccordionItem value="navigation"><AccordionTrigger>{t('navigationManagement')}</AccordionTrigger><AccordionContent className="pt-4">{renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}</AccordionContent></AccordionItem>
                                     <AccordionItem value="homeButtons"><AccordionTrigger>{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</AccordionTrigger><AccordionContent className="pt-4">{renderHomeButtons(['medicine', 'guides', 'preparation'])}</AccordionContent></AccordionItem>
-                                    <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton'])}</AccordionContent></AccordionItem>
+                                    <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton', 'downloadVideo', 'leaveTestimonial', 'shareCeremony'])}</AccordionContent></AccordionItem>
                                 </Accordion>
                                 <Button type="submit" disabled={form.formState.isSubmitting}>
                                     <Save className="mr-2 h-4 w-4" />

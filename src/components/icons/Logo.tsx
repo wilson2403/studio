@@ -1,30 +1,45 @@
 
+'use client';
+
 import { cn } from "@/lib/utils";
 import type { SVGProps } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useEditable } from "../home/EditableProvider";
 
 export function Logo({ className, ...props }: SVGProps<SVGSVGElement>) {
+  const { content, fetchContent } = useEditable();
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const fallbackUrl = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
+
+  useEffect(() => {
+    fetchContent('logoUrl', fallbackUrl);
+  }, [fetchContent]);
+
+  useEffect(() => {
+    const value = content['logoUrl'];
+    if (typeof value === 'object' && value !== null) {
+      setLogoUrl((value as any).es || fallbackUrl);
+    } else {
+      setLogoUrl((value as string) || fallbackUrl);
+    }
+  }, [content]);
+
+  if (!logoUrl) {
+    return <div className={cn("h-10 w-10", className)} />;
+  }
+
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 100 100"
-      className={cn("h-10 w-10 text-primary", className)}
-      fill="currentColor"
-      {...props}
-    >
-      <title>El Arte de Sanar Logo</title>
-      <path d="M66.3,36.9a2,2,0,0,0-2.8,0l-15.1,15a2,2,0,0,1-2.8,0L30.5,36.9a2,2,0,0,0-2.8,2.8l15.1,15a2,2,0,0,0,2.8,0l15.1-15A2,2,0,0,0,66.3,36.9Z" />
-      <path d="M83.9,46.1a2,2,0,0,0-2.8,0L66,61.3a2,2,0,0,1-2.8,0L48,46.1a2,2,0,0,0-2.8,2.8L60.4,64.1a2,2,0,0,0,2.8,0L78.3,48.9a2,2,0,0,0,5.6-2.8Z" />
-      <path d="M50,8.1a2,2,0,0,0-2,2V25.3a2,2,0,0,0,4,0V10.1A2,2,0,0,0,50,8.1Z" />
-      <path d="M50,66.3a2,2,0,0,0-2,2V83.5a2,2,0,0,0,4,0V68.3A2,2,0,0,0,50,66.3Z" />
-      <path d="M69.5,23.3a2,2,0,0,0-2.8-1.5L51.6,30.4a2,2,0,1,0,2,3.5l15.1-8.7A2,2,0,0,0,69.5,23.3Z" />
-      <path d="M33.2,74.9a2,2,0,0,0-2.8-1.5L15.3,64.7a2,2,0,1,0,2,3.5l15.1-8.7A2,2,0,0,0,33.2,74.9Z" />
-      <path d="M30.5,23.3a2,2,0,0,0,.8-3.9L46.4,10.8a2,2,0,1,0-2-3.5L29.3,19.8a2,2,0,0,0,.8,3.9h0Z" />
-      <path d="M70.7,80.2a2,2,0,0,0,.8-3.9L56.4,67.6a2,2,0,1,0-2,3.5L70,82.7a2,2,0,0,0,.7.1h0A2,2,0,0,0,70.7,80.2Z" />
-      <path d="M84.7,30.4a2,2,0,0,0-1.5,2.8l8.7,15.1a2,2,0,0,0,3.5-2L86.2,31.2A2,2,0,0,0,84.7,30.4Z" />
-      <path d="M5.3,69.6a2,2,0,0,0-1.5,2.8l8.7,15.1a2,2,0,1,0,3.5-2L7.3,71.7a2,2,0,0,0-2-2.1Z" />
-      <path d="M15.3,31.2a2,2,0,0,0-2-1.5,2,2,0,0,0-1.5,2.8l8.7,15.1a2,2,0,1,0,3.5-2Z" />
-      <path d="M74.7,86.2a2,2,0,0,0-2-1.5,2,2,0,0,0-1.5,2.8l8.7,15.1a2,2,0,1,0,3.5-2Z" />
-      <path d="M50,91.9A41.9,41.9,0,1,1,91.9,50,42,42,0,0,1,50,91.9ZM50,12.1A37.9,37.9,0,1,0,87.9,50,38,38,0,0,0,50,12.1Z" />
-    </svg>
+    <div className={cn("relative h-10 w-10", className)}>
+      <Image
+        src={logoUrl}
+        alt="El Arte de Sanar Logo"
+        fill
+        unoptimized
+        className={cn("object-contain transition-opacity duration-300", isLoaded ? "opacity-100" : "opacity-0")}
+        onLoad={() => setIsLoaded(true)}
+      />
+    </div>
   );
 }

@@ -244,6 +244,7 @@ export type ComponentButtonData = {
 }
 
 export type SystemSettings = {
+    logoUrl: string;
     whatsappCommunityLink: string;
     instagramUrl: string;
     facebookUrl: string;
