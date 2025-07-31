@@ -33,12 +33,22 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolea
 
 const getTikTokEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
     if (!url) return null;
-    const videoId = url.split('video/')[1]?.split('?')[0];
+    
+    // Regular URL: https://www.tiktok.com/@user/video/12345
+    let videoId = url.split('video/')[1]?.split('?')[0];
+
+    // Shortened URL: https://vm.tiktok.com/ZMSTkhkkQ/
+    if (!videoId && url.includes('vm.tiktok.com')) {
+        videoId = url.split('.com/')[1]?.split('/')[0];
+    }
+    
     if (!videoId) return null;
+
     const autoplayParam = autoplay ? '1' : '0';
     const muteParam = defaultMuted ? '1' : '0';
     return `https://www.tiktok.com/embed/v2/${videoId}?autoplay=${autoplayParam}&loop=0&controls=1&mute=${muteParam}`;
 };
+
 
 const getFacebookEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
     if (!url || !url.includes('facebook.com')) return null;
