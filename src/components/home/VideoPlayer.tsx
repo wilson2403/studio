@@ -33,16 +33,17 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolea
 
 const getTikTokEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
     if (!url) return null;
-    
-    // Regular URL: https://www.tiktok.com/@user/video/12345
-    let videoId = url.split('video/')[1]?.split('?')[0];
 
-    // Shortened URL: https://vm.tiktok.com/ZMSTkhkkQ/
-    if (!videoId && url.includes('vm.tiktok.com')) {
-        videoId = url.split('.com/')[1]?.split('/')[0];
+    // Regex to capture video ID from standard and short URLs
+    const tiktokRegex = /(?:tiktok\.com\/.*\/video\/|vm\.tiktok\.com\/)([0-9a-zA-Z]+)/;
+    const match = url.match(tiktokRegex);
+    const videoId = match ? match[1] : null;
+
+    if (!videoId) {
+        // Fallback for user profile links which might not be embeddable but prevents crashes
+        if (url.includes('tiktok.com/@')) return null; 
+        return null;
     }
-    
-    if (!videoId) return null;
 
     const autoplayParam = autoplay ? '1' : '0';
     const muteParam = defaultMuted ? '1' : '0';
