@@ -84,7 +84,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     sessionStorage.setItem('tour_status', 'pending');
 
     return user;
-  } catch (error) => {
+  } catch (error) {
     console.error("Error signing up with email: ", error);
     await logError(error, { function: 'signUpWithEmail' });
     throw error;
