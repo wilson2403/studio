@@ -89,7 +89,7 @@ export default function QuestionnairePage() {
     { type: 'info', id: 'emotionalHealing', icon: HeartHandshake, titleKey: 'emotionalHealingTitle', descriptionKey: 'emotionalHealingDescription' },
     { type: 'info', id: 'whatToBring', icon: CheckCircle, titleKey: 'whatToBringTitle', descriptionKey: 'whatToBringSubtitle' },
     { type: 'final', id: 'final', icon: PartyPopper, titleKey: 'preparationCompleteTitle', descriptionKey: 'preparationCompleteDescription' }
-  ], [t]);
+  ], [i18n.language]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(questionnaireSchema(t)),
