@@ -483,7 +483,7 @@ export default function AdminUsersPage() {
         if (requiredCourses.length === 0) return 0;
         
         const completedCourses = user.completedCourses || [];
-        const completedRequiredCount = requiredCourses.filter(rc => completedCourses.includes rc.id)).length;
+        const completedRequiredCount = requiredCourses.filter(rc => completedCourses.includes(rc.id)).length;
         
         return Math.floor((completedRequiredCount / requiredCourses.length) * 100);
     }
