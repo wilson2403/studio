@@ -100,6 +100,9 @@ export default function Header() {
       if (currentUser) {
         const profile = await getUserProfile(currentUser.uid);
         setUserProfile(profile);
+        if (profile?.language && i18n.language !== profile.language) {
+          i18n.changeLanguage(profile.language);
+        }
       } else {
         setUserProfile(null);
       }
@@ -121,7 +124,7 @@ export default function Header() {
     fetchNavSettings();
 
     return () => unsubscribe();
-  }, []);
+  }, [i18n]);
 
   useEffect(() => {
         if (isAdmin) {

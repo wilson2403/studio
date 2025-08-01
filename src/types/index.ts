@@ -70,6 +70,7 @@ export type UserProfile = {
     phone?: string;
     address?: string;
     role?: UserRole;
+    language?: 'es' | 'en';
     permissions?: {
         canEditCeremonies?: boolean;
         canEditCourses?: boolean;
