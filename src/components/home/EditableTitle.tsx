@@ -135,7 +135,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
   }
   
   const RenderTag = Tag;
-  const WrapperTag = 'div';
+  const WrapperTag = (Tag === 'p' || Tag === 'span') ? 'span' : 'div';
 
   const EditTrigger = ({ children }: { children: React.ReactNode }) => {
       if (isInsideButton) {
