@@ -19,27 +19,30 @@ export function Logo({ className, ...props }: SVGProps<SVGSVGElement>) {
 
   useEffect(() => {
     const value = content['logoUrl'];
+    let newUrl = fallbackUrl;
     if (typeof value === 'object' && value !== null) {
-      setLogoUrl((value as any).es || fallbackUrl);
-    } else {
-      setLogoUrl((value as string) || fallbackUrl);
+      newUrl = (value as any).es || fallbackUrl;
+    } else if (typeof value === 'string' && value) {
+      newUrl = value;
     }
-  }, [content]);
-
-  if (!logoUrl) {
-    return <div className={cn("h-10 w-10", className)} />;
-  }
+    
+    if (logoUrl !== newUrl) {
+      setLogoUrl(newUrl);
+    }
+  }, [content, fallbackUrl, logoUrl]);
 
   return (
     <div className={cn("relative h-10 w-10", className)}>
-      <Image
-        src={logoUrl}
-        alt="El Arte de Sanar Logo"
-        fill
-        unoptimized
-        className={cn("object-contain transition-opacity duration-300", isLoaded ? "opacity-100" : "opacity-0")}
-        onLoad={() => setIsLoaded(true)}
-      />
+      {logoUrl && (
+        <Image
+          src={logoUrl}
+          alt="El Arte de Sanar Logo"
+          fill
+          unoptimized
+          className={cn("object-contain transition-opacity duration-300 rounded-full", isLoaded ? "opacity-100" : "opacity-0")}
+          onLoad={() => setIsLoaded(true)}
+        />
+      )}
     </div>
   );
 }
