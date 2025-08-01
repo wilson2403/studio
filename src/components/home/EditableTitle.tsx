@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { Label } from '../ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import React from 'react';
 
 interface EditableTitleProps {
   tag: 'h1' | 'h2' | 'p' | 'h3' | 'span';
@@ -125,6 +126,37 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
         </div>
     </div>
   );
+  
+   const popoverEditControls = (
+    <React.Fragment>
+        <div className='w-full space-y-4'>
+            <div className='space-y-2'>
+                <Label htmlFor={`${id}-es`}>Español</Label>
+                <Textarea 
+                    id={`${id}-es`}
+                    value={editValues.es} 
+                    onChange={(e) => setEditValues(prev => ({...prev, es: e.target.value}))} 
+                    className="bg-background text-foreground text-sm p-2"
+                    onClick={(e) => e.stopPropagation()}
+                />
+            </div>
+             <div className='space-y-2'>
+                <Label htmlFor={`${id}-en`}>English</Label>
+                <Textarea
+                    id={`${id}-en`}
+                    value={editValues.en} 
+                    onChange={(e) => setEditValues(prev => ({...prev, en: e.target.value}))} 
+                    className="bg-background text-foreground text-sm p-2"
+                     onClick={(e) => e.stopPropagation()}
+                />
+            </div>
+        </div>
+        <div className="flex gap-2 mt-2 justify-end">
+          <Button onClick={handleSave} size="sm"><Save className="mr-2 h-4 w-4"/> {t('save')}</Button>
+          <Button onClick={handleCancel} variant="outline" size="sm"><X className="mr-2 h-4 w-4"/> {t('cancel')}</Button>
+        </div>
+    </React.Fragment>
+  );
 
   if (isEditing && !isInsideButton) {
     return (
@@ -135,7 +167,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
   }
   
   const RenderTag = Tag;
-  const WrapperTag = (Tag === 'p' || Tag === 'span') ? 'span' : 'div';
+  const WrapperTag = isInsideButton ? 'span' : 'div';
 
   const EditTrigger = ({ children }: { children: React.ReactNode }) => {
       if (isInsideButton) {
@@ -145,7 +177,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
                     {children}
                   </PopoverTrigger>
                   <PopoverContent className="w-80" onClick={(e) => e.stopPropagation()}>
-                    {editControls}
+                    {popoverEditControls}
                   </PopoverContent>
               </Popover>
           )
