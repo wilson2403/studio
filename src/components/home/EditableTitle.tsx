@@ -134,7 +134,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
     );
   }
   
-  const RenderTag = Tag === 'p' ? 'div' : Tag;
+  const RenderTag = Tag;
   const WrapperTag = 'div';
 
   const EditTrigger = ({ children }: { children: React.ReactNode }) => {

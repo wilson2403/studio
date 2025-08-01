@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useTranslation } from 'react-i18next';
@@ -7,10 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Ceremony, UserProfile } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
-import { EditableTitle } from '../home/EditableTitle';
+import { EditableTitle } from '@/components/home/EditableTitle';
 
 interface ViewParticipantsDialogProps {
   ceremony: Ceremony;
@@ -36,7 +35,7 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
           </DialogTitle>
           <DialogDescription>
             <EditableTitle
-              tag="p"
+              tag="span"
               id="participantCountText"
               initialValue={t('participantCount', { count: participants.length })}
               className="text-sm text-muted-foreground"
