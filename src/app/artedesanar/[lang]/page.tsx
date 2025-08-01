@@ -68,8 +68,11 @@ export default function QuestionnairePage() {
   const lang = params.lang || 'es';
 
   useEffect(() => {
-    if (typeof lang === 'string' && i18n.language !== lang) {
-      i18n.changeLanguage(lang);
+    if (typeof lang === 'string') {
+        const languageToSet = lang.startsWith('en') ? 'en' : lang.startsWith('es') ? 'es' : 'es';
+        if (i18n.language !== languageToSet) {
+            i18n.changeLanguage(languageToSet);
+        }
     }
   }, [lang, i18n]);
 
@@ -141,7 +144,8 @@ export default function QuestionnairePage() {
         } catch (error) { console.error("Error fetching user data:", error); }
         finally { setPageLoading(false); }
       } else {
-        router.push(`/login?redirect=/artedesanar/${lang}`);
+        const languageToSet = typeof lang === 'string' && lang.startsWith('en') ? 'en' : 'es';
+        router.push(`/login?redirect=/artedesanar/${languageToSet}`);
       }
     });
     return () => unsubscribe();
@@ -429,3 +433,4 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
+
