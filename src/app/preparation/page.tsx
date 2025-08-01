@@ -102,7 +102,9 @@ export default function PreparationPage() {
 
                 <section>
                     <EditableTitle tag="h2" id="dietTitle" initialValue={t('dietTitle')} className="text-3xl font-headline text-primary text-center mb-4" />
-                    <EditableTitle tag="p" id="dietSubtitle" initialValue={t('dietSubtitle')} className="text-muted-foreground text-center mb-8" />
+                    <div className="max-w-3xl mx-auto">
+                        <EditableTitle tag="p" id="dietSubtitle" initialValue={t('dietSubtitle')} className="text-muted-foreground text-center mb-8" />
+                    </div>
                     <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                         <Card className="bg-green-950/20 border-green-500/30 p-6">
                             <CardHeader className="p-2">
@@ -131,7 +133,9 @@ export default function PreparationPage() {
                 
                 <section>
                     <EditableTitle tag="h2" id="mentalPrepTitle" initialValue={t('mentalPrepTitle')} className="text-3xl font-headline text-primary text-center mb-4" />
-                    <EditableTitle tag="p" id="mentalPrepSubtitle" initialValue={t('mentalPrepSubtitle')} className="text-muted-foreground text-center mb-8" />
+                    <div className="max-w-3xl mx-auto">
+                        <EditableTitle tag="p" id="mentalPrepSubtitle" initialValue={t('mentalPrepSubtitle')} className="text-muted-foreground text-center mb-8" />
+                    </div>
                     <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                         {mentalPrepSteps.map(item => (
                             <Card key={item.titleId} className="p-6 text-center">
@@ -164,7 +168,3 @@ export default function PreparationPage() {
         </EditableProvider>
     )
 }
-
-    
-
-    
