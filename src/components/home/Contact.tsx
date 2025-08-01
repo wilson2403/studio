@@ -32,8 +32,19 @@ export default function Contact() {
     const [facebookUrl, setFacebookUrl] = useState(initialValues.facebookUrl);
     const [tiktokUrl, setTiktokUrl] = useState(initialValues.tiktokUrl);
     const [whatsappNumber, setWhatsappNumber] = useState(initialValues.whatsappNumber);
+    const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
 
     useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const settings = await getSystemSettings();
+                setComponentButtons(settings.componentButtons);
+            } catch (error) {
+                console.error("Failed to fetch button settings:", error);
+            }
+        };
+        fetchSettings();
+
         Object.entries(initialValues).forEach(([id, fallback]) => {
             fetchContent(id, fallback);
         });
@@ -55,6 +66,16 @@ export default function Contact() {
         setWhatsappNumber(getStringValue('whatsappNumber', initialValues.whatsappNumber));
 
     }, [content]);
+
+    const getButtonLabel = (key: keyof SystemSettings['componentButtons']) => {
+        if (!componentButtons) return t('componentButtonWhatsappCommunityButton');
+        const lang = i18n.language as 'es' | 'en';
+        const label = componentButtons[key];
+        if (label && typeof label === 'object') {
+            return label[lang] || label.es;
+        }
+        return t('componentButtonWhatsappCommunityButton');
+    };
 
     const whatsappContactUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Hola, vengo de la página web y quisiera más información sobre El Arte de Sanar')}`;
 
@@ -119,7 +140,7 @@ export default function Contact() {
                             <Button asChild>
                                 <Link href={communityLink} target="_blank">
                                     <WhatsappIcon className="mr-2" />
-                                    {t('componentButtonWhatsappCommunityButton', 'Unirse a la Comunidad')}
+                                    {getButtonLabel('whatsappCommunityButton')}
                                 </Link>
                             </Button>
                         )}
