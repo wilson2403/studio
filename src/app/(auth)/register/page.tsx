@@ -92,7 +92,7 @@ export default function RegisterPage() {
         title: t('registerSuccessTitle'),
         description: t('registerSuccessDescription'),
       });
-      router.push(redirectUrl || `/artedesanar/${i18n.language}`);
+      router.push(redirectUrl || `/artedesanar`);
     } catch (error: any) {
       toast({
         title: t('registerErrorTitle'),
@@ -109,7 +109,7 @@ export default function RegisterPage() {
         title: t('googleSuccessTitle'),
         description: t('googleSuccessDescription'),
       });
-      router.push(redirectUrl || `/artedesanar/${i18n.language}`);
+      router.push(redirectUrl || `/artedesanar`);
     } catch (error: any) {
       toast({
         title: t('googleErrorTitle'),

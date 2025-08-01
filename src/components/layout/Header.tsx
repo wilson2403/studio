@@ -76,7 +76,7 @@ export default function Header() {
     { href: '/guides', labelKey: 'guides', sectionId: 'guides', requiresAuth: false },
     { href: '/testimonials', labelKey: 'testimonials', sectionId: 'testimonials', requiresAuth: false },
     { href: '/ceremonies', labelKey: 'ceremonies', sectionId: 'ceremonies', requiresAuth: true },
-    { href: `/artedesanar/${i18n.language}`, labelKey: 'journey', sectionId: 'journey', requiresAuth: true },
+    { href: `/artedesanar`, labelKey: 'journey', sectionId: 'journey', requiresAuth: true },
     { href: '/preparation', labelKey: 'preparation', sectionId: 'preparation', requiresAuth: true },
   ];
 
