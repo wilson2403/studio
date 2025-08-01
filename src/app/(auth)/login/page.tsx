@@ -46,7 +46,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect');
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
     resolver: zodResolver(formSchema(t)),
@@ -150,7 +150,7 @@ export default function LoginPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             {t('loginNoAccount')}{' '}
-            <Link href={redirectUrl ? `/register?redirect=${redirectUrl}` : '/register'} className="text-primary hover:underline">
+            <Link href={redirectUrl ? `/register?redirect=${redirectUrl}` : `/register?lang=${i18n.language}`} className="text-primary hover:underline">
               {t('loginSignUpHere')}
             </Link>
           </p>
@@ -159,5 +159,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    

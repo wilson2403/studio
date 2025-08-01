@@ -33,6 +33,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { countryCodes } from '@/lib/country-codes';
+import { useEffect } from 'react';
 
 const formSchema = (t: (key: string, options?: any) => string) => z
   .object({
@@ -63,7 +64,14 @@ export default function RegisterPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect');
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const langFromQuery = searchParams.get('lang');
+
+  useEffect(() => {
+    if (langFromQuery && i18n.language !== langFromQuery) {
+        i18n.changeLanguage(langFromQuery);
+    }
+  }, [langFromQuery, i18n]);
 
   const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
     resolver: zodResolver(formSchema(t)),
@@ -84,7 +92,7 @@ export default function RegisterPage() {
         title: t('registerSuccessTitle'),
         description: t('registerSuccessDescription'),
       });
-      router.push(redirectUrl || '/');
+      router.push(redirectUrl || `/artedesanar/${i18n.language}`);
     } catch (error: any) {
       toast({
         title: t('registerErrorTitle'),
@@ -101,7 +109,7 @@ export default function RegisterPage() {
         title: t('googleSuccessTitle'),
         description: t('googleSuccessDescription'),
       });
-      router.push(redirectUrl || '/');
+      router.push(redirectUrl || `/artedesanar/${i18n.language}`);
     } catch (error: any) {
       toast({
         title: t('googleErrorTitle'),
@@ -234,7 +242,7 @@ export default function RegisterPage() {
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             {t('registerHaveAccount')}{' '}
-            <Link href={redirectUrl ? `/login?redirect=${redirectUrl}` : '/login'} className="text-primary hover:underline">
+            <Link href={redirectUrl ? `/login?redirect=${redirectUrl}` : `/login?lang=${i18n.language}`} className="text-primary hover:underline">
               {t('registerLoginHere')}
             </Link>
           </p>
@@ -243,5 +251,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
-    
