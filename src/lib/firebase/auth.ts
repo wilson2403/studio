@@ -33,24 +33,14 @@ export const signInWithGoogle = async () => {
     const isUserAdminByEmail = user.email === ADMIN_EMAIL;
 
     if (!docSnap.exists()) {
-        // New user
-        await setDoc(userRef, {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            providerId: result.providerId,
-            role: isUserAdminByEmail ? 'admin' : 'user', // Set role on creation
-            questionnaireCompleted: false,
-            status: 'Interesado',
-        });
-        sessionStorage.setItem('tour_status', 'pending');
+        // New user - Flag for continuation page
+        sessionStorage.setItem('isNewGoogleUser', 'true');
     } else {
         // Returning user, ensure their admin status is correct.
         if (isUserAdminByEmail) {
             await setDoc(userRef, { role: 'admin' }, { merge: true });
         }
-        sessionStorage.removeItem('tour_status');
+        sessionStorage.removeItem('isNewGoogleUser');
     }
     
     return user;
@@ -94,7 +84,7 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     sessionStorage.setItem('tour_status', 'pending');
 
     return user;
-  } catch (error) {
+  } catch (error) => {
     console.error("Error signing up with email: ", error);
     await logError(error, { function: 'signUpWithEmail' });
     throw error;
@@ -166,7 +156,7 @@ export const updateUserPassword = async (currentPassword: string, newPassword: s
         await firebaseUpdatePassword(user, newPassword);
     } catch (error) {
         console.error("Error updating password:", error);
-        await logError(error, { function: 'updateUserPassword' });
+        logError(error, { function: 'updateUserPassword' });
         throw error;
     }
 };

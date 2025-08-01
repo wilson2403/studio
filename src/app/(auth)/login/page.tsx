@@ -30,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { signInWithGoogle, signInWithEmail } from '@/lib/firebase/auth';
 import { Separator } from '@/components/ui/separator';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
+import { useEffect } from 'react';
 
 const formSchema = (t: (key: string, options?: any) => string) => z.object({
   email: z.string().email({
@@ -56,6 +57,13 @@ export default function LoginPage() {
     },
   });
 
+  useEffect(() => {
+    const langFromQuery = searchParams.get('lang');
+    if (langFromQuery && i18n.language !== langFromQuery) {
+        i18n.changeLanguage(langFromQuery);
+    }
+  }, [searchParams, i18n]);
+
   async function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     try {
       await signInWithEmail(values.email, values.password);
@@ -76,11 +84,15 @@ export default function LoginPage() {
   async function handleGoogleSignIn() {
     try {
       await signInWithGoogle();
-      toast({
-        title: t('googleSuccessTitle'),
-        description: t('googleSuccessDescription'),
-      });
-      router.push(redirectUrl || '/');
+      if (sessionStorage.getItem('isNewGoogleUser')) {
+          router.push(`/continue-registration?redirect=${redirectUrl || '/'}`);
+      } else {
+          toast({
+              title: t('googleSuccessTitle'),
+              description: t('googleSuccessDescription'),
+          });
+          router.push(redirectUrl || '/');
+      }
     } catch (error: any) {
       toast({
         title: t('googleErrorTitle'),
