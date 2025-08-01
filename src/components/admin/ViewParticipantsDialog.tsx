@@ -10,6 +10,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
+import { EditableTitle } from '../home/EditableTitle';
 
 interface ViewParticipantsDialogProps {
   ceremony: Ceremony;
@@ -25,8 +26,22 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('participantsFor', { ceremonyTitle: ceremony.title })}</DialogTitle>
-          <DialogDescription>{t('participantCount', { count: participants.length })}</DialogDescription>
+          <DialogTitle>
+            <EditableTitle
+              tag="h2"
+              id="participantsForTitle"
+              initialValue={t('participantsFor', { ceremonyTitle: ceremony.title })}
+              className="text-xl font-semibold"
+            />
+          </DialogTitle>
+          <DialogDescription>
+            <EditableTitle
+              tag="p"
+              id="participantCountText"
+              initialValue={t('participantCount', { count: participants.length })}
+              className="text-sm text-muted-foreground"
+            />
+          </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] p-1 my-4">
           <div className="space-y-4 pr-4">
