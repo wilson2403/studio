@@ -6,20 +6,22 @@ import { getCeremonies, Ceremony, getUserProfile, incrementCeremonyReserveClick,
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Expand, Edit, ExternalLink, ArrowRight, PlusCircle, CheckCircle, Eye, MousePointerClick, Users, Share2, Download } from 'lucide-react';
+import { Edit, ExternalLink, PlusCircle, CheckCircle, Eye, MousePointerClick, Users, Share2, Download, Video } from 'lucide-react';
 import EditCeremonyDialog from '@/components/home/EditCeremonyDialog';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
-import VideoPopupDialog from '@/components/home/VideoPopupDialog';
 import CeremonyDetailsDialog from '@/components/home/CeremonyDetailsDialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
+import { SystemSettings } from '@/types';
+import { getSystemSettings } from '@/ai/flows/settings-flow';
+import ViewParticipantsDialog from '@/components/admin/ViewParticipantsDialog';
 
 export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
@@ -29,10 +31,11 @@ export default function AllCeremoniesPage() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
     const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
-    const [expandedVideo, setExpandedVideo] = useState<Ceremony | null>(null);
+    const [viewingParticipants, setViewingParticipants] = useState<Ceremony | null>(null);
     const [activeVideo, setActiveVideo] = useState<string | null>(null);
     const [isAdding, setIsAdding] = useState(false);
-    const { t } = useTranslation();
+    const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
+    const { t, i18n } = useTranslation();
     const router = useRouter();
     const { toast } = useToast();
 
@@ -50,6 +53,17 @@ export default function AllCeremoniesPage() {
                 fetchCeremonies(false);
             }
         });
+        
+        const fetchSettings = async () => {
+            try {
+                const settings = await getSystemSettings();
+                setComponentButtons(settings.componentButtons);
+            } catch (error) {
+                console.error("Failed to fetch button settings:", error);
+            }
+        };
+        fetchSettings();
+
         return () => unsubscribe();
     }, []);
 
@@ -82,8 +96,8 @@ export default function AllCeremoniesPage() {
 
     const sortCeremonies = (ceremoniesToSort: Ceremony[], profile: UserProfile | null): Ceremony[] => {
         return [...ceremoniesToSort].sort((a, b) => {
-            const aIsAssigned = profile?.assignedCeremonies?.some(c => c === a.id) || false;
-            const bIsAssigned = profile?.assignedCeremonies?.some(c => c === b.id) || false;
+            const aIsAssigned = profile?.assignedCeremonies?.some(c => (typeof c === 'string' ? c : c.ceremonyId) === a.id) || false;
+            const bIsAssigned = profile?.assignedCeremonies?.some(c => (typeof c === 'string' ? c : c.ceremonyId) === b.id) || false;
 
             if (aIsAssigned && !bIsAssigned) return -1;
             if (!aIsAssigned && bIsAssigned) return 1;
@@ -146,13 +160,34 @@ export default function AllCeremoniesPage() {
             router.push(`/ceremonias/${ceremony.id}`);
         }
     };
-
-    const handleExpandVideo = (e: React.MouseEvent, ceremony: Ceremony) => {
-        e.stopPropagation();
-        setActiveVideo(null); // Stop the background video
-        setExpandedVideo(ceremony);
-    };
     
+    const handleShare = async (ceremony: Ceremony) => {
+        const shareUrl = `${window.location.origin}/ceremonias/${ceremony.slug || ceremony.id}`;
+        const shareText = t('shareCeremonyText', { title: ceremony.title });
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: ceremony.title,
+                    text: shareText,
+                    url: shareUrl,
+                });
+            } catch (error) {
+                window.open(whatsappUrl, '_blank');
+            }
+        } else {
+            window.open(whatsappUrl, '_blank');
+        }
+    };
+
+    const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
+        const lang = i18n.language as 'es' | 'en';
+        if (!componentButtons) return t(fallback);
+        return componentButtons[key]?.[lang] || componentButtons[key]?.es || t(fallback);
+    };
+
+
     if (pageLoading) {
         return (
             <div className="container py-12 md:py-16 space-y-8">
@@ -216,7 +251,7 @@ export default function AllCeremoniesPage() {
                     {isAuthorized && (
                     <Button onClick={() => setIsAdding(true)} className="mt-4">
                         <PlusCircle className="mr-2" />
-                        {t('addCeremony')}
+                        {getButtonText('addCeremony', 'addCeremony')}
                     </Button>
                     )}
                 </div>
@@ -226,7 +261,15 @@ export default function AllCeremoniesPage() {
                         const registeredCount = ceremony.assignedUsers?.length || 0;
                         const statusVariant = ceremony.status === 'active' ? 'success' : ceremony.status === 'inactive' ? 'warning' : 'secondary';
                         const statusText = t(`status${ceremony.status.charAt(0).toUpperCase() + ceremony.status.slice(1)}`);
-                        const isAssigned = userProfile?.assignedCeremonies?.some(c => c === ceremony.id);
+                        const isAssigned = userProfile?.assignedCeremonies?.some(c => (typeof c === 'string' ? c : c.ceremonyId) === ceremony.id);
+                        const isDirectVideoUrl = (url: string | undefined): boolean => {
+                            if (!url) return false;
+                            return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
+                        };
+                        
+                        const isFinishedMemory = ceremony.status === 'finished' && isAssigned;
+                        const videoUrlToShow = ceremony.mediaUrl;
+                        const showExternalLink = videoUrlToShow && !isDirectVideoUrl(videoUrlToShow);
 
                         return (
                             <div key={ceremony.id} className="px-5">
@@ -240,8 +283,8 @@ export default function AllCeremoniesPage() {
                                             <Edit className="h-4 w-4" />
                                         </Button>}
                                         {ceremony.status === 'active' && 
-                                            <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                                <Link href={`/ceremonias/${ceremony.id}`}><Share2 className="h-4 w-4" /></Link>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => { e.stopPropagation(); handleShare(ceremony); }}>
+                                                <Share2 className="h-4 w-4" />
                                             </Button>
                                         }
                                     </div>
@@ -249,29 +292,26 @@ export default function AllCeremoniesPage() {
                                         {isAuthorized && <Badge variant={statusVariant} className="capitalize">{statusText}</Badge>}
                                         {isAssigned && <Badge variant="success"><CheckCircle className="mr-2 h-4 w-4"/>{t('enrolled')}</Badge>}
                                         <div className='flex gap-2'>
-                                            {ceremony.mediaUrl && (
-                                                <a href={ceremony.mediaUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                            {showExternalLink && (
+                                                <a href={videoUrlToShow} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
                                                     <ExternalLink className="h-4 w-4" />
                                                 </Button>
                                                 </a>
                                             )}
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white" onClick={(e) => handleExpandVideo(e, ceremony)}>
-                                                <Expand className="h-4 w-4" />
-                                            </Button>
-                                             {ceremony.status !== 'active' && ceremony.downloadUrl && isAssigned && (
-                                                <a href={ceremony.downloadUrl} target="_blank" rel="noopener noreferrer" download onClick={(e) => e.stopPropagation()}>
+                                             {ceremony.status !== 'active' && isAssigned && !isAuthorized && (
+                                                 <Link href={`/artesanar/${ceremony.slug || ceremony.id}`} onClick={(e) => e.stopPropagation()}>
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-white">
-                                                        <Download className="h-4 w-4" />
+                                                        <Video className="h-4 w-4" />
                                                     </Button>
-                                                </a>
+                                                </Link>
                                             )}
                                         </div>
                                     </div>
                                     <div className="aspect-[4/5] overflow-hidden rounded-t-2xl relative group/video">
                                         <VideoPlayer 
                                             ceremonyId={ceremony.id}
-                                            videoUrl={ceremony.mediaUrl} 
+                                            videoUrl={videoUrlToShow} 
                                             mediaType={ceremony.mediaType}
                                             videoFit={ceremony.videoFit}
                                             title={ceremony.title}
@@ -283,15 +323,23 @@ export default function AllCeremoniesPage() {
                                         <p className="font-mono text-xl font-bold text-white mb-2">
                                             {ceremony.title}
                                         </p>
-                                        {isAuthorized && ceremony.showParticipantCount && (
-                                            <div className="flex items-center justify-center gap-2 text-white/80 mb-4 text-sm">
-                                                <Users className="h-4 w-4" />
-                                                <span>{t('registeredCount', { count: registeredCount })}</span>
-                                            </div>
-                                        )}
+                                        <div className="flex justify-center gap-4 text-xs text-white/70 mb-4">
+                                            {isAuthorized && ceremony.showParticipantCount && (
+                                                <div className="flex items-center gap-1.5 cursor-pointer hover:underline" onClick={() => registeredCount > 0 && setViewingParticipants(ceremony)}>
+                                                    <Users className="h-4 w-4" />
+                                                    <span>{t('registeredCount', { count: registeredCount })}</span>
+                                                </div>
+                                            )}
+                                            {ceremony.showAnalytics && (
+                                                <div className='flex items-center gap-1.5'>
+                                                    <Eye className="h-4 w-4" />
+                                                    <span>{ceremony.viewCount || 0} {t('views')}</span>
+                                                </div>
+                                            )}
+                                        </div>
                                         {ceremony.status === 'active' ? (
                                              <Button variant="default" className='w-full' onClick={() => handleViewPlans(ceremony)}>
-                                                {isAssigned ? t('buttonViewDetails') : t('reserveNow')}
+                                                {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
                                             </Button>
                                         ) : (
                                             ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
@@ -299,12 +347,12 @@ export default function AllCeremoniesPage() {
                                         {isAuthorized && (
                                             <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                                 <div className='flex items-center gap-1.5'>
-                                                    <Eye className="h-4 w-4" />
-                                                    <span>{ceremony.viewCount || 0}</span>
-                                                </div>
-                                                <div className='flex items-center gap-1.5'>
                                                     <MousePointerClick className="h-4 w-4" />
                                                     <span>{ceremony.reserveClickCount || 0}</span>
+                                                </div>
+                                                <div className='flex items-center gap-1.5'>
+                                                    <Download className="h-4 w-4" />
+                                                    <span>{ceremony.downloadCount || 0}</span>
                                                 </div>
                                             </div>
                                         )}
@@ -338,23 +386,15 @@ export default function AllCeremoniesPage() {
                     onClose={() => setViewingCeremony(null)}
                     />
                 )}
-
-                {expandedVideo && (
-                    <VideoPopupDialog
-                        ceremonyId={expandedVideo.id}
-                        isOpen={!!expandedVideo}
-                        onClose={() => setExpandedVideo(null)}
-                        videoUrl={expandedVideo.mediaUrl}
-                        mediaType={expandedVideo.mediaType}
-                        title={expandedVideo.title}
+                
+                {viewingParticipants && (
+                    <ViewParticipantsDialog
+                        isOpen={!!viewingParticipants}
+                        onClose={() => setViewingParticipants(null)}
+                        ceremony={viewingParticipants}
                     />
                 )}
             </div>
         </EditableProvider>
     );
 }
-
-
-
-
-  

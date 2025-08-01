@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
+import ViewParticipantsDialog from '../admin/ViewParticipantsDialog';
 
 export default function Ceremonies({ 
   status, 
@@ -40,6 +41,7 @@ export default function Ceremonies({
   const [loading, setLoading] = useState(true);
   const [editingCeremony, setEditingCeremony] = useState<Ceremony | null>(null);
   const [viewingCeremony, setViewingCeremony] = useState<Ceremony | null>(null);
+  const [viewingParticipants, setViewingParticipants] = useState<Ceremony | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { t, i18n } = useTranslation();
   const router = useRouter();
@@ -106,7 +108,7 @@ export default function Ceremonies({
             }
         }
         
-        if (status === 'active') {
+        if (isAuthorized) {
           const decoratedCeremonies = await Promise.all(
             ceremoniesData.map(async (ceremony) => {
               const users = await getUsersForCeremony(ceremony.id);
@@ -125,7 +127,7 @@ export default function Ceremonies({
       }
     };
     fetchAndDecorateCeremonies();
-  }, [status]);
+  }, [status, isAuthorized]);
 
   const handleCeremonyUpdate = (updatedCeremony: Ceremony) => {
     if (updatedCeremony.status !== status && status !== 'finished') {
@@ -261,7 +263,7 @@ export default function Ceremonies({
                               </p>
                               <div className="flex justify-center gap-4 text-xs text-white/70 mb-4">
                                 {(isAuthorized && ceremony.showParticipantCount) && (
-                                    <div className="flex items-center gap-1.5">
+                                    <div className="flex items-center gap-1.5 cursor-pointer hover:underline" onClick={() => registeredCount > 0 && setViewingParticipants(ceremony)}>
                                         <Users className="h-4 w-4" />
                                         <span>{t('registeredCount', { count: registeredCount })}</span>
                                     </div>
@@ -505,6 +507,13 @@ export default function Ceremonies({
           isOpen={!!viewingCeremony}
           onClose={() => setViewingCeremony(null)}
         />
+      )}
+      {viewingParticipants && (
+          <ViewParticipantsDialog
+            isOpen={!!viewingParticipants}
+            onClose={() => setViewingParticipants(null)}
+            ceremony={viewingParticipants}
+          />
       )}
     </section>
     </>
