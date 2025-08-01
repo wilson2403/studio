@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEditable } from './EditableProvider';
@@ -135,8 +134,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
     );
   }
   
-  const RenderTag = Tag === 'p' ? 'span' : Tag;
-  const WrapperTag = Tag === 'p' ? 'span' : 'div';
+  const RenderTag = Tag === 'p' ? 'div' : Tag;
+  const WrapperTag = 'div';
 
   const EditTrigger = ({ children }: { children: React.ReactNode }) => {
       if (isInsideButton) {
@@ -161,7 +160,11 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
       Tag !== 'p' && Tag !== 'span' && "w-full",
       (Tag === 'p' || Tag === 'span') && 'inline-block'
     )}>
-      <RenderTag className={className}>{displayValue}</RenderTag>
+      <RenderTag className={className}>
+        {displayValue.split('\n').map((line, index) => (
+          <span key={index} className="block">{line}</span>
+        ))}
+      </RenderTag>
       {isAdmin && (
         <EditTrigger>
             <span
