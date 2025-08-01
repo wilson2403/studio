@@ -152,7 +152,7 @@ export default function PreparationPage() {
                      <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
                         <div>
                             <EditableTitle tag="h3" id="comfortItemsTitle" initialValue={t('comfortItemsTitle')} className="font-bold text-xl mb-4 text-center" />
-                            <EditableTitle tag="p" id="comfortItemsList" initialValue={t('comfortItemsList')} className="space-y-2" />
+                            <EditableTitle tag="p" id="comfortItemsList" initialValue={t('comfortItemsList')} className="space-y-2 text-left" />
                         </div>
                         <div>
                             <EditableTitle tag="h3" id="essentialsTitle" initialValue={t('essentialsTitle')} className="font-bold text-xl mb-4 text-center" />
