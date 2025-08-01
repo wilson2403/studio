@@ -291,9 +291,8 @@ export default function AdminUsersPage() {
     }
 
 
-    const handleSendInvite = (template: InvitationMessage) => {
+    const handleSendInvite = (template: InvitationMessage, lang: 'es' | 'en') => {
         if (!invitingUser || !invitingUser.phone) return;
-        const lang = i18n.language as 'es' | 'en';
         const message = template?.[lang] || template?.es;
         const encodedMessage = encodeURIComponent(message);
         
@@ -1138,12 +1137,19 @@ export default function AdminUsersPage() {
                             <DialogDescription>{t('selectInvitationTemplateDescription', { name: invitingUser.displayName || invitingUser.email })}</DialogDescription>
                         </DialogHeader>
                         <ScrollArea className="max-h-80 my-4">
-                            <div className="space-y-2 pr-6">
+                            <div className="space-y-4 pr-6">
                                 {invitationTemplates.map(template => (
-                                    <button key={template.id} onClick={() => handleSendInvite(template)} className="w-full text-left p-3 rounded-md border hover:bg-muted">
-                                        <p className="font-semibold">{template.name}</p>
-                                        <p className="text-sm text-muted-foreground truncate">{template[i18n.language as 'es' | 'en'] || template.es}</p>
-                                    </button>
+                                    <div key={template.id} className="p-3 rounded-md border">
+                                        <p className="font-semibold mb-2">{template.name}</p>
+                                        <div className='flex flex-col sm:flex-row gap-2'>
+                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template, 'es')}>
+                                                {t('sendInSpanish')}
+                                            </Button>
+                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template, 'en')}>
+                                                {t('sendInEnglish')}
+                                            </Button>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         </ScrollArea>
