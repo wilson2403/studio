@@ -42,7 +42,6 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
               tag="span"
               id="participantCountText"
               initialValue={t('participantCount', { count: participants.length })}
-              className="text-sm text-muted-foreground"
             />
           </DialogDescription>
         </DialogHeader>
