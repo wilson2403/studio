@@ -130,10 +130,32 @@ export default function CoursesPage() {
                 <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
                     {list.map(course => {
                         const isCompleted = userProfile?.completedCourses?.includes(course.id) || false;
+                        const isYoutubeVideo = course.videoUrl?.includes('youtube.com') || course.videoUrl?.includes('youtu.be');
+
                         return (
                             <Card key={course.id} className="overflow-hidden">
                                 <div className="aspect-video relative">
-                                    <VideoPlayer ceremonyId={course.id} videoUrl={course.videoUrl} mediaType="video" title={course.title} defaultMuted={false} trackProgress={true} userId={user?.uid}/>
+                                    {isYoutubeVideo ? (
+                                        <iframe
+                                            src={`https://www.youtube.com/embed/${new URL(course.videoUrl).searchParams.get('v')}?enablejsapi=1&autoplay=0&controls=1`}
+                                            title={course.title}
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                            allowFullScreen
+                                            className="w-full h-full"
+                                        ></iframe>
+                                    ) : (
+                                        <VideoPlayer
+                                            ceremonyId={course.id}
+                                            videoUrl={course.videoUrl}
+                                            mediaType="video"
+                                            title={course.title}
+                                            defaultMuted={false}
+                                            trackProgress={true}
+                                            userId={user?.uid}
+                                            onPlay={() => handleCourseCompletionToggle(course.id, true)}
+                                        />
+                                    )}
                                 </div>
                                 <CardContent className="p-4 space-y-3">
                                     <div className='flex justify-between items-start'>

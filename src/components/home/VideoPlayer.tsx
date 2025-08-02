@@ -21,7 +21,6 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolea
   const params = new URLSearchParams({
     autoplay: autoplay ? '1' : '0', 
     loop: '1',
-    controls: '1', // Ensure controls are enabled to show Chromecast
     playlist: videoId,
     mute: defaultMuted ? '1' : '0',
     vq: 'hd2160',
@@ -84,20 +83,8 @@ const isDirectVideoUrl = (url: string): boolean => {
 const IframePlayer = ({ src, title, className, onPlay, children }: { src: string, title: string, className?: string, onPlay: () => void, children?: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
     const hasPlayed = useRef(false);
-    const isAdmin = useRef(false);
     const iframeRef = useRef<HTMLIFrameElement>(null);
     
-    useEffect(() => {
-        const checkAdmin = async () => {
-            const user = auth.currentUser;
-            if (user) {
-                const profile = await getUserProfile(user.uid);
-                isAdmin.current = !!profile?.isAdmin;
-            }
-        };
-        checkAdmin();
-    }, []);
-
     const handleLoad = () => {
         setIsLoading(false);
     }
@@ -108,37 +95,44 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
 
       const handlePlayerStateChange = (event: any) => {
         // -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
-        if (event.data === 1 && !hasPlayed.current && !isAdmin.current) {
+        if (event.data === 1 && !hasPlayed.current) {
           onPlay();
           hasPlayed.current = true;
         }
       }
+      
+      const initializePlayer = () => {
+        // @ts-ignore
+        if (window.YT && window.YT.Player) {
+            // @ts-ignore
+            new YT.Player(iframe, {
+                events: {
+                    'onStateChange': handlePlayerStateChange
+                }
+            });
+        }
+      }
 
       // @ts-ignore
-      window.onYouTubeIframeAPIReady = () => {
-        // @ts-ignore
-        new YT.Player(iframe, {
-          events: {
-            'onStateChange': handlePlayerStateChange
-          }
-        });
-      };
-      
-      const tag = document.createElement('script');
-      if (!window.YT) { // Load script only if it's not there
+      if (!window.YT) {
+        const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-      } else {
         // @ts-ignore
-        window.onYouTubeIframeAPIReady();
+        window.onYouTubeIframeAPIReady = initializePlayer;
+      } else {
+        initializePlayer();
       }
 
       return () => {
         // @ts-ignore
-        delete window.onYouTubeIframeAPIReady;
+        if (window.onYouTubeIframeAPIReady) {
+            // @ts-ignore
+            window.onYouTubeIframeAPIReady = null;
+        }
       };
-    }, [src, onPlay, isAdmin]);
+    }, [src, onPlay]);
 
     
     return (
@@ -156,7 +150,7 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
                   title={title}
                   frameBorder="0"
                   scrolling="no"
-                  allow="autoplay; encrypted-media; picture-in-picture; fullscreen; web-share"
+                  allow="autoplay; encrypted-media; picture-in-picture; web-share"
                   allowFullScreen
                   className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
                   onLoad={handleLoad}
@@ -360,7 +354,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
     );
 };
 
-export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, defaultMuted, trackProgress = false, children }: VideoPlayerProps) => {
+export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autoplay, title, className, defaultMuted, trackProgress = false, onPlay, children }: VideoPlayerProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
@@ -378,6 +372,10 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
   }, []);
 
   const handlePlay = useCallback(() => {
+    if (onPlay) {
+        onPlay();
+        return;
+    }
     if (isAdmin) {
         return;
     }
@@ -387,7 +385,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     } else {
         logUserAction('play_video', { targetId: ceremonyId, targetType: 'course_video' });
     }
-  }, [isAdmin, trackProgress, ceremonyId]);
+  }, [isAdmin, trackProgress, ceremonyId, onPlay]);
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -464,5 +462,6 @@ interface VideoPlayerProps {
   defaultMuted?: boolean;
   trackProgress?: boolean;
   userId?: string | null;
+  onPlay?: () => void;
   children?: React.ReactNode;
 }
