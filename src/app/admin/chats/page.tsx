@@ -51,21 +51,23 @@ export default function AdminChatHistoryPage() {
     }, [router]);
     
     useEffect(() => {
-        if (isAuthorized) {
-            const fetchChats = async () => {
-                setLoading(true);
-                try {
-                    const allChats = await getAllChats();
-                    setChats(allChats);
-                } catch (error) {
-                    console.error("Failed to fetch chats:", error);
-                    toast({ title: t('errorFetchChats'), variant: 'destructive' });
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchChats();
-        }
+        if (!isAuthorized) return;
+
+        const fetchChats = async () => {
+            setLoading(true);
+            try {
+                const allChats = await getAllChats();
+                setChats(allChats);
+            } catch (error) {
+                console.error("Failed to fetch chats:", error);
+                toast({ title: t('errorFetchChats'), variant: 'destructive' });
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchChats();
+        
     }, [isAuthorized, toast, t]);
 
 
