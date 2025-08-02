@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -95,10 +94,6 @@ export default function Chatbot() {
         }
     };
 
-    if (userProfile?.role !== 'admin') {
-        return null;
-    }
-
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
@@ -178,7 +173,3 @@ export default function Chatbot() {
         </Popover>
     );
 }
-
-// Add this to your dependencies if not present:
-// npm install uuid @types/uuid
-// yarn add uuid @types/uuid
