@@ -95,7 +95,7 @@ export default function ContinueRegistrationPage() {
             questionnaireCompleted: false,
             status: 'Interesado',
             phone: fullPhoneNumber,
-        });
+        }, { merge: true });
 
         toast({
             title: t('googleSuccessTitle'),
@@ -127,7 +127,7 @@ export default function ContinueRegistrationPage() {
             role: user.email === ADMIN_EMAIL ? 'admin' : 'user',
             questionnaireCompleted: false,
             status: 'Interesado',
-        });
+        }, { merge: true });
         sessionStorage.removeItem('isNewGoogleUser');
         router.push(redirectUrl || '/');
      } catch (error: any) {
