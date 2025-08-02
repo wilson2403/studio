@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEditable } from './EditableProvider';
@@ -140,7 +139,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
   }
   
   const RenderTag = Tag;
-  const WrapperTag = isInsideButton ? 'span' : 'div';
+  const WrapperTag = isInsideButton || Tag === 'span' ? 'span' : 'div';
 
   const EditTrigger = ({ children }: { children: React.ReactNode }) => {
       if (isInsideButton) {
