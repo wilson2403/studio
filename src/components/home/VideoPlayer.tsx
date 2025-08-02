@@ -21,7 +21,7 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolea
   const params = new URLSearchParams({
     autoplay: autoplay ? '1' : '0', 
     loop: '1',
-    controls: '1',
+    controls: '1', // Ensure controls are enabled to show Chromecast
     playlist: videoId,
     mute: defaultMuted ? '1' : '0',
     vq: 'hd2160',
@@ -85,6 +85,7 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
     const [isLoading, setIsLoading] = useState(true);
     const hasPlayed = useRef(false);
     const isAdmin = useRef(false);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
     
     useEffect(() => {
         const checkAdmin = async () => {
@@ -99,11 +100,46 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
 
     const handleLoad = () => {
         setIsLoading(false);
-        if (!hasPlayed.current && !isAdmin.current) {
-            onPlay();
-            hasPlayed.current = true;
-        }
     }
+    
+    useEffect(() => {
+      const iframe = iframeRef.current;
+      if (!iframe || !src.includes('youtube.com') || !src.includes('enablejsapi=1')) return;
+
+      const handlePlayerStateChange = (event: any) => {
+        // -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
+        if (event.data === 1 && !hasPlayed.current && !isAdmin.current) {
+          onPlay();
+          hasPlayed.current = true;
+        }
+      }
+
+      // @ts-ignore
+      window.onYouTubeIframeAPIReady = () => {
+        // @ts-ignore
+        new YT.Player(iframe, {
+          events: {
+            'onStateChange': handlePlayerStateChange
+          }
+        });
+      };
+      
+      const tag = document.createElement('script');
+      if (!window.YT) { // Load script only if it's not there
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      } else {
+        // @ts-ignore
+        window.onYouTubeIframeAPIReady();
+      }
+
+      return () => {
+        // @ts-ignore
+        delete window.onYouTubeIframeAPIReady;
+      };
+    }, [src, onPlay, isAdmin]);
+
     
     return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
@@ -114,6 +150,7 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
             )}
             <div className='w-full h-full'>
               <iframe
+                  ref={iframeRef}
                   key={src}
                   src={src}
                   title={title}
