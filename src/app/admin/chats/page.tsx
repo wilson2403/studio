@@ -25,16 +25,6 @@ export default function AdminChatHistoryPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        const fetchChats = async () => {
-            try {
-                const allChats = await getAllChats();
-                setChats(allChats);
-            } catch (error) {
-                console.error("Failed to fetch chats:", error);
-                toast({ title: t('errorFetchChats'), variant: 'destructive' });
-            }
-        };
-
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (!currentUser) {
                 router.push('/');
@@ -49,8 +39,15 @@ export default function AdminChatHistoryPage() {
                 return;
             }
             
-            await fetchChats();
-            setLoading(false);
+            try {
+                const allChats = await getAllChats();
+                setChats(allChats);
+            } catch (error) {
+                console.error("Failed to fetch chats:", error);
+                toast({ title: t('errorFetchChats'), variant: 'destructive' });
+            } finally {
+                setLoading(false);
+            }
         });
 
         return () => unsubscribe();
