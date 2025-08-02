@@ -1,5 +1,4 @@
 
-
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage } from '@/types';
@@ -26,10 +25,14 @@ const testimonialsCollection = collection(db, 'testimonials');
 
 export const logError = (error: any, context?: Record<string, any>) => {
     try {
+        const cleanContext = context ? JSON.parse(JSON.stringify(context, (key, value) => 
+            value === undefined ? null : value
+        )) : {};
+        
         addDoc(errorLogsCollection, {
             message: error.message,
             stack: error.stack,
-            context: context || {},
+            context: cleanContext || {},
             timestamp: serverTimestamp(),
             status: 'new'
         });
@@ -1153,6 +1156,7 @@ export const logSectionClick = async (sectionId: string, userId?: string): Promi
   } catch (error) {
     console.error(`Error logging click for section ${sectionId}:`, error);
     // Don't throw, as this is a background task
+    logError(error, { function: 'logSectionClick', sectionId, userId });
   }
 };
 
@@ -1433,3 +1437,5 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
 
 export type { Chat };
 export type { UserProfile };
+
+    
