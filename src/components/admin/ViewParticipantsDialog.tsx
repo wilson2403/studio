@@ -38,11 +38,7 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
             />
           </DialogTitle>
           <DialogDescription>
-            <span
-              id="participantCountText"
-            >
-              {t('participantCount', { count: participants.length })}
-            </span>
+            {t('participantCount', { count: participants.length })}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] p-1 my-4">
