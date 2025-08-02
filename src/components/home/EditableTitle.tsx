@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEditable } from './EditableProvider';
@@ -23,14 +24,14 @@ interface EditableTitleProps {
 }
 
 export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideButton = false }: EditableTitleProps) => {
-  const { content, updateContent, fetchContent } = useEditable();
+  const { content, updateContent, fetchContent, isAdmin } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({ es: '', en: '' });
   const [displayValue, setDisplayValue] = useState(initialValue);
   const { toast } = useToast();
   const { i18n } = useTranslation();
   const lang = i18n.language as 'es' | 'en';
-  const t = (key: string) => i18n.t(key) || key;
+  const t = (key: string, options?: any) => i18n.t(key, options) || key;
 
   useEffect(() => {
     if (id) {
@@ -50,7 +51,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
         newDisplayValue = initialValue;
     }
     
-    setDisplayValue(t(newDisplayValue));
+    setDisplayValue(t(newDisplayValue, { name: 'User' }));
 
   }, [content, id, lang, initialValue, t]);
 
@@ -169,17 +170,19 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
           <span key={index} className="block">{line}</span>
         ))}
       </RenderTag>
-      <EditTrigger>
-        <span
-            className={cn(
-                'h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer',
-                isInsideButton ? 'group-hover:bg-transparent' : 'absolute -right-10 top-1/2 -translate-y-1/2 group-hover:bg-accent'
-            )}
-            onClick={handleEditClick}
-        >
-            <Edit className={cn("h-4 w-4", isInsideButton ? 'text-inherit' : 'text-accent-foreground')} />
-        </span>
-      </EditTrigger>
+      {isAdmin && (
+        <EditTrigger>
+            <span
+                className={cn(
+                    'h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer',
+                    isInsideButton ? 'group-hover:bg-transparent' : 'absolute -right-10 top-1/2 -translate-y-1/2 group-hover:bg-accent'
+                )}
+                onClick={handleEditClick}
+            >
+                <Edit className={cn("h-4 w-4", isInsideButton ? 'text-inherit' : 'text-accent-foreground')} />
+            </span>
+        </EditTrigger>
+      )}
     </WrapperTag>
   );
 };

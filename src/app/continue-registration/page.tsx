@@ -215,6 +215,7 @@ export default function ContinueRegistrationPage() {
                         tag="span"
                         id="skipForNow"
                         initialValue={t('skipForNow')}
+                        isInsideButton
                     />
                 </Button>
             </CardFooter>
