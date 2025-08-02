@@ -23,8 +23,6 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
   const { userProfile } = useAuth();
   const participants = ceremony.assignedUsers || [];
   
-  const isUserAdmin = userProfile?.role === 'admin' || userProfile?.role === 'organizer';
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -38,7 +36,7 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
             />
           </DialogTitle>
           <DialogDescription>
-            {t('participantCount', { count: participants.length })}
+            {participants.length} {t('participants', { count: participants.length })}
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] p-1 my-4">
