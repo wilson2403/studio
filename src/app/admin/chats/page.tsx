@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 export default function AdminChatHistoryPage() {
     const [loading, setLoading] = useState(true);
     const [chats, setChats] = useState<Chat[]>([]);
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
@@ -32,26 +33,34 @@ export default function AdminChatHistoryPage() {
             }
             
             const profile = await getUserProfile(currentUser.uid);
-            const isAuthorized = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canViewChatHistory);
+            const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canViewChatHistory);
 
-            if (!isAuthorized) {
+            if (!hasPermission) {
                 router.push('/');
-                return;
-            }
-            
-            try {
-                const allChats = await getAllChats();
-                setChats(allChats);
-            } catch (error) {
-                console.error("Failed to fetch chats:", error);
-                toast({ title: t('errorFetchChats'), variant: 'destructive' });
-            } finally {
-                setLoading(false);
+            } else {
+                setIsAuthorized(true);
             }
         });
 
         return () => unsubscribe();
-    }, [router, toast, t]);
+    }, [router]);
+    
+    useEffect(() => {
+        if (isAuthorized) {
+            const fetchChats = async () => {
+                try {
+                    const allChats = await getAllChats();
+                    setChats(allChats);
+                } catch (error) {
+                    console.error("Failed to fetch chats:", error);
+                    toast({ title: t('errorFetchChats'), variant: 'destructive' });
+                } finally {
+                    setLoading(false);
+                }
+            };
+            fetchChats();
+        }
+    }, [isAuthorized, toast, t]);
 
 
     if (loading) {
