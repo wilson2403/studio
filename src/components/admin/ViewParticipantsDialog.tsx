@@ -38,11 +38,11 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
             />
           </DialogTitle>
           <DialogDescription>
-            <EditableTitle
-              tag="span"
+            <span
               id="participantCountText"
-              initialValue={t('participantCount', { count: participants.length })}
-            />
+            >
+              {t('participantCount', { count: participants.length })}
+            </span>
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[60vh] p-1 my-4">
@@ -56,21 +56,6 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
                         </Avatar>
                         <div className="flex-1">
                             <p className="font-semibold">{user.displayName || 'Anonymous'}</p>
-                            
-                            {isUserAdmin ? (
-                              <>
-                                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                    <Mail className="h-3 w-3" />
-                                    {user.email}
-                                </p>
-                                {user.phone && (
-                                    <Link href={`https://wa.me/${user.phone.replace(/\D/g, '')}`} target='_blank' className="text-xs text-muted-foreground flex items-center gap-1.5 hover:underline">
-                                        <Phone className="h-3 w-3" />
-                                        {user.phone}
-                                    </Link>
-                                )}
-                              </>
-                            ) : null}
                         </div>
                     </div>
                 ))
