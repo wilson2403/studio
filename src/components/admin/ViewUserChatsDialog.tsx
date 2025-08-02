@@ -27,6 +27,7 @@ export default function ViewUserChatsDialog({ user, isOpen, onClose }: ViewUserC
 
   useEffect(() => {
     async function fetchUserChats() {
+      // Only fetch if the dialog is open and we have a valid user with a UID
       if (isOpen && user?.uid) {
         setLoading(true);
         try {
