@@ -151,7 +151,7 @@ export default function ContinueRegistrationPage() {
                 <CardTitle className="font-headline text-3xl">
                     <EditableTitle
                         tag="h2"
-                        id="welcomeUserTitle"
+                        id="welcomeUser"
                         initialValue={t('welcomeUser', { name: user.displayName || 'User' })}
                     />
                 </CardTitle>
@@ -213,7 +213,7 @@ export default function ContinueRegistrationPage() {
                 <Button variant="link" onClick={handleSkip}>
                      <EditableTitle
                         tag="span"
-                        id="skipForNowButton"
+                        id="skipForNow"
                         initialValue={t('skipForNow')}
                     />
                 </Button>

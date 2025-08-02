@@ -23,7 +23,7 @@ interface EditableTitleProps {
 }
 
 export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideButton = false }: EditableTitleProps) => {
-  const { isAdmin, content, updateContent, fetchContent } = useEditable();
+  const { content, updateContent, fetchContent } = useEditable();
   const [isEditing, setIsEditing] = useState(false);
   const [editValues, setEditValues] = useState({ es: '', en: '' });
   const [displayValue, setDisplayValue] = useState(initialValue);
@@ -136,7 +136,7 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
   }
   
   const RenderTag = Tag;
-  const WrapperTag = isInsideButton || Tag === 'span' ? 'span' : 'div';
+  const WrapperTag = isInsideButton ? 'span' : 'div';
 
   const EditTrigger = ({ children }: { children: React.ReactNode }) => {
       if (isInsideButton) {
@@ -166,19 +166,17 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
           <span key={index} className="block">{line}</span>
         ))}
       </RenderTag>
-      {isAdmin && (
-        <EditTrigger>
-            <span
-                className={cn(
-                    'h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer',
-                    isInsideButton ? 'group-hover:bg-transparent' : 'absolute -right-10 top-1/2 -translate-y-1/2 group-hover:bg-accent'
-                )}
-                onClick={handleEditClick}
-            >
-                <Edit className={cn("h-4 w-4", isInsideButton ? 'text-inherit' : 'text-accent-foreground')} />
-            </span>
-        </EditTrigger>
-      )}
+      <EditTrigger>
+        <span
+            className={cn(
+                'h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer',
+                isInsideButton ? 'group-hover:bg-transparent' : 'absolute -right-10 top-1/2 -translate-y-1/2 group-hover:bg-accent'
+            )}
+            onClick={handleEditClick}
+        >
+            <Edit className={cn("h-4 w-4", isInsideButton ? 'text-inherit' : 'text-accent-foreground')} />
+        </span>
+      </EditTrigger>
     </WrapperTag>
   );
 };
