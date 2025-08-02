@@ -85,14 +85,17 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
     let enValue = '';
 
     if (typeof currentContent === 'object' && currentContent !== null) {
-        esValue = (currentContent as any).es || '';
-        enValue = (currentContent as any).en || '';
+        esValue = (currentContent as any).es || t(initialValue);
+        enValue = (currentContent as any).en || t(initialValue);
     } else if (typeof currentContent === 'string') {
         esValue = currentContent;
         enValue = currentContent;
+    } else {
+        esValue = t(initialValue);
+        enValue = t(initialValue);
     }
     
-    setEditValues({ es: esValue || t(initialValue), en: enValue || t(initialValue) });
+    setEditValues({ es: esValue, en: enValue });
     setIsEditing(true);
   }
 
