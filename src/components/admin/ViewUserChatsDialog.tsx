@@ -27,11 +27,16 @@ export default function ViewUserChatsDialog({ user, isOpen, onClose }: ViewUserC
 
   useEffect(() => {
     async function fetchUserChats() {
-      if (isOpen && user?.uid) { // Ensure user and user.uid are available
+      if (isOpen && user?.uid) {
         setLoading(true);
-        const userChats = await getChatsByUserId(user.uid);
-        setChats(userChats);
-        setLoading(false);
+        try {
+            const userChats = await getChatsByUserId(user.uid);
+            setChats(userChats);
+        } catch (error) {
+            console.error(`Failed to fetch chats for user ${user.uid}`, error);
+        } finally {
+            setLoading(false);
+        }
       }
     }
     fetchUserChats();
