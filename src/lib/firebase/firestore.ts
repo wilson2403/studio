@@ -768,6 +768,10 @@ export const getChat = async (chatId: string): Promise<Chat | null> => {
 
 
 export const getChatsByUserId = async (userId: string): Promise<Chat[]> => {
+    if (!userId) {
+        console.warn("getChatsByUserId called with undefined userId. Returning empty array.");
+        return [];
+    }
     try {
         const q = query(chatsCollection, where('user.uid', '==', userId));
         const snapshot = await getDocs(q);
@@ -1437,5 +1441,3 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
 
 export type { Chat };
 export type { UserProfile };
-
-    
