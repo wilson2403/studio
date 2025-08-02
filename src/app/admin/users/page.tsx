@@ -491,11 +491,12 @@ export default function AdminUsersPage() {
     const filteredUsers = users.filter(u => {
         const search = searchTerm.toLowerCase();
         return (
-            u.displayName?.toLowerCase().includes(search) ||
-            u.email.toLowerCase().includes(search) ||
-            u.phone?.includes(search)
+            (u.displayName && u.displayName.toLowerCase().includes(search)) ||
+            (u.email && u.email.toLowerCase().includes(search)) ||
+            (u.phone && u.phone.includes(search))
         );
     });
+
 
     const isSuperAdmin = currentUserProfile?.role === 'admin';
     const canEditUsers = isSuperAdmin || !!currentUserProfile?.permissions?.canEditUsers;
