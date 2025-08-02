@@ -58,7 +58,7 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
                         <div className="flex-1">
                             <p className="font-semibold">{user.displayName || 'Anonymous'}</p>
                             
-                            {isUserAdmin && (
+                            {isUserAdmin ? (
                               <>
                                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                                     <Mail className="h-3 w-3" />
@@ -71,7 +71,7 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
                                     </Link>
                                 )}
                               </>
-                            )}
+                            ) : null}
                         </div>
                     </div>
                 ))
