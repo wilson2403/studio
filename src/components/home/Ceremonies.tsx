@@ -23,7 +23,6 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
-import ViewParticipantsDialog from '../admin/ViewParticipantsDialog';
 
 export default function Ceremonies({ 
   status, 
@@ -507,13 +506,6 @@ export default function Ceremonies({
           isOpen={!!viewingCeremony}
           onClose={() => setViewingCeremony(null)}
         />
-      )}
-      {viewingParticipants && (
-          <ViewParticipantsDialog
-            isOpen={!!viewingParticipants}
-            onClose={() => setViewingParticipants(null)}
-            ceremony={viewingParticipants}
-          />
       )}
     </section>
     </>
