@@ -272,6 +272,7 @@ export type SystemSettings = {
         downloadVideo: ComponentButtonData;
         leaveTestimonial: ComponentButtonData;
         shareCeremony: ComponentButtonData;
+        viewParticipants: ComponentButtonData;
     };
 };
 

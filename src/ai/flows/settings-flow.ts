@@ -59,6 +59,7 @@ const settingsSchema = z.object({
         downloadVideo: componentButtonSchema,
         leaveTestimonial: componentButtonSchema,
         shareCeremony: componentButtonSchema,
+        viewParticipants: componentButtonSchema,
     }),
 });
 
@@ -131,6 +132,7 @@ export const getSystemSettings = ai.defineFlow(
           downloadVideo: await fetchComponentButtonContent('downloadVideo', { es: 'Descargar Video', en: 'Download Video' }),
           leaveTestimonial: await fetchComponentButtonContent('leaveTestimonial', { es: 'Dejar Testimonio', en: 'Leave Testimonial' }),
           shareCeremony: await fetchComponentButtonContent('shareCeremony', { es: 'Compartir Ceremonia', en: 'Share Ceremony' }),
+          viewParticipants: await fetchComponentButtonContent('viewParticipants', { es: 'Ver Participantes', en: 'View Participants' }),
       };
 
 

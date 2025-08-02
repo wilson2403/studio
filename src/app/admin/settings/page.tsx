@@ -65,6 +65,7 @@ const settingsFormSchema = z.object({
         downloadVideo: componentButtonSchema,
         leaveTestimonial: componentButtonSchema,
         shareCeremony: componentButtonSchema,
+        viewParticipants: componentButtonSchema,
     }),
 });
 
@@ -376,7 +377,7 @@ export default function AdminSettingsPage() {
                                 <Accordion type="multiple" className="w-full space-y-4">
                                     <AccordionItem value="navigation"><AccordionTrigger>{t('navigationManagement')}</AccordionTrigger><AccordionContent className="pt-4">{renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}</AccordionContent></AccordionItem>
                                     <AccordionItem value="homeButtons"><AccordionTrigger>{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</AccordionTrigger><AccordionContent className="pt-4">{renderHomeButtons(['medicine', 'guides', 'preparation'])}</AccordionContent></AccordionItem>
-                                    <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton', 'downloadVideo', 'leaveTestimonial', 'shareCeremony'])}</AccordionContent></AccordionItem>
+                                    <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton', 'downloadVideo', 'leaveTestimonial', 'shareCeremony', 'viewParticipants'])}</AccordionContent></AccordionItem>
                                 </Accordion>
                                 <Button type="submit" disabled={form.formState.isSubmitting}>
                                     <Save className="mr-2 h-4 w-4" />
