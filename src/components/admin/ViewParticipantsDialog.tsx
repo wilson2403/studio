@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Ceremony, UserProfile } from '@/types';
 import { ScrollArea } from '../ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Mail, Phone } from 'lucide-react';
+import { Mail, Phone, User } from 'lucide-react';
 import Link from 'next/link';
 import { EditableTitle } from '@/components/home/EditableTitle';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ViewParticipantsDialogProps {
   ceremony: Ceremony;
@@ -19,7 +20,11 @@ interface ViewParticipantsDialogProps {
 
 export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: ViewParticipantsDialogProps) {
   const { t } = useTranslation();
+  const { userProfile } = useAuth();
   const participants = ceremony.assignedUsers || [];
+  
+  const isUserAssigned = userProfile?.assignedCeremonies?.some(ac => (typeof ac === 'string' ? ac : ac.ceremonyId) === ceremony.id);
+  const isUserAdmin = userProfile?.role === 'admin' || userProfile?.role === 'organizer';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -53,15 +58,20 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
                         </Avatar>
                         <div className="flex-1">
                             <p className="font-semibold">{user.displayName || 'Anonymous'}</p>
-                            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                <Mail className="h-3 w-3" />
-                                {user.email}
-                            </p>
-                            {user.phone && (
-                                <Link href={`https://wa.me/${user.phone.replace(/\D/g, '')}`} target='_blank' className="text-xs text-muted-foreground flex items-center gap-1.5 hover:underline">
-                                    <Phone className="h-3 w-3" />
-                                    {user.phone}
-                                </Link>
+                            
+                            {(isUserAdmin || isUserAssigned) && (
+                              <>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                    <Mail className="h-3 w-3" />
+                                    {user.email}
+                                </p>
+                                {user.phone && (
+                                    <Link href={`https://wa.me/${user.phone.replace(/\D/g, '')}`} target='_blank' className="text-xs text-muted-foreground flex items-center gap-1.5 hover:underline">
+                                        <Phone className="h-3 w-3" />
+                                        {user.phone}
+                                    </Link>
+                                )}
+                              </>
                             )}
                         </div>
                     </div>

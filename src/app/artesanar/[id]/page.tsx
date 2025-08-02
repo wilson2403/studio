@@ -3,12 +3,12 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, getUserProfile, UserProfile, incrementCeremonyDownloadCount, logUserAction } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, getUserProfile, UserProfile, incrementCeremonyDownloadCount, logUserAction, getUsersForCeremony } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, Download, Home, MessageSquare, Share2 } from 'lucide-react';
+import { CalendarIcon, Download, Home, MessageSquare, Share2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
@@ -17,19 +17,27 @@ import { EditableProvider } from '@/components/home/EditableProvider';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
+import ViewParticipantsDialog from '@/components/admin/ViewParticipantsDialog';
 
 export default function CeremonyMemoryPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
+    const [participants, setParticipants] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [componentButtons, setComponentButtons] = useState<SystemSettings['componentButtons'] | null>(null);
+    const [isParticipantsDialogOpen, setIsParticipantsDialogOpen] = useState(false);
     
     const params = useParams();
     const router = useRouter();
     const { t, i18n } = useTranslation();
     const id = params.id as string;
     const { toast } = useToast();
+
+    const isAssignedToCeremony = userProfile?.assignedCeremonies?.some(ac => {
+        const ceremonyId = typeof ac === 'string' ? ac : ac.ceremonyId;
+        return ceremonyId === ceremony?.id;
+    }) || false;
 
     useEffect(() => {
         const fetchCeremonyData = async (currentUser: User | null) => {
@@ -38,8 +46,16 @@ export default function CeremonyMemoryPage() {
                 try {
                     const data = await getCeremonyById(id);
                     setCeremony(data);
+
                     if (data) {
                          const profile = currentUser ? await getUserProfile(currentUser.uid) : null;
+                        const isAssigned = profile?.assignedCeremonies?.some(ac => (typeof ac === 'string' ? ac : ac.ceremonyId) === data.id);
+
+                        if (isAssigned) {
+                            const ceremonyParticipants = await getUsersForCeremony(data.id);
+                            setParticipants(ceremonyParticipants);
+                        }
+
                         if(profile?.role !== 'admin') {
                             // This is handled by the VideoPlayer now
                             // logUserAction('navigate_to_page', { targetId: data.slug, targetType: 'ceremony_memory' });
@@ -198,7 +214,7 @@ export default function CeremonyMemoryPage() {
                         </div>
                     
                         <div className="w-full max-w-xs mx-auto space-y-3">
-                             <Button size="lg" className="w-full" onClick={handleDownload}>
+                            <Button size="lg" className="w-full" onClick={handleDownload}>
                                 <Download className="mr-2 h-4 w-4" />
                                 {getButtonText('downloadVideo', 'Descargar Video')}
                             </Button>
@@ -210,6 +226,12 @@ export default function CeremonyMemoryPage() {
                                     </Button>
                                 </TestimonialDialog>
                             )}
+                             {isAssignedToCeremony && participants.length > 0 && (
+                                <Button variant="outline" size="lg" className="w-full" onClick={() => setIsParticipantsDialogOpen(true)}>
+                                    <Users className="mr-2 h-4 w-4" />
+                                    {t('viewParticipants')}
+                                </Button>
+                            )}
                             <Button variant="ghost" size="lg" className="w-full" onClick={handleShare}>
                                 <Share2 className="mr-2 h-4 w-4" />
                                 {getButtonText('shareCeremony', 'Compartir Ceremonia')}
@@ -218,6 +240,13 @@ export default function CeremonyMemoryPage() {
                     </div>
                 </div>
             </div>
+             {ceremony && (
+                <ViewParticipantsDialog
+                    isOpen={isParticipantsDialogOpen}
+                    onClose={() => setIsParticipantsDialogOpen(false)}
+                    ceremony={{ ...ceremony, assignedUsers: participants }}
+                />
+            )}
         </EditableProvider>
     );
 }
