@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,9 +19,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { auth, db } from '@/lib/firebase/config';
@@ -147,20 +148,20 @@ export default function ContinueRegistrationPage() {
         <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
         <Card className="w-full max-w-md shadow-2xl animate-in fade-in-0 zoom-in-95 duration-500">
             <CardHeader>
-            <CardTitle className="font-headline text-3xl">
-                <EditableTitle
-                    tag="h2"
-                    id="welcomeUserTitle"
-                    initialValue={t('welcomeUser', {name: user.displayName})}
-                />
-            </CardTitle>
-            <CardDescription className="font-body">
-                <EditableTitle
-                    tag="p"
-                    id="continueRegistrationDescription"
-                    initialValue={t('continueRegistrationDescription')}
-                />
-            </CardDescription>
+                <CardTitle className="font-headline text-3xl">
+                    <EditableTitle
+                        tag="h2"
+                        id="welcomeUserTitle"
+                        initialValue={t('welcomeUser', { name: user.displayName || 'User' })}
+                    />
+                </CardTitle>
+                <CardDescription className="font-body">
+                    <EditableTitle
+                        tag="p"
+                        id="continueRegistrationDescription"
+                        initialValue={t('continueRegistrationDescription')}
+                    />
+                </CardDescription>
             </CardHeader>
             <CardContent>
             <Form {...form}>
