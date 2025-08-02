@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -229,7 +230,7 @@ export default function CeremonyMemoryPage() {
                              {isAssignedToCeremony && participants.length > 0 && (
                                 <Button variant="outline" size="lg" className="w-full" onClick={() => setIsParticipantsDialogOpen(true)}>
                                     <Users className="mr-2 h-4 w-4" />
-                                    {t('viewParticipants')}
+                                    {getButtonText('viewParticipants', 'Ver Participantes')}
                                 </Button>
                             )}
                             <Button variant="ghost" size="lg" className="w-full" onClick={handleShare}>
