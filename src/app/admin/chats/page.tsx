@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,13 +32,18 @@ export default function AdminChatHistoryPage() {
                 return;
             }
             
-            const profile = await getUserProfile(currentUser.uid);
-            const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canViewChatHistory);
+            try {
+                const profile = await getUserProfile(currentUser.uid);
+                const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canViewChatHistory);
 
-            if (!hasPermission) {
+                if (!hasPermission) {
+                    router.push('/');
+                } else {
+                    setIsAuthorized(true);
+                }
+            } catch (error) {
+                console.error("Error fetching user profile:", error);
                 router.push('/');
-            } else {
-                setIsAuthorized(true);
             }
         });
 
@@ -48,6 +53,7 @@ export default function AdminChatHistoryPage() {
     useEffect(() => {
         if (isAuthorized) {
             const fetchChats = async () => {
+                setLoading(true);
                 try {
                     const allChats = await getAllChats();
                     setChats(allChats);
@@ -63,7 +69,7 @@ export default function AdminChatHistoryPage() {
     }, [isAuthorized, toast, t]);
 
 
-    if (loading) {
+    if (!isAuthorized) {
         return (
             <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
                 <div className="space-y-4 w-full">
@@ -74,6 +80,19 @@ export default function AdminChatHistoryPage() {
             </div>
         );
     }
+    
+    if (loading) {
+         return (
+            <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
+                <div className="space-y-4 w-full">
+                    <Skeleton className="h-12 w-1/4 mx-auto" />
+                    <Skeleton className="h-8 w-1/2 mx-auto" />
+                    <Skeleton className="h-96 w-full" />
+                </div>
+            </div>
+        );
+    }
+
 
     return (
         <div className="container py-12 md:py-16 space-y-12">
@@ -102,7 +121,7 @@ export default function AdminChatHistoryPage() {
                                             </Avatar>
                                             <div className='flex-1 text-left'>
                                                 <p className="font-semibold truncate max-w-xs sm:max-w-md">{chat.user?.displayName || chat.user?.email || 'Anonymous'}</p>
-                                                <p className="text-sm text-muted-foreground">{format(chat.updatedAt.toDate(), 'PPP p')}</p>
+                                                <p className="text-sm text-muted-foreground">{chat.updatedAt ? format(chat.updatedAt.toDate(), 'PPP p') : ''}</p>
                                             </div>
                                         </div>
                                     </div>
