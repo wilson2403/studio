@@ -23,7 +23,6 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
   const { userProfile } = useAuth();
   const participants = ceremony.assignedUsers || [];
   
-  const isUserAssigned = userProfile?.assignedCeremonies?.some(ac => (typeof ac === 'string' ? ac : ac.ceremonyId) === ceremony.id);
   const isUserAdmin = userProfile?.role === 'admin' || userProfile?.role === 'organizer';
 
   return (
@@ -59,7 +58,7 @@ export default function ViewParticipantsDialog({ ceremony, isOpen, onClose }: Vi
                         <div className="flex-1">
                             <p className="font-semibold">{user.displayName || 'Anonymous'}</p>
                             
-                            {(isUserAdmin || isUserAssigned) && (
+                            {isUserAdmin && (
                               <>
                                 <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                                     <Mail className="h-3 w-3" />
