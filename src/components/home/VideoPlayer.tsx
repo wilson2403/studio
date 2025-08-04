@@ -105,10 +105,6 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
                 new window.YT.Player(iframe, {
                     events: {
                         'onStateChange': handlePlayerStateChange,
-                        'onReady': () => {
-                            // If it's a non-autoplay video, we might need to trigger the play count here
-                            // if the user clicks the iframe's native play button.
-                        }
                     }
                 });
             }
@@ -130,7 +126,11 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+        if (firstScriptTag && firstScriptTag.parentNode) {
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        } else {
+            document.head.appendChild(tag);
+        }
         // @ts-ignore
         window.onYouTubeIframeAPIReady = () => {
           setIsApiReady(true);
