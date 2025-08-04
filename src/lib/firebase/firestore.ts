@@ -1301,6 +1301,7 @@ export const getVideoProgress = async (uid: string, videoId: string): Promise<nu
 
 // --- Audit Logs ---
 export const hasAuditLogs = async (userId: string): Promise<boolean> => {
+    if (!userId) return false;
     try {
         const q = query(auditLogsCollection, where('userId', '==', userId), limit(1));
         const snapshot = await getDocs(q);
@@ -1442,3 +1443,6 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
 
 export type { Chat };
 export type { UserProfile };
+
+
+    
