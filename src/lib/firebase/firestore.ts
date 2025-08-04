@@ -661,6 +661,18 @@ export const updateUserAssignedCeremonies = async (uid: string, ceremonyIds: (st
     }
 }
 
+export const assignCeremonyToUser = async (uid: string, ceremonyId: string): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, { assignedCeremonies: arrayUnion(ceremonyId) });
+        await logUserAction('assign_ceremony_to_user', { targetId: uid, targetType: 'user', changes: { ceremonyId } });
+    } catch (error) {
+        console.error(`Error assigning ceremony ${ceremonyId} to user ${uid}:`, error);
+        logError(error, { function: 'assignCeremonyToUser', uid, ceremonyId });
+        throw error;
+    }
+};
+
 
 export const getUsersForCeremony = async (ceremonyId: string): Promise<UserProfile[]> => {
     try {

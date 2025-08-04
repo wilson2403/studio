@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getCeremonyById, Ceremony, getUserProfile, UserProfile, incrementCeremonyDownloadCount, logUserAction, getUsersForCeremony } from '@/lib/firebase/firestore';
+import { getCeremonyById, Ceremony, getUserProfile, UserProfile, incrementCeremonyDownloadCount, logUserAction, getUsersForCeremony, assignCeremonyToUser } from '@/lib/firebase/firestore';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VideoPlayer } from '@/components/home/VideoPlayer';
@@ -139,8 +139,19 @@ export default function CeremonyMemoryPage() {
     };
 
     const handleDownload = () => {
-        handleAuthAction(() => {
-            if (!ceremony?.downloadUrl) return;
+        handleAuthAction(async () => {
+            if (!ceremony?.downloadUrl || !user || !userProfile) return;
+
+            // Assign ceremony if not already assigned
+            if (!isAssignedToCeremony) {
+                await assignCeremonyToUser(user.uid, ceremony.id);
+                // Optimistically update local profile state
+                setUserProfile(prev => ({
+                    ...prev!,
+                    assignedCeremonies: [...(prev?.assignedCeremonies || []), ceremony.id]
+                }));
+                 toast({ title: t('ceremonyAssignedSuccess') });
+            }
 
             if (userProfile?.role !== 'admin' && userProfile?.role !== 'organizer') {
                 incrementCeremonyDownloadCount(ceremony.id);
