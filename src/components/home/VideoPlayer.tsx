@@ -84,6 +84,7 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
     const [isLoading, setIsLoading] = useState(true);
     const hasPlayed = useRef(false);
     const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [isApiReady, setIsApiReady] = useState(false);
     
     const handleLoad = () => {
         setIsLoading(false);
@@ -91,25 +92,36 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
     
     useEffect(() => {
       const iframe = iframeRef.current;
-      if (!iframe || !src.includes('youtube.com') || !src.includes('enablejsapi=1')) return;
+      if (!iframe || !src.includes('youtube.com') || !src.includes('enablejsapi=1')) {
+          setIsApiReady(false);
+          return;
+      }
+      
+      const initializePlayer = () => {
+        try {
+            // @ts-ignore
+            if (window.YT && window.YT.Player) {
+                // @ts-ignore
+                new window.YT.Player(iframe, {
+                    events: {
+                        'onStateChange': handlePlayerStateChange,
+                        'onReady': () => {
+                            // If it's a non-autoplay video, we might need to trigger the play count here
+                            // if the user clicks the iframe's native play button.
+                        }
+                    }
+                });
+            }
+        } catch(e) {
+            console.error("Error initializing YouTube player:", e);
+        }
+      }
 
       const handlePlayerStateChange = (event: any) => {
         // -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
         if (event.data === 1 && !hasPlayed.current) {
           onPlay();
           hasPlayed.current = true;
-        }
-      }
-      
-      const initializePlayer = () => {
-        // @ts-ignore
-        if (window.YT && window.YT.Player) {
-            // @ts-ignore
-            new YT.Player(iframe, {
-                events: {
-                    'onStateChange': handlePlayerStateChange
-                }
-            });
         }
       }
 
@@ -120,8 +132,12 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
         const firstScriptTag = document.getElementsByTagName('script')[0];
         firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
         // @ts-ignore
-        window.onYouTubeIframeAPIReady = initializePlayer;
+        window.onYouTubeIframeAPIReady = () => {
+          setIsApiReady(true);
+          initializePlayer();
+        };
       } else {
+        setIsApiReady(true);
         initializePlayer();
       }
 
@@ -132,7 +148,7 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
             window.onYouTubeIframeAPIReady = null;
         }
       };
-    }, [src, onPlay]);
+    }, [src, onPlay, isApiReady]);
 
     
     return (
