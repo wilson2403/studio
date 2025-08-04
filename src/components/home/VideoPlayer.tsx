@@ -192,7 +192,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
             const user = auth.currentUser;
             if(user) {
                 const profile = await getUserProfile(user.uid);
-                setIsAdmin(profile?.role === 'admin');
+                setIsAdmin(profile?.role === 'admin' || profile?.role === 'organizer');
             }
         };
         checkAdmin();
@@ -397,11 +397,13 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     }
     if (!trackProgress) {
         incrementCeremonyViewCount(ceremonyId);
-        logUserAction('play_video', { targetId: ceremonyId, targetType: 'ceremony_video' });
-    } else {
+        if (user) {
+            logUserAction('play_video', { targetId: ceremonyId, targetType: 'ceremony_video' });
+        }
+    } else if (user) {
         logUserAction('play_video', { targetId: ceremonyId, targetType: 'course_video' });
     }
-  }, [isAdmin, trackProgress, ceremonyId, onPlay]);
+  }, [isAdmin, trackProgress, ceremonyId, onPlay, user]);
 
   const renderContent = () => {
     if (mediaType === 'image') {
