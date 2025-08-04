@@ -710,6 +710,7 @@ export const setThemeSettings = async (settings: ThemeSettings): Promise<void> =
 
 // --- Chat ---
 export const hasChats = async (userId: string): Promise<boolean> => {
+    if (!userId) return false;
     try {
         const q = query(chatsCollection, where('user.uid', '==', userId), limit(1));
         const snapshot = await getDocs(q);
