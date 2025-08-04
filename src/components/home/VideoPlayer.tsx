@@ -381,7 +381,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
         const profile = await getUserProfile(currentUser.uid);
         setIsAdmin(profile?.role === 'admin' || profile?.role === 'organizer');
       } else {
-        setIsAdmin(false);
+        setIsAdmin(false); // Make sure to set to false if no user
       }
     });
     return () => unsubscribe();
