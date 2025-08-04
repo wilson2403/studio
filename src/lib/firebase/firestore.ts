@@ -769,7 +769,7 @@ export const getChat = async (chatId: string): Promise<Chat | null> => {
 
 export const getChatsByUserId = async (userId: string): Promise<Chat[]> => {
     if (!userId) {
-        console.warn("getChatsByUserId called with undefined userId. Returning empty array.");
+        console.warn("getChatsByUserId called with invalid userId. Returning empty array.");
         return [];
     }
     try {
