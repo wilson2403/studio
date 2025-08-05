@@ -396,18 +396,22 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
         onPlay();
         return;
     }
-    if (isAdmin) {
-        return;
+    
+    // Always increment view count if not admin
+    if (!isAdmin) {
+        incrementCeremonyViewCount(ceremonyId);
     }
 
-    const logDetails = { targetId: ceremonyId, targetType: 'ceremony_video' as const };
-    const courseLogDetails = { targetId: ceremonyId, targetType: 'course_video' as const };
+    // Only log user action if the user is authenticated
+    if (user) {
+        const logDetails = { targetId: ceremonyId, targetType: 'ceremony_video' as const };
+        const courseLogDetails = { targetId: ceremonyId, targetType: 'course_video' as const };
 
-    if (!trackProgress) {
-        incrementCeremonyViewCount(ceremonyId);
-        logUserAction('play_video', logDetails);
-    } else {
-        logUserAction('play_video', courseLogDetails);
+        if (!trackProgress) {
+            logUserAction('play_video', logDetails);
+        } else {
+            logUserAction('play_video', courseLogDetails);
+        }
     }
   }, [isAdmin, trackProgress, ceremonyId, onPlay, user]);
 
