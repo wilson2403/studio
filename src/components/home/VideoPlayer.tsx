@@ -395,10 +395,11 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     if (!isAdmin) {
       incrementCeremonyViewCount(ceremonyId);
     }
+    
     // Only log user action if the user is authenticated
     if (user) {
-        const logDetails = { targetId: ceremonyId, targetType: 'ceremony_video' as const };
-        const courseLogDetails = { targetId: ceremonyId, targetType: 'course_video' as const };
+        const logDetails = { targetId: ceremonyId, targetType: 'ceremony_video' as const, changes: { title: title } };
+        const courseLogDetails = { targetId: ceremonyId, targetType: 'course_video' as const, changes: { title: title } };
 
         if (!trackProgress) {
             logUserAction('play_video', logDetails);
@@ -409,7 +410,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     if (onPlay) {
         onPlay();
     }
-  }, [isAdmin, trackProgress, ceremonyId, onPlay, user]);
+  }, [isAdmin, trackProgress, ceremonyId, onPlay, user, title]);
 
   const renderContent = () => {
     if (mediaType === 'image') {
@@ -489,3 +490,4 @@ interface VideoPlayerProps {
   onPlay?: () => void;
   children?: React.ReactNode;
 }
+
