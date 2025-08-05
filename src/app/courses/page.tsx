@@ -131,13 +131,21 @@ export default function CoursesPage() {
                     {list.map(course => {
                         const isCompleted = userProfile?.completedCourses?.includes(course.id) || false;
                         const isYoutubeVideo = course.videoUrl?.includes('youtube.com') || course.videoUrl?.includes('youtu.be');
+                        
+                        let youtubeVideoId = null;
+                        if (isYoutubeVideo && course.videoUrl) {
+                            const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+                            const match = course.videoUrl.match(youtubeRegex);
+                            youtubeVideoId = match ? match[1] : null;
+                        }
+
 
                         return (
                             <Card key={course.id} className="overflow-hidden">
                                 <div className="aspect-video relative">
-                                    {isYoutubeVideo ? (
+                                    {isYoutubeVideo && youtubeVideoId ? (
                                         <iframe
-                                            src={`https://www.youtube.com/embed/${new URL(course.videoUrl).searchParams.get('v')}?enablejsapi=1&autoplay=0&controls=1`}
+                                            src={`https://www.youtube.com/embed/${youtubeVideoId}?enablejsapi=1&autoplay=0&controls=1`}
                                             title={course.title}
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
