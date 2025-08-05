@@ -392,16 +392,9 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
   }, []);
 
   const handlePlay = useCallback(() => {
-    if (onPlay) {
-        onPlay();
-        return;
-    }
-    
-    // Always increment view count if not admin
     if (!isAdmin) {
-        incrementCeremonyViewCount(ceremonyId);
+      incrementCeremonyViewCount(ceremonyId);
     }
-
     // Only log user action if the user is authenticated
     if (user) {
         const logDetails = { targetId: ceremonyId, targetType: 'ceremony_video' as const };
@@ -412,6 +405,9 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
         } else {
             logUserAction('play_video', courseLogDetails);
         }
+    }
+    if (onPlay) {
+        onPlay();
     }
   }, [isAdmin, trackProgress, ceremonyId, onPlay, user]);
 
