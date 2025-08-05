@@ -114,10 +114,14 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
       }
 
       const handlePlayerStateChange = (event: any) => {
-        // -1 (unstarted), 0 (ended), 1 (playing), 2 (paused), 3 (buffering), 5 (video cued)
-        if (event.data === 1 && !hasPlayed.current) {
-          onPlay();
-          hasPlayed.current = true;
+        const PlayerState = {
+            PLAYING: 1,
+            BUFFERING: 3,
+        };
+        // Trigger onPlay the first time the video is playing or buffering.
+        if ((event.data === PlayerState.PLAYING || event.data === PlayerState.BUFFERING) && !hasPlayed.current) {
+            onPlay();
+            hasPlayed.current = true;
         }
       }
 
@@ -483,4 +487,3 @@ interface VideoPlayerProps {
   onPlay?: () => void;
   children?: React.ReactNode;
 }
-
