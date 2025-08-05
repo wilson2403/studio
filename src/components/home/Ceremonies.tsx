@@ -164,9 +164,6 @@ export default function Ceremonies({
     if (!isAuthorized) {
         incrementCeremonyReserveClick(ceremony.id);
         logUserAction('click_ceremony_details', { targetId: ceremony.id, targetType: 'ceremony' });
-        if (ceremony.mediaType === 'image') {
-            incrementCeremonyViewCount(ceremony.id);
-        }
     }
 
     if (ceremony.registerRequired && !user) {

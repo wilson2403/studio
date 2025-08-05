@@ -201,11 +201,11 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
     const observer = useRef<IntersectionObserver | null>(null);
 
     const handlePlay = useCallback(() => {
-        if (!hasPlayed.current && !isAdmin) {
+        if (!hasPlayed.current) {
             onPlay();
             hasPlayed.current = true;
         }
-    }, [onPlay, isAdmin]);
+    }, [onPlay]);
     
     useEffect(() => {
         const video = videoRef.current;
