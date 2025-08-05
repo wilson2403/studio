@@ -489,4 +489,3 @@ interface VideoPlayerProps {
   onPlay?: () => void;
   children?: React.ReactNode;
 }
-
