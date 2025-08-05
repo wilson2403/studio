@@ -399,13 +399,15 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     if (isAdmin) {
         return;
     }
+
+    const logDetails = { targetId: ceremonyId, targetType: 'ceremony_video' as const };
+    const courseLogDetails = { targetId: ceremonyId, targetType: 'course_video' as const };
+
     if (!trackProgress) {
         incrementCeremonyViewCount(ceremonyId);
-        if (user) {
-            logUserAction('play_video', { targetId: ceremonyId, targetType: 'ceremony_video' });
-        }
-    } else if (user) {
-        logUserAction('play_video', { targetId: ceremonyId, targetType: 'course_video' });
+        logUserAction('play_video', logDetails);
+    } else {
+        logUserAction('play_video', courseLogDetails);
     }
   }, [isAdmin, trackProgress, ceremonyId, onPlay, user]);
 
@@ -487,3 +489,4 @@ interface VideoPlayerProps {
   onPlay?: () => void;
   children?: React.ReactNode;
 }
+
