@@ -80,11 +80,66 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
 };
 
+// --- YouTube IFrame API Management ---
+let isApiReady = false;
+let apiReadyPromise: Promise<void> | null = null;
+const pendingPlayers: (() => void)[] = [];
+
+// @ts-ignore
+if (typeof window !== 'undefined') {
+  // @ts-ignore
+  window.onYouTubeIframeAPIReady = () => {
+    isApiReady = true;
+    pendingPlayers.forEach(playerInit => playerInit());
+    pendingPlayers.length = 0; // Clear the queue
+  };
+}
+
+function loadYoutubeApi() {
+  if (!apiReadyPromise) {
+    apiReadyPromise = new Promise(resolve => {
+      if (isApiReady) {
+        resolve();
+        return;
+      }
+      
+      // If the API script is already on the page, don't add it again
+      if (document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+        // The script is loading, just wait for it to be ready.
+        const checkReady = setInterval(() => {
+          if (isApiReady) {
+            clearInterval(checkReady);
+            resolve();
+          }
+        }, 100);
+        return;
+      }
+      
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      if (firstScriptTag && firstScriptTag.parentNode) {
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      } else {
+        document.head.appendChild(tag);
+      }
+       // @ts-ignore
+      window.onYouTubeIframeAPIReady = () => {
+          isApiReady = true;
+          pendingPlayers.forEach(playerInit => playerInit());
+          pendingPlayers.length = 0;
+          resolve();
+      };
+    });
+  }
+  return apiReadyPromise;
+}
+// -------------------------------------
+
 const IframePlayer = ({ src, title, className, onPlay, children }: { src: string, title: string, className?: string, onPlay: () => void, children?: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
     const hasPlayed = useRef(false);
     const iframeRef = useRef<HTMLIFrameElement>(null);
-    const [isApiReady, setIsApiReady] = useState(false);
     
     const handleLoad = () => {
         setIsLoading(false);
@@ -93,26 +148,9 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
     useEffect(() => {
       const iframe = iframeRef.current;
       if (!iframe || !src.includes('youtube.com') || !src.includes('enablejsapi=1')) {
-          setIsApiReady(false);
           return;
       }
       
-      const initializePlayer = () => {
-        try {
-            // @ts-ignore
-            if (window.YT && window.YT.Player) {
-                // @ts-ignore
-                new window.YT.Player(iframe, {
-                    events: {
-                        'onStateChange': handlePlayerStateChange,
-                    }
-                });
-            }
-        } catch(e) {
-            console.error("Error initializing YouTube player:", e);
-        }
-      }
-
       const handlePlayerStateChange = (event: any) => {
         const PlayerState = {
             PLAYING: 1,
@@ -124,35 +162,27 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
             hasPlayed.current = true;
         }
       }
-
-      // @ts-ignore
-      if (!window.YT) {
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        if (firstScriptTag && firstScriptTag.parentNode) {
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        } else {
-            document.head.appendChild(tag);
-        }
-        // @ts-ignore
-        window.onYouTubeIframeAPIReady = () => {
-          setIsApiReady(true);
-          initializePlayer();
-        };
-      } else {
-        setIsApiReady(true);
-        initializePlayer();
+      
+      const initializePlayer = () => {
+          try {
+              // @ts-ignore
+              new window.YT.Player(iframe, {
+                  events: {
+                      'onStateChange': handlePlayerStateChange,
+                  }
+              });
+          } catch(e) {
+              console.error("Error initializing YouTube player:", e);
+          }
       }
-
-      return () => {
-        // @ts-ignore
-        if (window.onYouTubeIframeAPIReady) {
-            // @ts-ignore
-            window.onYouTubeIframeAPIReady = null;
-        }
-      };
-    }, [src, onPlay, isApiReady]);
+      
+      loadYoutubeApi().then(() => {
+          if (iframe) {
+              initializePlayer();
+          }
+      });
+      
+    }, [src, onPlay]);
 
     
     return (
@@ -490,4 +520,3 @@ interface VideoPlayerProps {
   onPlay?: () => void;
   children?: React.ReactNode;
 }
-
