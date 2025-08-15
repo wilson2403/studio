@@ -58,17 +58,31 @@ export default function CoursesPage() {
 
     const handleCourseCompletionToggle = async (courseId: string, isCompleted: boolean) => {
         if (!user) return;
+        
+        // Optimistic UI update
+        setUserProfile(prev => {
+            if (!prev) return null;
+            const currentCompleted = prev.completedCourses || [];
+            const newCompleted = isCompleted
+                ? [...currentCompleted, courseId]
+                : currentCompleted.filter(id => id !== courseId);
+            return { ...prev, completedCourses: newCompleted };
+        });
+
         try {
             await updateUserCompletedCourses(user.uid, courseId, isCompleted);
-            setUserProfile(prev => ({
-                ...prev!,
-                completedCourses: isCompleted
-                    ? [...(prev?.completedCourses || []), courseId]
-                    : (prev?.completedCourses || []).filter(id => id !== courseId)
-            }));
             toast({ title: t('progressUpdated') });
         } catch (error) {
             toast({ title: t('errorUpdatingProgress'), variant: 'destructive' });
+            // Revert UI on error
+            setUserProfile(prev => {
+                if (!prev) return null;
+                const currentCompleted = prev.completedCourses || [];
+                const revertedCompleted = !isCompleted
+                    ? [...currentCompleted, courseId]
+                    : currentCompleted.filter(id => id !== courseId);
+                return { ...prev, completedCourses: revertedCompleted };
+            });
         }
     };
     
@@ -127,7 +141,7 @@ export default function CoursesPage() {
         <div className="space-y-8">
             <h2 className="text-3xl font-headline text-primary text-center">{title}</h2>
             {list.length > 0 ? (
-                <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     {list.map(course => {
                         const isCompleted = userProfile?.completedCourses?.includes(course.id) || false;
                         const isYoutubeVideo = course.videoUrl?.includes('youtube.com') || course.videoUrl?.includes('youtu.be');
@@ -141,16 +155,17 @@ export default function CoursesPage() {
 
 
                         return (
-                            <Card key={course.id} className="overflow-hidden">
+                            <Card key={course.id} className="overflow-hidden shadow-lg border-primary/20">
                                 <div className="aspect-video relative">
                                     {isYoutubeVideo && youtubeVideoId ? (
                                         <iframe
-                                            src={`https://www.youtube.com/embed/${youtubeVideoId}?enablejsapi=1&autoplay=0&controls=1`}
+                                            src={`https://www.youtube.com/embed/${youtubeVideoId}?enablejsapi=1&autoplay=0`}
                                             title={course.title}
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                             allowFullScreen
                                             className="w-full h-full"
+                                            onLoad={() => handleCourseCompletionToggle(course.id, true)}
                                         ></iframe>
                                     ) : (
                                         <VideoPlayer

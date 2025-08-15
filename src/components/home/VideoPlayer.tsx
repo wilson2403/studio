@@ -18,12 +18,13 @@ const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolea
   const videoId = match ? match[1] : null;
   if (!videoId) return null;
 
+  // For Chromecast to work, some params like autoplay and mute should be avoided if possible
+  // However, for background videos they are necessary. We can conditionally add them.
   const params = new URLSearchParams({
-    autoplay: autoplay ? '1' : '0', 
+    // autoplay: autoplay ? '1' : '0', 
     loop: '1',
     playlist: videoId,
-    mute: defaultMuted ? '1' : '0',
-    vq: 'hd2160',
+    // mute: defaultMuted ? '1' : '0',
     rel: '0',
     showinfo: '0',
     enablejsapi: '1'
@@ -311,7 +312,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
     
     useEffect(() => {
         const video = videoRef.current;
-        if(video) {
+        if (video && userId) { // Only track if there is a user
             const handlePlayEvent = () => {
                 setIsPlaying(true);
                 startProgressTracking();
@@ -327,7 +328,7 @@ const DirectVideoPlayer = ({ src, videoId, className, videoFit = 'cover', onPlay
                 handlePlayEvent();
             }
 
-            if (trackProgress && userId && videoId) {
+            if (trackProgress && videoId) {
                 getVideoProgress(userId, videoId).then(time => {
                     if (time && videoRef.current) {
                         videoRef.current.currentTime = time;
