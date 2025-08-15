@@ -41,7 +41,7 @@ import { Badge } from '../ui/badge';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 
-const APP_VERSION = '2.60';
+const APP_VERSION = '2.61';
 
 type NavLinkDef = {
     href: string;
@@ -260,11 +260,9 @@ export default function Header() {
                   let hasAccess = isAdmin;
                   if (!hasAccess && isOrganizer) {
                       if (link.href === '/admin/users' && userProfile.permissions?.canEditUsers) hasAccess = true;
+                      if (link.href === '/admin/chats' && userProfile.permissions?.canViewChatHistory) hasAccess = true;
                       if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses)) hasAccess = true;
-                      // Other admin links are admin-only
                   }
-                  
-                  if (!hasAccess && link.href !== '/admin' && link.href !== '/admin/users') return null;
                   
                   if (hasAccess) {
                     return (
@@ -427,8 +425,8 @@ export default function Header() {
                                 let hasAccess = isAdmin;
                                 if (!hasAccess && isOrganizer) {
                                     if (link.href === '/admin/users' && userProfile.permissions?.canEditUsers) hasAccess = true;
+                                    if (link.href === '/admin/chats' && userProfile.permissions?.canViewChatHistory) hasAccess = true;
                                     if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses)) hasAccess = true;
-                                    // Other admin links are admin-only
                                 }
                                 if(hasAccess) {
                                     return (
