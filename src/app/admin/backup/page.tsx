@@ -131,7 +131,7 @@ export default function BackupPage() {
                     </CardHeader>
                     <CardContent>
                         <Button onClick={handleExport} disabled={isExporting}>
-                            {isExporting ? t('exporting') : t('exportButton')}
+                            {isExporting ? t('exportingButtonText') : t('exportButton')}
                         </Button>
                     </CardContent>
                 </Card>

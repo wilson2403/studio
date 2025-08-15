@@ -1,5 +1,4 @@
 
-
 import { Timestamp } from "firebase/firestore";
 
 export type Plan = {
@@ -199,6 +198,11 @@ export type BackupData = {
     guides: Guide[];
     content: { id: string; value: any }[];
     settings: { id: string; value: any }[];
+    courses?: Course[];
+    testimonials?: Testimonial[];
+    invitationMessages?: InvitationMessage[];
+    ceremonyInvitationMessages?: CeremonyInvitationMessage[];
+    shareMemoryMessages?: ShareMemoryMessage[];
 };
 
 export type SectionClickLog = {

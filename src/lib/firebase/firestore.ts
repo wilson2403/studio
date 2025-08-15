@@ -43,12 +43,19 @@ export const logError = (error: any, context?: Record<string, any>) => {
 
 export const logUserAction = async (action: string, details?: Partial<Omit<AuditLog, 'id' | 'userId' | 'userDisplayName' | 'timestamp' | 'action'>>) => {
     const user = auth.currentUser;
-    if (!user) return; // Don't log actions for unauthenticated users
+    // Allow logging for anonymous users only for specific, safe actions
+    if (!user) {
+        if (action === 'view_ceremony' || action === 'play_video') {
+            // Proceed with logging for anonymous users
+        } else {
+            return;
+        }
+    }
 
     try {
         await addDoc(auditLogsCollection, {
-            userId: user.uid,
-            userDisplayName: user.displayName || user.email,
+            userId: user?.uid || 'anonymous',
+            userDisplayName: user?.displayName || user?.email || 'anonymous',
             action,
             timestamp: serverTimestamp(),
             page: window.location.pathname,
@@ -307,7 +314,11 @@ export const updateCeremony = async (ceremony: Ceremony): Promise<void> => {
     try {
         const ceremonyRef = doc(db, 'ceremonies', ceremony.id);
         const { id, ...data } = ceremony;
-        await updateDoc(ceremonyRef, data);
+        // Firestore cannot store undefined values.
+        const cleanData = JSON.parse(JSON.stringify(data, (key, value) => 
+            value === undefined ? null : value
+        ));
+        await updateDoc(ceremonyRef, cleanData);
         await logUserAction('update_ceremony', { targetId: id, targetType: 'ceremony', changes: data });
     } catch(error) {
         console.error("Error updating ceremony: ", error);
@@ -334,9 +345,9 @@ export const incrementCeremonyViewCount = async (id: string): Promise<void> => {
         const ceremonyRef = doc(db, 'ceremonies', id);
         await updateDoc(ceremonyRef, { viewCount: increment(1) });
     } catch (error) {
-        // Non-critical, just log it
-        console.error("Error incrementing view count:", error);
-        logError(error, { function: 'incrementCeremonyViewCount', id });
+        // This is a non-critical action that might fail due to permissions for anonymous users.
+        // We log it for debugging but don't re-throw to avoid breaking the user experience.
+        logError(error, { function: 'incrementCeremonyViewCount', id, message: "This can happen for anonymous users and is expected." });
     }
 }
 
@@ -1121,45 +1132,106 @@ export const exportAllData = async (): Promise<BackupData> => {
 
   const settingsSnapshot = await getDocs(settingsCollection);
   const settings = settingsSnapshot.docs.map(d => ({ id: d.id, value: d.data() }));
+  
+  const coursesSnapshot = await getDocs(coursesCollection);
+  const courses = coursesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Course));
+  
+  const testimonialsSnapshot = await getDocs(testimonialsCollection);
+  const testimonials = testimonialsSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Testimonial));
+  
+  const invitationMessagesSnapshot = await getDocs(invitationMessagesCollection);
+  const invitationMessages = invitationMessagesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as InvitationMessage));
+  
+  const ceremonyInvitationMessagesSnapshot = await getDocs(ceremonyInvitationMessagesCollection);
+  const ceremonyInvitationMessages = ceremonyInvitationMessagesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as CeremonyInvitationMessage));
+  
+  const shareMemoryMessagesSnapshot = await getDocs(shareMemoryMessagesCollection);
+  const shareMemoryMessages = shareMemoryMessagesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as ShareMemoryMessage));
 
-  return { users, ceremonies, guides, content, settings };
+  return { 
+    users, 
+    ceremonies, 
+    guides, 
+    content, 
+    settings,
+    courses,
+    testimonials,
+    invitationMessages,
+    ceremonyInvitationMessages,
+    shareMemoryMessages
+  };
 };
 
 export const importAllData = async (data: BackupData): Promise<void> => {
-  const batch = writeBatch(db);
+    const batch = writeBatch(db);
 
-  // Clear existing data (optional, but recommended for a clean import)
-  // Note: This is a destructive action. Consider your use case.
-  // For this implementation, we will overwrite based on IDs.
+    const deleteCollection = async (coll: any) => {
+        const snapshot = await getDocs(coll);
+        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+    }
 
-  data.users.forEach(user => {
-    const docRef = doc(db, 'users', user.uid);
-    batch.set(docRef, user);
-  });
+    // Clear template collections for a clean import, as they don't have unique user-based IDs
+    await deleteCollection(invitationMessagesCollection);
+    await deleteCollection(ceremonyInvitationMessagesCollection);
+    await deleteCollection(shareMemoryMessagesCollection);
 
-  data.ceremonies.forEach(ceremony => {
-    const docRef = doc(db, 'ceremonies', ceremony.id);
-    const { id, ...ceremonyData } = ceremony;
-    batch.set(docRef, ceremonyData);
-  });
-  
-  data.guides.forEach(guide => {
-    const docRef = doc(db, 'guides', guide.id);
-    const { id, ...guideData } = guide;
-    batch.set(docRef, guideData);
-  });
-  
-  data.content.forEach(contentItem => {
-    const docRef = doc(db, 'content', contentItem.id);
-    batch.set(docRef, { value: contentItem.value });
-  });
+    // Overwrite data based on IDs
+    data.users.forEach(user => {
+        const docRef = doc(db, 'users', user.uid);
+        batch.set(docRef, user);
+    });
 
-  data.settings.forEach(setting => {
-    const docRef = doc(db, 'settings', setting.id);
-    batch.set(docRef, setting.value);
-  });
+    data.ceremonies.forEach(ceremony => {
+        const docRef = doc(db, 'ceremonies', ceremony.id);
+        const { id, ...ceremonyData } = ceremony;
+        batch.set(docRef, ceremonyData);
+    });
+    
+    data.guides.forEach(guide => {
+        const docRef = doc(db, 'guides', guide.id);
+        const { id, ...guideData } = guide;
+        batch.set(docRef, guideData);
+    });
+    
+    data.content.forEach(contentItem => {
+        const docRef = doc(db, 'content', contentItem.id);
+        batch.set(docRef, { value: contentItem.value });
+    });
 
-  await batch.commit();
+    data.settings.forEach(setting => {
+        const docRef = doc(db, 'settings', setting.id);
+        batch.set(docRef, setting.value);
+    });
+    
+    data.courses?.forEach(course => {
+        const docRef = doc(db, 'courses', course.id);
+        const { id, ...courseData } = course;
+        batch.set(docRef, courseData);
+    });
+
+    data.testimonials?.forEach(testimonial => {
+        const docRef = doc(db, 'testimonials', testimonial.id);
+        const { id, ...testimonialData } = testimonial;
+        batch.set(docRef, testimonialData);
+    });
+
+    data.invitationMessages?.forEach(msg => {
+        const docRef = doc(db, 'invitationMessages', msg.id);
+        batch.set(docRef, msg);
+    });
+
+    data.ceremonyInvitationMessages?.forEach(msg => {
+        const docRef = doc(db, 'ceremonyInvitationMessages', msg.id);
+        batch.set(docRef, msg);
+    });
+
+    data.shareMemoryMessages?.forEach(msg => {
+        const docRef = doc(db, 'shareMemoryMessages', msg.id);
+        batch.set(docRef, msg);
+    });
+
+
+    await batch.commit();
 };
 
 // --- Analytics ---
@@ -1455,6 +1527,3 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
 
 export type { Chat };
 export type { UserProfile };
-
-
-    
