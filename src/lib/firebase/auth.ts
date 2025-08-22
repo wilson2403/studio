@@ -84,7 +84,10 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     sessionStorage.setItem('tour_status', 'pending');
 
     return user;
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 'auth/email-already-in-use') {
+        throw new Error("Este correo electrónico ya está registrado. Por favor, inicia sesión.");
+    }
     console.error("Error signing up with email: ", error);
     await logError(error, { function: 'signUpWithEmail' });
     throw error;
@@ -97,7 +100,10 @@ export const signInWithEmail = async (email: string, password: string) => {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         sessionStorage.removeItem('tour_status');
         return userCredential.user;
-    } catch (error) {
+    } catch (error: any) {
+        if (error.code === 'auth/invalid-credential') {
+            throw new Error("Correo electrónico o contraseña incorrectos. Por favor, inténtalo de nuevo.");
+        }
         console.error("Error signing in with email: ", error);
         await logError(error, { function: 'signInWithEmail' });
         throw error;
