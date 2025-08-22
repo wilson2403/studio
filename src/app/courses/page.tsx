@@ -146,26 +146,32 @@ export default function CoursesPage() {
                         const isCompleted = userProfile?.completedCourses?.includes(course.id) || false;
                         const isYoutubeVideo = course.videoUrl?.includes('youtube.com') || course.videoUrl?.includes('youtu.be');
                         
-                        let youtubeVideoId = null;
+                        let youtubeEmbedUrl = null;
                         if (isYoutubeVideo && course.videoUrl) {
                             const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
                             const match = course.videoUrl.match(youtubeRegex);
-                            youtubeVideoId = match ? match[1] : null;
+                            if (match && match[1]) {
+                                youtubeEmbedUrl = `https://www.youtube.com/embed/${match[1]}`;
+                            }
                         }
 
 
                         return (
                             <Card key={course.id} className="overflow-hidden shadow-lg border-primary/20">
                                 <div className="aspect-video relative">
-                                    {isYoutubeVideo && youtubeVideoId ? (
+                                    {youtubeEmbedUrl ? (
                                         <iframe
-                                            src={`https://www.youtube.com/embed/${youtubeVideoId}?enablejsapi=1&autoplay=0`}
+                                            src={youtubeEmbedUrl}
                                             title={course.title}
                                             frameBorder="0"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                             allowFullScreen
                                             className="w-full h-full"
-                                            onLoad={() => handleCourseCompletionToggle(course.id, true)}
+                                            onLoad={() => {
+                                                if (!isCompleted) {
+                                                    handleCourseCompletionToggle(course.id, true);
+                                                }
+                                            }}
                                         ></iframe>
                                     ) : (
                                         <VideoPlayer
@@ -244,3 +250,4 @@ export default function CoursesPage() {
         </div>
     );
 }
+
