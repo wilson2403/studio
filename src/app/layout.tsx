@@ -14,13 +14,13 @@ import LoadingScreen from '@/components/layout/LoadingScreen';
 const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
 
 export const metadata: Metadata = {
-  title: 'El Arte de Sanar 🌿 Ceremonias de Medicina Ancestral en Costa Rica',
-  description:
-    'Explora un viaje profundo del alma en ceremonias guiadas con sabiduría amazónica. Conexión, sanación y transformación espiritual en Costa Rica.',
-  keywords: 'ayahuasca, ceremonia de ayahuasca, medicina ancestral, sanación espiritual, retiro espiritual, el arte de sanar, costa rica',
+  title: 'El Arte de Sanar 🌿 | Ceremonias de Medicina Ancestral en Costa Rica',
+  description: 'Explora un viaje profundo del alma en ceremonias guiadas con sabiduría amazónica en Costa Rica.',
   openGraph: {
-    title: 'El Arte de Sanar 🌿 Ceremonias de Medicina Ancestral en Costa Rica',
-    description: 'Explora un viaje profundo del alma en ceremonias guiadas con sabiduría amazónica. Conexión, sanación y transformación espiritual en Costa Rica.',
+    title: "El Arte de Sanar 🌿 | Medicina Ancestral en Costa Rica",
+    description: "Sanación interior, conexión espiritual y transformación con medicina ancestral en Costa Rica.",
+    url: "https://artedesanar.vercel.app",
+    siteName: "El Arte de Sanar",
     images: [
       {
         url: ogImage,
@@ -29,13 +29,13 @@ export const metadata: Metadata = {
         alt: 'El Arte de Sanar',
       },
     ],
-    url: 'https://artedesanar.vercel.app',
-    type: 'website',
+    type: "website",
+    locale: "es_CR",
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'El Arte de Sanar 🌿 Ceremonias de Medicina Ancestral',
-    description: 'Un espacio sagrado para tu sanación interior y conexión espiritual.',
+    title: 'El Arte de Sanar 🌿',
+    description: 'Un viaje profundo del alma en Costa Rica.',
     images: [ogImage],
   },
   other: {
