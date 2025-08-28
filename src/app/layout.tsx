@@ -11,11 +11,33 @@ import Chatbot from '@/components/chat/Chatbot';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import LoadingScreen from '@/components/layout/LoadingScreen';
 
+const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
+
 export const metadata: Metadata = {
-  title: 'Ceremonias de Ayahuasca en Costa Rica - El Arte de Sanar',
+  title: 'El Arte de Sanar 🌿 Ceremonias de Medicina Ancestral en Costa Rica',
   description:
-    'Ofrecemos ceremonias de ayahuasca con enfoque terapéutico, espiritual y ancestral en Costa Rica. Transformación interior y conexión con la medicina.',
+    'Explora un viaje profundo del alma en ceremonias guiadas con sabiduría amazónica. Conexión, sanación y transformación espiritual en Costa Rica.',
   keywords: 'ayahuasca, ceremonia de ayahuasca, medicina ancestral, sanación espiritual, retiro espiritual, el arte de sanar, costa rica',
+  openGraph: {
+    title: 'El Arte de Sanar 🌿 Ceremonias de Medicina Ancestral en Costa Rica',
+    description: 'Explora un viaje profundo del alma en ceremonias guiadas con sabiduría amazónica. Conexión, sanación y transformación espiritual en Costa Rica.',
+    images: [
+      {
+        url: ogImage,
+        width: 800,
+        height: 600,
+        alt: 'El Arte de Sanar',
+      },
+    ],
+    url: 'https://artedesanar.vercel.app',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'El Arte de Sanar 🌿 Ceremonias de Medicina Ancestral',
+    description: 'Un espacio sagrado para tu sanación interior y conexión espiritual.',
+    images: [ogImage],
+  },
   other: {
     'google-site-verification': '3ikN5R9KIadbh6RorKv3LtApl6c-M0tEqmdqHuuN_Wk',
   },
