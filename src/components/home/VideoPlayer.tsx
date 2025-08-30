@@ -11,25 +11,11 @@ import { getUserProfile, incrementCeremonyViewCount, updateVideoProgress, getVid
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
-const getYoutubeEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
-  if (!url) return null;
-  const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-  const match = url.match(youtubeRegex);
-  const videoId = match ? match[1] : null;
-  if (!videoId) return null;
-
-  // For Chromecast to work, some params like autoplay and mute should be avoided if possible
-  // However, for background videos they are necessary. We can conditionally add them.
-  const params = new URLSearchParams({
-    // autoplay: autoplay ? '1' : '0', 
-    loop: '1',
-    playlist: videoId,
-    // mute: defaultMuted ? '1' : '0',
-    rel: '0',
-    showinfo: '0',
-    enablejsapi: '1'
-  });
-  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+const getYoutubeVideoId = (url: string): string | null => {
+    if (!url) return null;
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(youtubeRegex);
+    return match ? match[1] : null;
 };
 
 const getTikTokEmbedUrl = (url: string, autoplay: boolean, defaultMuted: boolean): string | null => {
@@ -81,110 +67,100 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
 };
 
-// --- YouTube IFrame API Management ---
-let isApiReady = false;
-let apiReadyPromise: Promise<void> | null = null;
-const pendingPlayers: (() => void)[] = [];
 
-// @ts-ignore
-if (typeof window !== 'undefined') {
-  // @ts-ignore
-  window.onYouTubeIframeAPIReady = () => {
-    isApiReady = true;
-    pendingPlayers.forEach(playerInit => playerInit());
-    pendingPlayers.length = 0; // Clear the queue
-  };
-}
-
+let youtubeApiReadyPromise: Promise<void> | null = null;
 function loadYoutubeApi() {
-  if (!apiReadyPromise) {
-    apiReadyPromise = new Promise(resolve => {
-      if (isApiReady) {
-        resolve();
-        return;
-      }
-      
-      // If the API script is already on the page, don't add it again
-      if (document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
-        // The script is loading, just wait for it to be ready.
-        const checkReady = setInterval(() => {
-          if (isApiReady) {
-            clearInterval(checkReady);
-            resolve();
-          }
-        }, 100);
-        return;
-      }
-      
-      const tag = document.createElement('script');
-      tag.src = "https://www.youtube.com/iframe_api";
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      if (firstScriptTag && firstScriptTag.parentNode) {
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-      } else {
-        document.head.appendChild(tag);
-      }
-       // @ts-ignore
-      window.onYouTubeIframeAPIReady = () => {
-          isApiReady = true;
-          pendingPlayers.forEach(playerInit => playerInit());
-          pendingPlayers.length = 0;
-          resolve();
-      };
-    });
-  }
-  return apiReadyPromise;
-}
-// -------------------------------------
-
-const IframePlayer = ({ src, title, className, onPlay, children }: { src: string, title: string, className?: string, onPlay: () => void, children?: React.ReactNode }) => {
-    const [isLoading, setIsLoading] = useState(true);
-    const hasPlayed = useRef(false);
-    const iframeRef = useRef<HTMLIFrameElement>(null);
-    
-    const handleLoad = () => {
-        setIsLoading(false);
+    if (!youtubeApiReadyPromise) {
+        youtubeApiReadyPromise = new Promise((resolve) => {
+            // @ts-ignore
+            if (window.YT && window.YT.Player) {
+                resolve();
+                return;
+            }
+            const existingScript = document.getElementById('youtube-iframe-api');
+            if (existingScript) {
+                 // @ts-ignore
+                 if (window.YT && window.YT.Player) {
+                    resolve();
+                } else {
+                    // @ts-ignore
+                    existingScript.addEventListener('load', () => resolve());
+                }
+            } else {
+                const tag = document.createElement('script');
+                tag.id = 'youtube-iframe-api';
+                tag.src = "https://www.youtube.com/iframe_api";
+                // @ts-ignore
+                window.onYouTubeIframeAPIReady = () => resolve();
+                document.head.appendChild(tag);
+            }
+        });
     }
-    
-    useEffect(() => {
-      const iframe = iframeRef.current;
-      if (!iframe || !src.includes('youtube.com') || !src.includes('enablejsapi=1')) {
-          return;
-      }
-      
-      const handlePlayerStateChange = (event: any) => {
-        const PlayerState = {
-            PLAYING: 1,
-            BUFFERING: 3,
-        };
-        // Trigger onPlay the first time the video is playing or buffering.
-        if ((event.data === PlayerState.PLAYING || event.data === PlayerState.BUFFERING) && !hasPlayed.current) {
-            onPlay();
-            hasPlayed.current = true;
-        }
-      }
-      
-      const initializePlayer = () => {
-          try {
-              // @ts-ignore
-              new window.YT.Player(iframe, {
-                  events: {
-                      'onStateChange': handlePlayerStateChange,
-                  }
-              });
-          } catch(e) {
-              console.error("Error initializing YouTube player:", e);
-          }
-      }
-      
-      loadYoutubeApi().then(() => {
-          if (iframe) {
-              initializePlayer();
-          }
-      });
-      
-    }, [src, onPlay]);
+    return youtubeApiReadyPromise;
+}
 
+const YoutubePlayer = ({ videoId, title, className, onPlay, autoplay, children }: { videoId: string, title: string, className?: string, onPlay: () => void, autoplay?: boolean, children?: React.ReactNode }) => {
+    const playerRef = useRef<HTMLDivElement>(null);
+    const hasPlayed = useRef(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        let player: any = null;
+
+        const setupPlayer = () => {
+            if (!playerRef.current) return;
+            
+            // @ts-ignore
+            player = new window.YT.Player(playerRef.current, {
+                videoId: videoId,
+                playerVars: {
+                    autoplay: autoplay ? 1 : 0,
+                    controls: 1,
+                    rel: 0,
+                    showinfo: 0,
+                    loop: 1,
+                    playlist: videoId,
+                },
+                events: {
+                    'onReady': () => {
+                        setIsLoading(false);
+                    },
+                    'onStateChange': (event: any) => {
+                         // @ts-ignore
+                        if (event.data === window.YT.PlayerState.PLAYING && !hasPlayed.current) {
+                            onPlay();
+                            hasPlayed.current = true;
+                        }
+                    }
+                }
+            });
+        };
+
+        loadYoutubeApi().then(setupPlayer);
+        
+        return () => {
+            if (player && typeof player.destroy === 'function') {
+                player.destroy();
+            }
+        };
+
+    }, [videoId, onPlay, autoplay]);
+    
+    return (
+        <div className={cn("relative w-full h-full overflow-hidden", className)}>
+             {isLoading && (
+                 <div className="absolute inset-0 flex items-center justify-center text-white z-10 pointer-events-none">
+                    <Loader className="h-8 w-8 animate-spin" />
+                </div>
+            )}
+            <div id={`ytplayer-${videoId}-${Math.random()}`} ref={playerRef} className={cn(isLoading && "opacity-0")}></div>
+            {children}
+        </div>
+    );
+};
+
+const IframePlayer = ({ src, title, className, children }: { src: string, title: string, className?: string, children?: React.ReactNode }) => {
+    const [isLoading, setIsLoading] = useState(true);
     
     return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
@@ -193,10 +169,7 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
                     <Loader className="h-8 w-8 animate-spin" />
                 </div>
             )}
-            <div className='w-full h-full'>
-              <iframe
-                  ref={iframeRef}
-                  key={src}
+             <iframe
                   src={src}
                   title={title}
                   frameBorder="0"
@@ -204,9 +177,8 @@ const IframePlayer = ({ src, title, className, onPlay, children }: { src: string
                   allow="autoplay; encrypted-media; picture-in-picture; web-share"
                   allowFullScreen
                   className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
-                  onLoad={handleLoad}
+                  onLoad={() => setIsLoading(false)}
               ></iframe>
-            </div>
              {children}
         </div>
     );
@@ -461,18 +433,21 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     }
     
     const url = videoUrl || '';
+    const youtubeVideoId = getYoutubeVideoId(url);
+
+    if (youtubeVideoId) {
+        return <YoutubePlayer videoId={youtubeVideoId} title={title} className={className} onPlay={handlePlay} autoplay={autoplay}>{children}</YoutubePlayer>;
+    }
+
     const useAutoplay = !!autoplay;
     const useMuted = defaultMuted === undefined ? true : defaultMuted;
-
-    const embedUrl = 
-        (mediaType === 'video' || mediaType === 'short video') && 
-        (getYoutubeEmbedUrl(url, useAutoplay, useMuted)
-        || getTikTokEmbedUrl(url, useAutoplay, useMuted)
+    
+    const otherEmbedUrl = getTikTokEmbedUrl(url, useAutoplay, useMuted)
         || getFacebookEmbedUrl(url, useAutoplay, useMuted)
-        || getStreamableEmbedUrl(url, useAutoplay, useMuted));
+        || getStreamableEmbedUrl(url, useAutoplay, useMuted);
 
-    if (embedUrl) {
-       return <IframePlayer src={embedUrl} title={title} className={className} onPlay={handlePlay}>{children}</IframePlayer>;
+    if (otherEmbedUrl) {
+       return <IframePlayer src={otherEmbedUrl} title={title} className={className}>{children}</IframePlayer>;
     }
 
     if (isDirectVideoUrl(url)) {
