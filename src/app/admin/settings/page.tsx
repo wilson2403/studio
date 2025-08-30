@@ -20,7 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { SystemSettings, EnvironmentSettings } from '@/types';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '../ui/textarea';
+import { Textarea } from '@/components/ui/textarea';
 
 const navLinkSchema = z.object({
   es: z.string().min(1, 'El nombre en español es requerido.'),
