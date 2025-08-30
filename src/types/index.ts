@@ -278,6 +278,8 @@ export type SystemSettings = {
         shareCeremony: ComponentButtonData;
         viewParticipants: ComponentButtonData;
     };
+    ogTitle: HomeButtonData;
+    ogDescription: HomeButtonData;
 };
 
 export type EnvironmentSettings = {

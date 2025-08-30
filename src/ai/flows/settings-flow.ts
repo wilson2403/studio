@@ -61,6 +61,8 @@ const settingsSchema = z.object({
         shareCeremony: componentButtonSchema,
         viewParticipants: componentButtonSchema,
     }),
+    ogTitle: homeButtonSchema,
+    ogDescription: homeButtonSchema,
 });
 
 const environmentSchema = z.object({
@@ -146,6 +148,8 @@ export const getSystemSettings = ai.defineFlow(
         navLinks: navLinks,
         homeButtons: homeButtons,
         componentButtons: componentButtons,
+        ogTitle: await fetchHomeButtonContent('ogTitle', { es: 'El Arte de Sanar 🌿 | Ceremonias de Medicina Ancestral en Costa Rica', en: 'The Art of Healing 🌿 | Ancestral Medicine Ceremonies in Costa Rica' }),
+        ogDescription: await fetchHomeButtonContent('ogDescription', { es: 'Ofrecemos ceremonias de ayahuasca con enfoque terapéutico, espiritual y ancestral en Costa Rica. Transformación interior y conexión con la medicina.', en: 'We offer ayahuasca ceremonies with a therapeutic, spiritual, and ancestral approach in Costa Rica. Inner transformation and connection with the medicine.' }),
       };
     } catch (error: any) {
       logError(error, { function: 'getSystemSettings' });
@@ -169,6 +173,8 @@ export const updateSystemSettings = ai.defineFlow(
         await setContent('facebookUrl', { es: settings.facebookUrl, en: settings.facebookUrl });
         await setContent('tiktokUrl', { es: settings.tiktokUrl, en: settings.tiktokUrl });
         await setContent('whatsappNumber', { es: settings.whatsappNumber, en: settings.whatsappNumber });
+        await setContent('ogTitle', settings.ogTitle);
+        await setContent('ogDescription', settings.ogDescription);
 
         for (const [key, value] of Object.entries(settings.navLinks)) {
             await setContent(`nav${key.charAt(0).toUpperCase() + key.slice(1)}`, value);

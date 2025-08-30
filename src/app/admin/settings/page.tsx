@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Save, AlertTriangle, Key, Link2, List, Home, MousePointerClick } from 'lucide-react';
+import { Settings, Save, AlertTriangle, Key, Link2, List, Home, MousePointerClick, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { SystemSettings, EnvironmentSettings } from '@/types';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '../ui/textarea';
 
 const navLinkSchema = z.object({
   es: z.string().min(1, 'El nombre en español es requerido.'),
@@ -67,6 +68,8 @@ const settingsFormSchema = z.object({
         shareCeremony: componentButtonSchema,
         viewParticipants: componentButtonSchema,
     }),
+    ogTitle: homeButtonSchema,
+    ogDescription: homeButtonSchema,
 });
 
 const environmentFormSchema = z.object({
@@ -375,6 +378,34 @@ export default function AdminSettingsPage() {
                                     <FormItem><FormLabel>{t('whatsappNumber')}</FormLabel><FormControl><Input {...field} placeholder="50688888888" /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                 <Accordion type="multiple" className="w-full space-y-4">
+                                     <AccordionItem value="opengraph">
+                                        <AccordionTrigger>
+                                            <div className='flex items-center gap-2'>
+                                                <Share2 className="h-4 w-4 text-primary" />
+                                                {t('ogMetadata')}
+                                            </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="pt-4 space-y-4">
+                                            <div className="p-4 border rounded-lg space-y-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <FormField control={form.control} name="ogTitle.es" render={({ field }) => (
+                                                        <FormItem><FormLabel>{t('ogTitle')} (ES)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                    )}/>
+                                                    <FormField control={form.control} name="ogTitle.en" render={({ field }) => (
+                                                        <FormItem><FormLabel>{t('ogTitle')} (EN)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                    )}/>
+                                                </div>
+                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <FormField control={form.control} name="ogDescription.es" render={({ field }) => (
+                                                        <FormItem><FormLabel>{t('ogDescription')} (ES)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                                    )}/>
+                                                    <FormField control={form.control} name="ogDescription.en" render={({ field }) => (
+                                                        <FormItem><FormLabel>{t('ogDescription')} (EN)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                                    )}/>
+                                                </div>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
                                     <AccordionItem value="navigation"><AccordionTrigger>{t('navigationManagement')}</AccordionTrigger><AccordionContent className="pt-4">{renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}</AccordionContent></AccordionItem>
                                     <AccordionItem value="homeButtons"><AccordionTrigger>{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</AccordionTrigger><AccordionContent className="pt-4">{renderHomeButtons(['medicine', 'guides', 'preparation'])}</AccordionContent></AccordionItem>
                                     <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton', 'downloadVideo', 'leaveTestimonial', 'shareCeremony', 'viewParticipants'])}</AccordionContent></AccordionItem>
