@@ -1,32 +1,37 @@
-'use client';
 
-import Ceremonies from '@/components/home/Ceremonies';
-import Contact from '@/components/home/Contact';
-import { useTranslation } from 'react-i18next';
-import Hero from '@/components/home/Hero';
-import ExploreMore from '@/components/home/ExploreMore';
+import HomePageContent from '@/components/home/HomePageContent';
+import type { Metadata } from 'next';
+
+const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
+
+export const metadata: Metadata = {
+  title: 'El Arte de Sanar 🌿 | Ceremonias de Medicina Ancestral en Costa Rica',
+  description: 'Explora un viaje profundo del alma en ceremonias guiadas con sabiduría amazónica en Costa Rica.',
+  openGraph: {
+    title: "El Arte de Sanar 🌿 | Medicina Ancestral en Costa Rica",
+    description: "Sanación interior, conexión espiritual y transformación con medicina ancestral en Costa Rica.",
+    url: "https://artedesanar.vercel.app",
+    siteName: "El Arte de Sanar",
+    images: [
+      {
+        url: ogImage,
+        width: 800,
+        height: 600,
+        alt: 'El Arte de Sanar',
+      },
+    ],
+    type: "website",
+    locale: "es_CR",
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'El Arte de Sanar 🌿',
+    description: 'Un viaje profundo del alma en Costa Rica.',
+    images: [ogImage],
+  },
+};
+
 
 export default function Home() {
-  const { t } = useTranslation();
-
-  return (
-    <div className="container">
-      <Hero />
-      <Ceremonies
-        status="active"
-        id="ceremonias"
-        titleId="upcomingCeremoniesTitle"
-        titleInitialValue={t('upcomingCeremoniesTitle')}
-      />
-      <Ceremonies
-        status="finished"
-        id="eventos-anteriores"
-        titleId="pastEventsTitle"
-        titleInitialValue={t('pastEventsTitle')}
-        hideDownloadButton={true}
-      />
-      <ExploreMore />
-      <Contact />
-    </div>
-  );
+  return <HomePageContent />;
 }
