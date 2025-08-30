@@ -67,93 +67,52 @@ const isDirectVideoUrl = (url: string): boolean => {
     return url.startsWith('/') || /\.(mp4|webm|ogg)$/.test(url.split('?')[0]) || url.includes('githubusercontent');
 };
 
-
-let youtubeApiReadyPromise: Promise<void> | null = null;
-function loadYoutubeApi() {
-    if (!youtubeApiReadyPromise) {
-        youtubeApiReadyPromise = new Promise((resolve) => {
-            // @ts-ignore
-            if (window.YT && window.YT.Player) {
-                resolve();
-                return;
-            }
-            const existingScript = document.getElementById('youtube-iframe-api');
-            if (existingScript) {
-                 // @ts-ignore
-                 if (window.YT && window.YT.Player) {
-                    resolve();
-                } else {
-                    // @ts-ignore
-                    existingScript.addEventListener('load', () => resolve());
-                }
-            } else {
-                const tag = document.createElement('script');
-                tag.id = 'youtube-iframe-api';
-                tag.src = "https://www.youtube.com/iframe_api";
-                // @ts-ignore
-                window.onYouTubeIframeAPIReady = () => resolve();
-                document.head.appendChild(tag);
-            }
-        });
-    }
-    return youtubeApiReadyPromise;
-}
-
-const YoutubePlayer = ({ videoId, title, className, onPlay, autoplay, children }: { videoId: string, title: string, className?: string, onPlay: () => void, autoplay?: boolean, children?: React.ReactNode }) => {
-    const playerRef = useRef<HTMLDivElement>(null);
-    const hasPlayed = useRef(false);
+const YoutubePlayer = ({ videoId, title, className, onPlay, autoplay, defaultMuted, children }: { videoId: string, title: string, className?: string, onPlay: () => void, autoplay?: boolean, defaultMuted?: boolean, children?: React.ReactNode }) => {
     const [isLoading, setIsLoading] = useState(true);
+    const hasPlayed = useRef(false);
 
-    useEffect(() => {
-        let player: any = null;
-
-        const setupPlayer = () => {
-            if (!playerRef.current) return;
-            
-            // @ts-ignore
-            player = new window.YT.Player(playerRef.current, {
-                videoId: videoId,
-                playerVars: {
-                    autoplay: autoplay ? 1 : 0,
-                    controls: 1,
-                    rel: 0,
-                    showinfo: 0,
-                    loop: 1,
-                    playlist: videoId,
-                },
-                events: {
-                    'onReady': () => {
-                        setIsLoading(false);
-                    },
-                    'onStateChange': (event: any) => {
-                         // @ts-ignore
-                        if (event.data === window.YT.PlayerState.PLAYING && !hasPlayed.current) {
-                            onPlay();
-                            hasPlayed.current = true;
-                        }
-                    }
-                }
-            });
-        };
-
-        loadYoutubeApi().then(setupPlayer);
-        
-        return () => {
-            if (player && typeof player.destroy === 'function') {
-                player.destroy();
-            }
-        };
-
-    }, [videoId, onPlay, autoplay]);
+    const handlePlay = () => {
+        if (!hasPlayed.current) {
+            onPlay();
+            hasPlayed.current = true;
+        }
+    };
     
+    // Construct the embed URL
+    const embedUrl = new URL(`https://www.youtube.com/embed/${videoId}`);
+    embedUrl.searchParams.set('enablejsapi', '1');
+    embedUrl.searchParams.set('loop', '1');
+    embedUrl.searchParams.set('playlist', videoId);
+    embedUrl.searchParams.set('rel', '0');
+    embedUrl.searchParams.set('showinfo', '0');
+    if (autoplay) embedUrl.searchParams.set('autoplay', '1');
+    if (defaultMuted) embedUrl.searchParams.set('mute', '1');
+    
+    // The `onLoad` on the iframe will be triggered when the iframe content (the YouTube player) has loaded.
+    const handleLoad = () => {
+        setIsLoading(false);
+        // We can't directly detect play from an iframe without the JS API, but we can assume if autoplay is on, it plays.
+        if (autoplay) {
+            handlePlay();
+        }
+    };
+
     return (
         <div className={cn("relative w-full h-full overflow-hidden", className)}>
-             {isLoading && (
+            {isLoading && (
                  <div className="absolute inset-0 flex items-center justify-center text-white z-10 pointer-events-none">
                     <Loader className="h-8 w-8 animate-spin" />
                 </div>
             )}
-            <div id={`ytplayer-${videoId}-${Math.random()}`} ref={playerRef} className={cn(isLoading && "opacity-0")}></div>
+            <iframe
+                src={embedUrl.toString()}
+                title={title}
+                frameBorder="0"
+                allow="autoplay; encrypted-media; picture-in-picture; web-share"
+                allowFullScreen
+                className={cn("w-full h-full", isLoading ? "opacity-0" : "opacity-100 transition-opacity")}
+                onLoad={handleLoad}
+            ></iframe>
             {children}
         </div>
     );
@@ -436,7 +395,7 @@ export const VideoPlayer = ({ ceremonyId, videoUrl, mediaType, videoFit, autopla
     const youtubeVideoId = getYoutubeVideoId(url);
 
     if (youtubeVideoId) {
-        return <YoutubePlayer videoId={youtubeVideoId} title={title} className={className} onPlay={handlePlay} autoplay={autoplay}>{children}</YoutubePlayer>;
+        return <YoutubePlayer videoId={youtubeVideoId} title={title} className={className} onPlay={handlePlay} autoplay={autoplay} defaultMuted={defaultMuted}>{children}</YoutubePlayer>;
     }
 
     const useAutoplay = !!autoplay;
