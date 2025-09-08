@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -41,7 +40,7 @@ import { Badge } from '../ui/badge';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 
-const APP_VERSION = '2.69';
+const APP_VERSION = '2.70';
 
 type NavLinkDef = {
     href: string;
@@ -480,3 +479,5 @@ export default function Header() {
     </>
   );
 }
+
+    
