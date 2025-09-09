@@ -84,6 +84,14 @@ export default function RegisterPage() {
   const selectedCountryCode = form.watch('countryCode');
   const dialCode = selectedCountryCode ? selectedCountryCode.split('-')[1] : '';
 
+  const formatPhoneNumber = (value: string) => {
+    if (!value) return value;
+    const phoneNumber = value.replace(/[^\d]/g, '');
+    const phoneNumberLength = phoneNumber.length;
+    if (phoneNumberLength < 5) return phoneNumber;
+    return `${phoneNumber.slice(0, 4)}-${phoneNumber.slice(4, 8)}`;
+  };
+
 
   async function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     try {
@@ -204,7 +212,10 @@ export default function RegisterPage() {
                            name="phone"
                            render={({ field }) => (
                                <FormControl>
-                                   <Input type="tel" placeholder={t('registerPhonePlaceholder')} {...field} className="pl-14" />
+                                   <Input type="tel" placeholder={t('registerPhonePlaceholder')} {...field} onChange={(e) => {
+                                        const formatted = formatPhoneNumber(e.target.value);
+                                        field.onChange(formatted);
+                                    }} className="pl-14" />
                                </FormControl>
                            )}
                        />
