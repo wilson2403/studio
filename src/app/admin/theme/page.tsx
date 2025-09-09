@@ -20,7 +20,7 @@ import { ColorPicker } from '@/components/admin/ColorPicker';
 import { Separator } from '@/components/ui/separator';
 import { Save } from 'lucide-react';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 const colorThemeSchema = z.object({
     background: z.string(),
@@ -166,7 +166,7 @@ export default function ThemePage() {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+            if (!currentUser || !currentUser.email || !ADMIN_EMAILS.includes(currentUser.email)) {
                 router.push('/');
                 return;
             }
@@ -314,3 +314,5 @@ export default function ThemePage() {
         </div>
     );
 }
+
+    
