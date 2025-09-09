@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -40,7 +41,7 @@ import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 
-const APP_VERSION = '2.71';
+const APP_VERSION = '2.72';
 
 type NavLinkDef = {
     href: string;
