@@ -211,7 +211,7 @@ export default function ThemePage() {
         if (result.success && !loadingTheme) {
             applyTheme(result.data);
         }
-    }, [watchedValues, loadingTheme, themeFormSchema]);
+    }, [watchedValues, loadingTheme]);
 
 
     const renderColorField = (key: string, name: keyof ThemeFormValues['light'] | keyof ThemeFormValues['dark'], label: string, theme: 'light' | 'dark') => (
@@ -234,23 +234,23 @@ export default function ThemePage() {
         />
     );
     
-    const colorFields: { name: keyof ThemeFormValues['light'], label: string }[] = [
-        { name: 'primary', label: t('themePrimaryLabel') },
-        { name: 'primaryForeground', label: t('themePrimaryForegroundLabel') },
-        { name: 'background', label: t('themeBackgroundLabel') },
-        { name: 'foreground', label: t('themeForegroundLabel') },
-        { name: 'card', label: t('themeCardLabel') },
-        { name: 'cardForeground', label: t('themeCardForegroundLabel') },
-        { name: 'accent', label: t('themeAccentLabel') },
-        { name: 'accentForeground', label: t('themeAccentForegroundLabel') },
-        { name: 'secondary', label: t('themeSecondaryLabel') },
-        { name: 'secondaryForeground', label: t('themeSecondaryForegroundLabel') },
-        { name: 'muted', label: t('themeMutedLabel') },
-        { name: 'mutedForeground', label: t('themeMutedForegroundLabel') },
-        { name: 'destructive', label: t('themeDestructiveLabel') },
-        { name: 'border', label: t('themeBorderLabel') },
-        { name: 'input', label: t('themeInputLabel') },
-        { name: 'ring', label: t('themeRingLabel') },
+    const colorFields: { name: keyof ThemeFormValues['light'], labelKey: string }[] = [
+        { name: 'primary', labelKey: 'themePrimaryLabel' },
+        { name: 'primaryForeground', labelKey: 'themePrimaryForegroundLabel' },
+        { name: 'background', labelKey: 'themeBackgroundLabel' },
+        { name: 'foreground', labelKey: 'themeForegroundLabel' },
+        { name: 'card', labelKey: 'themeCardLabel' },
+        { name: 'cardForeground', labelKey: 'themeCardForegroundLabel' },
+        { name: 'accent', labelKey: 'themeAccentLabel' },
+        { name: 'accentForeground', labelKey: 'themeAccentForegroundLabel' },
+        { name: 'secondary', labelKey: 'themeSecondaryLabel' },
+        { name: 'secondaryForeground', labelKey: 'themeSecondaryForegroundLabel' },
+        { name: 'muted', labelKey: 'themeMutedLabel' },
+        { name: 'mutedForeground', labelKey: 'themeMutedForegroundLabel' },
+        { name: 'destructive', labelKey: 'themeDestructiveLabel' },
+        { name: 'border', labelKey: 'themeBorderLabel' },
+        { name: 'input', labelKey: 'themeInputLabel' },
+        { name: 'ring', labelKey: 'themeRingLabel' },
     ];
 
 
@@ -296,11 +296,11 @@ export default function ThemePage() {
                             <div className="grid md:grid-cols-2 gap-8">
                             <div className="space-y-4">
                                 <h3 className="text-xl font-headline">{t('themeLight')}</h3>
-                                {colorFields.map(field => renderColorField(field.name, field.name, field.label, 'light'))}
+                                {colorFields.map(field => renderColorField(field.name, field.name, t(field.labelKey), 'light'))}
                             </div>
                             <div className="space-y-4">
                                 <h3 className="text-xl font-headline">{t('themeDark')}</h3>
-                                {colorFields.map(field => renderColorField(field.name, field.name, field.label, 'dark'))}
+                                {colorFields.map(field => renderColorField(field.name, field.name, t(field.labelKey), 'dark'))}
                             </div>
                             </div>
                             <Button type="submit" disabled={themeForm.formState.isSubmitting}>
