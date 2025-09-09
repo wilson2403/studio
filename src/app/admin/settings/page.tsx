@@ -27,100 +27,98 @@ import { useEditable } from '@/components/home/EditableProvider';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
-const navLinkSchema = z.object({
-  es: z.string().min(1, 'El nombre en español es requerido.'),
-  en: z.string().min(1, 'El nombre en inglés es requerido.'),
+const navLinkSchema = (t: (key: string) => string) => z.object({
+  es: z.string().min(1, t('errorRequired')),
+  en: z.string().min(1, t('errorRequired')),
   visible: z.boolean(),
 });
 
-const homeButtonSchema = z.object({
-    es: z.string().min(1, 'El nombre en español es requerido.'),
-    en: z.string().min(1, 'El nombre en inglés es requerido.'),
+const homeButtonSchema = (t: (key: string) => string) => z.object({
+    es: z.string().min(1, t('errorRequired')),
+    en: z.string().min(1, t('errorRequired')),
 });
 
-const componentButtonSchema = z.object({
-    es: z.string().min(1, 'El nombre en español es requerido.'),
-    en: z.string().min(1, 'El nombre en inglés es requerido.'),
+const componentButtonSchema = (t: (key: string) => string) => z.object({
+    es: z.string().min(1, t('errorRequired')),
+    en: z.string().min(1, t('errorRequired')),
 });
 
-const settingsFormSchema = z.object({
-    logoUrl: z.string().url('Debe ser una URL válida.'),
-    whatsappCommunityLink: z.string().url('Debe ser una URL válida.'),
-    instagramUrl: z.string().url('Debe ser una URL válida.'),
-    facebookUrl: z.string().url('Debe ser una URL válida.'),
-    tiktokUrl: z.string().url('Debe ser una URL válida.'),
-    whatsappNumber: z.string().min(8, 'Debe ser un número de teléfono válido.'),
+const settingsFormSchema = (t: (key: string) => string) => z.object({
+    logoUrl: z.string().url(t('errorInvalidUrl')),
+    whatsappCommunityLink: z.string().url(t('errorInvalidUrl')),
+    instagramUrl: z.string().url(t('errorInvalidUrl')),
+    facebookUrl: z.string().url(t('errorInvalidUrl')),
+    tiktokUrl: z.string().url(t('errorInvalidUrl')),
+    whatsappNumber: z.string().min(8, t('errorInvalidPhone')),
     navLinks: z.object({
-        home: navLinkSchema,
-        medicine: navLinkSchema,
-        guides: navLinkSchema,
-        testimonials: navLinkSchema,
-        ceremonies: navLinkSchema,
-        journey: navLinkSchema,
-        preparation: navLinkSchema,
+        home: navLinkSchema(t),
+        medicine: navLinkSchema(t),
+        guides: navLinkSchema(t),
+        testimonials: navLinkSchema(t),
+        ceremonies: navLinkSchema(t),
+        journey: navLinkSchema(t),
+        preparation: navLinkSchema(t),
     }),
     homeButtons: z.object({
-        medicine: homeButtonSchema,
-        guides: homeButtonSchema,
-        preparation: homeButtonSchema,
+        medicine: homeButtonSchema(t),
+        guides: homeButtonSchema(t),
+        preparation: homeButtonSchema(t),
     }),
     componentButtons: z.object({
-        addCeremony: componentButtonSchema,
-        buttonViewDetails: componentButtonSchema,
-        whatsappCommunityButton: componentButtonSchema,
-        downloadVideo: componentButtonSchema,
-        leaveTestimonial: componentButtonSchema,
-        shareCeremony: componentButtonSchema,
-        viewParticipants: componentButtonSchema,
+        addCeremony: componentButtonSchema(t),
+        buttonViewDetails: componentButtonSchema(t),
+        whatsappCommunityButton: componentButtonSchema(t),
+        downloadVideo: componentButtonSchema(t),
+        leaveTestimonial: componentButtonSchema(t),
+        shareCeremony: componentButtonSchema(t),
+        viewParticipants: componentButtonSchema(t),
     }),
-    ogTitle: homeButtonSchema,
-    ogDescription: homeButtonSchema,
+    ogTitle: homeButtonSchema(t),
+    ogDescription: homeButtonSchema(t),
 });
 
-const firebaseConfigSchema = z.object({
-    apiKey: z.string().min(1, 'API Key is required.'),
-    authDomain: z.string().min(1, 'Auth Domain is required.'),
-    projectId: z.string().min(1, 'Project ID is required.'),
-    storageBucket: z.string().min(1, 'Storage Bucket is required.'),
-    messagingSenderId: z.string().min(1, 'Messaging Sender ID is required.'),
-    appId: z.string().min(1, 'App ID is required.'),
+const firebaseConfigSchema = (t: (key: string) => string) => z.object({
+    apiKey: z.string().min(1, t('errorRequired')),
+    authDomain: z.string().min(1, t('errorRequired')),
+    projectId: z.string().min(1, t('errorRequired')),
+    storageBucket: z.string().min(1, t('errorRequired')),
+    messagingSenderId: z.string().min(1, t('errorRequired')),
+    appId: z.string().min(1, t('errorRequired')),
 });
 
-const environmentSchema = z.object({
-    activeEnvironment: z.enum(['production', 'backup']),
+const environmentSchema = (t: (key: string) => string) => z.object({
     environments: z.object({
         production: z.object({
-            firebaseConfig: firebaseConfigSchema,
+            firebaseConfig: firebaseConfigSchema(t),
             googleApiKey: z.string().optional(),
             resendApiKey: z.string().optional(),
         }),
         backup: z.object({
-            firebaseConfig: firebaseConfigSchema,
+            firebaseConfig: firebaseConfigSchema(t),
             googleApiKey: z.string().optional(),
             resendApiKey: z.string().optional(),
         }),
     }),
 });
 
-type SettingsFormValues = z.infer<typeof settingsFormSchema>;
-type EnvironmentFormValues = z.infer<typeof environmentSchema>;
+type SettingsFormValues = z.infer<ReturnType<typeof settingsFormSchema>>;
+type EnvironmentFormValues = z.infer<ReturnType<typeof environmentSchema>>;
 
 
 export default function AdminSettingsPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('production');
     const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
     const { content: editableContent, fetchContent } = useEditable();
 
     const form = useForm<SettingsFormValues>({
-        resolver: zodResolver(settingsFormSchema),
+        resolver: zodResolver(settingsFormSchema(t)),
     });
 
     const envForm = useForm<EnvironmentFormValues>({
-        resolver: zodResolver(environmentSchema),
+        resolver: zodResolver(environmentSchema(t)),
     });
     
     useEffect(() => {
@@ -131,8 +129,7 @@ export default function AdminSettingsPage() {
                     getSystemEnvironment()
                 ]);
                 form.reset(settings);
-                envForm.reset(envSettings);
-                setActiveTab(envSettings.activeEnvironment);
+                envForm.reset({ environments: envSettings.environments });
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
                 toast({ title: t('errorFetchSettings'), variant: 'destructive' });
@@ -152,14 +149,6 @@ export default function AdminSettingsPage() {
         return () => unsubscribe();
     }, [router, toast, t, form, envForm]);
 
-    const activeEnv = envForm.watch('activeEnvironment');
-    useEffect(() => {
-        if(activeEnv) {
-            setActiveTab(activeEnv);
-        }
-    }, [activeEnv]);
-
-
     const onSettingsSubmit = async (data: SettingsFormValues) => {
         try {
             const result = await updateSystemSettings(data);
@@ -175,7 +164,8 @@ export default function AdminSettingsPage() {
     
     const onEnvSubmit = async (data: EnvironmentFormValues) => {
         try {
-            const result = await updateSystemEnvironment(data);
+            // We only update the environments part, not the active one
+            const result = await updateSystemEnvironment({ activeEnvironment: 'production', ...data });
             if (result.success) {
                 toast({ title: t('envSettingsUpdatedSuccess'), description: t('envSettingsUpdatedSuccessDesc') });
             } else {
@@ -222,7 +212,7 @@ export default function AdminSettingsPage() {
                             name={`navLinks.${key}.es`}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Español</FormLabel>
+                                    <FormLabel>{t('spanish')}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -233,7 +223,7 @@ export default function AdminSettingsPage() {
                             name={`navLinks.${key}.en`}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>English</FormLabel>
+                                    <FormLabel>{t('english')}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -256,7 +246,7 @@ export default function AdminSettingsPage() {
                             name={`homeButtons.${key}.es`}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Español</FormLabel>
+                                    <FormLabel>{t('spanish')}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -267,7 +257,7 @@ export default function AdminSettingsPage() {
                             name={`homeButtons.${key}.en`}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>English</FormLabel>
+                                    <FormLabel>{t('english')}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -290,7 +280,7 @@ export default function AdminSettingsPage() {
                             name={`componentButtons.${key}.es`}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Español</FormLabel>
+                                    <FormLabel>{t('spanish')}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -301,7 +291,7 @@ export default function AdminSettingsPage() {
                             name={`componentButtons.${key}.en`}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>English</FormLabel>
+                                    <FormLabel>{t('english')}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -315,12 +305,12 @@ export default function AdminSettingsPage() {
 
     const renderFirebaseConfigFields = (env: 'production' | 'backup') => {
         const fields: { name: keyof FirebaseConfig, label: string }[] = [
-            { name: 'apiKey', label: 'Firebase API Key' },
-            { name: 'appId', label: 'Firebase App ID' },
-            { name: 'authDomain', label: 'Firebase Auth Domain' },
-            { name: 'messagingSenderId', label: 'Firebase Messaging Sender ID' },
-            { name: 'projectId', label: 'Firebase Project ID' },
-            { name: 'storageBucket', label: 'Firebase Storage Bucket' },
+            { name: 'apiKey', label: t('firebaseApiKey') },
+            { name: 'appId', label: t('firebaseAppId') },
+            { name: 'authDomain', label: t('firebaseAuthDomain') },
+            { name: 'messagingSenderId', label: t('firebaseMessagingSenderId') },
+            { name: 'projectId', label: t('firebaseProjectId') },
+            { name: 'storageBucket', label: t('firebaseStorageBucket') },
         ];
         
         fields.sort((a, b) => a.label.localeCompare(b.label));
@@ -350,8 +340,7 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${values.firebaseConfig.storageBucket}
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${values.firebaseConfig.messagingSenderId}
 NEXT_PUBLIC_FIREBASE_APP_ID=${values.firebaseConfig.appId}
 GEMINI_API_KEY=${values.googleApiKey || ''}
-RESEND_API_KEY=${values.resendApiKey || ''}`.trim();
-
+RESEND_API_KEY=${values.resendApiKey || ''}`;
 
         navigator.clipboard.writeText(envContent).then(() => {
             toast({ title: t('envCopied'), description: t('envCopiedDesc', {env: t(env)}) });
@@ -390,29 +379,7 @@ RESEND_API_KEY=${values.resendApiKey || ''}`.trim();
                                     <CardDescription>{t('environmentConfigurationDescription')}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                     <FormField
-                                        control={envForm.control}
-                                        name="activeEnvironment"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>{t('activeEnvironment')}</FormLabel>
-                                                <Select onValueChange={field.onChange} value={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder={t('selectActiveEnvironment')} />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <SelectItem value="production">{t('production')}</SelectItem>
-                                                        <SelectItem value="backup">{t('backup')}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormDescription>{t('activeEnvironmentDesc')}</FormDescription>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                                    <Tabs defaultValue="production" className="w-full">
                                         <TabsList className="grid w-full grid-cols-2">
                                             <TabsTrigger value="production">{t('production')}</TabsTrigger>
                                             <TabsTrigger value="backup">{t('backup')}</TabsTrigger>
@@ -431,8 +398,8 @@ RESEND_API_KEY=${values.resendApiKey || ''}`.trim();
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('production')}
-                                                     <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Gemini API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                                                     <FormField control={envForm.control} name="environments.production.resendApiKey" render={({ field }) => (<FormItem><FormLabel>Resend API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('geminiApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.production.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                 </CardContent>
                                             </Card>
                                         </TabsContent>
@@ -450,8 +417,8 @@ RESEND_API_KEY=${values.resendApiKey || ''}`.trim();
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('backup')}
-                                                     <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Gemini API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                                                     <FormField control={envForm.control} name="environments.backup.resendApiKey" render={({ field }) => (<FormItem><FormLabel>Resend API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('geminiApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.backup.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                 </CardContent>
                                             </Card>
                                         </TabsContent>
@@ -509,18 +476,18 @@ RESEND_API_KEY=${values.resendApiKey || ''}`.trim();
                                             <div className="p-4 border rounded-lg space-y-4">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <FormField control={form.control} name="ogTitle.es" render={({ field }) => (
-                                                        <FormItem><FormLabel>{t('ogTitle')} (ES)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                        <FormItem><FormLabel>{t('ogTitle')} ({t('spanish')})</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     )}/>
                                                     <FormField control={form.control} name="ogTitle.en" render={({ field }) => (
-                                                        <FormItem><FormLabel>{t('ogTitle')} (EN)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                        <FormItem><FormLabel>{t('ogTitle')} ({t('english')})</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     )}/>
                                                 </div>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <FormField control={form.control} name="ogDescription.es" render={({ field }) => (
-                                                        <FormItem><FormLabel>{t('ogDescription')} (ES)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                                        <FormItem><FormLabel>{t('ogDescription')} ({t('spanish')})</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                                                     )}/>
                                                     <FormField control={form.control} name="ogDescription.en" render={({ field }) => (
-                                                        <FormItem><FormLabel>{t('ogDescription')} (EN)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                                        <FormItem><FormLabel>{t('ogDescription')} ({t('english')})</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                                                     )}/>
                                                 </div>
                                             </div>
