@@ -48,23 +48,27 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-                <button
+                <Button
+                    variant="outline"
+                    size="icon"
                     type="button"
-                    className="h-10 w-10 rounded-md border border-input p-2 flex items-center justify-center"
+                    className="h-10 w-10 p-2"
                     style={{ backgroundColor: `hsl(${value})` }}
                     aria-label="Color picker"
                 >
                    <Paintbrush className="h-5 w-5 text-white mix-blend-difference" />
-                </button>
+                </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-2">
                 <div className="grid grid-cols-8 gap-2">
                     {colors.map((color) => (
-                        <button
+                        <Button
                             key={color}
+                            variant="outline"
+                            size="icon"
                             type="button"
                             className={cn(
-                                'h-8 w-8 rounded-md border border-muted-foreground/20 cursor-pointer transition-transform hover:scale-110',
+                                'h-8 w-8 cursor-pointer transition-transform hover:scale-110',
                                 value === color && 'ring-2 ring-ring ring-offset-2 ring-offset-background'
                             )}
                             style={{ backgroundColor: `hsl(${color})` }}

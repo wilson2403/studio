@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { getThemeSettings, setThemeSettings, ThemeSettings, getPredefinedThemes, PredefinedTheme, savePredefinedTheme, deletePredefinedTheme, seedPredefinedThemes } from '@/lib/firebase/firestore';
+import { getThemeSettings, setThemeSettings, ThemeSettings, getPredefinedThemes, PredefinedTheme, savePredefinedTheme, deletePredefinedTheme } from '@/lib/firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -65,6 +65,7 @@ type ThemeFormValues = z.infer<typeof themeFormSchema>;
 
 function applyTheme(settings: ThemeSettings | null) {
   if (!settings || !settings.light || !settings.dark) {
+    console.warn("applyTheme called with invalid settings.");
     return;
   }
   const styleId = 'dynamic-theme-styles';
@@ -82,7 +83,7 @@ function applyTheme(settings: ThemeSettings | null) {
   const darkStyles = Object.entries(settings.dark)
     .map(([key, value]) => `--dark-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
     .join('\n');
-
+    
   styleTag.innerHTML = `:root { ${lightStyles} ${darkStyles} }`;
 }
 
@@ -108,15 +109,17 @@ export default function ThemePage() {
                     getPredefinedThemes()
                 ]);
                 
-                if (themeSettings) {
-                    themeForm.reset(themeSettings);
-                    applyTheme(themeSettings);
-                } else {
-                    const defaultTheme = predefined.find(p => p.name === 'Default');
+                let themeToApply: ThemeSettings | null = themeSettings;
+                if (!themeToApply) {
+                    const defaultTheme = predefined.find(p => p.id === 'default');
                     if(defaultTheme) {
-                        themeForm.reset(defaultTheme.colors);
-                        applyTheme(defaultTheme.colors);
+                       themeToApply = defaultTheme.colors;
                     }
+                }
+
+                if (themeToApply) {
+                   themeForm.reset(themeToApply);
+                   applyTheme(themeToApply);
                 }
                 setPredefinedThemes(predefined);
 
@@ -167,14 +170,14 @@ export default function ThemePage() {
     }, [watchedValues, loadingTheme]);
 
 
-    const renderColorField = (key: string, name: keyof ThemeFormValues['light'] | keyof ThemeFormValues['dark'], label: string, theme: 'light' | 'dark') => (
+    const renderColorField = (key: string, name: keyof ThemeFormValues['light'] | keyof ThemeFormValues['dark'], labelKey: string, theme: 'light' | 'dark') => (
         <FormField
           key={key}
           control={themeForm.control}
           name={`${theme}.${name}` as any}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{label}</FormLabel>
+              <FormLabel>{t(labelKey)}</FormLabel>
               <div className="flex items-center gap-2">
                 <ColorPicker value={field.value} onChange={field.onChange} />
                 <FormControl>
@@ -321,11 +324,11 @@ export default function ThemePage() {
                             <div className="grid md:grid-cols-2 gap-8">
                             <div className="space-y-4">
                                 <h3 className="text-xl font-headline">{t('themeLight')}</h3>
-                                {colorFields.map(field => renderColorField(field.name, field.name, t(field.labelKey), 'light'))}
+                                {colorFields.map(field => renderColorField(field.name, field.name, field.labelKey, 'light'))}
                             </div>
                             <div className="space-y-4">
                                 <h3 className="text-xl font-headline">{t('themeDark')}</h3>
-                                {colorFields.map(field => renderColorField(field.name, field.name, t(field.labelKey), 'dark'))}
+                                {colorFields.map(field => renderColorField(field.name, field.name, field.labelKey, 'dark'))}
                             </div>
                             </div>
                             <Button type="submit" disabled={themeForm.formState.isSubmitting}>

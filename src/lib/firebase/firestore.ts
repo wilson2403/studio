@@ -707,7 +707,7 @@ export const getThemeSettings = async (): Promise<ThemeSettings | null> => {
         const docRef = doc(db, 'settings', 'theme');
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-            return docSnap.data() as ThemeSettings;
+            return docSnap.data().value as ThemeSettings;
         }
         return null;
     } catch (error: any) {
@@ -724,7 +724,7 @@ export const getThemeSettings = async (): Promise<ThemeSettings | null> => {
 export const setThemeSettings = async (settings: ThemeSettings): Promise<void> => {
     try {
         const docRef = doc(db, 'settings', 'theme');
-        await setDoc(docRef, settings);
+        await setDoc(docRef, { value: settings });
         await logUserAction('update_theme_settings', { changes: settings });
     } catch (error) {
         console.error("Error setting theme settings:", error);
