@@ -68,16 +68,15 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
 
     const userRef = doc(db, 'users', user.uid);
     
-    const userData: Partial<UserProfile> = {
+    const userData: UserProfile = {
       uid: user.uid,
       email: user.email,
       displayName: displayName,
       photoURL: user.photoURL,
-      providerId: 'password',
+      phone: fullPhoneNumber,
       role: user.email && ADMIN_EMAILS.includes(user.email) ? 'admin' : 'user',
       questionnaireCompleted: false,
       status: 'Interesado',
-      phone: fullPhoneNumber,
     };
 
     await setDoc(userRef, userData);
@@ -164,3 +163,4 @@ export const updateUserPassword = async (currentPassword: string, newPassword: s
         throw error;
     }
 };
+
