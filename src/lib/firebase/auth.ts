@@ -17,7 +17,7 @@ import {
 } from 'firebase/auth';
 import { auth, db } from './config';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { logError, getUserProfile } from './firestore';
+import { logError, getUserProfile, UserProfile } from './firestore';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -68,17 +68,23 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
         : undefined;
 
     const userRef = doc(db, 'users', user.uid);
-    await setDoc(userRef, {
+    
+    const userData: Partial<UserProfile> = {
       uid: user.uid,
       email: user.email,
       displayName: displayName,
-      phone: fullPhoneNumber,
       photoURL: user.photoURL,
       providerId: 'password',
       role: user.email && ADMIN_EMAILS.includes(user.email) ? 'admin' : 'user',
       questionnaireCompleted: false,
       status: 'Interesado',
-    });
+    };
+
+    if (fullPhoneNumber) {
+        userData.phone = fullPhoneNumber;
+    }
+
+    await setDoc(userRef, userData);
     
     return user;
   } catch (error: any) {
