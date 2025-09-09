@@ -87,15 +87,16 @@ const firebaseConfigSchema = (t: (key: string) => string) => z.object({
 });
 
 const environmentSchema = (t: (key: string) => string) => z.object({
+    activeEnvironment: z.enum(['production', 'backup']),
     environments: z.object({
         production: z.object({
             firebaseConfig: firebaseConfigSchema(t),
-            geminiApiKey: z.string().optional(),
+            googleApiKey: z.string().optional(),
             resendApiKey: z.string().optional(),
         }),
         backup: z.object({
             firebaseConfig: firebaseConfigSchema(t),
-            geminiApiKey: z.string().optional(),
+            googleApiKey: z.string().optional(),
             resendApiKey: z.string().optional(),
         }),
     }),
@@ -129,7 +130,21 @@ export default function AdminSettingsPage() {
                     getSystemEnvironment()
                 ]);
                 form.reset(settings);
-                envForm.reset({ environments: envSettings.environments });
+                envForm.reset({
+                    ...envSettings,
+                    environments: {
+                        production: {
+                            ...envSettings.environments.production,
+                            googleApiKey: envSettings.environments.production.googleApiKey || '',
+                            resendApiKey: envSettings.environments.production.resendApiKey || '',
+                        },
+                        backup: {
+                            ...envSettings.environments.backup,
+                            googleApiKey: envSettings.environments.backup.googleApiKey || '',
+                            resendApiKey: envSettings.environments.backup.resendApiKey || '',
+                        }
+                    }
+                });
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
                 toast({ title: t('errorFetchSettings'), variant: 'destructive' });
@@ -164,8 +179,7 @@ export default function AdminSettingsPage() {
     
     const onEnvSubmit = async (data: EnvironmentFormValues) => {
         try {
-            // We only update the environments part, not the active one
-            const result = await updateSystemEnvironment({ activeEnvironment: 'production', ...data });
+            const result = await updateSystemEnvironment(data);
             if (result.success) {
                 toast({ title: t('envSettingsUpdatedSuccess'), description: t('envSettingsUpdatedSuccessDesc') });
             } else {
@@ -339,7 +353,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=${values.firebaseConfig.projectId}
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${values.firebaseConfig.storageBucket}
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${values.firebaseConfig.messagingSenderId}
 NEXT_PUBLIC_FIREBASE_APP_ID=${values.firebaseConfig.appId}
-GEMINI_API_KEY=${values.geminiApiKey || ''}
+NEXT_PUBLIC_GOOGLE_API_KEY=${values.googleApiKey || ''}
 RESEND_API_KEY=${values.resendApiKey || ''}`;
 
         navigator.clipboard.writeText(envContent).then(() => {
@@ -379,6 +393,28 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
                                     <CardDescription>{t('environmentConfigurationDescription')}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
+                                     <FormField
+                                        control={envForm.control}
+                                        name="activeEnvironment"
+                                        render={({ field }) => (
+                                        <FormItem className="space-y-3">
+                                            <FormLabel>{t('activeEnvironmentLabel')}</FormLabel>
+                                            <FormControl>
+                                            <Select onValueChange={field.onChange} value={field.value}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={t('selectActiveEnvironment')} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="production">{t('production')}</SelectItem>
+                                                    <SelectItem value="backup">{t('backup')}</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            </FormControl>
+                                            <FormDescription>{t('activeEnvironmentDescription')}</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                        )}
+                                    />
                                     <Tabs defaultValue="production" className="w-full">
                                         <TabsList className="grid w-full grid-cols-2">
                                             <TabsTrigger value="production">{t('production')}</TabsTrigger>
@@ -398,7 +434,7 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('production')}
-                                                     <FormField control={envForm.control} name="environments.production.geminiApiKey" render={({ field }) => (<FormItem><FormLabel>{t('geminiApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('googleApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                      <FormField control={envForm.control} name="environments.production.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                 </CardContent>
                                             </Card>
@@ -417,7 +453,7 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('backup')}
-                                                     <FormField control={envForm.control} name="environments.backup.geminiApiKey" render={({ field }) => (<FormItem><FormLabel>{t('geminiApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('googleApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                      <FormField control={envForm.control} name="environments.backup.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                 </CardContent>
                                             </Card>
