@@ -207,10 +207,10 @@ export default function CeremonyMemoryPage() {
     return (
         <EditableProvider>
             <div className="container pt-8 md:pt-12">
-                 <div className="max-w-4xl mx-auto">
+                 <div className="md:grid md:grid-cols-2 md:gap-8 md:items-center max-w-5xl mx-auto">
                     <div className={cn(
-                        "w-full mb-8 rounded-lg overflow-hidden shadow-2xl bg-black mx-auto",
-                        isShortVideo ? "aspect-[9/16] md:max-w-sm" : "aspect-video"
+                        "w-full mb-8 md:mb-0 rounded-lg overflow-hidden shadow-2xl bg-black mx-auto",
+                        isShortVideo ? "aspect-[9/16] md:max-w-sm" : "aspect-video md:col-span-2"
                     )}>
                         <VideoPlayer
                             ceremonyId={ceremony.id}
@@ -224,17 +224,17 @@ export default function CeremonyMemoryPage() {
                         />
                     </div>
                 
-                    <div className="max-w-2xl mx-auto text-center">
+                    <div className={cn("text-center", isShortVideo ? "md:text-left" : "max-w-2xl mx-auto")}>
                          <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary drop-shadow-lg">{ceremony.title}</h1>
-                        <div className="font-mono text-sm mb-6 space-y-1 text-muted-foreground">
+                        <div className={cn("font-mono text-sm mb-6 space-y-1 text-muted-foreground", isShortVideo && "md:justify-start")}>
                             {ceremony.date && (
-                            <p className="flex items-center gap-2 justify-center">
+                            <p className={cn("flex items-center gap-2 justify-center", isShortVideo && "md:justify-start")}>
                                 <CalendarIcon className='w-4 h-4'/> {ceremony.date}
                             </p>
                             )}
                         </div>
                     
-                        <div className="w-full max-w-xs mx-auto space-y-3">
+                        <div className={cn("w-full max-w-xs mx-auto space-y-3", isShortVideo && "md:mx-0")}>
                             <Button size="lg" className="w-full" onClick={handleDownload}>
                                 <Download className="mr-2 h-4 w-4" />
                                 {getButtonText('downloadVideo', 'Descargar Video')}
