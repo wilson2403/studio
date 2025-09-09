@@ -197,14 +197,14 @@ export default function RegisterPage() {
                     />
                     <div className="relative w-full">
                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-sm text-muted-foreground">
-                          {dialCode}
+                          {dialCode}&nbsp;
                        </div>
                        <FormField
                            control={form.control}
                            name="phone"
                            render={({ field }) => (
                                <FormControl>
-                                   <Input type="tel" placeholder={t('registerPhonePlaceholder')} {...field} className="pl-12" />
+                                   <Input type="tel" placeholder={t('registerPhonePlaceholder')} {...field} className="pl-14" />
                                </FormControl>
                            )}
                        />
@@ -256,4 +256,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
