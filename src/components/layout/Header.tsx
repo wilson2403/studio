@@ -42,6 +42,7 @@ import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 
 const APP_VERSION = '2.73';
+const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type NavLinkDef = {
     href: string;
@@ -80,7 +81,9 @@ export default function Header() {
       { href: '/admin/settings', labelKey: 'systemSettings', icon: Settings }
   ];
   
-  const isAdmin = userProfile?.role === 'admin';
+  const isUserAdminByRole = userProfile?.role === 'admin';
+  const isUserAdminByEmail = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isUserAdminByRole || isUserAdminByEmail;
   const isOrganizer = userProfile?.role === 'organizer';
   const organizerHasPerms = isOrganizer && (userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses || userProfile?.permissions?.canEditUsers);
 

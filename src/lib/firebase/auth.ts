@@ -21,7 +21,7 @@ import { logError, getUserProfile } from './firestore';
 
 const googleProvider = new GoogleAuthProvider();
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 export const signInWithGoogle = async () => {
   try {
@@ -30,7 +30,7 @@ export const signInWithGoogle = async () => {
     const userRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(userRef);
 
-    const isUserAdminByEmail = user.email === ADMIN_EMAIL;
+    const isUserAdminByEmail = user.email ? ADMIN_EMAILS.includes(user.email) : false;
 
     if (!docSnap.exists()) {
         // New user - Flag for continuation page
@@ -61,7 +61,6 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     const user = userCredential.user;
     
     await updateProfile(user, { displayName });
-    await sendEmailVerification(user);
     
     const dialCode = countryCode ? countryCode.split('-')[1] : undefined;
     const fullPhoneNumber = phone && dialCode
@@ -76,13 +75,11 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
       phone: fullPhoneNumber,
       photoURL: user.photoURL,
       providerId: 'password',
-      role: user.email === ADMIN_EMAIL ? 'admin' : 'user',
+      role: user.email && ADMIN_EMAILS.includes(user.email) ? 'admin' : 'user',
       questionnaireCompleted: false,
       status: 'Interesado',
     });
     
-    sessionStorage.setItem('tour_status', 'pending');
-
     return user;
   } catch (error: any) {
     if (error.code === 'auth/email-already-in-use') {
@@ -98,7 +95,6 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
 export const signInWithEmail = async (email: string, password: string) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        sessionStorage.removeItem('tour_status');
         return userCredential.user;
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential') {
