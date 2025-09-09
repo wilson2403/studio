@@ -618,6 +618,19 @@ export const updateUserProfile = async (uid: string, data: Partial<UserProfile>)
     }
 };
 
+export const updateUserLanguage = async (uid: string, language: 'es' | 'en'): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, { language });
+        // Not logging this action to avoid feedback loops if called from other loggable actions
+    } catch (error) {
+        console.error("Error updating user language:", error);
+        logError(error, { function: 'updateUserLanguage', uid, language });
+        throw error;
+    }
+}
+
+
 export const updateUserRole = async (uid: string, role: UserRole): Promise<void> => {
     try {
         const userRef = doc(db, 'users', uid);

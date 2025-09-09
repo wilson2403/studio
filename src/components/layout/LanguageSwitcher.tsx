@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { updateUserProfile } from '@/lib/firebase/firestore';
+import { updateUserLanguage } from '@/lib/firebase/firestore';
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -25,7 +25,7 @@ export default function LanguageSwitcher() {
     i18n.changeLanguage(lng);
     if (user) {
         try {
-            await updateUserProfile(user.uid, { language: lng as 'es' | 'en' });
+            await updateUserLanguage(user.uid, lng as 'es' | 'en');
         } catch (error) {
             console.error("Failed to save language preference:", error);
         }
