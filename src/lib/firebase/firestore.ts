@@ -1180,59 +1180,99 @@ export const importAllData = async (data: BackupData): Promise<void> => {
     await deleteCollection(shareMemoryMessagesCollection);
 
     // Overwrite data based on IDs
-    data.users.forEach(user => {
-        const docRef = doc(db, 'users', user.uid);
-        batch.set(docRef, user);
-    });
+    if (data.users) {
+        data.users.forEach(user => {
+            if (user && user.uid) {
+                const docRef = doc(db, 'users', user.uid);
+                batch.set(docRef, user);
+            }
+        });
+    }
 
-    data.ceremonies.forEach(ceremony => {
-        const docRef = doc(db, 'ceremonies', ceremony.id);
-        const { id, ...ceremonyData } = ceremony;
-        batch.set(docRef, ceremonyData);
-    });
+    if (data.ceremonies) {
+        data.ceremonies.forEach(ceremony => {
+            if (ceremony && ceremony.id) {
+                const docRef = doc(db, 'ceremonies', ceremony.id);
+                const { id, ...ceremonyData } = ceremony;
+                batch.set(docRef, ceremonyData);
+            }
+        });
+    }
     
-    data.guides.forEach(guide => {
-        const docRef = doc(db, 'guides', guide.id);
-        const { id, ...guideData } = guide;
-        batch.set(docRef, guideData);
-    });
+    if (data.guides) {
+        data.guides.forEach(guide => {
+            if (guide && guide.id) {
+                const docRef = doc(db, 'guides', guide.id);
+                const { id, ...guideData } = guide;
+                batch.set(docRef, guideData);
+            }
+        });
+    }
     
-    data.content.forEach(contentItem => {
-        const docRef = doc(db, 'content', contentItem.id);
-        batch.set(docRef, { value: contentItem.value });
-    });
+    if (data.content) {
+        data.content.forEach(contentItem => {
+            if (contentItem && contentItem.id) {
+                const docRef = doc(db, 'content', contentItem.id);
+                batch.set(docRef, { value: contentItem.value });
+            }
+        });
+    }
 
-    data.settings.forEach(setting => {
-        const docRef = doc(db, 'settings', setting.id);
-        batch.set(docRef, setting.value);
-    });
+    if (data.settings) {
+        data.settings.forEach(setting => {
+            if (setting && setting.id) {
+                const docRef = doc(db, 'settings', setting.id);
+                batch.set(docRef, setting.value);
+            }
+        });
+    }
     
-    data.courses?.forEach(course => {
-        const docRef = doc(db, 'courses', course.id);
-        const { id, ...courseData } = course;
-        batch.set(docRef, courseData);
-    });
+    if (data.courses) {
+        data.courses.forEach(course => {
+            if (course && course.id) {
+                const docRef = doc(db, 'courses', course.id);
+                const { id, ...courseData } = course;
+                batch.set(docRef, courseData);
+            }
+        });
+    }
 
-    data.testimonials?.forEach(testimonial => {
-        const docRef = doc(db, 'testimonials', testimonial.id);
-        const { id, ...testimonialData } = testimonial;
-        batch.set(docRef, testimonialData);
-    });
+    if (data.testimonials) {
+        data.testimonials.forEach(testimonial => {
+            if (testimonial && testimonial.id) {
+                const docRef = doc(db, 'testimonials', testimonial.id);
+                const { id, ...testimonialData } = testimonial;
+                batch.set(docRef, testimonialData);
+            }
+        });
+    }
 
-    data.invitationMessages?.forEach(msg => {
-        const docRef = doc(db, 'invitationMessages', msg.id);
-        batch.set(docRef, msg);
-    });
+    if (data.invitationMessages) {
+        data.invitationMessages.forEach(msg => {
+            if (msg && msg.id) {
+                const docRef = doc(db, 'invitationMessages', msg.id);
+                batch.set(docRef, msg);
+            }
+        });
+    }
 
-    data.ceremonyInvitationMessages?.forEach(msg => {
-        const docRef = doc(db, 'ceremonyInvitationMessages', msg.id);
-        batch.set(docRef, msg);
-    });
+    if (data.ceremonyInvitationMessages) {
+        data.ceremonyInvitationMessages.forEach(msg => {
+            if (msg && msg.id) {
+                const docRef = doc(db, 'ceremonyInvitationMessages', msg.id);
+                batch.set(docRef, msg);
+            }
+        });
+    }
 
-    data.shareMemoryMessages?.forEach(msg => {
-        const docRef = doc(db, 'shareMemoryMessages', msg.id);
-        batch.set(docRef, msg);
-    });
+    if (data.shareMemoryMessages) {
+        data.shareMemoryMessages.forEach(msg => {
+            if (msg && msg.id) {
+                const docRef = doc(db, 'shareMemoryMessages', msg.id);
+                batch.set(docRef, msg);
+            }
+        });
+    }
 
     if (data.environments) {
         const envDocRef = doc(db, 'settings', 'environment');
