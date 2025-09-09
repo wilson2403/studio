@@ -210,8 +210,7 @@ export default function CeremonyMemoryPage() {
                  <div className="flex flex-col md:grid md:grid-cols-2 md:gap-8 md:items-center max-w-5xl w-full h-full">
                     <div className={cn(
                         "w-full rounded-lg overflow-hidden shadow-2xl bg-black mx-auto",
-                        "flex-grow", // Make video container grow
-                        isShortVideo ? "aspect-[9/16] md:max-w-sm" : "aspect-video md:col-span-2"
+                        isShortVideo ? "aspect-[9/16] md:max-w-sm max-h-[80vh]" : "aspect-video md:col-span-2 flex-grow"
                     )}>
                         <VideoPlayer
                             ceremonyId={ceremony.id}
