@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Save, AlertTriangle, Key, Link2, List, Home, MousePointerClick, Share2, Server } from 'lucide-react';
+import { Settings, Save, AlertTriangle, Key, Link2, List, Home, MousePointerClick, Share2, Server, Copy } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +15,7 @@ import { getSystemSettings, updateSystemSettings, getSystemEnvironment, updateSy
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { SystemSettings, EnvironmentSettings, FirebaseConfig } from '@/types';
@@ -23,6 +23,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useEditable } from '@/components/home/EditableProvider';
 
 const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
@@ -111,7 +112,7 @@ export default function AdminSettingsPage() {
     const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
-    const [activeTab, setActiveTab] = useState<'production' | 'backup'>('production');
+    const { content: editableContent, fetchContent } = useEditable();
 
     const form = useForm<SettingsFormValues>({
         resolver: zodResolver(settingsFormSchema),
@@ -130,7 +131,6 @@ export default function AdminSettingsPage() {
                 ]);
                 form.reset(settings);
                 envForm.reset(envSettings);
-                setActiveTab(envSettings.activeEnvironment);
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
                 toast({ title: t('errorFetchSettings'), variant: 'destructive' });
@@ -185,8 +185,6 @@ export default function AdminSettingsPage() {
         );
     }
     
-    const isBackupEnv = envForm.watch('activeEnvironment') === 'backup';
-
     const renderNavLinks = (navLinks: (keyof SettingsFormValues['navLinks'])[]) => (
         <div className="space-y-4">
             {navLinks.map((key) => (
@@ -304,7 +302,7 @@ export default function AdminSettingsPage() {
             ))}
         </div>
     );
-    
+
     const renderFirebaseConfigFields = (env: 'production' | 'backup') => {
         const fields: { name: keyof FirebaseConfig, label: string }[] = [
             { name: 'apiKey', label: 'Firebase API Key' },
@@ -314,6 +312,8 @@ export default function AdminSettingsPage() {
             { name: 'projectId', label: 'Firebase Project ID' },
             { name: 'storageBucket', label: 'Firebase Storage Bucket' },
         ];
+        
+        fields.sort((a, b) => a.label.localeCompare(b.label));
 
         return fields.map(field => (
             <FormField
@@ -330,6 +330,30 @@ export default function AdminSettingsPage() {
             />
         ));
     };
+
+    const copyEnvFile = (env: 'production' | 'backup') => {
+        const values = envForm.getValues(`environments.${env}`);
+        const envContent = `
+# Firebase Config
+NEXT_PUBLIC_FIREBASE_API_KEY=${values.firebaseConfig.apiKey}
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${values.firebaseConfig.authDomain}
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=${values.firebaseConfig.projectId}
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${values.firebaseConfig.storageBucket}
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${values.firebaseConfig.messagingSenderId}
+NEXT_PUBLIC_FIREBASE_APP_ID=${values.firebaseConfig.appId}
+
+# Genkit/Resend Config
+GOOGLE_API_KEY=${values.googleApiKey}
+RESEND_API_KEY=${values.resendApiKey}
+        `.trim();
+
+        navigator.clipboard.writeText(envContent).then(() => {
+            toast({ title: t('envCopied'), description: t('envCopiedDesc', {env: t(env)}) });
+        }).catch(err => {
+            toast({ title: t('errorCopying'), variant: 'destructive'});
+            console.error("Failed to copy env file", err);
+        });
+    }
 
     return (
         <div className="container py-12 md:py-16 space-y-12">
@@ -360,36 +384,23 @@ export default function AdminSettingsPage() {
                                     <CardDescription>{t('environmentConfigurationDescription')}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                     <FormField
-                                        control={envForm.control}
-                                        name="activeEnvironment"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>{t('activeEnvironment')}</FormLabel>
-                                                <Select onValueChange={(value) => { field.onChange(value); setActiveTab(value as 'production' | 'backup'); }} value={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder={t('selectEnvironment')} />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <SelectItem value="production">{t('production')}</SelectItem>
-                                                        <SelectItem value="backup">{t('backup')}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormDescription>{t('activeEnvironmentDesc')}</FormDescription>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
+                                    <Tabs defaultValue="production" className="w-full">
                                         <TabsList className="grid w-full grid-cols-2">
                                             <TabsTrigger value="production">{t('production')}</TabsTrigger>
                                             <TabsTrigger value="backup">{t('backup')}</TabsTrigger>
                                         </TabsList>
                                         <TabsContent value="production">
                                             <Card className="mt-4">
-                                                <CardHeader><CardTitle>{t('productionEnvSettings')}</CardTitle></CardHeader>
+                                                <CardHeader className="flex flex-row items-center justify-between">
+                                                    <div>
+                                                        <CardTitle>{t('productionEnvSettings')}</CardTitle>
+                                                        <CardDescription>{t('productionEnvSettingsDesc')}</CardDescription>
+                                                    </div>
+                                                    <Button type="button" variant="outline" size="sm" onClick={() => copyEnvFile('production')}>
+                                                        <Copy className="mr-2 h-4 w-4"/>
+                                                        {t('copy')}
+                                                    </Button>
+                                                </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('production')}
                                                      <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Google API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
@@ -399,7 +410,16 @@ export default function AdminSettingsPage() {
                                         </TabsContent>
                                         <TabsContent value="backup">
                                             <Card className="mt-4">
-                                                <CardHeader><CardTitle>{t('backupEnvSettings')}</CardTitle></CardHeader>
+                                                 <CardHeader className="flex flex-row items-center justify-between">
+                                                    <div>
+                                                        <CardTitle>{t('backupEnvSettings')}</CardTitle>
+                                                        <CardDescription>{t('backupEnvSettingsDesc')}</CardDescription>
+                                                    </div>
+                                                     <Button type="button" variant="outline" size="sm" onClick={() => copyEnvFile('backup')}>
+                                                        <Copy className="mr-2 h-4 w-4"/>
+                                                        {t('copy')}
+                                                    </Button>
+                                                </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('backup')}
                                                      <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Google API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
@@ -420,7 +440,7 @@ export default function AdminSettingsPage() {
                 </form>
              </Form>
 
-             <div className={cn(isBackupEnv ? 'opacity-50 pointer-events-none' : '')}>
+             <div>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSettingsSubmit)} className="space-y-8">
                         <Card>
