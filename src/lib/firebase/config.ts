@@ -1,7 +1,7 @@
 
 import { initializeApp, getApps, getApp, FirebaseOptions } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, initializeFirestore, persistentLocalCache, memoryLocalCache, doc, getDoc } from "firebase/firestore";
+import { getFirestore, initializeFirestore, persistentLocalCache, memoryLocalCache, doc, getDoc, Firestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { EnvironmentSettings } from "@/types";
 
@@ -22,9 +22,8 @@ let db = getFirestore(app);
 
 // Function to get the dynamic configuration from Firestore
 const getDynamicConfig = async (): Promise<FirebaseOptions> => {
-    // This temporary DB instance is just for fetching the config.
-    const tempDb = getFirestore(app); 
-    const docRef = doc(tempDb, 'settings', 'environment');
+    // Use the existing db instance for fetching
+    const docRef = doc(db, 'settings', 'environment');
     try {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -47,32 +46,20 @@ const initializeFirebaseServices = async () => {
     
     if (getApps().length === 0) {
         app = initializeApp(firebaseConfig);
-    } else if (
-        app.options.projectId !== firebaseConfig.projectId
-    ) {
-        // If the project ID is different, we must create a new app instance.
-        // This is a simplified approach; a real-world scenario might need more complex handling.
-        console.warn(`Switching Firebase project from ${app.options.projectId} to ${firebaseConfig.projectId}`);
-        app = initializeApp(firebaseConfig, `app-${firebaseConfig.projectId}`);
     } else {
-        app = getApp();
+        // If an app with the same config is already initialized, get it. Otherwise, this might not work as expected in HMR without creating a named app.
+        app = getApps().find(a => a.options.projectId === firebaseConfig.projectId) || getApp();
     }
     
     auth = getAuth(app);
     storage = getStorage(app);
 
-    // Initialize Firestore with appropriate cache settings
-    if (typeof window !== 'undefined') {
-        try {
-            db = initializeFirestore(app, {
-                localCache: persistentLocalCache(),
-            });
-        } catch (e) {
-            console.error("Failed to initialize persistent cache. Using memory cache.", e);
-            db = getFirestore(app); // fallback for initialization
-        }
-    } else {
-        db = getFirestore(app);
+    try {
+      db = getFirestore(app);
+    } catch (e) {
+      db = initializeFirestore(app, {
+        localCache: persistentLocalCache(),
+      });
     }
 };
 
