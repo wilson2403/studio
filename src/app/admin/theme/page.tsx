@@ -201,6 +201,7 @@ export default function ThemePage() {
         { name: 'muted', labelKey: 'themeMutedLabel' },
         { name: 'mutedForeground', labelKey: 'themeMutedForegroundLabel' },
         { name: 'destructive', labelKey: 'themeDestructiveLabel' },
+        { name: 'destructiveForeground', labelKey: 'themeDestructiveForegroundLabel' },
         { name: 'border', labelKey: 'themeBorderLabel' },
         { name: 'input', labelKey: 'themeInputLabel' },
         { name: 'ring', labelKey: 'themeRingLabel' },
@@ -340,5 +341,3 @@ export default function ThemePage() {
         </div>
     );
 }
-
-    
