@@ -22,21 +22,19 @@ let db = getFirestore(app);
 
 // This flag prevents re-initialization in a hot-reload scenario
 let isInitialized = false;
-let isInitializing = false;
 
 const initializeFirebaseServices = async () => {
-    if (isInitialized || isInitializing) return;
-    isInitializing = true;
-    
+    if (isInitialized) return;
+    isInitialized = true; // Set flag immediately to prevent re-entry
+
     let finalConfig = fallbackConfig;
 
-    // Temporarily use the fallback config to fetch the actual config from Firestore
-    // To avoid creating a 'DEFAULT' app conflict, we give it a unique name.
+    // We MUST use a separate, temporary app instance to fetch the config.
+    // This avoids conflicts with the main [DEFAULT] app instance.
     let tempApp;
     try {
         tempApp = initializeApp(fallbackConfig, "config-fetch");
         const tempDb = getFirestore(tempApp);
-        
         const docRef = doc(tempDb, 'settings', 'environment');
         const docSnap = await getDoc(docRef);
 
@@ -55,32 +53,27 @@ const initializeFirebaseServices = async () => {
             await deleteApp(tempApp);
         }
     }
-    
-    // Get or initialize the main app
+
+    // Now, delete the old [DEFAULT] app and initialize a new one with the correct config.
+    // This is the cleanest way to ensure all services use the new configuration.
     if (getApps().length > 0) {
         await deleteApp(getApp());
     }
-    app = initializeApp(finalConfig);
 
+    // IMPORTANT: A page reload will be required for all parts of the app to pick up this new instance.
+    // We re-export the services so modules importing them get the new instances.
+    app = initializeApp(finalConfig);
     auth = getAuth(app);
     storage = getStorage(app);
-
-    try {
-      // Initialize Firestore with persistent cache if not already done.
-      db = initializeFirestore(app, {
-        cacheSizeBytes: CACHE_SIZE_UNLIMITED
-      });
-    } catch (e) {
-      // Firestore is likely already initialized, so we just get the instance.
-      db = getFirestore(app);
-    }
+    db = getFirestore(app);
     
-    isInitialized = true;
-    isInitializing = false;
+    // NOTE: This dynamic initialization works, but for the changes to be reflected across the
+    // entire app (especially in a hot-reload dev environment), a full page refresh
+    // after changing the environment in the settings panel is the most reliable approach.
 };
 
 // Initialize on the client-side
-if (typeof window !== 'undefined' && !isInitialized) {
+if (typeof window !== 'undefined') {
     initializeFirebaseServices();
 }
 
