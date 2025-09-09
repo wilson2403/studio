@@ -57,12 +57,11 @@ const initializeFirebaseServices = async () => {
     }
     
     // Get or initialize the main app
-    if (getApps().length === 0) {
-        app = initializeApp(finalConfig);
-    } else {
-        app = getApp();
+    if (getApps().length > 0) {
+        await deleteApp(getApp());
     }
-    
+    app = initializeApp(finalConfig);
+
     auth = getAuth(app);
     storage = getStorage(app);
 
