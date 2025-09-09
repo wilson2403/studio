@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { getContent, setContent, logError } from '@/lib/firebase/firestore';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { SystemSettings, EnvironmentSettings } from '@/types';
+import { SystemSettings, EnvironmentSettings, FirebaseConfig } from '@/types';
 import { getDoc, setDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 
@@ -65,17 +65,29 @@ const settingsSchema = z.object({
     ogDescription: homeButtonSchema,
 });
 
+const firebaseConfigSchema = z.object({
+    apiKey: z.string(),
+    authDomain: z.string(),
+    projectId: z.string(),
+    storageBucket: z.string(),
+    messagingSenderId: z.string(),
+    appId: z.string(),
+});
+
 const environmentSchema = z.object({
-    firebaseConfig: z.object({
-        apiKey: z.string(),
-        authDomain: z.string(),
-        projectId: z.string(),
-        storageBucket: z.string(),
-        messagingSenderId: z.string(),
-        appId: z.string(),
+    activeEnvironment: z.enum(['production', 'backup']),
+    environments: z.object({
+        production: z.object({
+            firebaseConfig: firebaseConfigSchema,
+            googleApiKey: z.string(),
+            resendApiKey: z.string(),
+        }),
+        backup: z.object({
+            firebaseConfig: firebaseConfigSchema,
+            googleApiKey: z.string(),
+            resendApiKey: z.string(),
+        }),
     }),
-    googleApiKey: z.string(),
-    resendApiKey: z.string(),
 });
 
 export const getSystemSettings = ai.defineFlow(
@@ -210,17 +222,30 @@ export const getSystemEnvironment = ai.defineFlow(
                 return docSnap.data() as EnvironmentSettings;
             } else {
                 // Return defaults from process.env if not found in Firestore
+                const emptyConfig: FirebaseConfig = { apiKey: '', authDomain: '', projectId: '', storageBucket: '', messagingSenderId: '', appId: '' };
+                const prodConfig: FirebaseConfig = {
+                    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+                    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+                    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+                    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+                    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+                    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+                };
+
                 return {
-                    firebaseConfig: {
-                        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
-                        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
-                        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
-                        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
-                        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-                        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
-                    },
-                    googleApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
-                    resendApiKey: process.env.RESEND_API_KEY || '',
+                    activeEnvironment: 'production',
+                    environments: {
+                        production: {
+                            firebaseConfig: prodConfig,
+                            googleApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
+                            resendApiKey: process.env.RESEND_API_KEY || '',
+                        },
+                        backup: {
+                             firebaseConfig: emptyConfig,
+                             googleApiKey: '',
+                             resendApiKey: '',
+                        }
+                    }
                 };
             }
         } catch (error: any) {

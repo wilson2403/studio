@@ -298,12 +298,12 @@ export type EnvironmentSettings = {
             firebaseConfig: FirebaseConfig;
             googleApiKey: string;
             resendApiKey: string;
-        },
+        };
         backup: {
             firebaseConfig: FirebaseConfig;
             googleApiKey: string;
             resendApiKey: string;
-        }
+        };
     }
 };
 
