@@ -167,11 +167,6 @@ export default function CoursesPage() {
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                             allowFullScreen
                                             className="w-full h-full"
-                                            onLoad={() => {
-                                                if (!isCompleted) {
-                                                    handleCourseCompletionToggle(course.id, true);
-                                                }
-                                            }}
                                         ></iframe>
                                     ) : (
                                         <VideoPlayer
@@ -250,4 +245,3 @@ export default function CoursesPage() {
         </div>
     );
 }
-
