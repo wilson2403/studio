@@ -210,7 +210,7 @@ export default function CeremonyMemoryPage() {
                  <div className="max-w-4xl mx-auto">
                     <div className={cn(
                         "w-full mb-8 rounded-lg overflow-hidden shadow-2xl bg-black",
-                        isShortVideo ? "aspect-[9/16] max-w-[280px] mx-auto" : "aspect-video"
+                        isShortVideo ? "aspect-[9/16] max-w-[224px] mx-auto" : "aspect-video"
                     )}>
                         <VideoPlayer
                             ceremonyId={ceremony.id}
