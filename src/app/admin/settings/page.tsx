@@ -90,12 +90,12 @@ const environmentSchema = (t: (key: string) => string) => z.object({
     environments: z.object({
         production: z.object({
             firebaseConfig: firebaseConfigSchema(t),
-            googleApiKey: z.string().optional(),
+            geminiApiKey: z.string().optional(),
             resendApiKey: z.string().optional(),
         }),
         backup: z.object({
             firebaseConfig: firebaseConfigSchema(t),
-            googleApiKey: z.string().optional(),
+            geminiApiKey: z.string().optional(),
             resendApiKey: z.string().optional(),
         }),
     }),
@@ -339,7 +339,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=${values.firebaseConfig.projectId}
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${values.firebaseConfig.storageBucket}
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${values.firebaseConfig.messagingSenderId}
 NEXT_PUBLIC_FIREBASE_APP_ID=${values.firebaseConfig.appId}
-GEMINI_API_KEY=${values.googleApiKey || ''}
+GEMINI_API_KEY=${values.geminiApiKey || ''}
 RESEND_API_KEY=${values.resendApiKey || ''}`;
 
         navigator.clipboard.writeText(envContent).then(() => {
@@ -398,7 +398,7 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('production')}
-                                                     <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('geminiApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.production.geminiApiKey" render={({ field }) => (<FormItem><FormLabel>{t('geminiApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                      <FormField control={envForm.control} name="environments.production.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                 </CardContent>
                                             </Card>
@@ -417,7 +417,7 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('backup')}
-                                                     <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('geminiApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.backup.geminiApiKey" render={({ field }) => (<FormItem><FormLabel>{t('geminiApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                      <FormField control={envForm.control} name="environments.backup.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                 </CardContent>
                                             </Card>
@@ -510,5 +510,3 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
         </div>
     );
 }
-
-    
