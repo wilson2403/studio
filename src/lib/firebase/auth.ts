@@ -96,6 +96,23 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
 export const signInWithEmail = async (email: string, password: string) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const userRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(userRef);
+
+        if (!docSnap.exists()) {
+            const userData = {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                role: user.email && ADMIN_EMAILS.includes(user.email) ? 'admin' : 'user',
+                questionnaireCompleted: false,
+                status: 'Interesado',
+            };
+            await setDoc(userRef, userData);
+        }
+
         return userCredential.user;
     } catch (error: any) {
         if (error.code === 'auth/invalid-credential') {
@@ -163,4 +180,3 @@ export const updateUserPassword = async (currentPassword: string, newPassword: s
         throw error;
     }
 };
-
