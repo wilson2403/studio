@@ -24,8 +24,7 @@ import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageS
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { User } from 'firebase/auth';
 import { signOut } from '@/lib/firebase/auth';
 import { Skeleton } from '../ui/skeleton';
 import { useTranslation } from 'react-i18next';
@@ -39,8 +38,9 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Badge } from '../ui/badge';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
+import { useAuth } from '@/hooks/useAuth';
 
-const APP_VERSION = '2.70';
+const APP_VERSION = '2.71';
 
 type NavLinkDef = {
     href: string;
@@ -49,24 +49,13 @@ type NavLinkDef = {
     requiresAuth: boolean;
 };
 
-function usePrevious<T>(value: T): T | undefined {
-    const ref = React.useRef<T>();
-    React.useEffect(() => {
-        ref.current = value;
-    }, [value]);
-    return ref.current;
-}
-
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, userProfile, loading } = useAuth();
   const [navLoading, setNavLoading] = useState(true);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
   const { t, i18n } = useTranslation();
-  const previousPathname = usePrevious(pathname);
   const [newErrorCount, setNewErrorCount] = useState(0);
   const [navSettings, setNavSettings] = useState<SystemSettings['navLinks'] | null>(null);
 
@@ -95,20 +84,6 @@ export default function Header() {
   const organizerHasPerms = isOrganizer && (userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses || userProfile?.permissions?.canEditUsers);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        const profile = await getUserProfile(currentUser.uid);
-        setUserProfile(profile);
-        if (profile?.language && i18n.language !== profile.language) {
-          i18n.changeLanguage(profile.language);
-        }
-      } else {
-        setUserProfile(null);
-      }
-      setLoading(false);
-    });
-
     const fetchNavSettings = async () => {
         setNavLoading(true);
         try {
@@ -122,9 +97,7 @@ export default function Header() {
     };
 
     fetchNavSettings();
-
-    return () => unsubscribe();
-  }, [i18n]);
+  }, []);
 
   useEffect(() => {
         if (isAdmin) {
@@ -139,12 +112,6 @@ export default function Header() {
             return () => clearInterval(interval);
         }
     }, [isAdmin]);
-
-  useEffect(() => {
-    if (pathname !== previousPathname && user) {
-        logUserAction('navigate_to_page', { page: pathname });
-    }
-  }, [pathname, previousPathname, user]);
 
   const handleSignOut = async () => {
     await signOut();

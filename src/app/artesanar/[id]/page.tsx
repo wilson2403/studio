@@ -12,13 +12,14 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon, Download, Home, MessageSquare, Share2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import ViewParticipantsDialog from '@/components/admin/ViewParticipantsDialog';
+import { getFirebaseServices } from '@/lib/firebase/config';
+import { cn } from '@/lib/utils';
 
 export default function CeremonyMemoryPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
@@ -79,20 +80,27 @@ export default function CeremonyMemoryPage() {
             }
         };
 
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            setUser(currentUser);
-            if (currentUser) {
-                const profile = await getUserProfile(currentUser.uid);
-                setUserProfile(profile);
-            } else {
-                setUserProfile(null);
-            }
-            await fetchCeremonyData(currentUser);
-        });
-
+        const setupAuthListener = async () => {
+            const { auth } = await getFirebaseServices();
+            const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+                setUser(currentUser);
+                if (currentUser) {
+                    const profile = await getUserProfile(currentUser.uid);
+                    setUserProfile(profile);
+                } else {
+                    setUserProfile(null);
+                }
+                await fetchCeremonyData(currentUser);
+            });
+            return unsubscribe;
+        };
+        
+        const unsubscribePromise = setupAuthListener();
         fetchSettings();
         
-        return () => unsubscribe();
+        return () => {
+            unsubscribePromise.then(unsubscribe => unsubscribe());
+        };
     }, [id]);
     
     const getButtonText = (key: keyof SystemSettings['componentButtons'], fallback: string) => {
@@ -197,12 +205,18 @@ export default function CeremonyMemoryPage() {
             </div>
         );
     }
+    
+    const isShortVideo = ceremony.mediaType === 'short video';
+
 
     return (
         <EditableProvider>
             <div className="container pt-8 md:pt-12">
                  <div className="max-w-4xl mx-auto">
-                    <div className="aspect-video w-full mb-8 rounded-lg overflow-hidden shadow-2xl bg-black">
+                    <div className={cn(
+                        "w-full mb-8 rounded-lg overflow-hidden shadow-2xl bg-black",
+                        isShortVideo ? "aspect-[9/16] max-w-sm mx-auto" : "aspect-video"
+                    )}>
                         <VideoPlayer
                             ceremonyId={ceremony.id}
                             videoUrl={ceremony.mediaUrl}
