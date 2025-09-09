@@ -1,7 +1,7 @@
 
 import { initializeApp, getApps, getApp, FirebaseOptions, deleteApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, initializeFirestore, doc, getDoc, enableNetwork, connectFirestoreEmulator, disableNetwork } from "firebase/firestore";
+import { getFirestore, initializeFirestore, doc, getDoc, enableNetwork, connectFirestoreEmulator, disableNetwork, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { EnvironmentSettings } from "@/types";
 
@@ -15,24 +15,28 @@ const fallbackConfig: FirebaseOptions = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let app = getApps().length ? getApp() : initializeApp(fallbackConfig);
+let app = getApps().length > 0 ? getApp() : initializeApp(fallbackConfig);
 let auth = getAuth(app);
 let storage = getStorage(app);
 let db = getFirestore(app);
 
 // This flag prevents re-initialization in a hot-reload scenario
 let isInitialized = false;
+let isInitializing = false;
 
 const initializeFirebaseServices = async () => {
-    if (isInitialized) return;
-
-    // Temporarily use the fallback config to fetch the actual config from Firestore
-    const tempApp = initializeApp(fallbackConfig, "temp-for-config-fetch");
-    const tempDb = getFirestore(tempApp);
+    if (isInitialized || isInitializing) return;
+    isInitializing = true;
     
     let finalConfig = fallbackConfig;
 
+    // Temporarily use the fallback config to fetch the actual config from Firestore
+    // To avoid creating a 'DEFAULT' app conflict, we give it a unique name.
+    let tempApp;
     try {
+        tempApp = initializeApp(fallbackConfig, "config-fetch");
+        const tempDb = getFirestore(tempApp);
+        
         const docRef = doc(tempDb, 'settings', 'environment');
         const docSnap = await getDoc(docRef);
 
@@ -47,35 +51,37 @@ const initializeFirebaseServices = async () => {
     } catch (error) {
         console.error("Could not fetch remote Firebase config, using fallback.", error);
     } finally {
-        // Clean up the temporary app
-        await deleteApp(tempApp);
+        if (tempApp) {
+            await deleteApp(tempApp);
+        }
     }
     
-    // Use the final configuration to initialize the main app
-    if (getApps().length > 0) {
-        // If apps are already initialized (e.g., from server-side render or previous client render),
-        // we might need to delete the old one to re-initialize with the correct config.
-        // This is tricky in Next.js, so we'll re-assign the services.
-        const mainApp = getApps()[0];
-        if (mainApp.options.projectId !== finalConfig.projectId) {
-            // This is a complex scenario. For now, we'll log a warning.
-            // A full page reload is often the simplest solution for the user after changing environments.
-            console.warn("Firebase project ID changed. A page reload may be required for all services to update.");
-            app = initializeApp(finalConfig);
-        }
-    } else {
+    // Get or initialize the main app
+    if (getApps().length === 0) {
         app = initializeApp(finalConfig);
+    } else {
+        app = getApp();
     }
-
+    
     auth = getAuth(app);
     storage = getStorage(app);
-    db = getFirestore(app);
 
+    try {
+      // Initialize Firestore with persistent cache if not already done.
+      db = initializeFirestore(app, {
+        cacheSizeBytes: CACHE_SIZE_UNLIMITED
+      });
+    } catch (e) {
+      // Firestore is likely already initialized, so we just get the instance.
+      db = getFirestore(app);
+    }
+    
     isInitialized = true;
+    isInitializing = false;
 };
 
 // Initialize on the client-side
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !isInitialized) {
     initializeFirebaseServices();
 }
 
