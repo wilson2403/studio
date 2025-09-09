@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { exportAllData, importAllData, BackupData } from '@/lib/firebase/firestore';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 export default function BackupPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -30,7 +30,7 @@ export default function BackupPage() {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+            if (!currentUser || !currentUser.email || !ADMIN_EMAILS.includes(currentUser.email)) {
                 router.push('/');
                 return;
             }
