@@ -32,7 +32,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from './LanguageSwitcher';
 import { Logo } from '../icons/Logo';
 import { ThemeSwitcher } from './ThemeSwitcher';
-import { getUserProfile, logUserAction, UserProfile, getNewErrorLogsCount, getContent } from '@/lib/firebase/firestore';
+import { logUserAction, getNewErrorLogsCount } from '@/lib/firebase/firestore';
 import { EditableTitle } from '../home/EditableTitle';
 import EditProfileDialog from '../auth/EditProfileDialog';
 import { ScrollArea } from '../ui/scroll-area';
@@ -41,7 +41,7 @@ import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 
-const APP_VERSION = '2.77';
+const APP_VERSION = '2.78';
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type NavLinkDef = {

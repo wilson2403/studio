@@ -19,11 +19,11 @@ const languages = [
 
 export default function LanguageSwitcher() {
   const { i18n, t } = useTranslation();
-  const { user } = useAuth();
+  const { user, userProfile, loading } = useAuth();
 
   const changeLanguage = async (lng: string) => {
     i18n.changeLanguage(lng);
-    if (user?.uid) {
+    if (user?.uid && userProfile) { // Ensure profile is loaded before saving
         try {
             await updateUserLanguage(user.uid, lng as 'es' | 'en');
         } catch (error) {
@@ -42,7 +42,7 @@ export default function LanguageSwitcher() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {languages.map((lang) => (
-          <DropdownMenuItem key={lang.code} onClick={() => changeLanguage(lang.code)}>
+          <DropdownMenuItem key={lang.code} onClick={() => changeLanguage(lang.code)} disabled={loading}>
             {lang.name}
           </DropdownMenuItem>
         ))}
