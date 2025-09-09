@@ -1,12 +1,12 @@
 
-import { initializeApp, getApps, getApp, FirebaseOptions } from "firebase/app";
+import { initializeApp, getApps, getApp, FirebaseOptions, deleteApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, initializeFirestore, persistentLocalCache, memoryLocalCache, doc, getDoc, Firestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore, doc, getDoc, enableNetwork, connectFirestoreEmulator, disableNetwork } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { EnvironmentSettings } from "@/types";
 
-// Default configuration from environment variables (acts as a fallback)
-const defaultFirebaseConfig: FirebaseOptions = {
+// Fallback configuration from environment variables
+const fallbackConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
@@ -15,58 +15,68 @@ const defaultFirebaseConfig: FirebaseOptions = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let app = getApps().length ? getApp() : initializeApp(defaultFirebaseConfig);
+let app = getApps().length ? getApp() : initializeApp(fallbackConfig);
 let auth = getAuth(app);
 let storage = getStorage(app);
 let db = getFirestore(app);
 
-// Function to get the dynamic configuration from Firestore
-const getDynamicConfig = async (): Promise<FirebaseOptions> => {
-    // Use the existing db instance for fetching
-    const docRef = doc(db, 'settings', 'environment');
+// This flag prevents re-initialization in a hot-reload scenario
+let isInitialized = false;
+
+const initializeFirebaseServices = async () => {
+    if (isInitialized) return;
+
+    // Temporarily use the fallback config to fetch the actual config from Firestore
+    const tempApp = initializeApp(fallbackConfig, "temp-for-config-fetch");
+    const tempDb = getFirestore(tempApp);
+    
+    let finalConfig = fallbackConfig;
+
     try {
+        const docRef = doc(tempDb, 'settings', 'environment');
         const docSnap = await getDoc(docRef);
+
         if (docSnap.exists()) {
             const settings = docSnap.data() as EnvironmentSettings;
             const activeEnv = settings.activeEnvironment || 'production';
             const config = settings.environments?.[activeEnv]?.firebaseConfig;
             if (config?.apiKey && config?.projectId) {
-                return config;
+                finalConfig = config;
             }
         }
     } catch (error) {
-        console.error("Could not fetch remote Firebase config, falling back to default.", error);
+        console.error("Could not fetch remote Firebase config, using fallback.", error);
+    } finally {
+        // Clean up the temporary app
+        await deleteApp(tempApp);
     }
-    return defaultFirebaseConfig;
-};
-
-// Re-initialization logic
-const initializeFirebaseServices = async () => {
-    const firebaseConfig = await getDynamicConfig();
     
-    if (getApps().length === 0) {
-        app = initializeApp(firebaseConfig);
+    // Use the final configuration to initialize the main app
+    if (getApps().length > 0) {
+        // If apps are already initialized (e.g., from server-side render or previous client render),
+        // we might need to delete the old one to re-initialize with the correct config.
+        // This is tricky in Next.js, so we'll re-assign the services.
+        const mainApp = getApps()[0];
+        if (mainApp.options.projectId !== finalConfig.projectId) {
+            // This is a complex scenario. For now, we'll log a warning.
+            // A full page reload is often the simplest solution for the user after changing environments.
+            console.warn("Firebase project ID changed. A page reload may be required for all services to update.");
+            app = initializeApp(finalConfig);
+        }
     } else {
-        // If an app with the same config is already initialized, get it. Otherwise, this might not work as expected in HMR without creating a named app.
-        app = getApps().find(a => a.options.projectId === firebaseConfig.projectId) || getApp();
+        app = initializeApp(finalConfig);
     }
-    
+
     auth = getAuth(app);
     storage = getStorage(app);
+    db = getFirestore(app);
 
-    try {
-      db = getFirestore(app);
-    } catch (e) {
-      db = initializeFirestore(app, {
-        localCache: persistentLocalCache(),
-      });
-    }
+    isInitialized = true;
 };
 
-// Initialize on load
+// Initialize on the client-side
 if (typeof window !== 'undefined') {
     initializeFirebaseServices();
 }
-
 
 export { app, auth, db, storage, initializeFirebaseServices };
