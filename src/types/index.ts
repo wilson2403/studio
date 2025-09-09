@@ -203,6 +203,7 @@ export type BackupData = {
     invitationMessages?: InvitationMessage[];
     ceremonyInvitationMessages?: CeremonyInvitationMessage[];
     shareMemoryMessages?: ShareMemoryMessage[];
+    environments?: EnvironmentSettings;
 };
 
 export type SectionClickLog = {

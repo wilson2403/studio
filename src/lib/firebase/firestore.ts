@@ -1,10 +1,11 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from './config';
 import { v4 as uuidv4 } from 'uuid';
+import { getSystemEnvironment } from '@/ai/flows/settings-flow';
 
 const ceremoniesCollection = collection(db, 'ceremonies');
 const contentCollection = collection(db, 'content');
@@ -1148,6 +1149,8 @@ export const exportAllData = async (): Promise<BackupData> => {
   const shareMemoryMessagesSnapshot = await getDocs(shareMemoryMessagesCollection);
   const shareMemoryMessages = shareMemoryMessagesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as ShareMemoryMessage));
 
+  const environments = await getSystemEnvironment();
+
   return { 
     users, 
     ceremonies, 
@@ -1158,7 +1161,8 @@ export const exportAllData = async (): Promise<BackupData> => {
     testimonials,
     invitationMessages,
     ceremonyInvitationMessages,
-    shareMemoryMessages
+    shareMemoryMessages,
+    environments,
   };
 };
 
@@ -1229,6 +1233,11 @@ export const importAllData = async (data: BackupData): Promise<void> => {
         const docRef = doc(db, 'shareMemoryMessages', msg.id);
         batch.set(docRef, msg);
     });
+
+    if (data.environments) {
+        const envDocRef = doc(db, 'settings', 'environment');
+        batch.set(envDocRef, data.environments);
+    }
 
 
     await batch.commit();
