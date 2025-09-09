@@ -208,9 +208,9 @@ export default function CeremonyMemoryPage() {
         <EditableProvider>
             <div className="container flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] py-8 md:py-12">
                  <div className="flex flex-col md:grid md:grid-cols-2 md:gap-8 md:items-center max-w-5xl w-full h-full">
-                    <div className={cn(
+                     <div className={cn(
                         "w-full rounded-lg overflow-hidden shadow-2xl bg-black mx-auto",
-                        isShortVideo ? "aspect-[9/16] md:max-w-sm max-h-[80vh]" : "aspect-video md:col-span-2 flex-grow"
+                        isShortVideo ? "aspect-[9/16] md:max-w-sm h-[50vh] md:h-auto" : "aspect-video md:col-span-2"
                     )}>
                         <VideoPlayer
                             ceremonyId={ceremony.id}
