@@ -18,7 +18,7 @@ import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { SystemSettings, EnvironmentSettings } from '@/types';
+import { SystemSettings, EnvironmentSettings, FirebaseConfig } from '@/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -309,11 +309,11 @@ export default function AdminSettingsPage() {
                         <CardDescription className='flex items-center gap-2 pt-2'><AlertTriangle className='h-4 w-4 text-destructive'/> {t('firebaseConfigWarning')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {Object.keys(envForm.getValues(`environments.${env}.firebaseConfig`) || {}).map((key) => (
+                    {(Object.keys(envForm.getValues(`environments.${env}.firebaseConfig`) || {}) as (keyof FirebaseConfig)[]).sort().map((key) => (
                         <FormField
                             key={key}
                             control={envForm.control}
-                            name={`environments.${env}.firebaseConfig.${key as keyof EnvironmentFormValues['environments'][typeof env]['firebaseConfig']}`}
+                            name={`environments.${env}.firebaseConfig.${key}`}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</FormLabel>
