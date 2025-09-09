@@ -3,10 +3,42 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import type { ThemeProviderProps } from "next-themes/dist/types"
+import { getThemeSettings } from "@/lib/firebase/firestore"
+
+function applyTheme(settings: any) {
+  if (!settings || !settings.light || !settings.dark) {
+    console.warn("applyTheme called with invalid settings.");
+    return;
+  }
+  const styleId = 'dynamic-theme-styles';
+  let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
+  if (!styleTag) {
+    styleTag = document.createElement('style');
+    styleTag.id = styleId;
+    document.head.appendChild(styleTag);
+  }
+  
+  const lightStyles = Object.entries(settings.light)
+    .map(([key, value]) => `--light-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
+    .join('\n');
+
+  const darkStyles = Object.entries(settings.dark)
+    .map(([key, value]) => `--dark-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
+    .join('\n');
+    
+  styleTag.innerHTML = `:root { ${lightStyles} ${darkStyles} }`;
+}
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-  // The logic to fetch and apply the theme has been moved to the server-side
-  // RootLayout to prevent Flash of Unstyled Content (FOUC).
-  // This component now just wraps NextThemesProvider.
+    React.useEffect(() => {
+        const fetchAndApplyTheme = async () => {
+            const themeSettings = await getThemeSettings();
+            if (themeSettings) {
+                applyTheme(themeSettings);
+            }
+        };
+        fetchAndApplyTheme();
+    }, []);
+
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }

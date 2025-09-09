@@ -10,7 +10,6 @@ import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import Chatbot from '@/components/chat/Chatbot';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import LoadingScreen from '@/components/layout/LoadingScreen';
-import { getThemeSettings, ThemeSettings } from '@/lib/firebase/firestore';
 
 const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
 
@@ -44,31 +43,11 @@ export const metadata: Metadata = {
   },
 };
 
-async function getThemeStyles() {
-    const settings = await getThemeSettings();
-    if (!settings) return '';
-
-    const lightStyles = settings.light 
-      ? Object.entries(settings.light)
-          .map(([key, value]) => `--light-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
-          .join('\n')
-      : '';
-
-    const darkStyles = settings.dark
-      ? Object.entries(settings.dark)
-          .map(([key, value]) => `--dark-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
-          .join('\n')
-      : '';
-
-    return `:root { ${lightStyles} ${darkStyles} }`;
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const themeStyles = await getThemeStyles();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -99,7 +78,6 @@ export default async function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&family=Belleza&display=swap"
           rel="stylesheet"
         />
-        <style id="dynamic-theme-styles" dangerouslySetInnerHTML={{ __html: themeStyles }} />
       </head>
       <body
         className={cn('min-h-screen bg-background font-body antialiased')}
