@@ -118,6 +118,14 @@ export default function AdminSettingsPage() {
     });
 
     const activeEnvironment = envForm.watch('activeEnvironment');
+    const [activeTab, setActiveTab] = useState(activeEnvironment || 'production');
+    
+    useEffect(() => {
+        if (activeEnvironment) {
+            setActiveTab(activeEnvironment);
+        }
+    }, [activeEnvironment]);
+
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -128,6 +136,7 @@ export default function AdminSettingsPage() {
                 ]);
                 form.reset(settings);
                 envForm.reset(envSettings);
+                setActiveTab(envSettings.activeEnvironment);
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
                 toast({ title: t('errorFetchSettings'), variant: 'destructive' });
@@ -381,7 +390,7 @@ export default function AdminSettingsPage() {
                                         </FormItem>
                                     )}
                                 />
-                                <Tabs defaultValue="production" className="w-full">
+                                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                                     <TabsList className='grid w-full grid-cols-2'>
                                         <TabsTrigger value="production">{t('production')}</TabsTrigger>
                                         <TabsTrigger value="backup">{t('backup')}</TabsTrigger>
