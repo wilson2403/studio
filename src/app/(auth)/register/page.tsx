@@ -47,16 +47,12 @@ const formSchema = (t: (key: string, options?: any) => string) => z
       message: t('errorMinLength', { field: t('loginPasswordLabel'), count: 6 }),
     }),
     confirmPassword: z.string(),
-    countryCode: z.string().optional(),
-    phone: z.string().optional(),
+    countryCode: z.string({ required_error: t('errorCountryCodeRequired') }),
+    phone: z.string().min(1, { message: t('errorRequired', { field: t('registerPhoneLabel') }) }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: t('errorPasswordsDontMatch'),
     path: ['confirmPassword'],
-  })
-  .refine(data => !data.phone || (data.phone && data.countryCode), {
-      message: "Por favor, selecciona un código de país.",
-      path: ['countryCode'],
   });
 
 export default function RegisterPage() {
@@ -205,7 +201,7 @@ export default function RegisterPage() {
                         )}
                     />
                 </div>
-                <FormMessage>{form.formState.errors.countryCode?.message}</FormMessage>
+                <FormMessage>{form.formState.errors.phone?.message || form.formState.errors.countryCode?.message}</FormMessage>
               </FormItem>
               <FormField
                 control={form.control}

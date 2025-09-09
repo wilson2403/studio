@@ -55,17 +55,15 @@ export const signInWithGoogle = async () => {
   }
 };
 
-export const signUpWithEmail = async (email: string, password: string, displayName: string, countryCode?: string, phone?: string) => {
+export const signUpWithEmail = async (email: string, password: string, displayName: string, countryCode: string, phone: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
     await updateProfile(user, { displayName });
     
-    const dialCode = countryCode ? countryCode.split('-')[1] : undefined;
-    const fullPhoneNumber = phone && dialCode
-        ? `${dialCode}${phone.replace(/\D/g, '')}`
-        : undefined;
+    const dialCode = countryCode.split('-')[1];
+    const fullPhoneNumber = `${dialCode}${phone.replace(/\D/g, '')}`;
 
     const userRef = doc(db, 'users', user.uid);
     
@@ -78,11 +76,8 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
       role: user.email && ADMIN_EMAILS.includes(user.email) ? 'admin' : 'user',
       questionnaireCompleted: false,
       status: 'Interesado',
+      phone: fullPhoneNumber,
     };
-
-    if (fullPhoneNumber) {
-        userData.phone = fullPhoneNumber;
-    }
 
     await setDoc(userRef, userData);
     
