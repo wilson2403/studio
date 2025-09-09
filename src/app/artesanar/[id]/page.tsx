@@ -18,7 +18,7 @@ import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import ViewParticipantsDialog from '@/components/admin/ViewParticipantsDialog';
-import { getFirebaseServices } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase/config';
 import { cn } from '@/lib/utils';
 
 export default function CeremonyMemoryPage() {
@@ -80,26 +80,21 @@ export default function CeremonyMemoryPage() {
             }
         };
 
-        const setupAuthListener = async () => {
-            const { auth } = await getFirebaseServices();
-            const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-                setUser(currentUser);
-                if (currentUser) {
-                    const profile = await getUserProfile(currentUser.uid);
-                    setUserProfile(profile);
-                } else {
-                    setUserProfile(null);
-                }
-                await fetchCeremonyData(currentUser);
-            });
-            return unsubscribe;
-        };
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            setUser(currentUser);
+            if (currentUser) {
+                const profile = await getUserProfile(currentUser.uid);
+                setUserProfile(profile);
+            } else {
+                setUserProfile(null);
+            }
+            await fetchCeremonyData(currentUser);
+        });
         
-        const unsubscribePromise = setupAuthListener();
         fetchSettings();
         
         return () => {
-            unsubscribePromise.then(unsubscribe => unsubscribe());
+            unsubscribe();
         };
     }, [id]);
     
