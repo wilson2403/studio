@@ -1,4 +1,5 @@
 
+
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings } from '@/types';
@@ -1151,6 +1152,12 @@ export const exportAllData = async (): Promise<BackupData> => {
 
   const environments = await getSystemEnvironment();
 
+  const questionnairesSnapshot = await getDocs(questionnairesCollection);
+  const questionnaires = questionnairesSnapshot.docs.map(d => ({ id: d.id, ...d.data() as QuestionnaireAnswers }));
+
+  const chatsSnapshot = await getDocs(chatsCollection);
+  const chats = chatsSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Chat));
+
   return { 
     users, 
     ceremonies, 
@@ -1163,6 +1170,8 @@ export const exportAllData = async (): Promise<BackupData> => {
     ceremonyInvitationMessages,
     shareMemoryMessages,
     environments,
+    questionnaires,
+    chats,
   };
 };
 
@@ -1178,6 +1187,9 @@ export const importAllData = async (data: BackupData): Promise<void> => {
     await deleteCollection(invitationMessagesCollection);
     await deleteCollection(ceremonyInvitationMessagesCollection);
     await deleteCollection(shareMemoryMessagesCollection);
+    await deleteCollection(questionnairesCollection);
+    await deleteCollection(chatsCollection);
+
 
     // Overwrite data based on IDs
     if (data.users) {
@@ -1277,6 +1289,24 @@ export const importAllData = async (data: BackupData): Promise<void> => {
     if (data.environments) {
         const envDocRef = doc(db, 'settings', 'environment');
         batch.set(envDocRef, data.environments);
+    }
+    
+    if (data.questionnaires) {
+        data.questionnaires.forEach(q => {
+            if (q && q.uid) { // Questionnaires are keyed by uid
+                const docRef = doc(db, 'questionnaires', q.uid);
+                batch.set(docRef, q);
+            }
+        });
+    }
+    
+    if (data.chats) {
+        data.chats.forEach(chat => {
+            if (chat && chat.id) {
+                const docRef = doc(db, 'chats', chat.id);
+                batch.set(docRef, chat);
+            }
+        });
     }
 
 

@@ -1,4 +1,5 @@
 
+
 import { Timestamp } from "firebase/firestore";
 
 export type Plan = {
@@ -150,6 +151,7 @@ export type Chat = {
 }
 
 export type QuestionnaireAnswers = {
+    uid: string;
     hasMedicalConditions: 'yes' | 'no';
     medicalConditionsDetails?: string;
     isTakingMedication: 'yes' | 'no';
@@ -204,6 +206,8 @@ export type BackupData = {
     ceremonyInvitationMessages?: CeremonyInvitationMessage[];
     shareMemoryMessages?: ShareMemoryMessage[];
     environments?: EnvironmentSettings;
+    questionnaires?: (QuestionnaireAnswers & { id?: string })[]; // id is uid
+    chats?: Chat[];
 };
 
 export type SectionClickLog = {
