@@ -206,10 +206,11 @@ export default function CeremonyMemoryPage() {
 
     return (
         <EditableProvider>
-            <div className="container pt-8 md:pt-12">
-                 <div className="md:grid md:grid-cols-2 md:gap-8 md:items-center max-w-5xl mx-auto">
+            <div className="container flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] py-8 md:py-12">
+                 <div className="flex flex-col md:grid md:grid-cols-2 md:gap-8 md:items-center max-w-5xl w-full h-full">
                     <div className={cn(
-                        "w-full mb-8 md:mb-0 rounded-lg overflow-hidden shadow-2xl bg-black mx-auto",
+                        "w-full rounded-lg overflow-hidden shadow-2xl bg-black mx-auto",
+                        "flex-grow", // Make video container grow
                         isShortVideo ? "aspect-[9/16] md:max-w-sm" : "aspect-video md:col-span-2"
                     )}>
                         <VideoPlayer
@@ -224,7 +225,10 @@ export default function CeremonyMemoryPage() {
                         />
                     </div>
                 
-                    <div className={cn("text-center", isShortVideo ? "md:text-left" : "max-w-2xl mx-auto")}>
+                    <div className={cn(
+                        "text-center flex-shrink-0 mt-8",
+                        isShortVideo ? "md:text-left md:mt-0" : "max-w-2xl mx-auto"
+                    )}>
                          <h1 className="text-4xl lg:text-5xl font-headline mb-4 text-primary drop-shadow-lg">{ceremony.title}</h1>
                         <div className={cn("font-mono text-sm mb-6 space-y-1 text-muted-foreground", isShortVideo && "md:justify-start")}>
                             {ceremony.date && (
@@ -271,3 +275,4 @@ export default function CeremonyMemoryPage() {
         </EditableProvider>
     );
 }
+
