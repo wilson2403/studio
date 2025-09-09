@@ -15,7 +15,7 @@ import { getSystemSettings, updateSystemSettings, getSystemEnvironment, updateSy
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { SystemSettings, EnvironmentSettings, FirebaseConfig } from '@/types';
@@ -109,6 +109,7 @@ type EnvironmentFormValues = z.infer<typeof environmentSchema>;
 export default function AdminSettingsPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState('production');
     const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
@@ -131,6 +132,7 @@ export default function AdminSettingsPage() {
                 ]);
                 form.reset(settings);
                 envForm.reset(envSettings);
+                setActiveTab(envSettings.activeEnvironment);
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
                 toast({ title: t('errorFetchSettings'), variant: 'destructive' });
@@ -149,6 +151,14 @@ export default function AdminSettingsPage() {
 
         return () => unsubscribe();
     }, [router, toast, t, form, envForm]);
+
+    const activeEnv = envForm.watch('activeEnvironment');
+    useEffect(() => {
+        if(activeEnv) {
+            setActiveTab(activeEnv);
+        }
+    }, [activeEnv]);
+
 
     const onSettingsSubmit = async (data: SettingsFormValues) => {
         try {
@@ -333,19 +343,15 @@ export default function AdminSettingsPage() {
 
     const copyEnvFile = (env: 'production' | 'backup') => {
         const values = envForm.getValues(`environments.${env}`);
-        const envContent = `
-# Firebase Config
-NEXT_PUBLIC_FIREBASE_API_KEY=${values.firebaseConfig.apiKey}
+        const envContent = `NEXT_PUBLIC_FIREBASE_API_KEY=${values.firebaseConfig.apiKey}
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${values.firebaseConfig.authDomain}
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=${values.firebaseConfig.projectId}
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=${values.firebaseConfig.storageBucket}
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=${values.firebaseConfig.messagingSenderId}
 NEXT_PUBLIC_FIREBASE_APP_ID=${values.firebaseConfig.appId}
+GEMINI_API_KEY=${values.googleApiKey || ''}
+RESEND_API_KEY=${values.resendApiKey || ''}`.trim();
 
-# Genkit/Resend Config
-GOOGLE_API_KEY=${values.googleApiKey}
-RESEND_API_KEY=${values.resendApiKey}
-        `.trim();
 
         navigator.clipboard.writeText(envContent).then(() => {
             toast({ title: t('envCopied'), description: t('envCopiedDesc', {env: t(env)}) });
@@ -366,7 +372,7 @@ RESEND_API_KEY=${values.resendApiKey}
              
              <Form {...envForm}>
                 <form onSubmit={envForm.handleSubmit(onEnvSubmit)} className="space-y-8">
-                    <Accordion type="single" collapsible>
+                    <Accordion type="single" collapsible defaultValue="api-keys">
                       <AccordionItem value="api-keys">
                          <AccordionTrigger>
                              <div className="flex items-center gap-3">
@@ -384,7 +390,29 @@ RESEND_API_KEY=${values.resendApiKey}
                                     <CardDescription>{t('environmentConfigurationDescription')}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                    <Tabs defaultValue="production" className="w-full">
+                                     <FormField
+                                        control={envForm.control}
+                                        name="activeEnvironment"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t('activeEnvironment')}</FormLabel>
+                                                <Select onValueChange={field.onChange} value={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder={t('selectActiveEnvironment')} />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="production">{t('production')}</SelectItem>
+                                                        <SelectItem value="backup">{t('backup')}</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormDescription>{t('activeEnvironmentDesc')}</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                                         <TabsList className="grid w-full grid-cols-2">
                                             <TabsTrigger value="production">{t('production')}</TabsTrigger>
                                             <TabsTrigger value="backup">{t('backup')}</TabsTrigger>
@@ -403,7 +431,7 @@ RESEND_API_KEY=${values.resendApiKey}
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('production')}
-                                                     <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Google API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Gemini API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                      <FormField control={envForm.control} name="environments.production.resendApiKey" render={({ field }) => (<FormItem><FormLabel>Resend API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                 </CardContent>
                                             </Card>
@@ -422,7 +450,7 @@ RESEND_API_KEY=${values.resendApiKey}
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
                                                     {renderFirebaseConfigFields('backup')}
-                                                     <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Google API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Gemini API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                      <FormField control={envForm.control} name="environments.backup.resendApiKey" render={({ field }) => (<FormItem><FormLabel>Resend API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
                                                 </CardContent>
                                             </Card>
@@ -515,3 +543,5 @@ RESEND_API_KEY=${values.resendApiKey}
         </div>
     );
 }
+
+    
