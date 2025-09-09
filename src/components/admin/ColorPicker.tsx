@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Paintbrush } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const colors = [
     // Original Greens & Golds
