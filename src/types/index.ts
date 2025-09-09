@@ -132,6 +132,12 @@ export type ThemeSettings = {
     };
 };
 
+export type PredefinedTheme = {
+    id: string;
+    name: string;
+    colors: ThemeSettings;
+};
+
 export type ChatMessage = {
     role: 'user' | 'model';
     content: string;
@@ -208,6 +214,7 @@ export type BackupData = {
     environments?: EnvironmentSettings;
     questionnaires?: (QuestionnaireAnswers & { id?: string })[]; // id is uid
     chats?: Chat[];
+    predefinedThemes?: PredefinedTheme[];
 };
 
 export type SectionClickLog = {
