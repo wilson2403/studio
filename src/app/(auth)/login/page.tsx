@@ -30,7 +30,6 @@ import { useToast } from '@/hooks/use-toast';
 import { signInWithGoogle, signInWithEmail } from '@/lib/firebase/auth';
 import { Separator } from '@/components/ui/separator';
 import { GoogleIcon } from '@/components/icons/GoogleIcon';
-import { useEffect } from 'react';
 
 const formSchema = (t: (key: string, options?: any) => string) => z.object({
   email: z.string().email({
@@ -56,13 +55,6 @@ export default function LoginPage() {
       password: '',
     },
   });
-
-  useEffect(() => {
-    const langFromQuery = searchParams.get('lang');
-    if (langFromQuery && i18n.language !== langFromQuery) {
-        i18n.changeLanguage(langFromQuery);
-    }
-  }, [searchParams, i18n]);
 
   async function onSubmit(values: z.infer<ReturnType<typeof formSchema>>) {
     try {

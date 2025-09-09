@@ -23,7 +23,7 @@ export default function LanguageSwitcher() {
 
   const changeLanguage = async (lng: string) => {
     i18n.changeLanguage(lng);
-    if (user) {
+    if (user?.uid) {
         try {
             await updateUserLanguage(user.uid, lng as 'es' | 'en');
         } catch (error) {

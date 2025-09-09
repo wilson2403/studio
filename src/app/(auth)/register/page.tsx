@@ -33,7 +33,6 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { countryCodes } from '@/lib/country-codes';
-import { useEffect } from 'react';
 
 const formSchema = (t: (key: string, options?: any) => string) => z
   .object({
@@ -61,13 +60,6 @@ export default function RegisterPage() {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect');
   const { t, i18n } = useTranslation();
-  const langFromQuery = searchParams.get('lang');
-
-  useEffect(() => {
-    if (langFromQuery && i18n.language !== langFromQuery) {
-        i18n.changeLanguage(langFromQuery);
-    }
-  }, [langFromQuery, i18n]);
 
   const form = useForm<z.infer<ReturnType<typeof formSchema>>>({
     resolver: zodResolver(formSchema(t)),

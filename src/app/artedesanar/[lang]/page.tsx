@@ -67,15 +67,6 @@ export default function QuestionnairePage() {
 
   const lang = params.lang || 'es';
 
-  useEffect(() => {
-    if (typeof lang === 'string') {
-        const languageToSet = lang.startsWith('en') ? 'en' : lang.startsWith('es') ? 'es' : 'es';
-        if (i18n.language !== languageToSet) {
-            i18n.changeLanguage(languageToSet);
-        }
-    }
-  }, [lang, i18n]);
-
   const allSteps = useMemo(() => [
     { type: 'question', id: 'hasMedicalConditions', icon: HeartPulse, titleKey: 'questionnaireMedicalConditions', descriptionKey: 'questionnaireMedicalConditionsDesc', detailsLabelKey: 'questionnaireMedicalConditionsDetails' },
     { type: 'question', id: 'isTakingMedication', icon: Pill, titleKey: 'questionnaireMedication', descriptionKey: 'questionnaireMedicationDesc', detailsLabelKey: 'questionnaireMedicationDetails' },
@@ -433,4 +424,3 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
-
