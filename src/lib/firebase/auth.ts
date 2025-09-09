@@ -62,7 +62,8 @@ export const signUpWithEmail = async (email: string, password: string, displayNa
     
     await updateProfile(user, { displayName });
     
-    const dialCode = countryCode.split('-')[1];
+    const dialCodeMatch = countryCode.match(/\+(\d+)/);
+    const dialCode = dialCodeMatch ? `+${dialCodeMatch[1]}` : '';
     const fullPhoneNumber = `${dialCode}${phone.replace(/\D/g, '')}`;
 
     const userRef = doc(db, 'users', user.uid);
