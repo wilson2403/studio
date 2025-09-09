@@ -2,7 +2,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings, PredefinedTheme } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from './config';
 import { v4 as uuidv4 } from 'uuid';
@@ -23,6 +23,7 @@ const analyticsCollection = collection(db, 'analytics');
 const coursesCollection = collection(db, 'courses');
 const auditLogsCollection = collection(db, 'audit_logs');
 const testimonialsCollection = collection(db, 'testimonials');
+const predefinedThemesCollection = collection(db, 'predefinedThemes');
 
 
 export const logError = (error: any, context?: Record<string, any>) => {
@@ -732,6 +733,63 @@ export const setThemeSettings = async (settings: ThemeSettings): Promise<void> =
     }
 }
 
+export const seedPredefinedThemes = async (): Promise<PredefinedTheme[]> => {
+  const initialThemes: PredefinedTheme[] = [
+    { id: 'default', name: 'Default', colors: { light: { background: '40 33% 98%', foreground: '20 14.3% 4.1%', card: '40 33% 98%', cardForeground: '20 14.3% 4.1%', popover: '40 33% 98%', popoverForeground: '20 14.3% 4.1%', primary: '125 33% 74%', primaryForeground: '125 33% 10%', secondary: '210 40% 96.1%', secondaryForeground: '222.2 47.4% 11.2%', muted: '210 40% 96.1%', mutedForeground: '215.4 16.3% 46.9%', accent: '47 62% 52%', accentForeground: '47 62% 5%', destructive: '0 84.2% 60.2%', destructiveForeground: '210 40% 98%', border: '214.3 31.8% 91.4%', input: '214.3 31.8% 91.4%', ring: '125 33% 74%', }, dark: { background: '140 15% 5%', foreground: '140 5% 95%', card: '140 10% 8%', cardForeground: '140 5% 95%', popover: '140 10% 8%', popoverForeground: '140 5% 95%', primary: '150 40% 45%', primaryForeground: '150 40% 95%', secondary: '140 10% 12%', secondaryForeground: '140 5% 95%', muted: '140 10% 12%', mutedForeground: '140 5% 64.9%', accent: '140 10% 15%', accentForeground: '140 5% 95%', destructive: '0 63% 31%', destructiveForeground: '0 0% 95%', border: '140 10% 15%', input: '140 10% 15%', ring: '150 40% 45%', } } },
+    { id: 'sunset', name: 'Sunset', colors: { light: { background: '30 100% 97%', foreground: '20 15% 20%', primary: '15 90% 65%', primaryForeground: '0 0% 100%', secondary: '30 90% 90%', secondaryForeground: '20 15% 20%', muted: '30 90% 90%', mutedForeground: '20 15% 40%', accent: '330 80% 70%', accentForeground: '330 20% 15%', destructive: '0 84.2% 60.2%', destructiveForeground: '0 0% 100%', border: '30 50% 85%', input: '30 50% 85%', ring: '15 90% 65%', card: '30 100% 97%', cardForeground: '20 15% 20%', popover: '30 100% 97%', popoverForeground: '20 15% 20%' }, dark: { background: '270 50% 15%', foreground: '300 30% 95%', primary: '35 90% 60%', primaryForeground: '20 20% 5%', secondary: '260 40% 20%', secondaryForeground: '300 30% 95%', muted: '260 40% 20%', mutedForeground: '300 30% 70%', accent: '350 90% 65%', accentForeground: '350 20% 10%', destructive: '0 70% 50%', destructiveForeground: '0 0% 100%', border: '260 40% 25%', input: '260 40% 25%', ring: '35 90% 60%', card: '270 50% 15%', cardForeground: '300 30% 95%', popover: '270 50% 15%', popoverForeground: '300 30% 95%' } } },
+    { id: 'oceanic', name: 'Oceanic', colors: { light: { background: '210 100% 98%', foreground: '220 40% 10%', primary: '200 80% 60%', primaryForeground: '220 50% 5%', secondary: '210 90% 90%', secondaryForeground: '220 40% 10%', muted: '210 90% 90%', mutedForeground: '215 20% 45%', accent: '190 70% 75%', accentForeground: '190 30% 15%', destructive: '0 84.2% 60.2%', destructiveForeground: '0 0% 100%', border: '210 50% 85%', input: '210 50% 85%', ring: '200 80% 60%', card: '210 100% 98%', cardForeground: '220 40% 10%', popover: '210 100% 98%', popoverForeground: '220 40% 10%' }, dark: { background: '220 40% 5%', foreground: '210 30% 95%', primary: '190 70% 55%', primaryForeground: '190 20% 10%', secondary: '220 40% 12%', secondaryForeground: '210 30% 95%', muted: '220 40% 12%', mutedForeground: '210 30% 70%', accent: '200 80% 60%', accentForeground: '200 20% 5%', destructive: '0 63% 31%', destructiveForeground: '0 0% 100%', border: '220 40% 15%', input: '220 40% 15%', ring: '190 70% 55%', card: '220 40% 8%', cardForeground: '210 30% 95%', popover: '220 40% 8%', popoverForeground: '210 30% 95%' } } },
+    { id: 'forest', name: 'Forest', colors: { light: { background: '110 30% 97%', foreground: '120 25% 15%', primary: '120 40% 40%', primaryForeground: '110 50% 98%', secondary: '110 20% 90%', secondaryForeground: '120 25% 15%', muted: '110 20% 90%', mutedForeground: '120 15% 40%', accent: '100 35% 60%', accentForeground: '100 20% 10%', destructive: '0 84.2% 60.2%', destructiveForeground: '0 0% 100%', border: '110 20% 85%', input: '110 20% 85%', ring: '120 40% 40%', card: '110 30% 97%', cardForeground: '120 25% 15%', popover: '110 30% 97%', popoverForeground: '120 25% 15%' }, dark: { background: '120 25% 8%', foreground: '110 30% 95%', primary: '110 35% 55%', primaryForeground: '110 15% 10%', secondary: '120 20% 12%', secondaryForeground: '110 30% 95%', muted: '120 20% 12%', mutedForeground: '110 30% 70%', accent: '90 40% 50%', accentForeground: '90 15% 95%', destructive: '0 70% 40%', destructiveForeground: '0 0% 100%', border: '120 20% 15%', input: '120 20% 15%', ring: '110 35% 55%', card: '120 25% 10%', cardForeground: '110 30% 95%', popover: '120 25% 10%', popoverForeground: '110 30% 95%' } } },
+    { id: 'slate', name: 'Slate', colors: { light: { background: '220 20% 98%', foreground: '220 15% 20%', primary: '225 30% 50%', primaryForeground: '220 30% 98%', secondary: '220 15% 94%', secondaryForeground: '220 15% 20%', muted: '220 15% 94%', mutedForeground: '220 10% 45%', accent: '215 25% 65%', accentForeground: '215 20% 10%', destructive: '0 84.2% 60.2%', destructiveForeground: '0 0% 100%', border: '220 15% 88%', input: '220 15% 88%', ring: '225 30% 50%', card: '220 20% 98%', cardForeground: '220 15% 20%', popover: '220 20% 98%', popoverForeground: '220 15% 20%' }, dark: { background: '220 15% 10%', foreground: '210 20% 95%', primary: '215 25% 55%', primaryForeground: '215 15% 98%', secondary: '220 15% 15%', secondaryForeground: '210 20% 95%', muted: '220 15% 15%', mutedForeground: '210 20% 70%', accent: '225 30% 40%', accentForeground: '225 15% 95%', destructive: '0 63% 31%', destructiveForeground: '0 0% 100%', border: '220 15% 20%', input: '220 15% 20%', ring: '215 25% 55%', card: '220 15% 12%', cardForeground: '210 20% 95%', popover: '220 15% 12%', popoverForeground: '210 20% 95%' } } },
+  ];
+  const batch = writeBatch(db);
+  initialThemes.forEach(theme => {
+    const docRef = doc(predefinedThemesCollection, theme.id);
+    batch.set(docRef, theme);
+  });
+  await batch.commit();
+  console.log('Seeded predefined themes.');
+  return initialThemes;
+};
+
+export const getPredefinedThemes = async (): Promise<PredefinedTheme[]> => {
+    try {
+        const snapshot = await getDocs(predefinedThemesCollection);
+        if (snapshot.empty) {
+          return await seedPredefinedThemes();
+        }
+        return snapshot.docs.map(doc => doc.data() as PredefinedTheme);
+    } catch (error) {
+        console.error("Error getting predefined themes:", error);
+        logError(error, { function: 'getPredefinedThemes' });
+        return [];
+    }
+};
+
+export const savePredefinedTheme = async (theme: PredefinedTheme): Promise<void> => {
+    try {
+        const docRef = doc(db, 'predefinedThemes', theme.id);
+        await setDoc(docRef, theme);
+        await logUserAction('save_predefined_theme', { targetId: theme.id, changes: { name: theme.name } });
+    } catch (error) {
+        console.error("Error saving predefined theme:", error);
+        logError(error, { function: 'savePredefinedTheme' });
+        throw error;
+    }
+};
+
+export const deletePredefinedTheme = async (themeId: string): Promise<void> => {
+    try {
+        const docRef = doc(db, 'predefinedThemes', themeId);
+        await deleteDoc(docRef);
+        await logUserAction('delete_predefined_theme', { targetId: themeId });
+    } catch (error) {
+        console.error("Error deleting predefined theme:", error);
+        logError(error, { function: 'deletePredefinedTheme' });
+        throw error;
+    }
+};
+
+
 
 // --- Chat ---
 export const hasChats = async (userId: string): Promise<boolean> => {
@@ -1153,10 +1211,13 @@ export const exportAllData = async (): Promise<BackupData> => {
   const environments = await getSystemEnvironment();
 
   const questionnairesSnapshot = await getDocs(questionnairesCollection);
-  const questionnaires = questionnairesSnapshot.docs.map(d => ({ id: d.id, ...d.data() as QuestionnaireAnswers }));
+  const questionnaires = questionnairesSnapshot.docs.map(d => ({ ...d.data() as QuestionnaireAnswers, uid: d.id }));
 
   const chatsSnapshot = await getDocs(chatsCollection);
   const chats = chatsSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Chat));
+  
+  const predefinedThemesSnapshot = await getDocs(predefinedThemesCollection);
+  const predefinedThemes = predefinedThemesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as PredefinedTheme));
 
   return { 
     users, 
@@ -1172,6 +1233,7 @@ export const exportAllData = async (): Promise<BackupData> => {
     environments,
     questionnaires,
     chats,
+    predefinedThemes,
   };
 };
 
@@ -1183,12 +1245,15 @@ export const importAllData = async (data: BackupData): Promise<void> => {
         snapshot.docs.forEach(doc => batch.delete(doc.ref));
     }
 
-    // Clear template collections for a clean import, as they don't have unique user-based IDs
-    await deleteCollection(invitationMessagesCollection);
-    await deleteCollection(ceremonyInvitationMessagesCollection);
-    await deleteCollection(shareMemoryMessagesCollection);
-    await deleteCollection(questionnairesCollection);
-    await deleteCollection(chatsCollection);
+    // Clear collections that are fully replaced
+    await Promise.all([
+        deleteCollection(invitationMessagesCollection),
+        deleteCollection(ceremonyInvitationMessagesCollection),
+        deleteCollection(shareMemoryMessagesCollection),
+        deleteCollection(questionnairesCollection),
+        deleteCollection(chatsCollection),
+        deleteCollection(predefinedThemesCollection),
+    ]);
 
 
     // Overwrite data based on IDs
@@ -1305,6 +1370,15 @@ export const importAllData = async (data: BackupData): Promise<void> => {
             if (chat && chat.id) {
                 const docRef = doc(db, 'chats', chat.id);
                 batch.set(docRef, chat);
+            }
+        });
+    }
+
+    if (data.predefinedThemes) {
+        data.predefinedThemes.forEach(theme => {
+            if (theme && theme.id) {
+                const docRef = doc(db, 'predefinedThemes', theme.id);
+                batch.set(docRef, theme);
             }
         });
     }

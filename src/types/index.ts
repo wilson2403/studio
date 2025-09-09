@@ -212,7 +212,7 @@ export type BackupData = {
     ceremonyInvitationMessages?: CeremonyInvitationMessage[];
     shareMemoryMessages?: ShareMemoryMessage[];
     environments?: EnvironmentSettings;
-    questionnaires?: (QuestionnaireAnswers & { id?: string })[]; // id is uid
+    questionnaires?: (QuestionnaireAnswers & { uid: string })[];
     chats?: Chat[];
     predefinedThemes?: PredefinedTheme[];
 };

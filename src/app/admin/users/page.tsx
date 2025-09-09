@@ -695,7 +695,7 @@ export default function AdminUsersPage() {
                                                         </AlertDialogContent>
                                                     </AlertDialog>
                                                 )}
-                                                {isSuperAdmin && u.role !== 'admin' && (
+                                                {isSuperAdmin && currentUserProfile?.uid !== u.uid && (
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
                                                             <Button variant="destructive" size="icon" className='h-9 w-9'>
