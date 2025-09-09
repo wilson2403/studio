@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 const projectStructure = {
   "Frontend (Estilos, Componentes y Lógica)": [
@@ -77,7 +77,7 @@ export default function AdminPage() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
-      if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+      if (!currentUser || !currentUser.email || !ADMIN_EMAILS.includes(currentUser.email)) {
         router.push('/');
       }
     });
@@ -95,7 +95,7 @@ export default function AdminPage() {
       });
   };
 
-  if (loading || !user || user.email !== ADMIN_EMAIL) {
+  if (loading || !user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
     return (
       <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
         <div className="space-y-4 w-full">

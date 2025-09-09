@@ -18,7 +18,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 export default function AdminLogsPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -41,7 +41,7 @@ export default function AdminLogsPage() {
         };
 
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+            if (!currentUser || !currentUser.email || !ADMIN_EMAILS.includes(currentUser.email)) {
                 router.push('/');
                 return;
             }

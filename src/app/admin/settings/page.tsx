@@ -25,7 +25,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEditable } from '@/components/home/EditableProvider';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 const navLinkSchema = (t: (key: string) => string) => z.object({
   es: z.string().min(1, t('errorRequired')),
@@ -87,7 +87,7 @@ const firebaseConfigSchema = (t: (key: string) => string) => z.object({
 });
 
 const environmentSchema = (t: (key: string) => string) => z.object({
-    activeEnvironment: z.enum(['production', 'backup']),
+    activeEnvironment: z.enum(['production', 'backup']).optional(),
     environments: z.object({
         production: z.object({
             firebaseConfig: firebaseConfigSchema(t),
@@ -152,7 +152,7 @@ export default function AdminSettingsPage() {
         };
 
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+            if (!currentUser || !currentUser.email || !ADMIN_EMAILS.includes(currentUser.email)) {
                 router.push('/');
                 return;
             }
@@ -179,7 +179,7 @@ export default function AdminSettingsPage() {
     
     const onEnvSubmit = async (data: EnvironmentFormValues) => {
         try {
-            const result = await updateSystemEnvironment(data);
+            const result = await updateSystemEnvironment({ ...data, activeEnvironment: 'production' });
             if (result.success) {
                 toast({ title: t('envSettingsUpdatedSuccess'), description: t('envSettingsUpdatedSuccessDesc') });
             } else {
@@ -393,28 +393,6 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
                                     <CardDescription>{t('environmentConfigurationDescription')}</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                     <FormField
-                                        control={envForm.control}
-                                        name="activeEnvironment"
-                                        render={({ field }) => (
-                                        <FormItem className="space-y-3">
-                                            <FormLabel>{t('activeEnvironmentLabel')}</FormLabel>
-                                            <FormControl>
-                                            <Select onValueChange={field.onChange} value={field.value}>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={t('selectActiveEnvironment')} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="production">{t('production')}</SelectItem>
-                                                    <SelectItem value="backup">{t('backup')}</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            </FormControl>
-                                            <FormDescription>{t('activeEnvironmentDescription')}</FormDescription>
-                                            <FormMessage />
-                                        </FormItem>
-                                        )}
-                                    />
                                     <Tabs defaultValue="production" className="w-full">
                                         <TabsList className="grid w-full grid-cols-2">
                                             <TabsTrigger value="production">{t('production')}</TabsTrigger>
