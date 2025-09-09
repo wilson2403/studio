@@ -11,16 +11,20 @@ import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { getSystemSettings, updateSystemSettings } from '@/ai/flows/settings-flow';
+import { getSystemSettings, updateSystemSettings, getSystemEnvironment, updateSystemEnvironment } from '@/ai/flows/settings-flow';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { SystemSettings } from '@/types';
+import { SystemSettings, EnvironmentSettings, FirebaseConfig } from '@/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const ADMIN_EMAIL = 'wilson2403@gmail.com';
 
 const navLinkSchema = z.object({
   es: z.string().min(1, 'El nombre en español es requerido.'),
@@ -72,8 +76,34 @@ const settingsFormSchema = z.object({
     ogDescription: homeButtonSchema,
 });
 
+const firebaseConfigSchema = z.object({
+    apiKey: z.string().min(1, 'API Key is required.'),
+    authDomain: z.string().min(1, 'Auth Domain is required.'),
+    projectId: z.string().min(1, 'Project ID is required.'),
+    storageBucket: z.string().min(1, 'Storage Bucket is required.'),
+    messagingSenderId: z.string().min(1, 'Messaging Sender ID is required.'),
+    appId: z.string().min(1, 'App ID is required.'),
+});
+
+const environmentSchema = z.object({
+    activeEnvironment: z.enum(['production', 'backup']),
+    environments: z.object({
+        production: z.object({
+            firebaseConfig: firebaseConfigSchema,
+            googleApiKey: z.string().optional(),
+            resendApiKey: z.string().optional(),
+        }),
+        backup: z.object({
+            firebaseConfig: firebaseConfigSchema,
+            googleApiKey: z.string().optional(),
+            resendApiKey: z.string().optional(),
+        }),
+    }),
+});
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
+type EnvironmentFormValues = z.infer<typeof environmentSchema>;
+
 
 export default function AdminSettingsPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -81,16 +111,26 @@ export default function AdminSettingsPage() {
     const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
+    const [activeTab, setActiveTab] = useState<'production' | 'backup'>('production');
 
     const form = useForm<SettingsFormValues>({
         resolver: zodResolver(settingsFormSchema),
+    });
+
+    const envForm = useForm<EnvironmentFormValues>({
+        resolver: zodResolver(environmentSchema),
     });
     
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const settings = await getSystemSettings();
+                const [settings, envSettings] = await Promise.all([
+                    getSystemSettings(),
+                    getSystemEnvironment()
+                ]);
                 form.reset(settings);
+                envForm.reset(envSettings);
+                setActiveTab(envSettings.activeEnvironment);
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
                 toast({ title: t('errorFetchSettings'), variant: 'destructive' });
@@ -98,7 +138,7 @@ export default function AdminSettingsPage() {
         };
 
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (!currentUser) {
+            if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
                 router.push('/');
                 return;
             }
@@ -108,9 +148,9 @@ export default function AdminSettingsPage() {
         });
 
         return () => unsubscribe();
-    }, [router, toast, t, form]);
+    }, [router, toast, t, form, envForm]);
 
-    const onSubmit = async (data: SettingsFormValues) => {
+    const onSettingsSubmit = async (data: SettingsFormValues) => {
         try {
             const result = await updateSystemSettings(data);
             if (result.success) {
@@ -123,6 +163,19 @@ export default function AdminSettingsPage() {
         }
     };
     
+    const onEnvSubmit = async (data: EnvironmentFormValues) => {
+        try {
+            const result = await updateSystemEnvironment(data);
+            if (result.success) {
+                toast({ title: t('envSettingsUpdatedSuccess'), description: t('envSettingsUpdatedSuccessDesc') });
+            } else {
+                toast({ title: t('errorUpdatingEnvSettings'), description: result.message, variant: 'destructive' });
+            }
+        } catch (error: any) {
+            toast({ title: t('errorUpdatingEnvSettings'), description: error.message, variant: 'destructive' });
+        }
+    };
+    
     if (loading) {
         return (
             <div className="container py-12 md:py-16 space-y-8">
@@ -132,6 +185,8 @@ export default function AdminSettingsPage() {
         );
     }
     
+    const isBackupEnv = envForm.watch('activeEnvironment') === 'backup';
+
     const renderNavLinks = (navLinks: (keyof SettingsFormValues['navLinks'])[]) => (
         <div className="space-y-4">
             {navLinks.map((key) => (
@@ -249,6 +304,32 @@ export default function AdminSettingsPage() {
             ))}
         </div>
     );
+    
+    const renderFirebaseConfigFields = (env: 'production' | 'backup') => {
+        const fields: { name: keyof FirebaseConfig, label: string }[] = [
+            { name: 'apiKey', label: 'Firebase API Key' },
+            { name: 'appId', label: 'Firebase App ID' },
+            { name: 'authDomain', label: 'Firebase Auth Domain' },
+            { name: 'messagingSenderId', label: 'Firebase Messaging Sender ID' },
+            { name: 'projectId', label: 'Firebase Project ID' },
+            { name: 'storageBucket', label: 'Firebase Storage Bucket' },
+        ];
+
+        return fields.map(field => (
+            <FormField
+                key={`${env}-${field.name}`}
+                control={envForm.control}
+                name={`environments.${env}.firebaseConfig.${field.name}`}
+                render={({ field: formField }) => (
+                    <FormItem>
+                        <FormLabel>{field.label}</FormLabel>
+                        <FormControl><Input {...formField} /></FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        ));
+    };
 
     return (
         <div className="container py-12 md:py-16 space-y-12">
@@ -258,87 +339,159 @@ export default function AdminSettingsPage() {
                 </h1>
                 <p className="mt-2 text-lg text-foreground/80 font-body">{t('systemSettingsDescription')}</p>
             </div>
-             <Card className="bg-card/50 backdrop-blur-sm">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-3">
-                        <Key className="h-5 w-5 text-primary" />
-                        {t('envSettingsTitle')}
-                    </CardTitle>
-                    <CardDescription>
-                        {t('envSettingsDescription')}
-                    </CardDescription>
-                </CardHeader>
-            </Card>
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-3">
-                                <Link2 className="h-5 w-5 text-primary" />
-                                {t('contentManagement')}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <FormField control={form.control} name="logoUrl" render={({ field }) => (
-                                <FormItem><FormLabel>{t('logoUrl', 'URL del Logo')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="whatsappCommunityLink" render={({ field }) => (
-                                <FormItem><FormLabel>{t('whatsappCommunityLink')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="instagramUrl" render={({ field }) => (
-                                <FormItem><FormLabel>{t('instagramUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="facebookUrl" render={({ field }) => (
-                                <FormItem><FormLabel>{t('facebookUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="tiktokUrl" render={({ field }) => (
-                                <FormItem><FormLabel>{t('tiktokUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={form.control} name="whatsappNumber" render={({ field }) => (
-                                <FormItem><FormLabel>{t('whatsappNumber')}</FormLabel><FormControl><Input {...field} placeholder="50688888888" /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <Accordion type="multiple" className="w-full space-y-4">
-                                <AccordionItem value="opengraph">
-                                    <AccordionTrigger>
-                                        <div className='flex items-center gap-2'>
-                                            <Share2 className="h-4 w-4 text-primary" />
-                                            {t('ogMetadata')}
-                                        </div>
-                                    </AccordionTrigger>
-                                    <AccordionContent className="pt-4 space-y-4">
-                                        <div className="p-4 border rounded-lg space-y-4">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <FormField control={form.control} name="ogTitle.es" render={({ field }) => (
-                                                    <FormItem><FormLabel>{t('ogTitle')} (ES)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                                )}/>
-                                                <FormField control={form.control} name="ogTitle.en" render={({ field }) => (
-                                                    <FormItem><FormLabel>{t('ogTitle')} (EN)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                                )}/>
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <FormField control={form.control} name="ogDescription.es" render={({ field }) => (
-                                                    <FormItem><FormLabel>{t('ogDescription')} (ES)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-                                                )}/>
-                                                <FormField control={form.control} name="ogDescription.en" render={({ field }) => (
-                                                    <FormItem><FormLabel>{t('ogDescription')} (EN)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-                                                )}/>
-                                            </div>
-                                        </div>
-                                    </AccordionContent>
-                                </AccordionItem>
-                                <AccordionItem value="navigation"><AccordionTrigger>{t('navigationManagement')}</AccordionTrigger><AccordionContent className="pt-4">{renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}</AccordionContent></AccordionItem>
-                                <AccordionItem value="homeButtons"><AccordionTrigger>{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</AccordionTrigger><AccordionContent className="pt-4">{renderHomeButtons(['medicine', 'guides', 'preparation'])}</AccordionContent></AccordionItem>
-                                <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton', 'downloadVideo', 'leaveTestimonial', 'shareCeremony', 'viewParticipants'])}</AccordionContent></AccordionItem>
-                            </Accordion>
-                        </CardContent>
-                    </Card>
-
-                    <Button type="submit" disabled={form.formState.isSubmitting}>
+             
+             <Form {...envForm}>
+                <form onSubmit={envForm.handleSubmit(onEnvSubmit)} className="space-y-8">
+                    <Accordion type="single" collapsible>
+                      <AccordionItem value="api-keys">
+                         <AccordionTrigger>
+                             <div className="flex items-center gap-3">
+                                <Key className="h-5 w-5 text-primary" />
+                                {t('envSettingsTitle')}
+                            </div>
+                         </AccordionTrigger>
+                         <AccordionContent className="pt-6">
+                            <Card className="bg-card/50 backdrop-blur-sm">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-3">
+                                        <Server className="h-5 w-5 text-primary" />
+                                        {t('environmentConfiguration')}
+                                    </CardTitle>
+                                    <CardDescription>{t('environmentConfigurationDescription')}</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                     <FormField
+                                        control={envForm.control}
+                                        name="activeEnvironment"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t('activeEnvironment')}</FormLabel>
+                                                <Select onValueChange={(value) => { field.onChange(value); setActiveTab(value as 'production' | 'backup'); }} value={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder={t('selectEnvironment')} />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="production">{t('production')}</SelectItem>
+                                                        <SelectItem value="backup">{t('backup')}</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormDescription>{t('activeEnvironmentDesc')}</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full">
+                                        <TabsList className="grid w-full grid-cols-2">
+                                            <TabsTrigger value="production">{t('production')}</TabsTrigger>
+                                            <TabsTrigger value="backup">{t('backup')}</TabsTrigger>
+                                        </TabsList>
+                                        <TabsContent value="production">
+                                            <Card className="mt-4">
+                                                <CardHeader><CardTitle>{t('productionEnvSettings')}</CardTitle></CardHeader>
+                                                <CardContent className="space-y-4">
+                                                    {renderFirebaseConfigFields('production')}
+                                                     <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Google API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.production.resendApiKey" render={({ field }) => (<FormItem><FormLabel>Resend API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                </CardContent>
+                                            </Card>
+                                        </TabsContent>
+                                        <TabsContent value="backup">
+                                            <Card className="mt-4">
+                                                <CardHeader><CardTitle>{t('backupEnvSettings')}</CardTitle></CardHeader>
+                                                <CardContent className="space-y-4">
+                                                    {renderFirebaseConfigFields('backup')}
+                                                     <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>Google API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                     <FormField control={envForm.control} name="environments.backup.resendApiKey" render={({ field }) => (<FormItem><FormLabel>Resend API Key</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                </CardContent>
+                                            </Card>
+                                        </TabsContent>
+                                    </Tabs>
+                                </CardContent>
+                            </Card>
+                         </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                     <Button type="submit" disabled={envForm.formState.isSubmitting}>
                         <Save className="mr-2 h-4 w-4" />
-                        {form.formState.isSubmitting ? t('saving') : t('saveContentSettings')}
+                        {envForm.formState.isSubmitting ? t('saving') : t('saveEnvSettings')}
                     </Button>
                 </form>
-            </Form>
+             </Form>
+
+             <div className={cn(isBackupEnv ? 'opacity-50 pointer-events-none' : '')}>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSettingsSubmit)} className="space-y-8">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-3">
+                                    <Link2 className="h-5 w-5 text-primary" />
+                                    {t('contentManagement')}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <FormField control={form.control} name="logoUrl" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('logoUrl', 'URL del Logo')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="whatsappCommunityLink" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('whatsappCommunityLink')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="instagramUrl" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('instagramUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="facebookUrl" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('facebookUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="tiktokUrl" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('tiktokUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="whatsappNumber" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('whatsappNumber')}</FormLabel><FormControl><Input {...field} placeholder="50688888888" /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <Accordion type="multiple" className="w-full space-y-4">
+                                    <AccordionItem value="opengraph">
+                                        <AccordionTrigger>
+                                            <div className='flex items-center gap-2'>
+                                                <Share2 className="h-4 w-4 text-primary" />
+                                                {t('ogMetadata')}
+                                            </div>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="pt-4 space-y-4">
+                                            <div className="p-4 border rounded-lg space-y-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <FormField control={form.control} name="ogTitle.es" render={({ field }) => (
+                                                        <FormItem><FormLabel>{t('ogTitle')} (ES)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                    )}/>
+                                                    <FormField control={form.control} name="ogTitle.en" render={({ field }) => (
+                                                        <FormItem><FormLabel>{t('ogTitle')} (EN)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                    )}/>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <FormField control={form.control} name="ogDescription.es" render={({ field }) => (
+                                                        <FormItem><FormLabel>{t('ogDescription')} (ES)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                                    )}/>
+                                                    <FormField control={form.control} name="ogDescription.en" render={({ field }) => (
+                                                        <FormItem><FormLabel>{t('ogDescription')} (EN)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                                    )}/>
+                                                </div>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                    <AccordionItem value="navigation"><AccordionTrigger>{t('navigationManagement')}</AccordionTrigger><AccordionContent className="pt-4">{renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}</AccordionContent></AccordionItem>
+                                    <AccordionItem value="homeButtons"><AccordionTrigger>{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</AccordionTrigger><AccordionContent className="pt-4">{renderHomeButtons(['medicine', 'guides', 'preparation'])}</AccordionContent></AccordionItem>
+                                    <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton', 'downloadVideo', 'leaveTestimonial', 'shareCeremony', 'viewParticipants'])}</AccordionContent></AccordionItem>
+                                </Accordion>
+                            </CardContent>
+                        </Card>
+
+                        <Button type="submit" disabled={form.formState.isSubmitting}>
+                            <Save className="mr-2 h-4 w-4" />
+                            {form.formState.isSubmitting ? t('saving') : t('saveContentSettings')}
+                        </Button>
+                    </form>
+                </Form>
+             </div>
         </div>
     );
 }
