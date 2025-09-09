@@ -41,7 +41,7 @@ import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 
-const APP_VERSION = '2.72';
+const APP_VERSION = '2.73';
 
 type NavLinkDef = {
     href: string;

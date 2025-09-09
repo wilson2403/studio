@@ -282,18 +282,30 @@ export type SystemSettings = {
     ogDescription: HomeButtonData;
 };
 
+export type FirebaseConfig = {
+    apiKey: string;
+    authDomain: string;
+    projectId: string;
+    storageBucket: string;
+    messagingSenderId: string;
+    appId: string;
+};
+
 export type EnvironmentSettings = {
-    firebaseConfig: {
-        apiKey: string;
-        authDomain: string;
-        projectId: string;
-        storageBucket: string;
-        messagingSenderId: string;
-        appId: string;
-    };
-    googleApiKey: string;
-    resendApiKey: string;
-}
+    activeEnvironment: 'production' | 'backup';
+    environments: {
+        production: {
+            firebaseConfig: FirebaseConfig;
+            googleApiKey: string;
+            resendApiKey: string;
+        },
+        backup: {
+            firebaseConfig: FirebaseConfig;
+            googleApiKey: string;
+            resendApiKey: string;
+        }
+    }
+};
 
 
 export type AuditLog = {
