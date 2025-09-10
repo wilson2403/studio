@@ -72,6 +72,16 @@ export const logUserAction = async (action: string, details?: Partial<Omit<Audit
 
 
 // --- Page Content ---
+export const getAllContent = async (): Promise<{ id: string; value: any }[]> => {
+    try {
+        const snapshot = await getDocs(contentCollection);
+        return snapshot.docs.map(doc => ({ id: doc.id, value: doc.data().value }));
+    } catch (error) {
+        console.error("Error getting all content:", error);
+        logError(error, { function: 'getAllContent' });
+        return [];
+    }
+};
 
 export const getContent = async (id: string): Promise<string | { [key: string]: string } | null> => {
   if (!id) return null;

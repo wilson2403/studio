@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2 } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2, FileText } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -41,7 +41,7 @@ import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 
-const APP_VERSION = '2.80';
+const APP_VERSION = '2.81';
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type NavLinkDef = {
@@ -74,6 +74,7 @@ export default function Header() {
   const adminNavLinks = [
       { href: '/admin', labelKey: 'adminPanel', icon: ShieldCheck },
       { href: '/admin/users', labelKey: 'userManagementTitle', icon: UserIcon },
+      { href: '/admin/content', labelKey: 'contentManagement', icon: FileText },
       { href: '/admin/theme', labelKey: 'themeTab', icon: Palette },
       { href: '/admin/backup', labelKey: 'backupTitle', icon: History },
       { href: '/admin/chats', labelKey: 'chatHistoryTitle', icon: MessageSquare },
