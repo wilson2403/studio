@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
@@ -21,6 +22,10 @@ type ContentItem = {
     id: string;
     value: string | { es: string; en: string };
 };
+
+type GroupedContent = {
+    [group: string]: ContentItem[];
+}
 
 export default function AdminContentPage() {
     const [loading, setLoading] = useState(true);
@@ -68,7 +73,7 @@ export default function AdminContentPage() {
                     if (lang === 'single') {
                         return { ...item, value };
                     }
-                    const oldValue = typeof item.value === 'object' ? item.value : { es: item.value, en: item.value };
+                    const oldValue = typeof item.value === 'object' ? item.value : { es: item.value as string, en: item.value as string };
                     return { ...item, value: { ...oldValue, [lang]: value } };
                 }
                 return item;
@@ -76,13 +81,12 @@ export default function AdminContentPage() {
         );
     }, []);
 
-    const handleSave = async (id: string) => {
+    const handleSaveGroup = async (groupItems: ContentItem[]) => {
         setIsSaving(true);
-        const itemToSave = contentItems.find(item => item.id === id);
-        if (!itemToSave) return;
-        
         try {
-            await setContent(id, itemToSave.value);
+            await Promise.all(
+                groupItems.map(item => setContent(item.id, item.value))
+            );
             toast({ title: t('contentSavedSuccess') });
         } catch (error) {
              toast({ title: t('errorSavingContent'), variant: 'destructive' });
@@ -91,8 +95,8 @@ export default function AdminContentPage() {
         }
     }
 
-    const filteredContent = useMemo(() => {
-        return contentItems.filter(item => {
+    const filteredAndGroupedContent: GroupedContent = useMemo(() => {
+        const filtered = contentItems.filter(item => {
             const search = searchTerm.toLowerCase();
             if (item.id.toLowerCase().includes(search)) return true;
             if (typeof item.value === 'string') {
@@ -103,6 +107,16 @@ export default function AdminContentPage() {
             }
             return false;
         });
+
+        return filtered.reduce((acc, item) => {
+            const groupName = item.id.split(/[A-Z_.]/)[0] || 'general';
+            if (!acc[groupName]) {
+                acc[groupName] = [];
+            }
+            acc[groupName].push(item);
+            return acc;
+        }, {} as GroupedContent);
+
     }, [contentItems, searchTerm]);
 
     if (!isAuthorized) {
@@ -140,45 +154,63 @@ export default function AdminContentPage() {
                             <Skeleton className="h-24 w-full" />
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                           {filteredContent.map(item => {
-                               const isMultiLanguage = typeof item.value === 'object';
-                               return (
-                                    <div key={item.id} className="p-4 border rounded-lg bg-muted/20 space-y-3">
-                                        <h3 className="font-mono text-sm font-semibold">{item.id}</h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            {isMultiLanguage ? (
-                                                <>
-                                                    <Textarea
-                                                        value={item.value.es}
-                                                        onChange={(e) => handleContentChange(item.id, 'es', e.target.value)}
-                                                        rows={3}
-                                                    />
-                                                    <Textarea
-                                                        value={item.value.en}
-                                                        onChange={(e) => handleContentChange(item.id, 'en', e.target.value)}
-                                                        rows={3}
-                                                    />
-                                                </>
-                                            ) : (
-                                                <Textarea
-                                                    value={item.value as string}
-                                                    onChange={(e) => handleContentChange(item.id, 'single', e.target.value)}
-                                                    rows={3}
-                                                    className="md:col-span-2"
-                                                />
-                                            )}
+                        <Accordion type="multiple" className="w-full space-y-4">
+                           {Object.entries(filteredAndGroupedContent).map(([groupName, items]) => (
+                                <AccordionItem key={groupName} value={groupName} className="border rounded-lg bg-muted/20 px-4">
+                                    <AccordionTrigger>
+                                        <div className='flex items-center gap-4'>
+                                            <p className="font-semibold capitalize">{groupName.replace(/([A-Z])/g, ' $1')}</p>
+                                            <span className='text-xs text-muted-foreground'>({items.length} {t('fields')})</span>
                                         </div>
-                                        <Button size="sm" onClick={() => handleSave(item.id)} disabled={isSaving}>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pt-4 border-t space-y-6">
+                                        {items.map(item => {
+                                            const isMultiLanguage = typeof item.value === 'object';
+                                            return (
+                                                <div key={item.id} className="p-4 border rounded-lg bg-background/50 space-y-3">
+                                                    <h3 className="font-mono text-sm font-semibold text-muted-foreground">{item.id}</h3>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        {isMultiLanguage ? (
+                                                            <>
+                                                                <div>
+                                                                    <label className='text-xs font-bold'>ES</label>
+                                                                    <Textarea
+                                                                        value={item.value.es}
+                                                                        onChange={(e) => handleContentChange(item.id, 'es', e.target.value)}
+                                                                        rows={3}
+                                                                    />
+                                                                </div>
+                                                                 <div>
+                                                                    <label className='text-xs font-bold'>EN</label>
+                                                                    <Textarea
+                                                                        value={item.value.en}
+                                                                        onChange={(e) => handleContentChange(item.id, 'en', e.target.value)}
+                                                                        rows={3}
+                                                                    />
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <Textarea
+                                                                value={item.value as string}
+                                                                onChange={(e) => handleContentChange(item.id, 'single', e.target.value)}
+                                                                rows={3}
+                                                                className="md:col-span-2"
+                                                            />
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                         <Button size="sm" onClick={() => handleSaveGroup(items)} disabled={isSaving}>
                                             <Save className="mr-2 h-4 w-4" />
-                                            {isSaving ? t('saving') : t('save')}
+                                            {isSaving ? t('saving') : t('saveGroup', { group: groupName })}
                                         </Button>
-                                    </div>
-                               )
-                           })}
-                        </div>
+                                    </AccordionContent>
+                                </AccordionItem>
+                           ))}
+                        </Accordion>
                     )}
-                     {filteredContent.length === 0 && !loading && (
+                     {Object.keys(filteredAndGroupedContent).length === 0 && !loading && (
                         <p className='text-center text-muted-foreground py-8'>{t('noContentFound')}</p>
                     )}
                 </CardContent>
