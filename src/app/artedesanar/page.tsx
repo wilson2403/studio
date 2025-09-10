@@ -379,10 +379,11 @@ export default function QuestionnairePage() {
                                             {step.type === 'question' ? getQuestionStepComponent(step) 
                                             : step.type === 'info' ? getInfoStepComponent(step) 
                                             : (
-                                                <div className="flex flex-col items-center gap-4">
-                                                    <Button asChild variant="default" size="lg"><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCoursesRecommendation')}</Link></Button>
-                                                    <Button variant="outline" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
-                                                    <Button variant="ghost" asChild><Link href="/">{t('goHome')}</Link></Button>
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <Button asChild className="w-full"><Link href="/preparation"><BookOpen className="mr-2 h-4 w-4" />{t('myPreparation')}</Link></Button>
+                                                    <Button asChild className="w-full"><Link href="/chats"><Bot className="mr-2 h-4 w-4" />{t('talkToGuide')}</Link></Button>
+                                                    <Button asChild variant="outline" className="w-full"><Link href="/courses">{t('viewCourses')}</Link></Button>
+                                                    <Button variant="outline" className="w-full" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
                                                 </div>
                                             )}
                                         </div>
