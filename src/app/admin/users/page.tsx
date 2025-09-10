@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -475,7 +474,7 @@ export default function AdminUsersPage() {
         if (user.questionnaireCompleted) return 100;
         const totalSteps = 12; // Increased to 12 because of the new info step
         const progress = user.preparationStep || 0;
-        return Math.floor(((progress + 1) / totalSteps) * 100);
+        return Math.round(((progress + 1) / totalSteps) * 100);
     }
 
     const getCourseProgressPercentage = (user: UserProfile) => {
