@@ -202,6 +202,17 @@ export const es = {
     typeYourMessage: 'Escribe tu mensaje...',
     send: 'Enviar',
     chatbotError: 'Lo siento, estoy teniendo problemas para conectarme en este momento. Por favor, inténtalo de nuevo más tarde o contacta a un guía humano.',
+    // My Chats Page
+    myChatsTitle: 'Mis Chats',
+    myChatsSubtitle: 'Revisa tus conversaciones pasadas con nuestro guía espiritual.',
+    myConversations: 'Mis Conversaciones',
+    myConversationsDescription: 'Aquí puedes encontrar todas tus conversaciones pasadas.',
+    noChatsFound: 'Aún no se han encontrado chats.',
+    startConversationWithGuide: 'Iniciar una conversación con el guía',
+    conversationOnDate: 'Conversación del {{date}}',
+    lastMessageOn: 'Último mensaje a las {{time}}',
+    continueDialog: 'Continuar Conversación',
+    backToHistory: 'Volver al historial de chats',
     // Admin
     adminPanel: 'Panel de Administración',
     adminPanelSubtitle: 'Gestiona el contenido, los usuarios y la configuración de la aplicación.',
@@ -482,7 +493,7 @@ export const es = {
     addCourse: 'Añadir Curso',
     editCourse: 'Editar Curso',
     addCourseDescription: 'Completa los detalles para añadir un nuevo curso.',
-    editCourseDescription: 'Modifica los detalles del curso aquí.',
+    editCourseDescription: 'Modifica los detalles del curso here.',
     category: 'Categoría',
     required: 'Requerido',
     optional: 'Opcional',
@@ -684,3 +695,5 @@ export const es = {
     themeDeletedError: 'Error al eliminar el tema.',
     migrationTitle: 'Migración de Contenido',
 };
+
+  

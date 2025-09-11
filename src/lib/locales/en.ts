@@ -202,6 +202,17 @@ export const en = {
     typeYourMessage: 'Type your message...',
     send: 'Send',
     chatbotError: 'I\'m sorry, I\'m having trouble connecting right now. Please try again later or contact a human guide.',
+    // My Chats Page
+    myChatsTitle: 'My Chats',
+    myChatsSubtitle: 'Review your past conversations with our spiritual guide.',
+    myConversations: 'My Conversations',
+    myConversationsDescription: 'Here you can find all your past conversations.',
+    noChatsFound: 'No chats found yet.',
+    startConversationWithGuide: 'Start a conversation with the guide',
+    conversationOnDate: 'Conversation on {{date}}',
+    lastMessageOn: 'Last message at {{time}}',
+    continueDialog: 'Continue Conversation',
+    backToHistory: 'Back to chat history',
     // Admin
     adminPanel: 'Admin Panel',
     adminPanelSubtitle: 'Manage the application\'s content, users, and settings.',
@@ -684,3 +695,5 @@ export const en = {
     themeDeletedError: 'Error deleting theme.',
     migrationTitle: 'Content Migration',
 };
+
+  
