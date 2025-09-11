@@ -443,6 +443,8 @@
     "viewUserCoursesTitle": "Cursos de {{name}}",
     "viewUserCoursesProgress": "Progreso: {{completed}} de {{total}} cursos completados.",
     "noCoursesAvailable": "No hay cursos disponibles actualmente.",
+    "viewCourses": "Ver Cursos",
+    "noCoursesInCategory": "No hay cursos en esta categoría.",
     "addCourse": "Añadir Curso",
     "editCourse": "Editar Curso",
     "addCourseDescription": "Completa los detalles para añadir un nuevo curso.",
@@ -639,7 +641,6 @@
     "deleteThemeConfirmDescription": "¿Estás seguro de que quieres eliminar el tema \"{{name}}\"? Esta acción no se puede deshacer.",
     "themeDeletedSuccess": "Tema eliminado.",
     "themeDeletedError": "Error al eliminar el tema.",
-    "migrationTitle": "Migración de Contenido"
+    "migrationTitle": "Migración de Contenido",
+    "myChatsTitle": "Mis Chats"
 }
-
-  

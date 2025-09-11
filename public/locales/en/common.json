@@ -443,6 +443,8 @@
     "viewUserCoursesTitle": "Courses for {{name}}",
     "viewUserCoursesProgress": "Progress: {{completed}} of {{total}} courses completed.",
     "noCoursesAvailable": "No courses available at this time.",
+    "viewCourses": "View Courses",
+    "noCoursesInCategory": "No courses in this category.",
     "addCourse": "Add Course",
     "editCourse": "Edit Course",
     "addCourseDescription": "Fill in the details to add a new course.",
@@ -639,7 +641,6 @@
     "deleteThemeConfirmDescription": "Are you sure you want to delete the \"{{name}}\" theme? This action cannot be undone.",
     "themeDeletedSuccess": "Theme deleted.",
     "themeDeletedError": "Error deleting theme.",
-    "migrationTitle": "Content Migration"
+    "migrationTitle": "Content Migration",
+    "myChatsTitle": "My Chats"
 }
-
-  
