@@ -233,10 +233,6 @@ export default function QuestionnairePage() {
       return (
         <div className="text-center max-w-sm flex flex-col items-center gap-4">
             <EditableTitle tag="p" id="aiGuideContent" initialValue={t('aiGuideContent')} className="text-muted-foreground" />
-            <div className="flex flex-col sm:flex-row gap-2">
-                <Button asChild><Link href="/courses"><BookOpen className="mr-2 h-4 w-4" />{t('viewCourses')}</Link></Button>
-                <Button asChild variant="outline"><Link href="/chats"><Bot className="mr-2 h-4 w-4" />{t('talkToGuide')}</Link></Button>
-            </div>
         </div>
       )
     }
