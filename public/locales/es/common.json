@@ -1,3 +1,4 @@
+
 {
     "appName": "El Arte de Sanar",
     "navHome": "Inicio",
@@ -171,9 +172,8 @@
     "whatToBringTitle": "Qué Traer a la Ceremonia",
     "whatToBringSubtitle": "Estos elementos te ayudarán a tener una experiencia más cómoda y significativa.",
     "comfortItemsTitle": "Para Tu Comodidad",
-    "comfortItemsList": "• Ropa cómoda y abrigada (en capas)\n• Cobija y almohada (opcional)\n• Botella de agua personal\n• Objeto personal o amuleto (opcional)",
     "essentialsTitle": "Esenciales",
-    "essentialsList": "• Mente y corazón abiertos\n• Intenciones claras\n• Confianza en el proceso\n• Respeto por la medicina y los guías",
+    "essentialsList": "• Mente y corazón abiertos\n• Intención clara\n• Confianza en el proceso y en los guías",
     "aiGuideTitle": "Tu Guía de IA está Lista",
     "aiGuideDescription": "Hemos preparado recursos adicionales para ti.",
     "aiGuideContent": "Aquí puedes encontrar videos y documentales para profundizar tu conocimiento, o hablar con nuestro guía de IA para resolver dudas rápidas.",
@@ -396,7 +396,7 @@
     "formUploadFile": "o subir un archivo",
     "guideUpdated": "Guía actualizado.",
     "errorUpdatingGuide": "Error al actualizar el guía.",
-    "deleteGuideConfirmTitle": "¿Eliminar Guía?",
+    "deleteGuideConfirmTitle": "E?",
     "deleteGuideConfirmDescription": "Esta acción eliminará permanentemente al guía.",
     "guideDeleted": "Guía eliminado.",
     "errorDeletingGuide": "Error al eliminar el guía.",
@@ -443,8 +443,6 @@
     "viewUserCoursesTitle": "Cursos de {{name}}",
     "viewUserCoursesProgress": "Progreso: {{completed}} de {{total}} cursos completados.",
     "noCoursesAvailable": "No hay cursos disponibles actualmente.",
-    "viewCourses": "Ver Cursos",
-    "noCoursesInCategory": "No hay cursos en esta categoría.",
     "addCourse": "Añadir Curso",
     "editCourse": "Editar Curso",
     "addCourseDescription": "Completa los detalles para añadir un nuevo curso.",
@@ -543,7 +541,7 @@
     "generating": "Generando...",
     "testimonialDialogTitle": "Tu Voz Importa",
     "testimonialDialogDescription": "Comparte tu experiencia para inspirar a otros en su camino.",
-    "selectCeremonyForTestimonial": "¿Para qué ceremonia es este testimonio?",
+    "selectCeremonyForTestimonial": "Ees este testimonio?",
     "selectCeremony": "Seleccionar Ceremonia",
     "systemSettings": "Ajustes del Sistema",
     "systemSettingsDescription": "Configura los ajustes globales y variables de entorno de la aplicación.",
@@ -642,5 +640,8 @@
     "themeDeletedSuccess": "Tema eliminado.",
     "themeDeletedError": "Error al eliminar el tema.",
     "migrationTitle": "Migración de Contenido",
-    "myChatsTitle": "Mis Chats"
+    "myChatsTitle": "Mis Chats",
+    "comfortItemsList": "• Ropa cómoda y abrigada (en capas)\n• Cobija y almohada (opcional)\n• Botella de agua personal\n• Objeto personal o amuleto (opcional)"
 }
+
+    

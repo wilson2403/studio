@@ -1,3 +1,4 @@
+
 {
     "appName": "The Art of Healing",
     "navHome": "Home",
@@ -171,9 +172,8 @@
     "whatToBringTitle": "What to Bring to the Ceremony",
     "whatToBringSubtitle": "These items will help you have a more comfortable and meaningful experience.",
     "comfortItemsTitle": "For Your Comfort",
-    "comfortItemsList": "• Comfortable and warm clothing (in layers)\n• Blanket and pillow (optional)\n• Personal water bottle\n• Personal object or amulet (optional)",
     "essentialsTitle": "Essentials",
-    "essentialsList": "• Open mind and heart\n• Clear intentions\n• Trust in the process\n• Respect for the medicine and the guides",
+    "essentialsList": "• Open mind and heart\n• Clear intention\n• Trust in the process and the guides",
     "aiGuideTitle": "Your AI Guide is Ready",
     "aiGuideDescription": "We have prepared additional resources for you.",
     "aiGuideContent": "Here you can find videos and documentaries to deepen your knowledge, or talk to our AI guide to get quick answers.",
@@ -443,8 +443,6 @@
     "viewUserCoursesTitle": "Courses for {{name}}",
     "viewUserCoursesProgress": "Progress: {{completed}} of {{total}} courses completed.",
     "noCoursesAvailable": "No courses available at this time.",
-    "viewCourses": "View Courses",
-    "noCoursesInCategory": "No courses in this category.",
     "addCourse": "Add Course",
     "editCourse": "Edit Course",
     "addCourseDescription": "Fill in the details to add a new course.",
@@ -548,8 +546,8 @@
     "systemSettings": "System Settings",
     "systemSettingsDescription": "Configure global settings and environment variables for the application.",
     "envSettingsTitle": "API Keys & Environment",
-    "contentManagement": "Content Management",
-    "contentManagementDescription": "Edit application texts and links in one place.",
+    "contentManagement": "Gestión de Contenido",
+    "contentManagementDescription": "Edita los textos y enlaces de la aplicación en un solo lugar.",
     "allContent": "All Content",
     "allContentDescription": "Search and edit any text in the application.",
     "searchContentPlaceholder": "Search by ID or text...",
@@ -641,6 +639,9 @@
     "deleteThemeConfirmDescription": "Are you sure you want to delete the \"{{name}}\" theme? This action cannot be undone.",
     "themeDeletedSuccess": "Theme deleted.",
     "themeDeletedError": "Error deleting theme.",
-    "migrationTitle": "Content Migration",
-    "myChatsTitle": "My Chats"
+    "migrationTitle": "Migración de Contenido",
+    "myChatsTitle": "Mis Chats",
+    "comfortItemsList": "• Ropa cómoda y abrigada (en capas)\n• Cobija y almohada (opcional)\n• Botella de agua personal\n• Objeto personal o amuleto (opcional)"
 }
+
+    
