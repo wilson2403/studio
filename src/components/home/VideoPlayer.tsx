@@ -71,12 +71,12 @@ const YoutubePlayer = ({ videoId, title, className, onPlay, autoplay, defaultMut
     const [isLoading, setIsLoading] = useState(true);
     const hasPlayed = useRef(false);
 
-    const handlePlay = () => {
+    const handlePlay = useCallback(() => {
         if (!hasPlayed.current) {
             onPlay();
             hasPlayed.current = true;
         }
-    };
+    }, [onPlay]);
     
     // Construct the embed URL
     const embedUrl = new URL(`https://www.youtube.com/embed/${videoId}`);
@@ -91,14 +91,14 @@ const YoutubePlayer = ({ videoId, title, className, onPlay, autoplay, defaultMut
     // The `onLoad` on the iframe will be triggered when the iframe content (the YouTube player) has loaded.
     const handleLoad = () => {
         setIsLoading(false);
-        // We can't directly detect play from an iframe without the JS API, but we can assume if autoplay is on, it plays.
+        // If autoplay is on, we trigger the onPlay callback.
         if (autoplay) {
             handlePlay();
         }
     };
 
     return (
-        <div className={cn("relative w-full h-full overflow-hidden", className)}>
+        <div className={cn("relative w-full h-full overflow-hidden", className)} onClick={handlePlay}>
             {isLoading && (
                  <div className="absolute inset-0 flex items-center justify-center text-white z-10 pointer-events-none">
                     <Loader className="h-8 w-8 animate-spin" />
