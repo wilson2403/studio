@@ -6,7 +6,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Settings, Save, AlertTriangle, Key, Link2, List, Home, MousePointerClick, Share2, Server, Copy } from 'lucide-react';
+import { Settings, Save, AlertTriangle, Key, Link2, List, Home, MousePointerClick, Share2, Server, Copy, Palette, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -18,14 +18,42 @@ import * as z from 'zod';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { SystemSettings, EnvironmentSettings, FirebaseConfig } from '@/types';
+import { SystemSettings, EnvironmentSettings, FirebaseConfig, PredefinedTheme, ThemeSettings } from '@/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEditable } from '@/components/home/EditableProvider';
+import { getPredefinedThemes, savePredefinedTheme, deletePredefinedTheme } from '@/lib/firebase/firestore';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { v4 as uuidv4 } from 'uuid';
 
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
+
+function applyTheme(settings: ThemeSettings | null) {
+  if (!settings || !settings.light || !settings.dark) {
+    console.warn("applyTheme called with invalid settings.");
+    return;
+  }
+  const styleId = 'dynamic-theme-styles';
+  let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
+  if (!styleTag) {
+    styleTag = document.createElement('style');
+    styleTag.id = styleId;
+    document.head.appendChild(styleTag);
+  }
+  
+  const lightStyles = Object.entries(settings.light)
+    .map(([key, value]) => `--light-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
+    .join('\n');
+
+  const darkStyles = Object.entries(settings.dark)
+    .map(([key, value]) => `--dark-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
+    .join('\n');
+    
+  styleTag.innerHTML = `:root { ${lightStyles} ${darkStyles} }`;
+}
+
 
 const navLinkSchema = (t: (key: string) => string) => z.object({
   es: z.string().min(1, t('errorRequired')),
@@ -109,6 +137,9 @@ type EnvironmentFormValues = z.infer<ReturnType<typeof environmentSchema>>;
 export default function AdminSettingsPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
     const [loading, setLoading] = useState(true);
+    const [predefinedThemes, setPredefinedThemes] = useState<PredefinedTheme[]>([]);
+    const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
+    const [loadingTheme, setLoadingTheme] = useState(true);
     const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
@@ -125,9 +156,10 @@ export default function AdminSettingsPage() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const [settings, envSettings] = await Promise.all([
+                const [settings, envSettings, predefined] = await Promise.all([
                     getSystemSettings(),
-                    getSystemEnvironment()
+                    getSystemEnvironment(),
+                    getPredefinedThemes()
                 ]);
                 form.reset(settings);
                 envForm.reset({
@@ -145,9 +177,23 @@ export default function AdminSettingsPage() {
                         }
                     }
                 });
+                setPredefinedThemes(predefined);
+
+                const cachedThemeId = localStorage.getItem('activeThemeId');
+                const themeIdToApply = cachedThemeId || predefined.find(p => p.id === 'default')?.id || predefined[0]?.id;
+                
+                if (themeIdToApply) {
+                    const theme = predefined.find(p => p.id === themeIdToApply);
+                    if (theme) {
+                        applyTheme(theme.colors);
+                        setActiveThemeId(theme.id);
+                    }
+                }
             } catch (error) {
                 console.error("Failed to fetch settings:", error);
                 toast({ title: t('errorFetchSettings'), variant: 'destructive' });
+            } finally {
+                setLoadingTheme(false);
             }
         };
 
@@ -189,6 +235,47 @@ export default function AdminSettingsPage() {
             toast({ title: t('errorUpdatingEnvSettings'), description: error.message, variant: 'destructive' });
         }
     };
+
+    const handleApplyTheme = (theme: PredefinedTheme) => {
+        applyTheme(theme.colors);
+        setActiveThemeId(theme.id);
+        localStorage.setItem('activeThemeId', theme.id);
+    };
+    
+    const handleSaveAsNewTheme = async () => {
+        const currentThemeColors = predefinedThemes.find(t => t.id === activeThemeId)?.colors;
+        if(!currentThemeColors) return;
+
+        const themeName = prompt(t('enterNewThemeName'));
+        if (!themeName) return;
+
+        const newTheme: PredefinedTheme = {
+            id: uuidv4(),
+            name: themeName,
+            colors: currentThemeColors
+        };
+        try {
+            await savePredefinedTheme(newTheme);
+            setPredefinedThemes(prev => [...prev, newTheme]);
+            toast({ title: t('themeSavedSuccess') });
+        } catch (error) {
+            toast({ title: t('themeSavedError'), variant: 'destructive' });
+        }
+    };
+
+    const handleDeleteTheme = async (themeId: string) => {
+         try {
+            await deletePredefinedTheme(themeId);
+            setPredefinedThemes(prev => prev.filter(t => t.id !== themeId));
+            if(activeThemeId === themeId) {
+                const defaultTheme = predefinedThemes.find(t => t.id === 'default') || predefinedThemes[0];
+                if (defaultTheme) handleApplyTheme(defaultTheme);
+            }
+            toast({ title: t('themeDeletedSuccess') });
+        } catch (error) {
+            toast({ title: t('themeDeletedError'), variant: 'destructive' });
+        }
+    }
     
     if (loading) {
         return (
@@ -373,154 +460,221 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
                 <p className="mt-2 text-lg text-foreground/80 font-body">{t('systemSettingsDescription')}</p>
             </div>
              
-             <Form {...envForm}>
-                <form onSubmit={envForm.handleSubmit(onEnvSubmit)} className="space-y-8">
-                    <Accordion type="single" collapsible defaultValue="api-keys">
-                      <AccordionItem value="api-keys">
-                         <AccordionTrigger>
-                             <div className="flex items-center gap-3">
-                                <Key className="h-5 w-5 text-primary" />
-                                {t('envSettingsTitle')}
-                            </div>
-                         </AccordionTrigger>
-                         <AccordionContent className="pt-6">
-                            <Card className="bg-card/50 backdrop-blur-sm">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-3">
-                                        <Server className="h-5 w-5 text-primary" />
-                                        {t('environmentConfiguration')}
-                                    </CardTitle>
-                                    <CardDescription>{t('environmentConfigurationDescription')}</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
-                                    <Tabs defaultValue="production" className="w-full">
-                                        <TabsList className="grid w-full grid-cols-2">
-                                            <TabsTrigger value="production">{t('production')}</TabsTrigger>
-                                            <TabsTrigger value="backup">{t('backup')}</TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent value="production">
-                                            <Card className="mt-4">
-                                                <CardHeader className="flex flex-row items-center justify-between">
-                                                    <div>
-                                                        <CardTitle>{t('productionEnvSettings')}</CardTitle>
-                                                        <CardDescription>{t('productionEnvSettingsDesc')}</CardDescription>
-                                                    </div>
-                                                    <Button type="button" variant="outline" size="sm" onClick={() => copyEnvFile('production')}>
-                                                        <Copy className="mr-2 h-4 w-4"/>
-                                                        {t('copy')}
-                                                    </Button>
-                                                </CardHeader>
-                                                <CardContent className="space-y-4">
-                                                    {renderFirebaseConfigFields('production')}
-                                                     <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('googleApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                                                     <FormField control={envForm.control} name="environments.production.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                                                </CardContent>
-                                            </Card>
-                                        </TabsContent>
-                                        <TabsContent value="backup">
-                                            <Card className="mt-4">
-                                                 <CardHeader className="flex flex-row items-center justify-between">
-                                                    <div>
-                                                        <CardTitle>{t('backupEnvSettings')}</CardTitle>
-                                                        <CardDescription>{t('backupEnvSettingsDesc')}</CardDescription>
-                                                    </div>
-                                                     <Button type="button" variant="outline" size="sm" onClick={() => copyEnvFile('backup')}>
-                                                        <Copy className="mr-2 h-4 w-4"/>
-                                                        {t('copy')}
-                                                    </Button>
-                                                </CardHeader>
-                                                <CardContent className="space-y-4">
-                                                    {renderFirebaseConfigFields('backup')}
-                                                     <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('googleApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                                                     <FormField control={envForm.control} name="environments.backup.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
-                                                </CardContent>
-                                            </Card>
-                                        </TabsContent>
-                                    </Tabs>
-                                </CardContent>
-                            </Card>
-                         </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                     <Button type="submit" disabled={envForm.formState.isSubmitting}>
-                        <Save className="mr-2 h-4 w-4" />
-                        {envForm.formState.isSubmitting ? t('saving') : t('saveEnvSettings')}
-                    </Button>
-                </form>
-             </Form>
-
-             <div>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSettingsSubmit)} className="space-y-8">
-                        <Card>
+            <Accordion type="single" collapsible className="w-full space-y-4">
+                <AccordionItem value="api-keys">
+                    <AccordionTrigger>
+                        <div className="flex items-center gap-3">
+                            <Key className="h-5 w-5 text-primary" />
+                            {t('envSettingsTitle')}
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-6">
+                        <Form {...envForm}>
+                             <form onSubmit={envForm.handleSubmit(onEnvSubmit)} className="space-y-8">
+                                <Card className="bg-card/50 backdrop-blur-sm">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-3">
+                                            <Server className="h-5 w-5 text-primary" />
+                                            {t('environmentConfiguration')}
+                                        </CardTitle>
+                                        <CardDescription>{t('environmentConfigurationDescription')}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        <Tabs defaultValue="production" className="w-full">
+                                            <TabsList className="grid w-full grid-cols-2">
+                                                <TabsTrigger value="production">{t('production')}</TabsTrigger>
+                                                <TabsTrigger value="backup">{t('backup')}</TabsTrigger>
+                                            </TabsList>
+                                            <TabsContent value="production">
+                                                <Card className="mt-4">
+                                                    <CardHeader className="flex flex-row items-center justify-between">
+                                                        <div>
+                                                            <CardTitle>{t('productionEnvSettings')}</CardTitle>
+                                                            <CardDescription>{t('productionEnvSettingsDesc')}</CardDescription>
+                                                        </div>
+                                                        <Button type="button" variant="outline" size="sm" onClick={() => copyEnvFile('production')}>
+                                                            <Copy className="mr-2 h-4 w-4"/>
+                                                            {t('copy')}
+                                                        </Button>
+                                                    </CardHeader>
+                                                    <CardContent className="space-y-4">
+                                                        {renderFirebaseConfigFields('production')}
+                                                        <FormField control={envForm.control} name="environments.production.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('googleApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                        <FormField control={envForm.control} name="environments.production.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                    </CardContent>
+                                                </Card>
+                                            </TabsContent>
+                                            <TabsContent value="backup">
+                                                <Card className="mt-4">
+                                                    <CardHeader className="flex flex-row items-center justify-between">
+                                                        <div>
+                                                            <CardTitle>{t('backupEnvSettings')}</CardTitle>
+                                                            <CardDescription>{t('backupEnvSettingsDesc')}</CardDescription>
+                                                        </div>
+                                                        <Button type="button" variant="outline" size="sm" onClick={() => copyEnvFile('backup')}>
+                                                            <Copy className="mr-2 h-4 w-4"/>
+                                                            {t('copy')}
+                                                        </Button>
+                                                    </CardHeader>
+                                                    <CardContent className="space-y-4">
+                                                        {renderFirebaseConfigFields('backup')}
+                                                        <FormField control={envForm.control} name="environments.backup.googleApiKey" render={({ field }) => (<FormItem><FormLabel>{t('googleApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                        <FormField control={envForm.control} name="environments.backup.resendApiKey" render={({ field }) => (<FormItem><FormLabel>{t('resendApiKey')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                                    </CardContent>
+                                                </Card>
+                                            </TabsContent>
+                                        </Tabs>
+                                    </CardContent>
+                                </Card>
+                                <Button type="submit" disabled={envForm.formState.isSubmitting}>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    {envForm.formState.isSubmitting ? t('saving') : t('saveEnvSettings')}
+                                </Button>
+                            </form>
+                        </Form>
+                    </AccordionContent>
+                </AccordionItem>
+                
+                 <AccordionItem value="theme">
+                    <AccordionTrigger>
+                        <div className="flex items-center gap-3">
+                            <Palette className="h-5 w-5 text-primary" />
+                            {t('themeTab')}
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-6">
+                       <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-3">
-                                    <Link2 className="h-5 w-5 text-primary" />
-                                    {t('contentManagement')}
-                                </CardTitle>
+                                <CardTitle>{t('themeCustomization')}</CardTitle>
+                                <CardDescription>{t('themeCustomizationDescription')}</CardDescription>
                             </CardHeader>
-                            <CardContent className="space-y-6">
-                                <FormField control={form.control} name="logoUrl" render={({ field }) => (
-                                    <FormItem><FormLabel>{t('logoUrl', 'URL del Logo')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="whatsappCommunityLink" render={({ field }) => (
-                                    <FormItem><FormLabel>{t('whatsappCommunityLink')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="instagramUrl" render={({ field }) => (
-                                    <FormItem><FormLabel>{t('instagramUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="facebookUrl" render={({ field }) => (
-                                    <FormItem><FormLabel>{t('facebookUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="tiktokUrl" render={({ field }) => (
-                                    <FormItem><FormLabel>{t('tiktokUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <FormField control={form.control} name="whatsappNumber" render={({ field }) => (
-                                    <FormItem><FormLabel>{t('whatsappNumber')}</FormLabel><FormControl><Input {...field} placeholder="50688888888" /></FormControl><FormMessage /></FormItem>
-                                )}/>
-                                <Accordion type="multiple" className="w-full space-y-4">
-                                    <AccordionItem value="opengraph">
-                                        <AccordionTrigger>
-                                            <div className='flex items-center gap-2'>
-                                                <Share2 className="h-4 w-4 text-primary" />
-                                                {t('ogMetadata')}
-                                            </div>
-                                        </AccordionTrigger>
-                                        <AccordionContent className="pt-4 space-y-4">
-                                            <div className="p-4 border rounded-lg space-y-4">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <FormField control={form.control} name="ogTitle.es" render={({ field }) => (
-                                                        <FormItem><FormLabel>{t('ogTitle')} ({t('spanish')})</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                                    )}/>
-                                                    <FormField control={form.control} name="ogTitle.en" render={({ field }) => (
-                                                        <FormItem><FormLabel>{t('ogTitle')} ({t('english')})</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
-                                                    )}/>
+                            <CardContent>
+                                {loadingTheme ? (
+                                    <Skeleton className="h-24 w-full" />
+                                ) : (
+                                <div>
+                                        <h3 className="text-xl font-headline mb-4">{t('predefinedThemes')}</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {predefinedThemes.map(theme => (
+                                                <div key={theme.id} className="group relative">
+                                                    <Button 
+                                                        type="button" 
+                                                        variant={activeThemeId === theme.id ? 'default' : 'outline'} 
+                                                        onClick={() => handleApplyTheme(theme)}>
+                                                        {theme.name}
+                                                    </Button>
+                                                    <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <Button type="button" variant="destructive" size="icon" className="h-6 w-6" disabled={theme.id === 'default'}>
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </Button>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                <AlertDialogTitle>{t('deleteThemeConfirmTitle')}</AlertDialogTitle>
+                                                                <AlertDialogDescription>{t('deleteThemeConfirmDescription', { name: theme.name })}</AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleDeleteTheme(theme.id)}>{t('delete')}</AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </div>
                                                 </div>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <FormField control={form.control} name="ogDescription.es" render={({ field }) => (
-                                                        <FormItem><FormLabel>{t('ogDescription')} ({t('spanish')})</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-                                                    )}/>
-                                                    <FormField control={form.control} name="ogDescription.en" render={({ field }) => (
-                                                        <FormItem><FormLabel>{t('ogDescription')} ({t('english')})</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
-                                                    )}/>
-                                                </div>
-                                            </div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="navigation"><AccordionTrigger>{t('navigationManagement')}</AccordionTrigger><AccordionContent className="pt-4">{renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}</AccordionContent></AccordionItem>
-                                    <AccordionItem value="homeButtons"><AccordionTrigger>{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</AccordionTrigger><AccordionContent className="pt-4">{renderHomeButtons(['medicine', 'guides', 'preparation'])}</AccordionContent></AccordionItem>
-                                    <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton', 'downloadVideo', 'leaveTestimonial', 'shareCeremony', 'viewParticipants'])}</AccordionContent></AccordionItem>
-                                </Accordion>
+                                            ))}
+                                            <Button type="button" variant="secondary" onClick={handleSaveAsNewTheme}>
+                                                <Save className="mr-2 h-4 w-4"/>
+                                                {t('saveAsNewTheme')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
+                    </AccordionContent>
+                </AccordionItem>
 
-                        <Button type="submit" disabled={form.formState.isSubmitting}>
-                            <Save className="mr-2 h-4 w-4" />
-                            {form.formState.isSubmitting ? t('saving') : t('saveContentSettings')}
-                        </Button>
-                    </form>
-                </Form>
-             </div>
+                <AccordionItem value="content">
+                     <AccordionTrigger>
+                        <div className="flex items-center gap-3">
+                            <Link2 className="h-5 w-5 text-primary" />
+                            {t('contentManagement')}
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-6">
+                        <Form {...form}>
+                             <form onSubmit={form.handleSubmit(onSettingsSubmit)} className="space-y-8">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>{t('contentManagement')}</CardTitle>
+                                        <CardDescription>{t('contentManagementDescription')}</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        <FormField control={form.control} name="logoUrl" render={({ field }) => (
+                                            <FormItem><FormLabel>{t('logoUrl', 'URL del Logo')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                        )}/>
+                                        <FormField control={form.control} name="whatsappCommunityLink" render={({ field }) => (
+                                            <FormItem><FormLabel>{t('whatsappCommunityLink')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                        )}/>
+                                        <FormField control={form.control} name="instagramUrl" render={({ field }) => (
+                                            <FormItem><FormLabel>{t('instagramUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                        )}/>
+                                        <FormField control={form.control} name="facebookUrl" render={({ field }) => (
+                                            <FormItem><FormLabel>{t('facebookUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                        )}/>
+                                        <FormField control={form.control} name="tiktokUrl" render={({ field }) => (
+                                            <FormItem><FormLabel>{t('tiktokUrl')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                        )}/>
+                                        <FormField control={form.control} name="whatsappNumber" render={({ field }) => (
+                                            <FormItem><FormLabel>{t('whatsappNumber')}</FormLabel><FormControl><Input {...field} placeholder="50688888888" /></FormControl><FormMessage /></FormItem>
+                                        )}/>
+                                        <Accordion type="multiple" className="w-full space-y-4">
+                                            <AccordionItem value="opengraph">
+                                                <AccordionTrigger>
+                                                    <div className='flex items-center gap-2'>
+                                                        <Share2 className="h-4 w-4 text-primary" />
+                                                        {t('ogMetadata')}
+                                                    </div>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="pt-4 space-y-4">
+                                                    <div className="p-4 border rounded-lg space-y-4">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <FormField control={form.control} name="ogTitle.es" render={({ field }) => (
+                                                                <FormItem><FormLabel>{t('ogTitle')} ({t('spanish')})</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                            )}/>
+                                                            <FormField control={form.control} name="ogTitle.en" render={({ field }) => (
+                                                                <FormItem><FormLabel>{t('ogTitle')} ({t('english')})</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                            )}/>
+                                                        </div>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <FormField control={form.control} name="ogDescription.es" render={({ field }) => (
+                                                                <FormItem><FormLabel>{t('ogDescription')} ({t('spanish')})</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                                            )}/>
+                                                            <FormField control={form.control} name="ogDescription.en" render={({ field }) => (
+                                                                <FormItem><FormLabel>{t('ogDescription')} ({t('english')})</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                                                            )}/>
+                                                        </div>
+                                                    </div>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                            <AccordionItem value="navigation"><AccordionTrigger>{t('navigationManagement')}</AccordionTrigger><AccordionContent className="pt-4">{renderNavLinks(['home', 'medicine', 'guides', 'testimonials', 'ceremonies', 'journey', 'preparation'])}</AccordionContent></AccordionItem>
+                                            <AccordionItem value="homeButtons"><AccordionTrigger>{t('homeButtonsManagement', 'Botones de la Página de Inicio')}</AccordionTrigger><AccordionContent className="pt-4">{renderHomeButtons(['medicine', 'guides', 'preparation'])}</AccordionContent></AccordionItem>
+                                            <AccordionItem value="componentButtons"><AccordionTrigger>{t('componentButtonsManagement', 'Botones de Componentes')}</AccordionTrigger><AccordionContent className="pt-4">{renderComponentButtons(['addCeremony', 'buttonViewDetails', 'whatsappCommunityButton', 'downloadVideo', 'leaveTestimonial', 'shareCeremony', 'viewParticipants'])}</AccordionContent></AccordionItem>
+                                        </Accordion>
+                                    </CardContent>
+                                </Card>
+
+                                <Button type="submit" disabled={form.formState.isSubmitting}>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    {form.formState.isSubmitting ? t('saving') : t('saveContentSettings')}
+                                </Button>
+                            </form>
+                        </Form>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
         </div>
     );
 }

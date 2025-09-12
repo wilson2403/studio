@@ -40,7 +40,7 @@ import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 
-const APP_VERSION = '2.85';
+const APP_VERSION = '2.86';
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type NavLinkDef = {
@@ -74,7 +74,6 @@ export default function Header() {
       { href: '/admin', labelKey: 'adminPanel', icon: ShieldCheck },
       { href: '/admin/users', labelKey: 'userManagementTitle', icon: UserIcon },
       { href: '/admin/content', labelKey: 'contentManagement', icon: FileText },
-      { href: '/admin/theme', labelKey: 'themeTab', icon: Palette },
       { href: '/admin/backup', labelKey: 'backupTitle', icon: History },
       { href: '/admin/chats', labelKey: 'chatHistoryTitle', icon: MessageSquare },
       { href: '/admin/logs', labelKey: 'errorLogsTitle', icon: Terminal, id: 'error-logs' },

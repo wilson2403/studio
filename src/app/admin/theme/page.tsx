@@ -1,255 +1,450 @@
-
 'use client';
 
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
-import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTranslation } from 'react-i18next';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { getThemeSettings, setThemeSettings, ThemeSettings, getPredefinedThemes, PredefinedTheme, savePredefinedTheme, deletePredefinedTheme } from '@/lib/firebase/firestore';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Save, Trash2 } from 'lucide-react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { v4 as uuidv4 } from 'uuid';
-import { useTheme } from 'next-themes';
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetClose,
+} from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2, FileText, Anchor } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import React, { useEffect, useState } from 'react';
+import { User } from 'firebase/auth';
+import { signOut } from '@/lib/firebase/auth';
+import { Skeleton } from '../ui/skeleton';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
+import { Logo } from '../icons/Logo';
+import { ThemeSwitcher } from './ThemeSwitcher';
+import { logUserAction, getNewErrorLogsCount } from '@/lib/firebase/firestore';
+import { EditableTitle } from '../home/EditableTitle';
+import EditProfileDialog from '../auth/EditProfileDialog';
+import { ScrollArea } from '../ui/scroll-area';
+import { Badge } from '../ui/badge';
+import { SystemSettings } from '@/types';
+import { getSystemSettings } from '@/ai/flows/settings-flow';
+import { useAuth } from '@/hooks/useAuth';
 
+const APP_VERSION = '2.86';
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
-const colorThemeSchema = z.object({
-    background: z.string(),
-    foreground: z.string(),
-    card: z.string(),
-    cardForeground: z.string(),
-    popover: z.string(),
-    popoverForeground: z.string(),
-    primary: z.string(),
-    primaryForeground: z.string(),
-    secondary: z.string(),
-    secondaryForeground: z.string(),
-    muted: z.string(),
-    mutedForeground: z.string(),
-    accent: z.string(),
-    accentForeground: z.string(),
-    destructive: z.string(),
-    destructiveForeground: z.string(),
-    border: z.string(),
-    input: z.string(),
-    ring: z.string(),
-});
+type NavLinkDef = {
+    href: string;
+    labelKey: keyof SystemSettings['navLinks'];
+    sectionId: string;
+    requiresAuth: boolean;
+};
 
-const themeFormSchema = z.object({
-  light: colorThemeSchema,
-  dark: colorThemeSchema,
-});
+export default function Header() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, userProfile, loading } = useAuth();
+  const [navLoading, setNavLoading] = useState(true);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const { t, i18n } = useTranslation();
+  const [newErrorCount, setNewErrorCount] = useState(0);
+  const [navSettings, setNavSettings] = useState<SystemSettings['navLinks'] | null>(null);
 
-type ThemeFormValues = z.infer<typeof themeFormSchema>;
+  const allNavLinks: NavLinkDef[] = [
+    { href: '/', labelKey: 'home', sectionId: 'home', requiresAuth: false },
+    { href: '/ayahuasca', labelKey: 'medicine', sectionId: 'medicine', requiresAuth: false },
+    { href: '/guides', labelKey: 'guides', sectionId: 'guides', requiresAuth: false },
+    { href: '/testimonials', labelKey: 'testimonials', sectionId: 'testimonials', requiresAuth: false },
+    { href: '/ceremonies', labelKey: 'ceremonies', sectionId: 'ceremonies', requiresAuth: true },
+    { href: `/artedesanar`, labelKey: 'journey', sectionId: 'journey', requiresAuth: true },
+    { href: '/preparation', labelKey: 'preparation', sectionId: 'preparation', requiresAuth: true },
+  ];
 
-function applyTheme(settings: ThemeSettings | null) {
-  if (!settings || !settings.light || !settings.dark) {
-    console.warn("applyTheme called with invalid settings.");
-    return;
-  }
-  const styleId = 'dynamic-theme-styles';
-  let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
-  if (!styleTag) {
-    styleTag = document.createElement('style');
-    styleTag.id = styleId;
-    document.head.appendChild(styleTag);
+  const adminNavLinks = [
+      { href: '/admin', labelKey: 'adminPanel', icon: ShieldCheck },
+      { href: '/admin/users', labelKey: 'userManagementTitle', icon: UserIcon },
+      { href: '/admin/content', labelKey: 'contentManagement', icon: FileText },
+      { href: '/admin/backup', labelKey: 'backupTitle', icon: History },
+      { href: '/admin/chats', labelKey: 'chatHistoryTitle', icon: MessageSquare },
+      { href: '/admin/logs', labelKey: 'errorLogsTitle', icon: Terminal, id: 'error-logs' },
+      { href: '/admin/settings', labelKey: 'systemSettings', icon: Settings }
+  ];
+  
+  const isUserAdminByRole = userProfile?.role === 'admin';
+  const isUserAdminByEmail = user?.email ? ADMIN_EMAILS.includes(user.email) : false;
+  const isAdmin = isUserAdminByRole || isUserAdminByEmail;
+  const isOrganizer = userProfile?.role === 'organizer';
+  const organizerHasPerms = isOrganizer && (userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses || userProfile?.permissions?.canEditUsers);
+
+  useEffect(() => {
+    const fetchNavSettings = async () => {
+        setNavLoading(true);
+        try {
+            const settings = await getSystemSettings();
+            setNavSettings(settings.navLinks);
+        } catch (error) {
+            console.error("Failed to fetch nav settings:", error);
+        } finally {
+            setNavLoading(false);
+        }
+    };
+
+    fetchNavSettings();
+  }, []);
+
+  useEffect(() => {
+        if (isAdmin) {
+            const fetchErrorCount = async () => {
+                const count = await getNewErrorLogsCount();
+                setNewErrorCount(count);
+            };
+
+            fetchErrorCount();
+            const interval = setInterval(fetchErrorCount, 30000); // Check every 30 seconds
+
+            return () => clearInterval(interval);
+        }
+    }, [isAdmin]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
+
+  const handleLinkMouseDown = (sectionId: string) => {
+    if (userProfile?.role !== 'admin') {
+      logUserAction('click_section', { targetId: sectionId });
+    }
   }
   
-  const lightStyles = Object.entries(settings.light)
-    .map(([key, value]) => `--light-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
-    .join('\n');
-
-  const darkStyles = Object.entries(settings.dark)
-    .map(([key, value]) => `--dark-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
-    .join('\n');
+  const getNavLink = (linkDef: NavLinkDef) => {
+    if (!navSettings) return null;
     
-  styleTag.innerHTML = `:root { ${lightStyles} ${darkStyles} }`;
-}
+    const linkInfo = navSettings[linkDef.labelKey];
+    if (!linkInfo || !linkInfo.visible) return null;
 
-export default function ThemePage() {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [loadingTheme, setLoadingTheme] = useState(true);
-    const [predefinedThemes, setPredefinedThemes] = useState<PredefinedTheme[]>([]);
-    const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
-    const router = useRouter();
-    const { t } = useTranslation();
-    const { toast } = useToast();
-    const { setTheme: setNextTheme } = useTheme();
-
-    const themeForm = useForm<ThemeFormValues>({
-        resolver: zodResolver(themeFormSchema),
-    });
+    const label = linkInfo[i18n.language as 'es' | 'en'] || linkInfo.es;
     
-    useEffect(() => {
-        const fetchInitialData = async () => {
-            setLoadingTheme(true);
-            try {
-                const predefined = await getPredefinedThemes();
-                setPredefinedThemes(predefined);
-
-                const cachedThemeId = localStorage.getItem('activeThemeId');
-                const themeIdToApply = cachedThemeId || predefined.find(p => p.id === 'default')?.id || predefined[0]?.id;
-                
-                if (themeIdToApply) {
-                    const theme = predefined.find(p => p.id === themeIdToApply);
-                    if (theme) {
-                        applyTheme(theme.colors);
-                        setActiveThemeId(theme.id);
-                    }
-                }
-
-            } catch (error) {
-                console.error("Failed to load theme data:", error);
-                toast({ title: t('themeLoadError'), variant: 'destructive' });
-            } finally {
-                setLoadingTheme(false);
-            }
-        };
-
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (!currentUser || !currentUser.email || !ADMIN_EMAILS.includes(currentUser.email)) {
-                router.push('/');
-                return;
-            }
-            setUser(currentUser);
-            setLoading(false);
-            await fetchInitialData();
-        });
-
-        return () => unsubscribe();
-    }, [router, t, toast]);
-
-
-    const handleApplyTheme = (theme: PredefinedTheme) => {
-        applyTheme(theme.colors);
-        setActiveThemeId(theme.id);
-        localStorage.setItem('activeThemeId', theme.id);
-    };
-    
-    const handleSaveAsNewTheme = async () => {
-        const currentThemeColors = predefinedThemes.find(t => t.id === activeThemeId)?.colors;
-        if(!currentThemeColors) return;
-
-        const themeName = prompt(t('enterNewThemeName'));
-        if (!themeName) return;
-
-        const newTheme: PredefinedTheme = {
-            id: uuidv4(),
-            name: themeName,
-            colors: currentThemeColors
-        };
-        try {
-            await savePredefinedTheme(newTheme);
-            setPredefinedThemes(prev => [...prev, newTheme]);
-            toast({ title: t('themeSavedSuccess') });
-        } catch (error) {
-            toast({ title: t('themeSavedError'), variant: 'destructive' });
-        }
-    };
-
-    const handleDeleteTheme = async (themeId: string) => {
-         try {
-            await deletePredefinedTheme(themeId);
-            setPredefinedThemes(prev => prev.filter(t => t.id !== themeId));
-            if(activeThemeId === themeId) {
-                const defaultTheme = predefinedThemes.find(t => t.id === 'default') || predefinedThemes[0];
-                if (defaultTheme) handleApplyTheme(defaultTheme);
-            }
-            toast({ title: t('themeDeletedSuccess') });
-        } catch (error) {
-            toast({ title: t('themeDeletedError'), variant: 'destructive' });
-        }
-    }
-
-
-    if (loading) {
-        return (
-            <div className="container py-12 md:py-16">
-                <Skeleton className="h-96 w-full" />
-            </div>
-        );
-    }
-
     return (
-        <div className="container py-12 md:py-16 space-y-12">
-            <div className="text-center">
-                <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
-                    {t('themeTab')}
-                </h1>
-                <p className="mt-2 text-lg text-foreground/80 font-body">{t('themeCustomizationDescription')}</p>
-            </div>
-            
-             <Card>
-                <CardHeader>
-                    <CardTitle>{t('themeCustomization')}</CardTitle>
-                    <CardDescription>{t('themeCustomizationDescription')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    {loadingTheme ? (
-                        <Skeleton className="h-24 w-full" />
-                    ) : (
-                       <div>
-                            <h3 className="text-xl font-headline mb-4">{t('predefinedThemes')}</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {predefinedThemes.map(theme => (
-                                    <div key={theme.id} className="group relative">
-                                        <Button 
-                                            type="button" 
-                                            variant={activeThemeId === theme.id ? 'default' : 'outline'} 
-                                            onClick={() => handleApplyTheme(theme)}>
-                                            {theme.name}
-                                        </Button>
-                                        <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button type="button" variant="destructive" size="icon" className="h-6 w-6" disabled={theme.id === 'default'}>
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                    <AlertDialogTitle>{t('deleteThemeConfirmTitle')}</AlertDialogTitle>
-                                                    <AlertDialogDescription>{t('deleteThemeConfirmDescription', { name: theme.name })}</AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDeleteTheme(theme.id)}>{t('delete')}</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </div>
-                                    </div>
-                                ))}
-                                <Button type="button" variant="secondary" onClick={handleSaveAsNewTheme}>
-                                    <Save className="mr-2 h-4 w-4"/>
-                                    {t('saveAsNewTheme')}
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-
-        </div>
+        <Link
+            key={linkDef.href}
+            href={linkDef.href}
+            onMouseDown={() => handleLinkMouseDown(linkDef.sectionId)}
+            className={cn(
+            'transition-colors hover:text-primary',
+            (pathname === linkDef.href || (linkDef.href !== '/' && pathname.startsWith(linkDef.href) && linkDef.href.length > 1))
+                ? 'text-primary'
+                : 'text-foreground/60'
+            )}
+        >
+            {label}
+        </Link>
     );
-}
+  };
 
+   const getMobileNavLink = (linkDef: NavLinkDef) => {
+      if (!navSettings) return null;
+      
+      const linkInfo = navSettings[linkDef.labelKey];
+      if (!linkInfo || !linkInfo.visible) return null;
+
+      const label = linkInfo[i18n.language as 'es' | 'en'] || linkInfo.es;
+
+      return (
+        <SheetClose asChild key={linkDef.href}>
+          <Link
+            href={linkDef.href}
+            onMouseDown={() => handleLinkMouseDown(linkDef.sectionId)}
+            className="transition-colors hover:text-primary"
+          >
+            {label}
+          </Link>
+        </SheetClose>
+      );
+    }
+
+  const AuthContent = () => {
+    if (loading) {
+      return <Skeleton className="h-10 w-24" />;
+    }
+    if (user) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="relative h-8 w-8 rounded-full mr-2"
+            >
+              <Avatar className="h-9 w-9">
+                <AvatarImage
+                  src={user.photoURL || undefined}
+                  alt={user.displayName || 'Avatar'}
+                />
+                <AvatarFallback>
+                  {user.displayName
+                    ? user.displayName.charAt(0).toUpperCase()
+                    : user.email?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">
+                  {user.displayName}
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setIsProfileDialogOpen(true)}>
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>{t('editProfileTitle')}</span>
+            </DropdownMenuItem>
+             <DropdownMenuItem onMouseDown={() => router.push('/courses')}>
+                <BookOpen className="mr-2 h-4 w-4" />
+                <span>{t('navCourses')}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onMouseDown={() => router.push('/chats')}>
+                <Bot className="mr-2 h-4 w-4" />
+                <span>{t('myChatsTitle')}</span>
+            </DropdownMenuItem>
+            {(isAdmin || organizerHasPerms) && (
+              <>
+                <DropdownMenuSeparator />
+                {adminNavLinks.map(link => {
+                  let hasAccess = isAdmin;
+                  if (!hasAccess && isOrganizer) {
+                      if (link.href === '/admin/users' && userProfile.permissions?.canEditUsers) hasAccess = true;
+                      if (link.href === '/admin/chats' && userProfile.permissions?.canViewChatHistory) hasAccess = true;
+                      if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses)) hasAccess = true;
+                  }
+                  
+                  if (hasAccess) {
+                    return (
+                        <DropdownMenuItem key={link.href} onMouseDown={() => router.push(link.href)} className="flex justify-between items-center">
+                            <div className='flex items-center'>
+                                <link.icon className="mr-2 h-4 w-4" />
+                                <span>{t(link.labelKey)}</span>
+                            </div>
+                            {link.id === 'error-logs' && newErrorCount > 0 && (
+                                <Badge variant="destructive_solid" className="h-5">{newErrorCount}</Badge>
+                            )}
+                            {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
+                        </DropdownMenuItem>
+                    );
+                  }
+                  return null;
+                })}
+              </>
+            )}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{t('signOut')}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+    return (
+      <Button asChild>
+        <Link href="/login">{t('signIn')}</Link>
+      </Button>
+    );
+  };
+
+  const MobileAuthContent = () => {
+    if (loading) {
+      return <Skeleton className="h-10 w-full" />;
+    }
+    if (user) {
+      return (
+        <Button onClick={handleSignOut} className="w-full">
+          <LogOut className="mr-2 h-4 w-4" />
+          {t('signOut')}
+        </Button>
+      );
+    }
+    return (
+      <SheetClose asChild>
+        <Button asChild className="w-full">
+          <Link href="/login">{t('signIn')}</Link>
+        </Button>
+      </SheetClose>
+    );
+  };
+
+  const visiblePublicLinks = allNavLinks.filter(link => !link.requiresAuth);
+  const visibleUserLinks = allNavLinks.filter(link => link.requiresAuth);
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur">
+        <div className="container flex h-16 items-center">
+          <div className="pl-5 mr-4 flex items-center">
+            <Link href="/" className="mr-6 flex items-center space-x-2" onMouseDown={() => handleLinkMouseDown('home')}>
+              <Logo className="h-10 w-10" />
+              <span className="font-bold font-headline text-lg">
+                  <EditableTitle
+                      tag="p"
+                      id="appName"
+                      initialValue={t('appName')}
+                  />
+              </span>
+            </Link>
+          </div>
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+             {navLoading ? (
+                <>
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-16" />
+                </>
+            ) : (
+                <>
+                    {visiblePublicLinks.map(getNavLink)}
+                    {user && visibleUserLinks.map(getNavLink)}
+                </>
+            )}
+          </nav>
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            <ThemeSwitcher />
+            <LanguageSwitcher />
+            <div className="hidden md:flex items-center">
+              <AuthContent />
+            </div>
+
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-6 w-6" />
+                  <span className="sr-only">Toggle Navigation</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="flex flex-col">
+                <SheetHeader>
+                   <SheetTitle className="sr-only">{t('headerMenuTitle')}</SheetTitle>
+                   {user && (
+                    <div className="flex items-center gap-4 border-b pb-4">
+                       <Avatar className="h-12 w-12">
+                          <AvatarImage
+                            src={user.photoURL || undefined}
+                            alt={user.displayName || 'Avatar'}
+                          />
+                          <AvatarFallback>
+                            {user.displayName
+                              ? user.displayName.charAt(0).toUpperCase()
+                              : user.email?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-md font-medium leading-none">
+                            {user.displayName}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </div>
+                    </div>
+                   )}
+                </SheetHeader>
+                <ScrollArea className="flex-1 -mr-6">
+                  <div className="pr-6">
+                    <nav className="flex flex-col items-start space-y-4 pt-8 text-lg font-medium">
+                      {user && (
+                        <>
+                          <SheetClose asChild>
+                              <button onClick={() => setIsProfileDialogOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
+                                  <UserIcon className="h-5 w-5" />
+                                  <span>{t('editProfileTitle')}</span>
+                              </button>
+                          </SheetClose>
+                          <SheetClose asChild>
+                              <Link href="/courses" className="transition-colors hover:text-primary flex items-center gap-2">
+                                  <BookOpen className="h-5 w-5" />
+                                  {t('navCourses')}
+                              </Link>
+                          </SheetClose>
+                          <SheetClose asChild>
+                              <Link href="/chats" className="transition-colors hover:text-primary flex items-center gap-2">
+                                  <Bot className="h-5 w-5" />
+                                  {t('myChatsTitle')}
+                              </Link>
+                          </SheetClose>
+                        </>
+                      )}
+                      {(isAdmin || organizerHasPerms) && (
+                        <>
+                          <DropdownMenuSeparator />
+                           {adminNavLinks.map(link => {
+                                let hasAccess = isAdmin;
+                                if (!hasAccess && isOrganizer) {
+                                    if (link.href === '/admin/users' && userProfile.permissions?.canEditUsers) hasAccess = true;
+                                    if (link.href === '/admin/chats' && userProfile.permissions?.canViewChatHistory) hasAccess = true;
+                                    if (link.href === '/admin' && (userProfile.permissions?.canEditUsers || userProfile?.permissions?.canEditCeremonies || userProfile?.permissions?.canEditCourses)) hasAccess = true;
+                                }
+                                if(hasAccess) {
+                                    return (
+                                        <SheetClose asChild key={link.href}>
+                                            <Link href={link.href} className="transition-colors hover:text-primary flex justify-between items-center gap-2 w-full">
+                                              <div className='flex items-center gap-2'>
+                                                <link.icon className="h-5 w-5" />
+                                                <span>{t(link.labelKey)}</span>
+                                              </div>
+                                                {link.id === 'error-logs' && newErrorCount > 0 && (
+                                                  <Badge variant="destructive_solid">{newErrorCount}</Badge>
+                                                )}
+                                                {link.href === '/admin' && <span className="ml-auto text-xs text-muted-foreground">v{APP_VERSION}</span>}
+                                            </Link>
+                                        </SheetClose>
+                                    )
+                                }
+                                return null;
+                            })}
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      {navLoading ? (
+                        <>
+                            <Skeleton className="h-7 w-24" />
+                            <Skeleton className="h-7 w-24" />
+                            <Skeleton className="h-7 w-24" />
+                        </>
+                       ) : (
+                         <>
+                            {visiblePublicLinks.map(getMobileNavLink)}
+                            {user && visibleUserLinks.map(getMobileNavLink)}
+                         </>
+                       )}
+                    </nav>
+                  </div>
+                </ScrollArea>
+                <div className="mt-auto pb-4">
+                  <MobileAuthContent />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </header>
+      <EditProfileDialog
+          user={user}
+          isOpen={isProfileDialogOpen}
+          onClose={() => setIsProfileDialogOpen(false)}
+      />
+    </>
+  );
+}
