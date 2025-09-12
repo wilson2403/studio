@@ -20,7 +20,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { sendEmailToAllUsers } from '@/ai/flows/email-flow';
+import { sendBulkEmail } from '@/ai/flows/email-flow';
 import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { WhatsappIcon } from '@/components/icons/WhatsappIcon';
 import EditProfileDialog from '@/components/auth/EditProfileDialog';
@@ -44,6 +44,7 @@ import { EditableTitle } from '@/components/home/EditableTitle';
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
     body: z.string().min(1, t('errorRequired', { field: t('emailBody') })),
+    recipients: z.array(z.string()).min(1, t('errorSelectRecipients')),
 });
 
 const messageTemplateSchema = (t: (key: string, options?: any) => string) => z.object({
@@ -132,7 +133,7 @@ export default function AdminUsersPage() {
 
     const emailForm = useForm<EmailFormValues>({
         resolver: zodResolver(emailFormSchema(t)),
-        defaultValues: { subject: '', body: '' },
+        defaultValues: { subject: '', body: '', recipients: [] },
     });
 
     const messagesForm = useForm<MessagesFormValues>({
@@ -297,13 +298,13 @@ export default function AdminUsersPage() {
 
         if (template.name === 'Invitacion Ceremonias') {
             const activeCeremonies = await getCeremonies('active');
-            const ceremonyList = activeCeremonies.map(c => `- ${c.title}`).join('\n');
+            const ceremonyList = activeCeremonies.map(c => `- ${c.title}`).join('\\n');
             const siteLink = 'https://artedesanar.vercel.app/';
             
             if (lang === 'es') {
-                message = `¡Hola! 🌿 Te compartimos nuestras próximas ceremonias:\n\n${ceremonyList}\n\nPuedes ver todos los detalles y reservar tu espacio aquí: ${siteLink}\n\n¡Te esperamos para seguir sanando juntos!`;
+                message = `¡Hola! 🌿 Te compartimos nuestras próximas ceremonias:\\n\\n${ceremonyList}\\n\\nPuedes ver todos los detalles y reservar tu espacio aquí: ${siteLink}\\n\\n¡Te esperamos para seguir sanando juntos!`;
             } else {
-                message = `Hello! 🌿 We're sharing our upcoming ceremonies with you:\n\n${ceremonyList}\n\nYou can see all the details and reserve your spot here: ${siteLink}\n\nWe look forward to continuing to heal together!`;
+                message = `Hello! 🌿 We're sharing our upcoming ceremonies with you:\\n\\n${ceremonyList}\\n\\nYou can see all the details and reserve your spot here: ${siteLink}\\n\\nWe look forward to continuing to heal together!`;
             }
         }
         
@@ -318,7 +319,7 @@ export default function AdminUsersPage() {
     const onEmailSubmit = async (data: EmailFormValues) => {
         emailForm.control.disabled = true;
         try {
-            const result = await sendEmailToAllUsers({ subject: data.subject, body: data.body });
+            const result = await sendBulkEmail({ emails: data.recipients, subject: data.subject, body: data.body });
             if (result.success) {
                 toast({ title: t('emailsSentSuccess'), description: result.message });
                 emailForm.reset();
@@ -508,11 +509,15 @@ export default function AdminUsersPage() {
         );
     });
 
-
     const isSuperAdmin = currentUserProfile?.role === 'admin';
     const canEditUsers = isSuperAdmin || !!currentUserProfile?.permissions?.canEditUsers;
     const canViewChatHistory = isSuperAdmin || !!currentUserProfile?.permissions?.canViewChatHistory;
 
+    const allMessageTemplates = [
+        ...invitationTemplates,
+        ...ceremonyInvitationTemplates,
+        ...shareMemoryTemplates
+    ];
 
     if (loading) {
         return (
@@ -742,6 +747,26 @@ export default function AdminUsersPage() {
                         <CardContent>
                             <Form {...emailForm}>
                                 <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
+                                     <div className="space-y-2">
+                                        <Label>{t('selectTemplate')}</Label>
+                                        <Select onValueChange={(value) => {
+                                            const template = allMessageTemplates.find(t => t.id === value);
+                                            if (template) {
+                                                emailForm.setValue('body', template[i18n.language as 'es' | 'en'] || template.es);
+                                            }
+                                        }}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={t('selectTemplatePlaceholder')} />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {allMessageTemplates.map(template => (
+                                                    <SelectItem key={template.id} value={template.id}>
+                                                        {template.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                     </div>
                                     <FormField
                                         control={emailForm.control}
                                         name="subject"
@@ -768,7 +793,59 @@ export default function AdminUsersPage() {
                                             </FormItem>
                                         )}
                                     />
-                                    <Button type="submit" disabled={emailForm.formState.isSubmitting}>
+                                    <div className="space-y-4">
+                                        <Label>{t('selectUsers')}</Label>
+                                         <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id="select-all-users"
+                                                onCheckedChange={(checked) => {
+                                                    const allEmails = checked ? users.map(u => u.email) : [];
+                                                    emailForm.setValue('recipients', allEmails);
+                                                }}
+                                                checked={emailForm.watch('recipients')?.length === users.length}
+                                            />
+                                            <Label htmlFor="select-all-users">{t('selectAll')}</Label>
+                                        </div>
+                                        <ScrollArea className="h-60 rounded-md border p-4">
+                                            <FormField
+                                                control={emailForm.control}
+                                                name="recipients"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        {users.map((u) => (
+                                                            <FormField
+                                                                key={u.uid}
+                                                                control={emailForm.control}
+                                                                name="recipients"
+                                                                render={({ field }) => (
+                                                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                                                                        <FormControl>
+                                                                            <Checkbox
+                                                                                checked={field.value?.includes(u.email)}
+                                                                                onCheckedChange={(checked) => {
+                                                                                    return checked
+                                                                                        ? field.onChange([...field.value, u.email])
+                                                                                        : field.onChange(field.value?.filter((value) => value !== u.email))
+                                                                                }}
+                                                                            />
+                                                                        </FormControl>
+                                                                        <FormLabel className="font-normal w-full">
+                                                                            <div className='flex justify-between w-full'>
+                                                                                <span>{u.displayName}</span>
+                                                                                <span className='text-muted-foreground text-xs'>{u.email}</span>
+                                                                            </div>
+                                                                        </FormLabel>
+                                                                    </FormItem>
+                                                                )}
+                                                            />
+                                                        ))}
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </ScrollArea>
+                                    </div>
+                                    <Button type="submit" disabled={emailForm.formState.isSubmitting || emailForm.watch('recipients').length === 0}>
                                         <Send className="mr-2 h-4 w-4" />
                                         {emailForm.formState.isSubmitting ? t('sending') : t('sendEmailButton')}
                                     </Button>
@@ -1176,5 +1253,7 @@ export default function AdminUsersPage() {
         </div>
     );
 }
+
+    
 
     
