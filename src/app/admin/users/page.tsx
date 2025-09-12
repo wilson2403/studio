@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Mail, ShieldCheck, Users, FileText, CheckCircle, XCircle, Send, Edit, MessageSquare, Save, PlusCircle, Trash2, BarChart3, History, Star, Video, RotateCcw, Search, Bot, ClipboardList, SendHorizonal, Share2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions, CeremonyInvitationMessage, getCeremonyInvitationMessages, addCeremonyInvitationMessage, updateCeremonyInvitationMessage, deleteCeremonyInvitationMessage, getShareMemoryMessages, addShareMemoryMessage, updateShareMemoryMessage, deleteShareMemoryMessage, ShareMemoryMessage, deleteAllAuditLogs } from '@/lib/firebase/firestore';
+import { getAllUsers, getUserProfile, updateUserRole, UserProfile, updateUserStatus, getInvitationMessages, updateInvitationMessage, addInvitationMessage, deleteInvitationMessage, InvitationMessage, getSectionAnalytics, SectionAnalytics, UserStatus, UserRole, resetSectionAnalytics, resetQuestionnaire, deleteUser, getCourses, Course, updateUserPermissions, CeremonyInvitationMessage, getCeremonyInvitationMessages, addCeremonyInvitationMessage, updateCeremonyInvitationMessage, deleteCeremonyInvitationMessage, getShareMemoryMessages, addShareMemoryMessage, updateShareMemoryMessage, deleteShareMemoryMessage, ShareMemoryMessage, deleteAllAuditLogs, getCeremonies } from '@/lib/firebase/firestore';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
@@ -290,13 +290,25 @@ export default function AdminUsersPage() {
     }
 
 
-    const handleSendInvite = (template: InvitationMessage, lang: 'es' | 'en') => {
+    const handleSendInvite = async (template: InvitationMessage, lang: 'es' | 'en') => {
         if (!invitingUser || !invitingUser.phone) return;
-        const message = template?.[lang] || template?.es;
-        const encodedMessage = encodeURIComponent(message);
+        
+        let message = template?.[lang] || template?.es;
+
+        if (template.name === 'Invitacion Ceremonias') {
+            const activeCeremonies = await getCeremonies('active');
+            const ceremonyList = activeCeremonies.map(c => `- ${c.title}`).join('\n');
+            const siteLink = 'https://artedesanar.vercel.app/';
+            
+            if (lang === 'es') {
+                message = `¡Hola! 🌿 Te compartimos nuestras próximas ceremonias:\n\n${ceremonyList}\n\nPuedes ver todos los detalles y reservar tu espacio aquí: ${siteLink}\n\n¡Te esperamos para seguir sanando juntos!`;
+            } else {
+                message = `Hello! 🌿 We're sharing our upcoming ceremonies with you:\n\n${ceremonyList}\n\nYou can see all the details and reserve your spot here: ${siteLink}\n\nWe look forward to continuing to heal together!`;
+            }
+        }
         
         const phoneNumber = invitingUser.phone.replace(/\\D/g, '');
-        const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         
         window.open(url, '_blank');
         toast({ title: t('invitationSent') });
