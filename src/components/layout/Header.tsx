@@ -74,7 +74,6 @@ export default function Header() {
       { href: '/admin', labelKey: 'adminPanel', icon: ShieldCheck },
       { href: '/admin/users', labelKey: 'userManagementTitle', icon: UserIcon },
       { href: '/admin/content', labelKey: 'contentManagement', icon: FileText },
-      { href: '/admin/backup', labelKey: 'backupTitle', icon: History },
       { href: '/admin/chats', labelKey: 'chatHistoryTitle', icon: MessageSquare },
       { href: '/admin/logs', labelKey: 'errorLogsTitle', icon: Terminal, id: 'error-logs' },
       { href: '/admin/settings', labelKey: 'systemSettings', icon: Settings }

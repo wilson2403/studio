@@ -1,162 +1,202 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, Copy, FileType } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Download, Upload, AlertTriangle, FileJson, History } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { exportAllData, importAllData, BackupData } from '@/lib/firebase/firestore';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
-const projectStructure = {
-  "Frontend (Estilos, Componentes y Lógica)": [
-    'tailwind.config.ts',
-    'src/app/globals.css',
-    'components.json',
-    'src/components/ui',
-    'src/components/layout',
-    'src/components/home',
-    'src/components/admin',
-    'src/components/auth',
-    'src/components/chat',
-    'src/components/guides',
-    'src/app/(auth)/**/page.tsx',
-    'src/app/**/page.tsx',
-    'src/hooks/use-toast.ts',
-    'src/lib/i18n.ts',
-    'public/locales'
-  ],
-  "Backend (Firebase y Lógica de Servidor)": [
-    'src/lib/firebase/config.ts',
-    'src/lib/firebase/auth.ts',
-    'src/lib/firebase/firestore.ts',
-    'src/types/index.ts',
-    'src/ai/genkit.ts',
-    'src/ai/flows/chat-flow.ts',
-    'src/ai/flows/email-flow.ts',
-    'next.config.ts',
-    'package.json'
-  ]
-};
-
-const systemPrompt = `Eres un experto diseñador de UI/UX y arquitecto de software, especializado en la creación de experiencias de usuario atractivas y en la construcción de backends robustos. Tu tarea es dar forma a la apariencia visual y la estructura técnica de la aplicación "El Arte de Sanar".
-
-**Enfoque Principal:**
-
-- **Frontend (Diseño y Estilo):**
-  - **Paleta de Colores:** Define y aplica una paleta de colores cohesiva y profesional utilizando el sistema de temas dinámico en \`src/app/globals.css\` y \`tailwind.config.ts\`. Los colores deben evocar serenidad, naturaleza y espiritualidad.
-  - **Componentes:** Utiliza componentes de ShadCN para garantizar una UI moderna, consistente y accesible.
-  - **Diseño Visual:** Asegura que el diseño sea responsive y estético. Presta atención a los detalles como sombras, bordes redondeados, espaciado y tipografía para crear una experiencia de usuario pulida.
-  - **Tema Dinámico:** Gestiona los estilos globales y las variables de tema para los modos claro y oscuro, asegurando una transición fluida y una apariencia impecable en ambos.
-
-- **Backend (Estructura y Lógica):**
-  - **Firebase:** Utiliza Firebase (Firestore, Authentication, Storage) como el backend principal. Diseña estructuras de datos en Firestore que sean eficientes y escalables.
-  - **Lógica de Servidor (Genkit):** Implementa flujos de Genkit para funcionalidades de IA, como el chatbot y el envío de correos, asegurando que el código sea limpio y siga las mejores prácticas.
-  - **Tipos y Datos:** Mantén la integridad de los datos definiendo y utilizando los tipos de TypeScript en \`src/types/index.ts\` para todas las estructuras de datos.
-
-Tu objetivo es crear una aplicación que no solo sea funcional, sino también visualmente hermosa y fácil de mantener, reflejando la misión de sanación y profesionalismo de "El Arte de Sanar".
-
-Este prompt está pensado para ser copiado y pegado en Firebase Studio para crear un nuevo proyecto con la misma estructura base que este.
-`;
-
 export default function AdminPage() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const { t } = useTranslation();
-  const { toast } = useToast();
+    const [user, setUser] = useState<FirebaseUser | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [isExporting, setIsExporting] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
+    const [fileToImport, setFileToImport] = useState<File | null>(null);
+    const [lastBackup, setLastBackup] = useState<BackupData | null>(null);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-      if (!currentUser || !currentUser.email || !ADMIN_EMAILS.includes(currentUser.email)) {
-        router.push('/');
-      }
-    });
-    return () => unsubscribe();
-  }, [router]);
+    const router = useRouter();
+    const { t } = useTranslation();
+    const { toast } = useToast();
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(systemPrompt)
-      .then(() => {
-        toast({ title: t('promptCopied') });
-      })
-      .catch(err => {
-        console.error('Failed to copy text: ', err);
-        toast({ title: t('promptCopyError'), variant: 'destructive' });
-      });
-  };
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (!currentUser || !currentUser.email || !ADMIN_EMAILS.includes(currentUser.email)) {
+                router.push('/');
+                return;
+            }
+            setUser(currentUser);
+            setLoading(false);
+        });
 
-  if (loading || !user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
+        return () => unsubscribe();
+    }, [router]);
+
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            const data = await exportAllData();
+            const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data, null, 2))}`;
+            const link = document.createElement("a");
+            link.href = jsonString;
+            link.download = `el-arte-de-sanar-backup-${new Date().toISOString()}.json`;
+            link.click();
+            toast({ title: t('exportSuccessTitle') });
+        } catch (error) {
+            console.error("Failed to export data:", error);
+            toast({ title: t('exportErrorTitle'), variant: 'destructive' });
+        } finally {
+            setIsExporting(false);
+        }
+    };
+    
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFileToImport(e.target.files[0]);
+        }
+    };
+
+    const handleImport = async () => {
+        if (!fileToImport) return;
+
+        setIsImporting(true);
+        try {
+            const fileText = await fileToImport.text();
+            const dataToImport = JSON.parse(fileText) as BackupData;
+            
+            // This is the critical step: create a backup before importing.
+            const automaticBackup = await exportAllData();
+            setLastBackup(automaticBackup);
+
+            await importAllData(dataToImport);
+            toast({ title: t('importSuccessTitle'), description: t('importSuccessDescription') });
+        } catch (error) {
+            console.error("Failed to import data:", error);
+            toast({ title: t('importErrorTitle'), description: (error as Error).message, variant: 'destructive' });
+        } finally {
+            setIsImporting(false);
+            setFileToImport(null);
+        }
+    };
+
+    const handleRollback = async () => {
+        if (!lastBackup) return;
+
+        setIsImporting(true);
+        try {
+            await importAllData(lastBackup);
+            toast({ title: t('rollbackSuccessTitle'), description: t('rollbackSuccessDescription') });
+            setLastBackup(null); // Clear rollback data after use
+        } catch (error) {
+            console.error("Failed to rollback data:", error);
+            toast({ title: t('rollbackErrorTitle'), description: (error as Error).message, variant: 'destructive' });
+        } finally {
+            setIsImporting(false);
+        }
+    };
+
+
+    if (loading) {
+        return (
+            <div className="container py-12 md:py-16">
+                <Skeleton className="h-96 w-full" />
+            </div>
+        );
+    }
+
     return (
-      <div className="container flex min-h-[calc(100vh-8rem)] items-center justify-center py-12">
-        <div className="space-y-4 w-full">
-            <Skeleton className="h-12 w-1/4 mx-auto" />
-            <Skeleton className="h-8 w-1/2 mx-auto" />
-            <Skeleton className="h-96 w-full" />
+        <div className="container py-12 md:py-16 space-y-12">
+            <div className="text-center">
+                <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
+                    {t('backupTitle')}
+                </h1>
+                <p className="mt-2 text-lg text-foreground/80 font-body">{t('backupSubtitle')}</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+                {/* Export Card */}
+                <Card className="bg-card/50 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className='flex items-center gap-3'><Download /> {t('exportDataTitle')}</CardTitle>
+                        <CardDescription>{t('exportDataDescription')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button onClick={handleExport} disabled={isExporting}>
+                            {isExporting ? t('exportingButtonText') : t('exportButton')}
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                {/* Import Card */}
+                <Card className="bg-card/50 backdrop-blur-sm">
+                    <CardHeader>
+                        <CardTitle className='flex items-center gap-3'><Upload /> {t('importDataTitle')}</CardTitle>
+                        <CardDescription>{t('importDataDescription')}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center space-x-2">
+                           <label htmlFor="import-file" className="flex items-center gap-2 cursor-pointer text-sm font-medium text-primary hover:underline">
+                                <FileJson />
+                                {fileToImport ? fileToImport.name : t('selectFileButton')}
+                            </label>
+                            <input id="import-file" type="file" accept=".json" onChange={handleFileChange} className="hidden" />
+                        </div>
+
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button disabled={isImporting || !fileToImport}>
+                                    {isImporting ? t('importing') : t('importButton')}
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle className='flex items-center gap-2'><AlertTriangle className="text-destructive"/>{t('importWarningTitle')}</AlertDialogTitle>
+                                    <AlertDialogDescription>{t('importWarningDescription')}</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleImport}>{t('continue')}</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </CardContent>
+                </Card>
+            </div>
+             {lastBackup && (
+                <Card className="bg-yellow-900/20 border-yellow-500/50">
+                    <CardHeader>
+                        <CardTitle className='flex items-center gap-3 text-yellow-400'><History /> {t('rollbackCardTitle')}</CardTitle>
+                        <CardDescription className='text-yellow-400/80'>{t('rollbackCardDescription')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive">
+                                    {isImporting ? t('rollingBack') : t('rollbackButton')}
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle className='flex items-center gap-2'><AlertTriangle />{t('rollbackWarningTitle')}</AlertDialogTitle>
+                                    <AlertDialogDescription>{t('rollbackWarningDescription')}</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                    <AlertDialogAction onClick={handleRollback}>{t('continue')}</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </CardContent>
+                </Card>
+            )}
         </div>
-      </div>
     );
-  }
-
-  return (
-    <div className="container py-12 md:py-16 space-y-12">
-      <div className="text-center">
-        <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
-          {t('adminPanel')}
-        </h1>
-        <p className="mt-2 text-lg text-foreground/80 font-body">{t('adminPanelSubtitle')}</p>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-8">
-        <Card className="bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-3">
-              <FileType />
-              {t('projectStructure')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-96 rounded-md border p-4 font-mono text-sm">
-              {Object.entries(projectStructure).map(([category, files]) => (
-                <div key={category}>
-                  <h3 className="font-bold text-primary mt-4 mb-2">{category}</h3>
-                  {files.map((file, index) => (
-                    <div key={index} className="ml-4">{file}</div>
-                  ))}
-                </div>
-              ))}
-            </ScrollArea>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className='flex items-center gap-3'>
-                <Bot />
-                {t('systemPrompt')}
-              </div>
-              <Button variant="ghost" size="icon" onClick={copyToClipboard}>
-                <Copy className="h-4 w-4" />
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ScrollArea className="h-96 rounded-md border p-4">
-              <pre className="whitespace-pre-wrap font-body text-sm">{systemPrompt}</pre>
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
 }
