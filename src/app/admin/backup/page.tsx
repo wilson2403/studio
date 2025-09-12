@@ -70,7 +70,7 @@ export default function Header() {
   ];
 
   const adminNavLinks = [
-      { href: '/admin', labelKey: 'adminPanel', icon: ShieldCheck },
+      { href: '/admin', labelKey: 'backupTitle', icon: History },
       { href: '/admin/users', labelKey: 'userManagementTitle', icon: UserIcon },
       { href: '/admin/content', labelKey: 'contentManagement', icon: FileText },
       { href: '/admin/chats', labelKey: 'chatHistoryTitle', icon: MessageSquare },
