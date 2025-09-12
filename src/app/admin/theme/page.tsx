@@ -14,11 +14,7 @@ import { getThemeSettings, setThemeSettings, ThemeSettings, getPredefinedThemes,
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { ColorPicker } from '@/components/admin/ColorPicker';
-import { Separator } from '@/components/ui/separator';
-import { Save, Trash2, UploadCloud } from 'lucide-react';
+import { Save, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { v4 as uuidv4 } from 'uuid';
+import { useTheme } from 'next-themes';
 
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
@@ -92,9 +89,11 @@ export default function ThemePage() {
     const [loading, setLoading] = useState(true);
     const [loadingTheme, setLoadingTheme] = useState(true);
     const [predefinedThemes, setPredefinedThemes] = useState<PredefinedTheme[]>([]);
+    const [activeThemeId, setActiveThemeId] = useState<string | null>(null);
     const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
+    const { setTheme: setNextTheme } = useTheme();
 
     const themeForm = useForm<ThemeFormValues>({
         resolver: zodResolver(themeFormSchema),
@@ -104,24 +103,19 @@ export default function ThemePage() {
         const fetchInitialData = async () => {
             setLoadingTheme(true);
             try {
-                const [themeSettings, predefined] = await Promise.all([
-                    getThemeSettings(),
-                    getPredefinedThemes()
-                ]);
+                const predefined = await getPredefinedThemes();
+                setPredefinedThemes(predefined);
+
+                const cachedThemeId = localStorage.getItem('activeThemeId');
+                const themeIdToApply = cachedThemeId || predefined.find(p => p.id === 'default')?.id || predefined[0]?.id;
                 
-                let themeToApply: ThemeSettings | null = themeSettings;
-                if (!themeToApply) {
-                    const defaultTheme = predefined.find(p => p.id === 'default');
-                    if(defaultTheme) {
-                       themeToApply = defaultTheme.colors;
+                if (themeIdToApply) {
+                    const theme = predefined.find(p => p.id === themeIdToApply);
+                    if (theme) {
+                        applyTheme(theme.colors);
+                        setActiveThemeId(theme.id);
                     }
                 }
-
-                if (themeToApply) {
-                   themeForm.reset(themeToApply);
-                   applyTheme(themeToApply);
-                }
-                setPredefinedThemes(predefined);
 
             } catch (error) {
                 console.error("Failed to load theme data:", error);
@@ -142,82 +136,26 @@ export default function ThemePage() {
         });
 
         return () => unsubscribe();
-    }, [router, themeForm, t, toast]);
+    }, [router, t, toast]);
 
 
-    const onThemeSubmit = async (data: ThemeFormValues) => {
-        try {
-          await setThemeSettings(data);
-          applyTheme(data);
-          toast({ title: t('themeUpdatedSuccess'), description: t('themeUpdateReload') });
-          setTimeout(() => window.location.reload(), 1000);
-        } catch (error) {
-          toast({ title: t('themeUpdatedError'), variant: 'destructive' });
-        }
-    };
-
-    const handleApplyTheme = (theme: ThemeSettings) => {
-        themeForm.reset(theme);
-        applyTheme(theme);
+    const handleApplyTheme = (theme: PredefinedTheme) => {
+        applyTheme(theme.colors);
+        setActiveThemeId(theme.id);
+        localStorage.setItem('activeThemeId', theme.id);
     };
     
-    const watchedValues = themeForm.watch();
-    useEffect(() => {
-        const result = themeFormSchema.safeParse(watchedValues);
-        if (result.success && !loadingTheme) {
-            applyTheme(result.data);
-        }
-    }, [watchedValues, loadingTheme]);
-
-
-    const renderColorField = (key: string, name: keyof ThemeFormValues['light'] | keyof ThemeFormValues['dark'], labelKey: string, theme: 'light' | 'dark') => (
-        <FormField
-          key={key}
-          control={themeForm.control}
-          name={`${theme}.${name}` as any}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t(labelKey)}</FormLabel>
-              <div className="flex items-center gap-2">
-                <ColorPicker value={field.value} onChange={field.onChange} />
-                <FormControl>
-                  <Input placeholder="125 33% 74%" {...field} />
-                </FormControl>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-    );
-    
-    const colorFields: { name: keyof ThemeFormValues['light'], labelKey: string }[] = [
-        { name: 'primary', labelKey: 'themePrimaryLabel' },
-        { name: 'primaryForeground', labelKey: 'themePrimaryForegroundLabel' },
-        { name: 'background', labelKey: 'themeBackgroundLabel' },
-        { name: 'foreground', labelKey: 'themeForegroundLabel' },
-        { name: 'card', labelKey: 'themeCardLabel' },
-        { name: 'cardForeground', labelKey: 'themeCardForegroundLabel' },
-        { name: 'accent', labelKey: 'themeAccentLabel' },
-        { name: 'accentForeground', labelKey: 'themeAccentForegroundLabel' },
-        { name: 'secondary', labelKey: 'themeSecondaryLabel' },
-        { name: 'secondaryForeground', labelKey: 'themeSecondaryForegroundLabel' },
-        { name: 'muted', labelKey: 'themeMutedLabel' },
-        { name: 'mutedForeground', labelKey: 'themeMutedForegroundLabel' },
-        { name: 'destructive', labelKey: 'themeDestructiveLabel' },
-        { name: 'destructiveForeground', labelKey: 'themeDestructiveForegroundLabel' },
-        { name: 'border', labelKey: 'themeBorderLabel' },
-        { name: 'input', labelKey: 'themeInputLabel' },
-        { name: 'ring', labelKey: 'themeRingLabel' },
-    ];
-
     const handleSaveAsNewTheme = async () => {
+        const currentThemeColors = predefinedThemes.find(t => t.id === activeThemeId)?.colors;
+        if(!currentThemeColors) return;
+
         const themeName = prompt(t('enterNewThemeName'));
         if (!themeName) return;
 
         const newTheme: PredefinedTheme = {
             id: uuidv4(),
             name: themeName,
-            colors: themeForm.getValues()
+            colors: currentThemeColors
         };
         try {
             await savePredefinedTheme(newTheme);
@@ -228,28 +166,14 @@ export default function ThemePage() {
         }
     };
 
-    const handleUpdateTheme = async (themeId: string) => {
-        try {
-            const themeToUpdate = predefinedThemes.find(t => t.id === themeId);
-            if (!themeToUpdate) return;
-            
-            const updatedTheme: PredefinedTheme = {
-                ...themeToUpdate,
-                colors: themeForm.getValues()
-            };
-            await savePredefinedTheme(updatedTheme);
-            setPredefinedThemes(prev => prev.map(t => t.id === themeId ? updatedTheme : t));
-            toast({ title: t('themeUpdatedSuccess') });
-
-        } catch (error) {
-            toast({ title: t('themeUpdatedError'), variant: 'destructive' });
-        }
-    };
-
     const handleDeleteTheme = async (themeId: string) => {
          try {
             await deletePredefinedTheme(themeId);
             setPredefinedThemes(prev => prev.filter(t => t.id !== themeId));
+            if(activeThemeId === themeId) {
+                const defaultTheme = predefinedThemes.find(t => t.id === 'default') || predefinedThemes[0];
+                if (defaultTheme) handleApplyTheme(defaultTheme);
+            }
             toast({ title: t('themeDeletedSuccess') });
         } catch (error) {
             toast({ title: t('themeDeletedError'), variant: 'destructive' });
@@ -281,62 +205,46 @@ export default function ThemePage() {
                 </CardHeader>
                 <CardContent>
                     {loadingTheme ? (
-                        <Skeleton className="h-96 w-full" />
+                        <Skeleton className="h-24 w-full" />
                     ) : (
-                        <Form {...themeForm}>
-                        <form onSubmit={themeForm.handleSubmit(onThemeSubmit)} className="space-y-8">
-                            <div>
-                                <h3 className="text-xl font-headline mb-4">{t('predefinedThemes')}</h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {predefinedThemes.map(theme => (
-                                        <div key={theme.id} className="group relative">
-                                            <Button type="button" variant="outline" onClick={() => handleApplyTheme(theme.colors)}>
-                                                {theme.name}
-                                            </Button>
-                                            <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button type='button' size='icon' className='h-6 w-6 bg-primary/80 hover:bg-primary' onClick={() => handleUpdateTheme(theme.id)}>
-                                                    <UploadCloud className="h-4 w-4" />
-                                                </Button>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button type="button" variant="destructive" size="icon" className="h-6 w-6">
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                        <AlertDialogTitle>{t('deleteThemeConfirmTitle')}</AlertDialogTitle>
-                                                        <AlertDialogDescription>{t('deleteThemeConfirmDescription', { name: theme.name })}</AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDeleteTheme(theme.id)}>{t('delete')}</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </div>
+                       <div>
+                            <h3 className="text-xl font-headline mb-4">{t('predefinedThemes')}</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {predefinedThemes.map(theme => (
+                                    <div key={theme.id} className="group relative">
+                                        <Button 
+                                            type="button" 
+                                            variant={activeThemeId === theme.id ? 'default' : 'outline'} 
+                                            onClick={() => handleApplyTheme(theme)}>
+                                            {theme.name}
+                                        </Button>
+                                        <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button type="button" variant="destructive" size="icon" className="h-6 w-6" disabled={theme.id === 'default'}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                    <AlertDialogTitle>{t('deleteThemeConfirmTitle')}</AlertDialogTitle>
+                                                    <AlertDialogDescription>{t('deleteThemeConfirmDescription', { name: theme.name })}</AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                    <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteTheme(theme.id)}>{t('delete')}</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </div>
-                                    ))}
-                                    <Button type="button" variant="secondary" onClick={handleSaveAsNewTheme}>{t('saveAsNewTheme')}</Button>
-                                </div>
+                                    </div>
+                                ))}
+                                <Button type="button" variant="secondary" onClick={handleSaveAsNewTheme}>
+                                    <Save className="mr-2 h-4 w-4"/>
+                                    {t('saveAsNewTheme')}
+                                </Button>
                             </div>
-                            <Separator/>
-                            <div className="grid md:grid-cols-2 gap-8">
-                            <div className="space-y-4">
-                                <h3 className="text-xl font-headline">{t('themeLight')}</h3>
-                                {colorFields.map(field => renderColorField(field.name, field.name, field.labelKey, 'light'))}
-                            </div>
-                            <div className="space-y-4">
-                                <h3 className="text-xl font-headline">{t('themeDark')}</h3>
-                                {colorFields.map(field => renderColorField(field.name, field.name, field.labelKey, 'dark'))}
-                            </div>
-                            </div>
-                            <Button type="submit" disabled={themeForm.formState.isSubmitting}>
-                                <Save className="mr-2 h-4 w-4"/>
-                                {t('saveChanges')}
-                            </Button>
-                        </form>
-                        </Form>
+                        </div>
                     )}
                 </CardContent>
             </Card>
@@ -344,3 +252,4 @@ export default function ThemePage() {
         </div>
     );
 }
+
