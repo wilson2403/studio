@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -25,16 +26,16 @@ import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
 import { User } from 'firebase/auth';
 import { signOut } from '@/lib/firebase/auth';
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from './LanguageSwitcher';
-import { Logo } from '../icons/Logo';
-import { ThemeSwitcher } from './ThemeSwitcher';
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import { Logo } from '@/components/icons/Logo';
+import { ThemeSwitcher } from '@/components/layout/ThemeSwitcher';
 import { logUserAction, getNewErrorLogsCount } from '@/lib/firebase/firestore';
-import { EditableTitle } from '../home/EditableTitle';
-import EditProfileDialog from '../auth/EditProfileDialog';
-import { ScrollArea } from '../ui/scroll-area';
-import { Badge } from '../ui/badge';
+import { EditableTitle } from '@/components/home/EditableTitle';
+import EditProfileDialog from '@/components/auth/EditProfileDialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
@@ -448,3 +449,5 @@ export default function Header() {
     </>
   );
 }
+
+    
