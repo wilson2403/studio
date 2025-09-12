@@ -892,220 +892,82 @@ export default function AdminUsersPage() {
                                     <Skeleton className="h-10 w-1/4" />
                                 </div>
                             ) : (
-                                <Accordion type="multiple" defaultValue={['questionnaire-templates']}>
-                                    <AccordionItem value="questionnaire-templates">
-                                        <AccordionTrigger>
-                                            <EditableTitle tag="h3" id="questionnaireInvitationTemplates" initialValue={t('questionnaireInvitationTemplates')} isInsideButton />
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <Form {...messagesForm}>
-                                                <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-6">
-                                                    <div className='space-y-4'>
-                                                    {templateFields.map((field, index) => (
-                                                        <Card key={field.id} className="p-4 bg-muted/30">
-                                                            <FormField
-                                                                control={messagesForm.control}
-                                                                name={`templates.${index}.name`}
-                                                                render={({ field }) => (
-                                                                    <FormItem className='mb-4'>
-                                                                        <FormLabel>{t('templateName')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Input {...field} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                control={messagesForm.control}
-                                                                name={`templates.${index}.es`}
-                                                                render={({ field }) => (
-                                                                    <FormItem className='mb-2'>
-                                                                        <FormLabel>{t('templateMessageES')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Textarea {...field} rows={5}/>
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                control={messagesForm.control}
-                                                                name={`templates.${index}.en`}
-                                                                render={({ field }) => (
-                                                                    <FormItem>
-                                                                        <FormLabel>{t('templateMessageEN')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Textarea {...field} rows={5} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <Button type="button" variant="destructive" size="sm" className="mt-4" onClick={() => handleDeleteTemplate(field.id, index)}>
-                                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                                {t('deleteTemplate')}
-                                                            </Button>
-                                                        </Card>
-                                                    ))}
-                                                    </div>
-                                                    <div className='flex gap-2'>
-                                                        <Button type="button" variant="outline" onClick={handleAddTemplate}>
-                                                            <PlusCircle className="mr-2 h-4 w-4" />
-                                                            {t('addTemplate')}
-                                                        </Button>
-                                                        <Button type="submit" disabled={messagesForm.formState.isSubmitting}>
-                                                            <Save className="mr-2 h-4 w-4"/>
-                                                            {messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                                                        </Button>
-                                                    </div>
-                                                </form>
-                                            </Form>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="ceremony-templates">
-                                        <AccordionTrigger>
-                                            <EditableTitle tag="h3" id="ceremonyInvitationTemplates" initialValue={t('ceremonyInvitationTemplates')} isInsideButton />
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <Form {...ceremonyMessagesForm}>
-                                                <form onSubmit={ceremonyMessagesForm.handleSubmit(onCeremonyMessagesSubmit)} className="space-y-6">
-                                                    <div className='space-y-4'>
-                                                    {ceremonyTemplateFields.map((field, index) => (
-                                                        <Card key={field.id} className="p-4 bg-muted/30">
-                                                            <FormField
-                                                                control={ceremonyMessagesForm.control}
-                                                                name={`ceremonyTemplates.${index}.name`}
-                                                                render={({ field }) => (
-                                                                    <FormItem className='mb-4'>
-                                                                        <FormLabel>{t('templateName')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Input {...field} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                control={ceremonyMessagesForm.control}
-                                                                name={`ceremonyTemplates.${index}.es`}
-                                                                render={({ field }) => (
-                                                                    <FormItem className='mb-2'>
-                                                                        <FormLabel>{t('templateMessageES')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Textarea {...field} rows={10}/>
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                control={ceremonyMessagesForm.control}
-                                                                name={`ceremonyTemplates.${index}.en`}
-                                                                render={({ field }) => (
-                                                                    <FormItem>
-                                                                        <FormLabel>{t('templateMessageEN')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Textarea {...field} rows={10} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                             <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>
-                                                            <Button type="button" variant="destructive" size="sm" className="mt-4" onClick={() => handleDeleteCeremonyTemplate(field.id, index)}>
-                                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                                {t('deleteTemplate')}
-                                                            </Button>
-                                                        </Card>
-                                                    ))}
-                                                    </div>
-                                                    <div className='flex gap-2'>
-                                                        <Button type="button" variant="outline" onClick={handleAddCeremonyTemplate}>
-                                                            <PlusCircle className="mr-2 h-4 w-4" />
-                                                            {t('addCeremonyTemplate')}
-                                                        </Button>
-                                                        <Button type="submit" disabled={ceremonyMessagesForm.formState.isSubmitting}>
-                                                            <Save className="mr-2 h-4 w-4"/>
-                                                            {ceremonyMessagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                                                        </Button>
-                                                    </div>
-                                                </form>
-                                            </Form>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                    <AccordionItem value="share-memory-templates">
-                                        <AccordionTrigger>
-                                            <EditableTitle tag="h3" id="shareMemoryTemplates" initialValue={t('shareMemoryTemplates')} isInsideButton />
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <Form {...shareMemoryMessagesForm}>
-                                                <form onSubmit={shareMemoryMessagesForm.handleSubmit(onShareMemoryMessagesSubmit)} className="space-y-6">
-                                                    <div className='space-y-4'>
-                                                    {shareMemoryTemplateFields.map((field, index) => (
-                                                        <Card key={field.id} className="p-4 bg-muted/30">
-                                                            <FormField
-                                                                control={shareMemoryMessagesForm.control}
-                                                                name={`shareMemoryTemplates.${index}.name`}
-                                                                render={({ field }) => (
-                                                                    <FormItem className='mb-4'>
-                                                                        <FormLabel>{t('templateName')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Input {...field} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                control={shareMemoryMessagesForm.control}
-                                                                name={`shareMemoryTemplates.${index}.es`}
-                                                                render={({ field }) => (
-                                                                    <FormItem className='mb-2'>
-                                                                        <FormLabel>{t('templateMessageES')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Textarea {...field} rows={10}/>
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                            <FormField
-                                                                control={shareMemoryMessagesForm.control}
-                                                                name={`shareMemoryTemplates.${index}.en`}
-                                                                render={({ field }) => (
-                                                                    <FormItem>
-                                                                        <FormLabel>{t('templateMessageEN')}</FormLabel>
-                                                                        <FormControl>
-                                                                            <Textarea {...field} rows={10} />
-                                                                        </FormControl>
-                                                                        <FormMessage />
-                                                                    </FormItem>
-                                                                )}
-                                                            />
-                                                             <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>
-                                                            <Button type="button" variant="destructive" size="sm" className="mt-4" onClick={() => handleDeleteShareMemoryTemplate(field.id, index)}>
-                                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                                {t('deleteTemplate')}
-                                                            </Button>
-                                                        </Card>
-                                                    ))}
-                                                    </div>
-                                                    <div className='flex gap-2'>
-                                                        <Button type="button" variant="outline" onClick={handleAddShareMemoryTemplate}>
-                                                            <PlusCircle className="mr-2 h-4 w-4" />
-                                                            {t('addShareMemoryTemplate')}
-                                                        </Button>
-                                                        <Button type="submit" disabled={shareMemoryMessagesForm.formState.isSubmitting}>
-                                                            <Save className="mr-2 h-4 w-4"/>
-                                                            {shareMemoryMessagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}
-                                                        </Button>
-                                                    </div>
-                                                </form>
-                                            </Form>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                </Accordion>
+                                <div className="space-y-6">
+                                     <div className="space-y-4">
+                                        <h3 className="text-xl font-semibold border-b pb-2">{t('questionnaireInvitationTemplates')}</h3>
+                                        <Form {...messagesForm}>
+                                            <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-4">
+                                                {templateFields.map((field, index) => (
+                                                    <Accordion key={field.id} type="single" collapsible>
+                                                        <AccordionItem value={field.id} className="border rounded-lg bg-muted/20 px-4">
+                                                            <AccordionTrigger>{field.name}</AccordionTrigger>
+                                                            <AccordionContent className="pt-4 space-y-4">
+                                                                <FormField control={messagesForm.control} name={`templates.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>{t('templateName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <FormField control={messagesForm.control} name={`templates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <FormField control={messagesForm.control} name={`templates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteTemplate(field.id, index)}><Trash2 className="mr-2 h-4 w-4" />{t('deleteTemplate')}</Button>
+                                                            </AccordionContent>
+                                                        </AccordionItem>
+                                                    </Accordion>
+                                                ))}
+                                                <div className="flex gap-2">
+                                                    <Button type="button" variant="outline" onClick={handleAddTemplate}><PlusCircle className="mr-2 h-4 w-4" />{t('addTemplate')}</Button>
+                                                    <Button type="submit" disabled={messagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
+                                                </div>
+                                            </form>
+                                        </Form>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <h3 className="text-xl font-semibold border-b pb-2">{t('ceremonyInvitationTemplates')}</h3>
+                                        <Form {...ceremonyMessagesForm}>
+                                            <form onSubmit={ceremonyMessagesForm.handleSubmit(onCeremonyMessagesSubmit)} className="space-y-4">
+                                                {ceremonyTemplateFields.map((field, index) => (
+                                                    <Accordion key={field.id} type="single" collapsible>
+                                                        <AccordionItem value={field.id} className="border rounded-lg bg-muted/20 px-4">
+                                                            <AccordionTrigger>{field.name}</AccordionTrigger>
+                                                            <AccordionContent className="pt-4 space-y-4">
+                                                                <FormField control={ceremonyMessagesForm.control} name={`ceremonyTemplates.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>{t('templateName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <FormField control={ceremonyMessagesForm.control} name={`ceremonyTemplates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <FormField control={ceremonyMessagesForm.control} name={`ceremonyTemplates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>
+                                                                <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteCeremonyTemplate(field.id, index)}><Trash2 className="mr-2 h-4 w-4" />{t('deleteTemplate')}</Button>
+                                                            </AccordionContent>
+                                                        </AccordionItem>
+                                                    </Accordion>
+                                                ))}
+                                                <div className="flex gap-2">
+                                                    <Button type="button" variant="outline" onClick={handleAddCeremonyTemplate}><PlusCircle className="mr-2 h-4 w-4" />{t('addCeremonyTemplate')}</Button>
+                                                    <Button type="submit" disabled={ceremonyMessagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{ceremonyMessagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
+                                                </div>
+                                            </form>
+                                        </Form>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <h3 className="text-xl font-semibold border-b pb-2">{t('shareMemoryTemplates')}</h3>
+                                        <Form {...shareMemoryMessagesForm}>
+                                            <form onSubmit={shareMemoryMessagesForm.handleSubmit(onShareMemoryMessagesSubmit)} className="space-y-4">
+                                                {shareMemoryTemplateFields.map((field, index) => (
+                                                     <Accordion key={field.id} type="single" collapsible>
+                                                        <AccordionItem value={field.id} className="border rounded-lg bg-muted/20 px-4">
+                                                            <AccordionTrigger>{field.name}</AccordionTrigger>
+                                                            <AccordionContent className="pt-4 space-y-4">
+                                                                <FormField control={shareMemoryMessagesForm.control} name={`shareMemoryTemplates.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>{t('templateName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <FormField control={shareMemoryMessagesForm.control} name={`shareMemoryTemplates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <FormField control={shareMemoryMessagesForm.control} name={`shareMemoryTemplates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormMessage /></FormItem> )}/>
+                                                                <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>
+                                                                <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteShareMemoryTemplate(field.id, index)}><Trash2 className="mr-2 h-4 w-4" />{t('deleteTemplate')}</Button>
+                                                            </AccordionContent>
+                                                        </AccordionItem>
+                                                    </Accordion>
+                                                ))}
+                                                <div className="flex gap-2">
+                                                    <Button type="button" variant="outline" onClick={handleAddShareMemoryTemplate}><PlusCircle className="mr-2 h-4 w-4" />{t('addShareMemoryTemplate')}</Button>
+                                                    <Button type="submit" disabled={shareMemoryMessagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{shareMemoryMessagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
+                                                </div>
+                                            </form>
+                                        </Form>
+                                    </div>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
@@ -1282,4 +1144,5 @@ export default function AdminUsersPage() {
     
 
     
+
 
