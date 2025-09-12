@@ -255,16 +255,19 @@ export const en = {
     passwordRequired: 'Current password is required.',
     // Email Tab
     emailTab: 'Bulk Email',
-    sendEmailTitle: 'Send Email to All Users',
-    sendEmailDescription: 'Compose and send an email to all registered users on the platform.',
+    sendEmailTitle: 'Send Bulk Email',
+    sendEmailDescription: 'Compose and send an email to the selected users.',
     emailSubject: 'Subject',
     emailSubjectPlaceholder: 'Important announcement about our ceremonies',
     emailBody: 'Email Body (HTML)',
     emailBodyPlaceholder: '<h1>Hello everyone!</h1><p>We are writing to inform you about...</p>',
-    sendEmailButton: 'Send Bulk Email',
+    sendEmailButton: 'Send Email',
     sending: 'Sending...',
     emailsSentSuccess: 'Emails sent!',
     emailsSentError: 'Error sending emails.',
+    selectUsers: 'Select Users',
+    selectAll: 'Select all',
+    errorSelectRecipients: 'You must select at least one recipient.',
     // Invitation Tab
     invitationTabTitle: 'Message Templates',
     invitationTabDescription: 'Manage the message templates for WhatsApp invitations.',
@@ -693,6 +696,5 @@ export const en = {
     themeDeletedSuccess: 'Theme deleted.',
     themeDeletedError: 'Error deleting theme.',
     migrationTitle: 'Content Migration',
+    language: 'Language',
 };
-
-  

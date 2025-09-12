@@ -255,16 +255,19 @@ export const es = {
     passwordRequired: 'Se requiere la contraseña actual.',
     // Email Tab
     emailTab: 'Email Masivo',
-    sendEmailTitle: 'Enviar Correo a Todos los Usuarios',
-    sendEmailDescription: 'Redacta y envía un correo electrónico a todos los usuarios registrados en la plataforma.',
+    sendEmailTitle: 'Enviar Correo Masivo',
+    sendEmailDescription: 'Redacta y envía un correo electrónico a los usuarios seleccionados.',
     emailSubject: 'Asunto',
     emailSubjectPlaceholder: 'Anuncio importante sobre nuestras ceremonias',
     emailBody: 'Cuerpo del Correo (HTML)',
     emailBodyPlaceholder: '<h1>Hola a todos!</h1><p>Les escribimos para informarles sobre...</p>',
-    sendEmailButton: 'Enviar Correo Masivo',
+    sendEmailButton: 'Enviar Correo',
     sending: 'Enviando...',
     emailsSentSuccess: '¡Correos enviados!',
     emailsSentError: 'Error al enviar correos.',
+    selectUsers: 'Seleccionar Usuarios',
+    selectAll: 'Seleccionar todos',
+    errorSelectRecipients: 'Debes seleccionar al menos un destinatario.',
     // Invitation Tab
     invitationTabTitle: 'Plantillas de Mensajes',
     invitationTabDescription: 'Gestiona las plantillas de mensajes para las invitaciones de WhatsApp.',
@@ -421,7 +424,7 @@ export const es = {
     addCeremony: 'Agregar Ceremonia',
     // Not Found Page
     notFoundTitle: 'Página no Encontrada',
-    notFoundDescription: 'Lo sentimos, la página que buscas no existe o ha sido movida.',
+    notFoundDescription: "Lo sentimos, la página que buscas no existe o ha sido movida.",
     // Continue Registration
     continueRegistrationDescription: 'Completa la siguiente información para continuar con tu registro',
     welcomeUser: 'Bienvenido (a)',
@@ -629,7 +632,7 @@ export const es = {
     backupEnvSettings: 'Ajustes de Respaldo',
     backupEnvSettingsDesc: 'Claves para el entorno de respaldo/pruebas.',
     copy: 'Copiar .env',
-    envCopied: 'Archivo .env copiado.',
+    envCopied: '.env file copiado.',
     envCopiedDesc: 'Pega esto en tu archivo .env.local para el entorno de {{env}}.',
     errorCopying: 'Error al copiar.',
     firebaseApiKey: 'Firebase API Key',
@@ -693,6 +696,7 @@ export const es = {
     themeDeletedSuccess: 'Tema eliminado.',
     themeDeletedError: 'Error al eliminar el tema.',
     migrationTitle: 'Migración de Contenido',
+    language: 'Idioma',
 };
 
   

@@ -40,6 +40,7 @@ import ViewUserAuditLogDialog from '@/components/admin/ViewUserAuditLogDialog';
 import InviteToCeremonyDialog from '@/components/admin/InviteToCeremonyDialog';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableTitle } from '@/components/home/EditableTitle';
+import { cn } from '@/lib/utils';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -127,6 +128,9 @@ export default function AdminUsersPage() {
     const [loadingMessages, setLoadingMessages] = useState(true);
     const [analytics, setAnalytics] = useState<SectionAnalytics[]>([]);
     const [loadingAnalytics, setLoadingAnalytics] = useState(true);
+    const [emailBodyLanguage, setEmailBodyLanguage] = useState<'es' | 'en'>('es');
+    const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+
     const router = useRouter();
     const { t, i18n } = useTranslation();
     const { toast } = useToast();
@@ -323,6 +327,7 @@ export default function AdminUsersPage() {
             if (result.success) {
                 toast({ title: t('emailsSentSuccess'), description: result.message });
                 emailForm.reset();
+                setSelectedTemplateId(null);
             } else {
                  toast({ title: t('emailsSentError'), description: result.message, variant: 'destructive' });
             }
@@ -518,6 +523,24 @@ export default function AdminUsersPage() {
         ...ceremonyInvitationTemplates,
         ...shareMemoryTemplates
     ];
+    
+    const handleTemplateChange = (templateId: string) => {
+        const template = allMessageTemplates.find(t => t.id === templateId);
+        if (template) {
+            setSelectedTemplateId(templateId);
+            emailForm.setValue('body', template[emailBodyLanguage]);
+        }
+    };
+    
+    const handleLanguageChange = (lang: 'es' | 'en') => {
+        setEmailBodyLanguage(lang);
+        if (selectedTemplateId) {
+            const template = allMessageTemplates.find(t => t.id === selectedTemplateId);
+            if (template) {
+                emailForm.setValue('body', template[lang]);
+            }
+        }
+    }
 
     if (loading) {
         return (
@@ -749,12 +772,7 @@ export default function AdminUsersPage() {
                                 <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
                                      <div className="space-y-2">
                                         <Label>{t('selectTemplate')}</Label>
-                                        <Select onValueChange={(value) => {
-                                            const template = allMessageTemplates.find(t => t.id === value);
-                                            if (template) {
-                                                emailForm.setValue('body', template[i18n.language as 'es' | 'en'] || template.es);
-                                            }
-                                        }}>
+                                        <Select onValueChange={handleTemplateChange}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder={t('selectTemplatePlaceholder')} />
                                             </SelectTrigger>
@@ -766,6 +784,13 @@ export default function AdminUsersPage() {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                     </div>
+                                      <div className="space-y-2">
+                                        <Label>{t('language')}</Label>
+                                        <div className="flex gap-2">
+                                            <Button type="button" variant={emailBodyLanguage === 'es' ? 'default' : 'outline'} onClick={() => handleLanguageChange('es')}>{t('spanish')}</Button>
+                                            <Button type="button" variant={emailBodyLanguage === 'en' ? 'default' : 'outline'} onClick={() => handleLanguageChange('en')}>{t('english')}</Button>
+                                        </div>
                                      </div>
                                     <FormField
                                         control={emailForm.control}
@@ -799,10 +824,10 @@ export default function AdminUsersPage() {
                                             <Checkbox
                                                 id="select-all-users"
                                                 onCheckedChange={(checked) => {
-                                                    const allEmails = checked ? users.map(u => u.email) : [];
+                                                    const allEmails = checked ? users.map(u => u.email).filter((e): e is string => !!e) : [];
                                                     emailForm.setValue('recipients', allEmails);
                                                 }}
-                                                checked={emailForm.watch('recipients')?.length === users.length}
+                                                checked={emailForm.watch('recipients')?.length === users.length && users.length > 0}
                                             />
                                             <Label htmlFor="select-all-users">{t('selectAll')}</Label>
                                         </div>
@@ -812,7 +837,7 @@ export default function AdminUsersPage() {
                                                 name="recipients"
                                                 render={({ field }) => (
                                                     <FormItem>
-                                                        {users.map((u) => (
+                                                        {users.map((u) => u.email && (
                                                             <FormField
                                                                 key={u.uid}
                                                                 control={emailForm.control}
@@ -821,10 +846,10 @@ export default function AdminUsersPage() {
                                                                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                                                                         <FormControl>
                                                                             <Checkbox
-                                                                                checked={field.value?.includes(u.email)}
+                                                                                checked={field.value?.includes(u.email!)}
                                                                                 onCheckedChange={(checked) => {
                                                                                     return checked
-                                                                                        ? field.onChange([...field.value, u.email])
+                                                                                        ? field.onChange([...field.value, u.email!])
                                                                                         : field.onChange(field.value?.filter((value) => value !== u.email))
                                                                                 }}
                                                                             />
@@ -1257,3 +1282,4 @@ export default function AdminUsersPage() {
     
 
     
+
