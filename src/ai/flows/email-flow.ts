@@ -2,17 +2,18 @@
 'use server';
 
 /**
- * @fileOverview A flow for sending bulk emails to all users.
- * - sendEmailToAllUsers - Sends an email with a given subject and body to all registered users.
- * - EmailInput - The input type for the sendEmailToAllUsers function.
+ * @fileOverview A flow for sending bulk emails to a list of users.
+ * - sendBulkEmail - Sends an email with a given subject and body to the provided list of emails.
+ * - EmailInput - The input type for the sendBulkEmail function.
  */
 
 import { ai } from '@/ai/genkit';
-import { getAllUsers, logError } from '@/lib/firebase/firestore';
+import { logError } from '@/lib/firebase/firestore';
 import { z } from 'zod';
 import { Resend } from 'resend';
 
 const EmailInputSchema = z.object({
+  emails: z.array(z.string().email()).describe('The list of user emails to send to.'),
   subject: z.string().describe('The subject of the email.'),
   body: z
     .string()
@@ -55,51 +56,48 @@ const emailTemplate = (body: string) => `
   </html>
 `;
 
-export const sendEmailToAllUsers = ai.defineFlow(
+export const sendBulkEmail = ai.defineFlow(
   {
-    name: 'sendEmailToAllUsersFlow',
+    name: 'sendBulkEmailFlow',
     inputSchema: EmailInputSchema,
     outputSchema: EmailOutputSchema,
   },
-  async ({ subject, body }) => {
+  async ({ emails, subject, body }) => {
     if (!process.env.RESEND_API_KEY) {
       const errorMessage = 'Resend API key is not configured. Email functionality will not work.';
       console.warn(errorMessage);
       return { success: false, message: errorMessage };
     }
     
+    if (emails.length === 0) {
+      return { success: false, message: 'No user emails provided to send to.' };
+    }
+
     const resend = new Resend(process.env.RESEND_API_KEY);
 
     try {
-      const users = await getAllUsers();
-      const userEmails = users.map((user) => user.email).filter(Boolean) as string[];
-
-      if (userEmails.length === 0) {
-        return { success: false, message: 'No users found to send email to.' };
-      }
-      
       const htmlBody = emailTemplate(body);
 
       const { data, error } = await resend.emails.send({
         from: 'El Arte de Sanar <info@elartedesanarcr.com>',
         to: 'wilson2403@gmail.com', // Replace with your "from" email if your domain is verified
-        bcc: userEmails,
+        bcc: emails,
         subject: subject,
         html: htmlBody,
       });
 
       if (error) {
         console.error('Resend API Error:', error);
-        await logError(error, { function: 'sendEmailToAllUsers - Resend' });
+        await logError(error, { function: 'sendBulkEmail - Resend' });
         return { success: false, message: `Failed to send emails: ${error.message}`};
       }
       
       console.log('Emails sent successfully:', data);
-      return { success: true, message: `Successfully sent email to ${userEmails.length} users.` };
+      return { success: true, message: `Successfully sent email to ${emails.length} users.` };
 
     } catch (error: any) {
       console.error('Flow Error:', error);
-      await logError(error, { function: 'sendEmailToAllUsers - Flow' });
+      await logError(error, { function: 'sendBulkEmail - Flow' });
       return { success: false, message: `An unexpected error occurred: ${error.message}` };
     }
   }
