@@ -1,3 +1,4 @@
+
 {
   "users": [
     {
@@ -1848,12 +1849,8 @@
       "name": "Plantilla de Recuerdos",
       "en": "Hello {{userName}}! ✨ We hope you are doing well. We wanted to share the video memory of the \"{{ceremonyTitle}}\" ceremony with you. It was an honor to share that sacred space with you!\n\nYou can watch and download the video in high resolution here and also leave your testimony if you feel called to do so: {{memoryLink}}\n\n💬 Your words can inspire and guide others on their own healing journey.\n\nWith love,\nThe El Arte de Sanar Team",
       "es": "¡Hola {{userName}}, gracias por confiar en este camino de sanación! ✨ Esperamos que te encuentres muy bien. Queríamos compartir contigo el recuerdo en video de la ceremonia \"{{ceremonyTitle}}\". ¡Fue un honor compartir ese espacio sagrado contigo!\n\nPuedes verlo y descargar el video en alta resolución aquí, también dejar tu testimonio si sentís el llamado: {{memoryLink}}\n\n💬 Tus palabras pueden inspirar y guiar a otr@s en su propio viaje de sanación.\n\nCon cariño,\nArte de Sanar"
-    },
-    {
-      "id": "857d9a8e-e54d-4b7e-981b-6c0568db36af",
-      "en": "Hello {{userName}}! ✨ We hope you are doing well. We wanted to share the video memory of the \"{{ceremonyTitle}}\" ceremony with you. It was an honor to share that sacred space with you!\n\nYou can watch it here: {{memoryLink}}\n\nWith love,\nThe El Arte de Sanar Team",
-      "es": "¡Hola {{userName}}! ✨ Esperamos que te encuentres muy bien. Queríamos compartir contigo el recuerdo en video de la ceremonia \"{{ceremonyTitle}}\". ¡Fue un honor compartir ese espacio sagrado contigo!\n\nPuedes verlo aquí: {{memoryLink}}\n\nCon cariño,\nEl equipo de El Arte de Sanar",
-      "name": "Plantilla de Recuerdos Individual"
     }
   ]
 }
+
+    

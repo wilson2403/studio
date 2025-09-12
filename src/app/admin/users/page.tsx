@@ -53,60 +53,18 @@ const messageTemplateSchema = (t: (key: string, options?: any) => string) => z.o
     name: z.string().min(1, t('errorRequired', { field: t('templateName') })),
     es: z.string().min(1, t('errorRequired', { field: t('templateMessageES') })),
     en: z.string().min(1, t('errorRequired', { field: t('templateMessageEN') })),
+    type: z.enum(['invitation', 'ceremony', 'share-memory']).default('invitation'),
 });
 
 const messagesFormSchema = (t: (key: string, options?: any) => string) => z.object({
     templates: z.array(messageTemplateSchema(t)),
 });
 
-const ceremonyMessageTemplateSchema = (t: (key: string, options?: any) => string) => z.object({
-    id: z.string(),
-    name: z.string().min(1, t('errorRequired', { field: t('templateName') })),
-    es: z.string().min(1, t('errorRequired', { field: t('templateMessageES') })),
-    en: z.string().min(1, t('errorRequired', { field: t('templateMessageEN') })),
-});
-
-const ceremonyMessagesFormSchema = (t: (key: string, options?: any) => string) => z.object({
-    ceremonyTemplates: z.array(ceremonyMessageTemplateSchema(t)),
-});
-
-const shareMemoryMessageTemplateSchema = (t: (key: string, options?: any) => string) => z.object({
-    id: z.string(),
-    name: z.string().min(1, t('errorRequired', { field: t('templateName') })),
-    es: z.string().min(1, t('errorRequired', { field: t('templateMessageES') })),
-    en: z.string().min(1, t('errorRequired', { field: t('templateMessageEN') })),
-});
-
-const shareMemoryMessagesFormSchema = (t: (key: string, options?: any) => string) => z.object({
-    shareMemoryTemplates: z.array(shareMemoryMessageTemplateSchema(t)),
-});
-
 type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
 type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
-type CeremonyMessagesFormValues = z.infer<ReturnType<typeof ceremonyMessagesFormSchema>>;
-type ShareMemoryMessagesFormValues = z.infer<ReturnType<typeof shareMemoryMessagesFormSchema>>;
 
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 const userRoles: UserRole[] = ['user', 'organizer', 'admin'];
-
-const defaultInvitationMessage = (t: (key: string) => string): Omit<InvitationMessage, 'id'> => ({
-    name: t('defaultInvitationName'),
-    es: '¡Hola! Te invitamos a completar el cuestionario médico para continuar con tu proceso de reserva en El Arte de Sanar. Puedes hacerlo aquí: https://artedesanar.vercel.app/questionnaire',
-    en: 'Hello! We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar. You can do it here: https://artedesanar.vercel.app/questionnaire',
-});
-
-const defaultCeremonyInvitationMessage = (t: (key: string) => string): Omit<CeremonyInvitationMessage, 'id'> => ({
-    name: t('defaultCeremonyInvitationName'),
-    es: '¡Hola {{userName}}! Te confirmamos tu inscripción a la ceremonia "{{ceremonyTitle}}" del {{ceremonyDate}} a las {{ceremonyHorario}}. Aquí tienes el enlace con los detalles y la ubicación: {{ceremonyLink}}.\\n\\nUbicación: {{locationLink}}\\n\\n¡Te esperamos!',
-    en: 'Hello {{userName}}! We are confirming your registration for the "{{ceremonyTitle}}" ceremony on {{ceremonyDate}} at {{ceremonyHorario}}. Here is the link with the details and location: {{ceremonyLink}}.\\n\\nLocation: {{locationLink}}\\n\\nWe look forward to seeing you!',
-});
-
-const defaultShareMemoryMessage = (t: (key: string) => string): Omit<ShareMemoryMessage, 'id'> => ({
-    name: t('defaultShareMemoryName'),
-    es: '¡Hola {{userName}}! ✨ Esperamos que te encuentres muy bien. Queríamos compartir contigo el recuerdo en video de la ceremonia "{{ceremonyTitle}}". ¡Fue un honor compartir ese espacio sagrado contigo!\\n\\nPuedes verlo aquí: {{memoryLink}}\\n\\nCon cariño,\\nEl equipo de El Arte de Sanar',
-    en: 'Hello {{userName}}! ✨ We hope you are doing well. We wanted to share the video memory of the "{{ceremonyTitle}}" ceremony with you. It was an honor to share that sacred space with you!\\n\\nYou can watch it here: {{memoryLink}}\\n\\nWith love,\\nThe El Arte de Sanar Team',
-});
-
 
 export default function AdminUsersPage() {
     const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -120,9 +78,9 @@ export default function AdminUsersPage() {
     const [viewingUserAuditLog, setViewingUserAuditLog] = useState<UserProfile | null>(null);
     const [viewingUserCourses, setViewingUserCourses] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-    const [invitationTemplates, setInvitationTemplates] = useState<InvitationMessage[]>([]);
-    const [ceremonyInvitationTemplates, setCeremonyInvitationTemplates] = useState<CeremonyInvitationMessage[]>([]);
-    const [shareMemoryTemplates, setShareMemoryTemplates] = useState<ShareMemoryMessage[]>([]);
+    const [invitationTemplates, setInvitationTemplates] = useState<(InvitationMessage & { type: 'invitation' })[]>([]);
+    const [ceremonyInvitationTemplates, setCeremonyInvitationTemplates] = useState<(CeremonyInvitationMessage & { type: 'ceremony' })[]>([]);
+    const [shareMemoryTemplates, setShareMemoryTemplates] = useState<(ShareMemoryMessage & { type: 'share-memory' })[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
     const [assigningUser, setAssigningUser] = useState<UserProfile | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
@@ -150,26 +108,6 @@ export default function AdminUsersPage() {
         name: "templates",
     });
 
-    const ceremonyMessagesForm = useForm<CeremonyMessagesFormValues>({
-        resolver: zodResolver(ceremonyMessagesFormSchema(t)),
-        defaultValues: { ceremonyTemplates: [] },
-    });
-
-    const { fields: ceremonyTemplateFields, append: appendCeremonyTemplate, remove: removeCeremonyTemplate } = useFieldArray({
-        control: ceremonyMessagesForm.control,
-        name: "ceremonyTemplates",
-    });
-
-    const shareMemoryMessagesForm = useForm<ShareMemoryMessagesFormValues>({
-        resolver: zodResolver(shareMemoryMessagesFormSchema(t)),
-        defaultValues: { shareMemoryTemplates: [] },
-    });
-
-    const { fields: shareMemoryTemplateFields, append: appendShareMemoryTemplate, remove: removeShareMemoryTemplate } = useFieldArray({
-        control: shareMemoryMessagesForm.control,
-        name: "shareMemoryTemplates",
-    });
-
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -181,43 +119,29 @@ export default function AdminUsersPage() {
             }
         };
 
-        const fetchInvitationMessages = async () => {
+        const fetchAllMessages = async () => {
             setLoadingMessages(true);
-            // Questionnaire Invites
-            let templates = await getInvitationMessages();
-            if(templates.length === 0) {
-                const newId = uuidv4();
-                const defaultTemplate = { id: newId, ...defaultInvitationMessage(t) };
-                await addInvitationMessage(defaultTemplate);
-                templates = [defaultTemplate];
+            try {
+                const [invites, ceremonyInvites, memoryShares] = await Promise.all([
+                    getInvitationMessages(),
+                    getCeremonyInvitationMessages(),
+                    getShareMemoryMessages(),
+                ]);
+
+                const formattedInvites = invites.map(t => ({...t, type: 'invitation' as const}));
+                const formattedCeremony = ceremonyInvites.map(t => ({...t, type: 'ceremony' as const}));
+                const formattedMemory = memoryShares.map(t => ({...t, type: 'share-memory' as const}));
+
+                setInvitationTemplates(formattedInvites);
+                setCeremonyInvitationTemplates(formattedCeremony);
+                setShareMemoryTemplates(formattedMemory);
+
+                messagesForm.reset({ templates: [...formattedInvites, ...formattedCeremony, ...formattedMemory] });
+            } catch (e) {
+                 toast({ title: "Error", description: "Failed to load message templates.", variant: "destructive" });
+            } finally {
+                setLoadingMessages(false);
             }
-            setInvitationTemplates(templates);
-            messagesForm.reset({ templates });
-
-            // Ceremony Invites
-            let ceremonyTemplates = await getCeremonyInvitationMessages();
-            if(ceremonyTemplates.length === 0) {
-                const newId = uuidv4();
-                const defaultCeremonyTemplate = { id: newId, ...defaultCeremonyInvitationMessage(t) };
-                await addCeremonyInvitationMessage(defaultCeremonyTemplate);
-                ceremonyTemplates = [defaultCeremonyTemplate];
-            }
-            setCeremonyInvitationTemplates(ceremonyTemplates);
-            ceremonyMessagesForm.reset({ ceremonyTemplates });
-
-            // Share Memory Invites
-            let memoryTemplates = await getShareMemoryMessages();
-            if(memoryTemplates.length === 0) {
-                const newId = uuidv4();
-                const defaultMemoryTemplate = { id: newId, ...defaultShareMemoryMessage(t) };
-                await addShareMemoryMessage(defaultMemoryTemplate);
-                memoryTemplates = [defaultMemoryTemplate];
-            }
-            setShareMemoryTemplates(memoryTemplates);
-            shareMemoryMessagesForm.reset({ shareMemoryTemplates: memoryTemplates });
-
-
-            setLoadingMessages(false);
         };
         
         const fetchAnalytics = async () => {
@@ -245,12 +169,12 @@ export default function AdminUsersPage() {
             }
 
             setUser(currentUser);
-            await Promise.all([fetchUsers(), fetchInvitationMessages(), fetchAnalytics(), fetchCourses()]);
+            await Promise.all([fetchUsers(), fetchAllMessages(), fetchAnalytics(), fetchCourses()]);
             setLoading(false);
         });
 
         return () => unsubscribe();
-    }, [router, toast, t, messagesForm, ceremonyMessagesForm, shareMemoryMessagesForm]);
+    }, [router, toast, t, messagesForm]);
 
 
     const handleRoleChange = async (uid: string, role: UserRole) => {
@@ -299,18 +223,6 @@ export default function AdminUsersPage() {
         if (!invitingUser || !invitingUser.phone) return;
         
         let message = template?.[lang] || template?.es;
-
-        if (template.name === 'Invitacion Ceremonias') {
-            const activeCeremonies = await getCeremonies('active');
-            const ceremonyList = activeCeremonies.map(c => `- ${c.title}`).join('\\n');
-            const siteLink = 'https://artedesanar.vercel.app/';
-            
-            if (lang === 'es') {
-                message = `¡Hola! 🌿 Te compartimos nuestras próximas ceremonias:\\n\\n${ceremonyList}\\n\\nPuedes ver todos los detalles y reservar tu espacio aquí: ${siteLink}\\n\\n¡Te esperamos para seguir sanando juntos!`;
-            } else {
-                message = `Hello! 🌿 We're sharing our upcoming ceremonies with you:\\n\\n${ceremonyList}\\n\\nYou can see all the details and reserve your spot here: ${siteLink}\\n\\nWe look forward to continuing to heal together!`;
-            }
-        }
         
         const phoneNumber = invitingUser.phone.replace(/\\D/g, '');
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -341,102 +253,47 @@ export default function AdminUsersPage() {
     const onMessagesSubmit = async (data: MessagesFormValues) => {
         try {
             for (const template of data.templates) {
-                await updateInvitationMessage(template);
+                 const { id, type, ...templateData } = template;
+                if (type === 'invitation') {
+                    await updateInvitationMessage({ id, ...templateData });
+                } else if (type === 'ceremony') {
+                    await updateCeremonyInvitationMessage({ id, ...templateData });
+                } else if (type === 'share-memory') {
+                    await updateShareMemoryMessage({ id, ...templateData });
+                }
             }
-            setInvitationTemplates(data.templates);
             toast({ title: t('messagesUpdatedSuccess') });
         } catch (error: any) {
             toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
         }
     };
     
-    const handleAddTemplate = async () => {
-        const newTemplate: InvitationMessage = {
-            id: uuidv4(),
-            name: t('newTemplateName', { count: templateFields.length + 1 }),
-            es: t('newTemplateMessageES'),
-            en: t('newTemplateMessageEN'),
+    const handleAddTemplate = async (type: 'invitation' | 'ceremony' | 'share-memory') => {
+        const id = uuidv4();
+        let newTemplate: any;
+        if(type === 'invitation') {
+            newTemplate = { id, name: 'Nueva Plantilla de Invitación', es: 'Mensaje ES...', en: 'Message EN...', type };
+            await addInvitationMessage({ id, name: newTemplate.name, es: newTemplate.es, en: newTemplate.en });
+        } else if (type === 'ceremony') {
+            newTemplate = { id, name: 'Nueva Plantilla de Ceremonia', es: 'Mensaje ES...', en: 'Message EN...', type };
+            await addCeremonyInvitationMessage({ id, name: newTemplate.name, es: newTemplate.es, en: newTemplate.en });
+        } else {
+            newTemplate = { id, name: 'Nueva Plantilla de Recuerdo', es: 'Mensaje ES...', en: 'Message EN...', type };
+            await addShareMemoryMessage({ id, name: newTemplate.name, es: newTemplate.es, en: newTemplate.en });
         }
-        await addInvitationMessage(newTemplate);
         appendTemplate(newTemplate);
-        setInvitationTemplates(prev => [...prev, newTemplate]);
     }
     
-    const handleDeleteTemplate = async (templateId: string, index: number) => {
+    const handleDeleteTemplate = async (template: {id: string, type: 'invitation' | 'ceremony' | 'share-memory'}, index: number) => {
         try {
-            await deleteInvitationMessage(templateId);
+            if (template.type === 'invitation') {
+                await deleteInvitationMessage(template.id);
+            } else if (template.type === 'ceremony') {
+                await deleteCeremonyInvitationMessage(template.id);
+            } else if (template.type === 'share-memory') {
+                await deleteShareMemoryMessage(template.id);
+            }
             removeTemplate(index);
-            setInvitationTemplates(prev => prev.filter(t => t.id !== templateId));
-            toast({ title: t('templateDeleted') });
-        } catch(error: any) {
-             toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
-        }
-    }
-
-    const onCeremonyMessagesSubmit = async (data: CeremonyMessagesFormValues) => {
-        try {
-            for (const template of data.ceremonyTemplates) {
-                await updateCeremonyInvitationMessage(template);
-            }
-            setCeremonyInvitationTemplates(data.ceremonyTemplates);
-            toast({ title: t('messagesUpdatedSuccess') });
-        } catch (error: any) {
-            toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
-        }
-    };
-
-    const handleAddCeremonyTemplate = async () => {
-        const newTemplate: CeremonyInvitationMessage = {
-            id: uuidv4(),
-            name: t('newCeremonyTemplateName', { count: ceremonyTemplateFields.length + 1 }),
-            es: t('defaultCeremonyInvitationName'),
-            en: 'Default ceremony invitation message',
-        }
-        await addCeremonyInvitationMessage(newTemplate);
-        appendCeremonyTemplate(newTemplate);
-        setCeremonyInvitationTemplates(prev => [...prev, newTemplate]);
-    }
-
-    const handleDeleteCeremonyTemplate = async (templateId: string, index: number) => {
-        try {
-            await deleteCeremonyInvitationMessage(templateId);
-            removeCeremonyTemplate(index);
-            setCeremonyInvitationTemplates(prev => prev.filter(t => t.id !== templateId));
-            toast({ title: t('templateDeleted') });
-        } catch(error: any) {
-             toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
-        }
-    }
-
-    const onShareMemoryMessagesSubmit = async (data: ShareMemoryMessagesFormValues) => {
-        try {
-            for (const template of data.shareMemoryTemplates) {
-                await updateShareMemoryMessage(template);
-            }
-            setShareMemoryTemplates(data.shareMemoryTemplates);
-            toast({ title: t('messagesUpdatedSuccess') });
-        } catch (error: any) {
-            toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
-        }
-    };
-
-    const handleAddShareMemoryTemplate = async () => {
-        const newTemplate: ShareMemoryMessage = {
-            id: uuidv4(),
-            name: t('newShareMemoryTemplateName', { count: shareMemoryTemplateFields.length + 1 }),
-            es: t('defaultShareMemoryName'),
-            en: 'Default share memory message',
-        }
-        await addShareMemoryMessage(newTemplate);
-        appendShareMemoryTemplate(newTemplate);
-        setShareMemoryTemplates(prev => [...prev, newTemplate]);
-    }
-
-    const handleDeleteShareMemoryTemplate = async (templateId: string, index: number) => {
-        try {
-            await deleteShareMemoryMessage(templateId);
-            removeShareMemoryTemplate(index);
-            setShareMemoryTemplates(prev => prev.filter(t => t.id !== templateId));
             toast({ title: t('templateDeleted') });
         } catch(error: any) {
              toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
@@ -892,82 +749,35 @@ export default function AdminUsersPage() {
                                     <Skeleton className="h-10 w-1/4" />
                                 </div>
                             ) : (
-                                <div className="space-y-6">
-                                     <div className="space-y-4">
-                                        <h3 className="text-xl font-semibold border-b pb-2">{t('questionnaireInvitationTemplates')}</h3>
-                                        <Form {...messagesForm}>
-                                            <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-4">
-                                                {templateFields.map((field, index) => (
-                                                    <Accordion key={field.id} type="single" collapsible>
-                                                        <AccordionItem value={field.id} className="border rounded-lg bg-muted/20 px-4">
-                                                            <AccordionTrigger>{field.name}</AccordionTrigger>
-                                                            <AccordionContent className="pt-4 space-y-4">
-                                                                <FormField control={messagesForm.control} name={`templates.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>{t('templateName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <FormField control={messagesForm.control} name={`templates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <FormField control={messagesForm.control} name={`templates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteTemplate(field.id, index)}><Trash2 className="mr-2 h-4 w-4" />{t('deleteTemplate')}</Button>
-                                                            </AccordionContent>
-                                                        </AccordionItem>
-                                                    </Accordion>
-                                                ))}
-                                                <div className="flex gap-2">
-                                                    <Button type="button" variant="outline" onClick={handleAddTemplate}><PlusCircle className="mr-2 h-4 w-4" />{t('addTemplate')}</Button>
-                                                    <Button type="submit" disabled={messagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
-                                                </div>
-                                            </form>
-                                        </Form>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <h3 className="text-xl font-semibold border-b pb-2">{t('ceremonyInvitationTemplates')}</h3>
-                                        <Form {...ceremonyMessagesForm}>
-                                            <form onSubmit={ceremonyMessagesForm.handleSubmit(onCeremonyMessagesSubmit)} className="space-y-4">
-                                                {ceremonyTemplateFields.map((field, index) => (
-                                                    <Accordion key={field.id} type="single" collapsible>
-                                                        <AccordionItem value={field.id} className="border rounded-lg bg-muted/20 px-4">
-                                                            <AccordionTrigger>{field.name}</AccordionTrigger>
-                                                            <AccordionContent className="pt-4 space-y-4">
-                                                                <FormField control={ceremonyMessagesForm.control} name={`ceremonyTemplates.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>{t('templateName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <FormField control={ceremonyMessagesForm.control} name={`ceremonyTemplates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <FormField control={ceremonyMessagesForm.control} name={`ceremonyTemplates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>
-                                                                <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteCeremonyTemplate(field.id, index)}><Trash2 className="mr-2 h-4 w-4" />{t('deleteTemplate')}</Button>
-                                                            </AccordionContent>
-                                                        </AccordionItem>
-                                                    </Accordion>
-                                                ))}
-                                                <div className="flex gap-2">
-                                                    <Button type="button" variant="outline" onClick={handleAddCeremonyTemplate}><PlusCircle className="mr-2 h-4 w-4" />{t('addCeremonyTemplate')}</Button>
-                                                    <Button type="submit" disabled={ceremonyMessagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{ceremonyMessagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
-                                                </div>
-                                            </form>
-                                        </Form>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <h3 className="text-xl font-semibold border-b pb-2">{t('shareMemoryTemplates')}</h3>
-                                        <Form {...shareMemoryMessagesForm}>
-                                            <form onSubmit={shareMemoryMessagesForm.handleSubmit(onShareMemoryMessagesSubmit)} className="space-y-4">
-                                                {shareMemoryTemplateFields.map((field, index) => (
-                                                     <Accordion key={field.id} type="single" collapsible>
-                                                        <AccordionItem value={field.id} className="border rounded-lg bg-muted/20 px-4">
-                                                            <AccordionTrigger>{field.name}</AccordionTrigger>
-                                                            <AccordionContent className="pt-4 space-y-4">
-                                                                <FormField control={shareMemoryMessagesForm.control} name={`shareMemoryTemplates.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>{t('templateName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <FormField control={shareMemoryMessagesForm.control} name={`shareMemoryTemplates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <FormField control={shareMemoryMessagesForm.control} name={`shareMemoryTemplates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={10} /></FormControl><FormMessage /></FormItem> )}/>
-                                                                <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>
-                                                                <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteShareMemoryTemplate(field.id, index)}><Trash2 className="mr-2 h-4 w-4" />{t('deleteTemplate')}</Button>
-                                                            </AccordionContent>
-                                                        </AccordionItem>
-                                                    </Accordion>
-                                                ))}
-                                                <div className="flex gap-2">
-                                                    <Button type="button" variant="outline" onClick={handleAddShareMemoryTemplate}><PlusCircle className="mr-2 h-4 w-4" />{t('addShareMemoryTemplate')}</Button>
-                                                    <Button type="submit" disabled={shareMemoryMessagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{shareMemoryMessagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
-                                                </div>
-                                            </form>
-                                        </Form>
-                                    </div>
-                                </div>
+                                <Form {...messagesForm}>
+                                    <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-4">
+                                        <div className='flex gap-2'>
+                                            <Button type="button" variant="outline" onClick={() => handleAddTemplate('invitation')}><PlusCircle className="mr-2 h-4 w-4" />{t('addTemplate')}</Button>
+                                            <Button type="button" variant="outline" onClick={() => handleAddTemplate('ceremony')}><PlusCircle className="mr-2 h-4 w-4" />{t('addCeremonyTemplate')}</Button>
+                                            <Button type="button" variant="outline" onClick={() => handleAddTemplate('share-memory')}><PlusCircle className="mr-2 h-4 w-4" />{t('addShareMemoryTemplate')}</Button>
+                                        </div>
+                                        {templateFields.map((field, index) => (
+                                            <Accordion key={field.id} type="single" collapsible>
+                                                <AccordionItem value={field.id} className="border rounded-lg bg-muted/20 px-4">
+                                                    <AccordionTrigger>{field.name}</AccordionTrigger>
+                                                    <AccordionContent className="pt-4 space-y-4">
+                                                        <FormField control={messagesForm.control} name={`templates.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>{t('templateName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                                        <FormField control={messagesForm.control} name={`templates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
+                                                        <FormField control={messagesForm.control} name={`templates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
+                                                        
+                                                        {field.type === 'ceremony' && <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>}
+                                                        {field.type === 'share-memory' && <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>}
+
+                                                        <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteTemplate(field, index)}><Trash2 className="mr-2 h-4 w-4" />{t('deleteTemplate')}</Button>
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            </Accordion>
+                                        ))}
+                                        <div className="flex gap-2">
+                                            <Button type="submit" disabled={messagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
+                                        </div>
+                                    </form>
+                                </Form>
                             )}
                         </CardContent>
                     </Card>
@@ -1146,3 +956,6 @@ export default function AdminUsersPage() {
     
 
 
+
+
+    
