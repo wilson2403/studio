@@ -310,7 +310,7 @@ export const es = {
     importWarningDescription: 'Esta acción es irreversible y sobreescribirá todos los datos actuales de la aplicación con el contenido del archivo de copia de seguridad.',
     cancel: 'Cancelar',
     rollbackCardTitle: 'Deshacer Última Importación',
-    rollbackCardDescription: 'Se ha creado una copia de seguridad automática antes de la última importación. Puedes usarla para revertir los cambios si algo salió mal.',
+    rollbackCardDescription: 'Se creó una copia de seguridad automática antes de la última importación. Puedes usarla para revertir los cambios si algo salió mal.',
     rollbackButton: 'Deshacer Importación',
     rollingBack: 'Deshaciendo...',
     rollbackSuccessTitle: '¡Reversión Exitosa!',

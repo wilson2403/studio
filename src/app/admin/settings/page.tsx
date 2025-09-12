@@ -27,33 +27,9 @@ import { useEditable } from '@/components/home/EditableProvider';
 import { getPredefinedThemes, savePredefinedTheme, deletePredefinedTheme } from '@/lib/firebase/firestore';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { v4 as uuidv4 } from 'uuid';
+import { ColorPicker } from '@/components/admin/ColorPicker';
 
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
-
-function applyTheme(settings: ThemeSettings | null) {
-  if (!settings || !settings.light || !settings.dark) {
-    console.warn("applyTheme called with invalid settings.");
-    return;
-  }
-  const styleId = 'dynamic-theme-styles';
-  let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
-  if (!styleTag) {
-    styleTag = document.createElement('style');
-    styleTag.id = styleId;
-    document.head.appendChild(styleTag);
-  }
-  
-  const lightStyles = Object.entries(settings.light)
-    .map(([key, value]) => `--light-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
-    .join('\n');
-
-  const darkStyles = Object.entries(settings.dark)
-    .map(([key, value]) => `--dark-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
-    .join('\n');
-    
-  styleTag.innerHTML = `:root { ${lightStyles} ${darkStyles} }`;
-}
-
 
 const navLinkSchema = (t: (key: string) => string) => z.object({
   es: z.string().min(1, t('errorRequired')),
@@ -677,4 +653,28 @@ RESEND_API_KEY=${values.resendApiKey || ''}`;
             </Accordion>
         </div>
     );
+}
+
+function applyTheme(settings: ThemeSettings | null) {
+  if (!settings || !settings.light || !settings.dark) {
+    console.warn("applyTheme called with invalid settings.");
+    return;
+  }
+  const styleId = 'dynamic-theme-styles';
+  let styleTag = document.getElementById(styleId) as HTMLStyleElement | null;
+  if (!styleTag) {
+    styleTag = document.createElement('style');
+    styleTag.id = styleId;
+    document.head.appendChild(styleTag);
+  }
+  
+  const lightStyles = Object.entries(settings.light)
+    .map(([key, value]) => `--light-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
+    .join('\n');
+
+  const darkStyles = Object.entries(settings.dark)
+    .map(([key, value]) => `--dark-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
+    .join('\n');
+    
+  styleTag.innerHTML = `:root { ${lightStyles} ${darkStyles} }`;
 }
