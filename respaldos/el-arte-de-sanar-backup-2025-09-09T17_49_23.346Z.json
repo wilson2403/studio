@@ -1823,6 +1823,12 @@
   ],
   "invitationMessages": [
     {
+      "id": "active_ceremonies_invitation",
+      "name": "Invitación Ceremonias Activas",
+      "es": "🌿 Próximas ceremonias de Medicina Ancestral (Ayahuasca):\n\n{{activeCeremoniesList}}\n\n🕓 Horario: 4:00 p.m. – 7:00 a.m. (del día siguiente)\n\n🌐 Para más información sobre las ceremonias:\n👉{{pageLink}}",
+      "en": "🌿 Upcoming Ancestral Medicine (Ayahuasca) ceremonies:\n\n{{activeCeremoniesList}}\n\n🕓 Schedule: 4:00 p.m. – 7:00 a.m. (the next day)\n\n🌐 For more information about the ceremonies:\n👉{{pageLink}}"
+    },
+    {
       "id": "a41fd9cf-3d70-4d92-aa9c-daef213a126f",
       "name": "Invitación Principal",
       "en": "🌿✨ Ayahuasca Ceremony Preparation ✨🌿\nAyahuasca is an ancestral Amazonian medicine that acts as a great spiritual teacher 🌀\nIts purpose is to help you cleanse your body, release stagnant emotions, and reconnect with your true essence 💫💖\n\nWhen you have time, please help us with this form. You can register with your Gmail account, and your data will be saved. We invite you to complete the medical questionnaire to continue with your reservation process at El Arte de Sanar.\n\nYou can do it here: https://artedesanar.vercel.app/artedesanar 📘\n\nYou will also be able to see the complete preparation guide and pre-ceremony diet for the 7 days prior to prepare.\n\nIn addition, you will be able to find a series of documentaries and films recommended by registering with your user at this link https://artedesanar.vercel.app/courses\nWith love, respect, and presence 🙏\nEl Arte de Sanar 🌿🤍",
@@ -1833,12 +1839,6 @@
       "en": "Hello little brothers (as), thank you for trusting in this path of healing 🙏✨\n\nI want to invite you to be part of our private WhatsApp group, where we are gathering all the people who have participated in our ceremonies of ayahuasca, cacao and other ancestral medicines. It is a space for community, support, learning and spiritual connection.\n\n\n\n🔗 Join here: https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ\n\n🌐 Also, you can learn more about what we do and see future ceremonies on our new website:\n\n👉 https://artedesanar.vercel.app/artedesanar\n\n\n\nWelcome always to this tribe that grows with love and purpose.\n\nWith love,\n\nThe Art of Healing",
       "es": "Hola hermanitos (as), gracias por confiar en este camino de sanación 🙏✨\nQuiero invitarte a ser parte de nuestro grupo privado de WhatsApp, donde estamos reuniendo a todas las personas que han participado en nuestras ceremonias de ayahuasca, cacao y otras medicinas ancestrales. Es un espacio de comunidad, apoyo, aprendizaje y conexión espiritual.\n\n🔗 Únete aquí: https://chat.whatsapp.com/BC9bfrXVZdYL0kti2Ox1bQ\n\nBienvenida/o siempre a esta tribu que crece con amor y propósito.\nCon cariño,\nEl Arte de Sanar",
       "name": "Invitacion Comunidad"
-    },
-    {
-      "id": "active_ceremonies_invitation",
-      "name": "Invitación Ceremonias Activas",
-      "es": "🌿 Próximas ceremonias de Medicina Ancestral (Ayahuasca):\n\n{{activeCeremoniesList}}\n\n🕓 Horario: 4:00 p.m. – 7:00 a.m. (del día siguiente)\n\n📸 Aquí podés ver un recuerdo de nuestra últimas ceremonias y más información:\n👉{{pageLink}}",
-      "en": "🌿 Upcoming Ancestral Medicine (Ayahuasca) ceremonies:\n\n{{activeCeremoniesList}}\n\n🕓 Schedule: 4:00 p.m. – 7:00 a.m. (the next day)\n\n📸 Here you can see a memory of our latest ceremonies and more information:\n👉{{pageLink}}"
     }
   ],
   "ceremonyInvitationMessages": [

@@ -1,4 +1,5 @@
 
+
 export const en = {
     appName: 'The Art of Healing',
     // Header
@@ -735,3 +736,4 @@ export const en = {
     migrationTitle: 'Content Migration',
     language: 'Language',
 };
+

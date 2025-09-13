@@ -41,7 +41,7 @@ import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 
-const APP_VERSION = '2.97';
+const APP_VERSION = '2.98';
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type NavLinkDef = {
@@ -449,3 +449,4 @@ export default function Header() {
     </>
   );
 }
+
