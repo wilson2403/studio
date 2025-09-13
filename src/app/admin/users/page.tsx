@@ -223,6 +223,14 @@ export default function AdminUsersPage() {
         if (!invitingUser || !invitingUser.phone) return;
         
         let message = template?.[lang] || template?.es;
+
+        if (message.includes('{{activeCeremoniesList}}')) {
+            const activeCeremonies = await getCeremonies('active');
+            const ceremoniesList = activeCeremonies.map(c => `✨ ${c.title}`).join('\n');
+            const pageLink = `https://artedesanar.vercel.app/`;
+            message = message.replace('{{activeCeremoniesList}}', ceremoniesList)
+                             .replace('{{pageLink}}', pageLink);
+        }
         
         const phoneNumber = invitingUser.phone.replace(/\\D/g, '');
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -737,7 +745,7 @@ export default function AdminUsersPage() {
                     </Card>
                 </TabsContent>
                  <TabsContent value="invitation">
-                    <Card className="bg-card/50 backdrop-blur-sm">
+                     <Card className="bg-card/50 backdrop-blur-sm">
                         <CardHeader>
                             <CardTitle>{t('invitationTabTitle')}</CardTitle>
                             <CardDescription>{t('invitationTabDescription')}</CardDescription>
@@ -751,28 +759,47 @@ export default function AdminUsersPage() {
                             ) : (
                                 <Form {...messagesForm}>
                                     <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-4">
-                                        <div className='flex gap-2'>
+                                        <div className='flex flex-wrap gap-2'>
                                             <Button type="button" variant="outline" onClick={() => handleAddTemplate('invitation')}><PlusCircle className="mr-2 h-4 w-4" />{t('addTemplate')}</Button>
                                             <Button type="button" variant="outline" onClick={() => handleAddTemplate('ceremony')}><PlusCircle className="mr-2 h-4 w-4" />{t('addCeremonyTemplate')}</Button>
                                             <Button type="button" variant="outline" onClick={() => handleAddTemplate('share-memory')}><PlusCircle className="mr-2 h-4 w-4" />{t('addShareMemoryTemplate')}</Button>
                                         </div>
-                                        {templateFields.map((field, index) => (
-                                            <Accordion key={field.id} type="single" collapsible>
-                                                <AccordionItem value={field.id} className="border rounded-lg bg-muted/20 px-4">
-                                                    <AccordionTrigger>{field.name}</AccordionTrigger>
-                                                    <AccordionContent className="pt-4 space-y-4">
-                                                        <FormField control={messagesForm.control} name={`templates.${index}.name`} render={({ field }) => ( <FormItem><FormLabel>{t('templateName')}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem> )}/>
+                                         <div className="space-y-4">
+                                            {templateFields.map((field, index) => (
+                                                <Card key={field.id} className="bg-muted/20">
+                                                    <CardHeader>
+                                                        <div className="flex justify-between items-center">
+                                                            <FormField control={messagesForm.control} name={`templates.${index}.name`} render={({ field }) => ( <FormItem className="w-full"><FormLabel className='sr-only'>{t('templateName')}</FormLabel><FormControl><Input {...field} className="text-lg font-semibold" /></FormControl><FormMessage /></FormItem> )}/>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8 ml-2">
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>{t('deleteTemplate')}</AlertDialogTitle>
+                                                                        <AlertDialogDescription>
+                                                                            {t('deleteTemplateConfirmDescription', { name: field.name })}
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                        <AlertDialogAction onClick={() => handleDeleteTemplate(field, index)}>{t('delete')}</AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+                                                        </div>
+                                                    </CardHeader>
+                                                    <CardContent className="space-y-4">
                                                         <FormField control={messagesForm.control} name={`templates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
                                                         <FormField control={messagesForm.control} name={`templates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
-                                                        
                                                         {field.type === 'ceremony' && <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>}
                                                         {field.type === 'share-memory' && <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>}
-
-                                                        <Button type="button" variant="destructive" size="sm" onClick={() => handleDeleteTemplate(field, index)}><Trash2 className="mr-2 h-4 w-4" />{t('deleteTemplate')}</Button>
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            </Accordion>
-                                        ))}
+                                                    </CardContent>
+                                                </Card>
+                                            ))}
+                                        </div>
                                         <div className="flex gap-2">
                                             <Button type="submit" disabled={messagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
                                         </div>
@@ -924,7 +951,7 @@ export default function AdminUsersPage() {
                         </DialogHeader>
                         <ScrollArea className="max-h-80 my-4">
                             <div className="space-y-4 pr-6">
-                                {invitationTemplates.map(template => (
+                                {allMessageTemplates.map(template => (
                                     <div key={template.id} className="p-3 rounded-md border">
                                         <p className="font-semibold mb-2">{template.name}</p>
                                         <div className='flex flex-col sm:flex-row gap-2'>
@@ -957,5 +984,7 @@ export default function AdminUsersPage() {
 
 
 
+
+    
 
     
