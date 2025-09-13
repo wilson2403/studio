@@ -1837,8 +1837,8 @@
     {
       "id": "active_ceremonies_invitation",
       "name": "Invitación Ceremonias Activas",
-      "es": "🌿 Próximas ceremonias de Medicina Ancestral (Ayahuasca):\n\n✨ 18 oct – Luna Nueva – Eco Garden la fortuna\n✨ 29 nov – Vacaciones – San Carlos & Guanacaste\n\n🕓 Horario: 4:00 p.m. – 7:00 a.m. (del día siguiente)\n\n🌐 Para más información sobre las ceremonias:\n👉 https://artedesanar.vercel.app",
-      "en": "🌿 Upcoming Ancestral Medicine (Ayahuasca) ceremonies:\n\n✨ Oct 18 – New Moon – Eco Garden la fortuna\n✨ Nov 29 – Holidays – San Carlos & Guanacaste\n\n🕓 Schedule: 4:00 p.m. – 7:00 a.m. (the next day)\n\n🌐 For more information about the ceremonies:\n👉 https://artedesanar.vercel.app"
+      "es": "🌿 Próximas ceremonias de Medicina Ancestral (Ayahuasca):\n\n{{activeCeremoniesList}}\n\n🕓 Horario: 4:00 p.m. – 7:00 a.m. (del día siguiente)\n\n📸 Aquí podés ver un recuerdo de nuestra últimas ceremonias y más información:\n👉{{pageLink}}",
+      "en": "🌿 Upcoming Ancestral Medicine (Ayahuasca) ceremonies:\n\n{{activeCeremoniesList}}\n\n🕓 Schedule: 4:00 p.m. – 7:00 a.m. (the next day)\n\n📸 Here you can see a memory of our latest ceremonies and more information:\n👉{{pageLink}}"
     }
   ],
   "ceremonyInvitationMessages": [
