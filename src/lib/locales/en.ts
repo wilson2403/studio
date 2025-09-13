@@ -298,6 +298,8 @@ export const en = {
     templateType_ceremony: 'Ceremony',
     templateType_share-memory: 'Share Memory',
     edit: 'Edit',
+    selectActiveCeremony: 'Select Active Ceremony',
+    selectActiveCeremonyDesc: 'Which active ceremony do you want to invite {{name}} to?',
     // Backup Page
     backupTitle: 'Backup & Restore',
     backupSubtitle: 'Manage your application\'s data backups.',

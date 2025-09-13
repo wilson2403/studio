@@ -83,6 +83,9 @@ export default function AdminUsersPage() {
     const [emailBodyLanguage, setEmailBodyLanguage] = useState<'es' | 'en'>('es');
     const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
+    const [activeCeremonies, setActiveCeremonies] = useState<Ceremony[]>([]);
+    const [selectingCeremonyForInvite, setSelectingCeremonyForInvite] = useState<{ user: UserProfile; template: CombinedTemplate } | null>(null);
+
     const router = useRouter();
     const { t, i18n } = useTranslation();
     const { toast } = useToast();
@@ -202,26 +205,57 @@ export default function AdminUsersPage() {
         setUsers(users.map(u => u.uid === updatedUser.uid ? updatedUser : u));
     }
 
-    const handleSendInvite = async (template: InvitationMessage, lang: 'es' | 'en') => {
+    const handleSendInvite = async (template: CombinedTemplate, lang: 'es' | 'en') => {
         if (!invitingUser || !invitingUser.phone) return;
         
-        let message = template?.[lang] || template?.es;
-
-        if (message.includes('{{activeCeremoniesList}}')) {
-            const activeCeremonies = await getCeremonies('active');
-            const ceremoniesList = activeCeremonies.map(c => `✨ ${c.title}`).join('\n');
+        let message = template?.[lang as keyof typeof template] as string || template?.es;
+        
+        if (template.type === 'invitation' && message.includes('{{activeCeremoniesList}}')) {
+            const active = await getCeremonies('active');
+            const ceremoniesList = active.map(c => `✨ ${c.title}`).join('\n');
             const pageLink = `https://artedesanar.vercel.app/ceremonies`;
             message = message.replace('{{activeCeremoniesList}}', ceremoniesList)
                              .replace('{{pageLink}}', pageLink);
+            const phoneNumber = invitingUser.phone.replace(/\\D/g, '');
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        } else if (template.type === 'invitation') {
+            const phoneNumber = invitingUser.phone.replace(/\\D/g, '');
+            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        } else if (template.type === 'ceremony') {
+            const active = await getCeremonies('active');
+            setActiveCeremonies(active);
+            setSelectingCeremonyForInvite({ user: invitingUser, template });
         }
         
-        const phoneNumber = invitingUser.phone.replace(/\\D/g, '');
+        setInvitingUser(null);
+    }
+    
+    const handleSendCeremonyInvite = (ceremony: Ceremony) => {
+        if (!selectingCeremonyForInvite) return;
+        
+        const { user: userToInvite, template } = selectingCeremonyForInvite;
+        const lang = i18n.language as 'es' | 'en';
+        let message = (template as CeremonyInvitationMessage)[lang] || (template as CeremonyInvitationMessage).es;
+
+        const ceremonyLink = `${window.location.origin}/ceremonias/${ceremony.slug || ceremony.id}`;
+
+        message = message.replace(/{{userName}}/g, userToInvite.displayName || 'participante');
+        message = message.replace(/{{ceremonyTitle}}/g, ceremony.title || '');
+        message = message.replace(/{{ceremonyDate}}/g, ceremony.date || '');
+        message = message.replace(/{{ceremonyHorario}}/g, ceremony.horario || '');
+        message = message.replace(/{{ceremonyLink}}/g, ceremonyLink);
+        message = message.replace(/{{locationLink}}/g, ceremony.locationLink || '');
+        
+        const phoneNumber = userToInvite.phone!.replace(/\D/g, '');
         const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         
         window.open(url, '_blank');
         toast({ title: t('invitationSent') });
-        setInvitingUser(null);
+        setSelectingCeremonyForInvite(null);
     }
+
 
     const onEmailSubmit = async (data: EmailFormValues) => {
         emailForm.control.disabled = true;
@@ -253,19 +287,19 @@ export default function AdminUsersPage() {
             es = t('newTemplateMessageES');
             en = t('newTemplateMessageEN');
             newTemplate = { id, name, es, en, type };
-            await addInvitationMessage(newTemplate);
+            await addInvitationMessage(newTemplate as InvitationMessage);
         } else if (type === 'ceremony') {
             name = t('newCeremonyTemplateName', { count: allTemplates.filter(t => t.type === 'ceremony').length + 1 });
             es = t('defaultCeremonyInvitationTextES');
             en = t('defaultCeremonyInvitationTextEN');
             newTemplate = { id, name, es, en, type };
-            await addCeremonyInvitationMessage(newTemplate);
+            await addCeremonyInvitationMessage(newTemplate as CeremonyInvitationMessage);
         } else {
             name = t('newShareMemoryTemplateName', { count: allTemplates.filter(t => t.type === 'share-memory').length + 1 });
             es = t('defaultShareMemoryTextES');
             en = t('defaultShareMemoryTextEN');
             newTemplate = { id, name, es, en, type };
-            await addShareMemoryMessage(newTemplate);
+            await addShareMemoryMessage(newTemplate as ShareMemoryMessage);
         }
         await fetchAllMessages(); // Re-fetch all to get the new one
         if (newTemplate) {
@@ -398,7 +432,7 @@ export default function AdminUsersPage() {
         const template = allTemplates.find(t => t.id === templateId);
         if (template) {
             setSelectedTemplateId(templateId);
-            emailForm.setValue('body', template[emailBodyLanguage]);
+            emailForm.setValue('body', template[emailBodyLanguage as keyof typeof template] as string);
         }
     };
     
@@ -407,7 +441,7 @@ export default function AdminUsersPage() {
         if (selectedTemplateId) {
             const template = allTemplates.find(t => t.id === selectedTemplateId);
             if (template) {
-                emailForm.setValue('body', template[lang]);
+                emailForm.setValue('body', template[lang as keyof typeof template] as string);
             }
         }
     }
@@ -944,14 +978,14 @@ export default function AdminUsersPage() {
                         </DialogHeader>
                         <ScrollArea className="max-h-80 my-4">
                             <div className="space-y-4 pr-6">
-                                {allTemplates.filter(t => t.type === 'invitation').map(template => (
+                                {allTemplates.filter(t => t.type === 'invitation' || t.type === 'ceremony').map(template => (
                                     <div key={template.id} className="p-3 rounded-md border">
-                                        <p className="font-semibold mb-2">{template.name}</p>
+                                        <p className="font-semibold mb-2">{template.name} <span className='text-xs text-muted-foreground'>({t(`templateType_${template.type}`)})</span></p>
                                         <div className='flex flex-col sm:flex-row gap-2'>
-                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template as InvitationMessage, 'es')}>
+                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template, 'es')}>
                                                 {t('sendInSpanish')}
                                             </Button>
-                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template as InvitationMessage, 'en')}>
+                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template, 'en')}>
                                                 {t('sendInEnglish')}
                                             </Button>
                                         </div>
@@ -966,6 +1000,26 @@ export default function AdminUsersPage() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+            )}
+
+            {selectingCeremonyForInvite && (
+                 <Dialog open={!!selectingCeremonyForInvite} onOpenChange={(open) => !open && setSelectingCeremonyForInvite(null)}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>{t('selectActiveCeremony')}</DialogTitle>
+                            <DialogDescription>{t('selectActiveCeremonyDesc', { name: selectingCeremonyForInvite.user.displayName })}</DialogDescription>
+                        </DialogHeader>
+                        <ScrollArea className="max-h-80 my-4">
+                            <div className="space-y-2 pr-4">
+                                {activeCeremonies.map(ceremony => (
+                                    <Button key={ceremony.id} variant="outline" className="w-full justify-start" onClick={() => handleSendCeremonyInvite(ceremony)}>
+                                        {ceremony.title}
+                                    </Button>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                    </DialogContent>
+                 </Dialog>
             )}
         </div>
         </>
