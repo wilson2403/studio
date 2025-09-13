@@ -615,6 +615,8 @@ export const en = {
     noShareMemoryTemplatesFound: 'No memory sharing templates found.',
     addShareMemoryTemplate: 'Add Memory Template',
     shareMemoryPlaceholdersInfo: 'Use {{userName}}, {{ceremonyTitle}}, and {{memoryLink}} as placeholders.',
+    defaultShareMemoryTextES: '¡Hola {{userName}}! ✨ Esperamos que te encuentres muy bien. Queríamos compartir contigo el recuerdo en video de la ceremonia "{{ceremonyTitle}}". ¡Fue un honor compartir ese espacio sagrado contigo!\n\nPuedes verlo y descargar el video aquí: {{memoryLink}}',
+    defaultShareMemoryTextEN: 'Hello {{userName}}! ✨ We hope you are doing well. We wanted to share the video memory of the "{{ceremonyTitle}}" ceremony with you. It was an honor to share that sacred space with you!\n\nYou can watch and download the video here: {{memoryLink}}',
     // Testimonial Dialog v2
     errorSelectCeremony: 'Please select a ceremony to leave a testimonial for.',
     errorTestimonialTextRequired: 'Please write your testimonial before submitting.',
