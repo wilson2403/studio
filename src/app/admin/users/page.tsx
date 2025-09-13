@@ -290,7 +290,7 @@ export default function AdminUsersPage() {
                 await deleteInvitationMessage(template.id);
             } else if (template.type === 'ceremony') {
                 await deleteCeremonyInvitationMessage(template.id);
-            } else if (template.type === 'share-memory') {
+            } else if (type === 'share-memory') {
                 await deleteShareMemoryMessage(template.id);
             }
             toast({ title: t('templateDeleted') });

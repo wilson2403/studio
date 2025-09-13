@@ -1844,17 +1844,10 @@
   "ceremonyInvitationMessages": [
     {
       "id": "bcfd0e91-9091-4928-a9ef-ed051aacace6",
-      "name": "Invitacion ceremonia",
+      "name": "Invitacion Ceremonia",
       "es": "¡Hola {{userName}}! Te confirmamos la ceremonia \"{{ceremonyTitle}}\" del {{ceremonyDate}} a las {{ceremonyHorario}}. Aquí tienes el enlace con los detalles y la ubicación: {{ceremonyLink}}.\n\nUbicación: {{locationLink}}\n\n¡Te esperamos!",
       "en": "Hello {{userName}}! We are confirming your registration for the \"{{ceremonyTitle}}\" ceremony on {{ceremonyDate}} at {{ceremonyHorario}}. Here is the link with the details and location: {{ceremonyLink}}.\n\nLocation: {{locationLink}}\n\nWe look forward to seeing you!"
     }
   ],
-  "shareMemoryMessages": [
-    {
-      "id": "48a14f0d-b75f-43d6-b4fb-40d0adf7b740",
-      "name": "Plantilla de Recuerdos",
-      "en": "Hello {{userName}}! ✨ We hope you are doing well. We wanted to share the video memory of the \"{{ceremonyTitle}}\" ceremony with you. It was an honor to share that sacred space with you!\n\nYou can watch and download the video in high resolution here and also leave your testimony if you feel called to do so: {{memoryLink}}\n\n💬 Your words can inspire and guide others on their own healing journey.\n\nWith love,\nThe El Arte de Sanar Team",
-      "es": "¡Hola {{userName}}, gracias por confiar en este camino de sanación! ✨ Esperamos que te encuentres muy bien. Queríamos compartir contigo el recuerdo en video de la ceremonia \"{{ceremonyTitle}}\". ¡Fue un honor compartir ese espacio sagrado contigo!\n\nPuedes verlo y descargar el video en alta resolución aquí, también dejar tu testimonio si sentís el llamado: {{memoryLink}}\n\n💬 Tus palabras pueden inspirar y guiar a otr@s en su propio viaje de sanación.\n\nCon cariño,\nArte de Sanar"
-    }
-  ]
+  "shareMemoryMessages": []
 }
