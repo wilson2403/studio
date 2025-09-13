@@ -15,7 +15,7 @@ const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
 
 export const metadata: Metadata = {
   title: 'El Arte de Sanar 🌿 | Ceremonias de Medicina Ancestral en Costa Rica',
-  description: 'Explora un viaje profundo del alma en ceremonias guiadas con sabiduría amazónica en Costa Rica.',
+  description: 'Sanación interior, conexión espiritual y transformación con medicina ancestral en Costa Rica.',
   openGraph: {
     title: "El Arte de Sanar 🌿 | Medicina Ancestral en Costa Rica",
     description: "Sanación interior, conexión espiritual y transformación con medicina ancestral en Costa Rica.",
