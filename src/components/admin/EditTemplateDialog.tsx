@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -23,6 +24,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { Trash } from 'lucide-react';
 import type { InvitationMessage, CeremonyInvitationMessage, ShareMemoryMessage } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 type TemplateType = 'invitation' | 'ceremony' | 'share-memory';
 type CombinedTemplate = (InvitationMessage | CeremonyInvitationMessage | ShareMemoryMessage) & { type: TemplateType };
@@ -40,12 +42,13 @@ type TemplateFormValues = z.infer<ReturnType<typeof formSchema>>;
 interface EditTemplateDialogProps {
   isOpen: boolean;
   template: CombinedTemplate | null;
+  originalTemplate: CombinedTemplate | null;
   onClose: () => void;
-  onSave: (template: CombinedTemplate) => void;
+  onSave: (originalTemplate: CombinedTemplate, updatedTemplate: CombinedTemplate) => void;
   onDelete: (template: CombinedTemplate) => void;
 }
 
-export default function EditTemplateDialog({ isOpen, template, onClose, onSave, onDelete }: EditTemplateDialogProps) {
+export default function EditTemplateDialog({ isOpen, template, originalTemplate, onClose, onSave, onDelete }: EditTemplateDialogProps) {
   const { toast } = useToast();
   const { t } = useTranslation();
 
@@ -60,7 +63,9 @@ export default function EditTemplateDialog({ isOpen, template, onClose, onSave, 
   }, [template, form]);
 
   const onSubmit = (data: TemplateFormValues) => {
-    onSave(data);
+    if (originalTemplate) {
+      onSave(originalTemplate, data);
+    }
     onClose();
   };
 
@@ -95,6 +100,28 @@ export default function EditTemplateDialog({ isOpen, template, onClose, onSave, 
             />
             <FormField
               control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('category')}</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                       <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('selectCategory')} />
+                          </SelectTrigger>
+                       </FormControl>
+                       <SelectContent>
+                           <SelectItem value="invitation">{t('templateType_invitation')}</SelectItem>
+                           <SelectItem value="ceremony">{t('templateType_ceremony')}</SelectItem>
+                           <SelectItem value="share-memory">{t('templateType_share-memory')}</SelectItem>
+                       </SelectContent>
+                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="es"
               render={({ field }) => (
                 <FormItem>
@@ -102,8 +129,8 @@ export default function EditTemplateDialog({ isOpen, template, onClose, onSave, 
                   <FormControl>
                     <Textarea {...field} rows={6}/>
                   </FormControl>
-                   {template?.type === 'ceremony' && <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>}
-                   {template?.type === 'share-memory' && <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>}
+                   {form.getValues('type') === 'ceremony' && <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>}
+                   {form.getValues('type') === 'share-memory' && <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>}
                   <FormMessage />
                 </FormItem>
               )}
@@ -117,8 +144,8 @@ export default function EditTemplateDialog({ isOpen, template, onClose, onSave, 
                   <FormControl>
                     <Textarea {...field} rows={6}/>
                   </FormControl>
-                   {template?.type === 'ceremony' && <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>}
-                   {template?.type === 'share-memory' && <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>}
+                   {form.getValues('type') === 'ceremony' && <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>}
+                   {form.getValues('type') === 'share-memory' && <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>}
                   <FormMessage />
                 </FormItem>
               )}

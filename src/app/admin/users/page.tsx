@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -74,6 +75,7 @@ export default function AdminUsersPage() {
     
     const [allTemplates, setAllTemplates] = useState<CombinedTemplate[]>([]);
     const [editingTemplate, setEditingTemplate] = useState<CombinedTemplate | null>(null);
+    const [originalEditingTemplate, setOriginalEditingTemplate] = useState<CombinedTemplate | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
     
     const [analytics, setAnalytics] = useState<SectionAnalytics[]>([]);
@@ -232,7 +234,7 @@ export default function AdminUsersPage() {
             } else {
                  toast({ title: t('emailsSentError'), description: result.message, variant: 'destructive' });
             }
-        } catch (error: any) {
+        } catch (error: any) => {
             toast({ title: t('emailsSentError'), description: error.message, variant: 'destructive' });
         } finally {
              emailForm.control.disabled = false;
@@ -244,38 +246,55 @@ export default function AdminUsersPage() {
         let name = '';
         let es = '';
         let en = '';
+        let newTemplate: CombinedTemplate | null = null;
+
         if (type === 'invitation') {
             name = t('newTemplateName', { count: allTemplates.filter(t => t.type === 'invitation').length + 1 });
             es = t('newTemplateMessageES');
             en = t('newTemplateMessageEN');
-            await addInvitationMessage({ id, name, es, en });
+            newTemplate = { id, name, es, en, type };
+            await addInvitationMessage(newTemplate);
         } else if (type === 'ceremony') {
             name = t('newCeremonyTemplateName', { count: allTemplates.filter(t => t.type === 'ceremony').length + 1 });
             es = t('defaultCeremonyInvitationTextES');
             en = t('defaultCeremonyInvitationTextEN');
-            await addCeremonyInvitationMessage({ id, name, es, en });
+            newTemplate = { id, name, es, en, type };
+            await addCeremonyInvitationMessage(newTemplate);
         } else {
             name = t('newShareMemoryTemplateName', { count: allTemplates.filter(t => t.type === 'share-memory').length + 1 });
             es = t('defaultShareMemoryTextES');
             en = t('defaultShareMemoryTextEN');
-            await addShareMemoryMessage({ id, name, es, en });
+            newTemplate = { id, name, es, en, type };
+            await addShareMemoryMessage(newTemplate);
         }
         await fetchAllMessages(); // Re-fetch all to get the new one
-        const newTemplate = allTemplates.find(t => t.id === id);
         if (newTemplate) {
             setEditingTemplate(newTemplate);
+            setOriginalEditingTemplate(newTemplate);
         }
     };
 
-    const handleSaveTemplate = async (template: CombinedTemplate) => {
+    const handleSaveTemplate = async (originalTemplate: CombinedTemplate, updatedTemplate: CombinedTemplate) => {
         try {
-            const { type, ...dataToSave } = template;
-            if (type === 'invitation') {
-                await updateInvitationMessage(dataToSave as InvitationMessage);
-            } else if (type === 'ceremony') {
-                await updateCeremonyInvitationMessage(dataToSave as CeremonyInvitationMessage);
-            } else if (type === 'share-memory') {
-                await updateShareMemoryMessage(dataToSave as ShareMemoryMessage);
+            const { type: newType, ...dataToSave } = updatedTemplate;
+            const oldType = originalTemplate.type;
+
+            if (newType !== oldType) {
+                // Delete from old collection
+                if (oldType === 'invitation') await deleteInvitationMessage(originalTemplate.id);
+                else if (oldType === 'ceremony') await deleteCeremonyInvitationMessage(originalTemplate.id);
+                else if (oldType === 'share-memory') await deleteShareMemoryMessage(originalTemplate.id);
+                
+                // Add to new collection
+                if (newType === 'invitation') await addInvitationMessage(dataToSave as InvitationMessage);
+                else if (newType === 'ceremony') await addCeremonyInvitationMessage(dataToSave as CeremonyInvitationMessage);
+                else if (newType === 'share-memory') await addShareMemoryMessage(dataToSave as ShareMemoryMessage);
+
+            } else {
+                 // Update in the same collection
+                if (newType === 'invitation') await updateInvitationMessage(dataToSave as InvitationMessage);
+                else if (newType === 'ceremony') await updateCeremonyInvitationMessage(dataToSave as CeremonyInvitationMessage);
+                else if (newType === 'share-memory') await updateShareMemoryMessage(dataToSave as ShareMemoryMessage);
             }
             toast({ title: t('messagesUpdatedSuccess') });
             await fetchAllMessages(); // Re-fetch to update list
@@ -762,7 +781,7 @@ export default function AdminUsersPage() {
                                                     <p className='font-semibold'>{template.name}</p>
                                                     <p className='text-xs text-muted-foreground'>({t(`templateType_${template.type}`)})</p>
                                                 </div>
-                                                <Button variant="ghost" size="sm" onClick={() => setEditingTemplate(template)}><Edit className="mr-2 h-4 w-4" />{t('edit')}</Button>
+                                                <Button variant="ghost" size="sm" onClick={() => { setEditingTemplate(template); setOriginalEditingTemplate(template); }}><Edit className="mr-2 h-4 w-4" />{t('edit')}</Button>
                                             </div>
                                         ))}
                                     </div>
@@ -863,6 +882,7 @@ export default function AdminUsersPage() {
                     isOpen={!!editingTemplate}
                     onClose={() => setEditingTemplate(null)}
                     template={editingTemplate}
+                    originalTemplate={originalEditingTemplate}
                     onSave={handleSaveTemplate}
                     onDelete={handleDeleteTemplate}
                 />
