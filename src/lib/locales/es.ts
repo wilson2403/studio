@@ -733,5 +733,3 @@ export const es = {
     migrationTitle: 'Migración de Contenido',
     language: 'Idioma',
 };
-
-  

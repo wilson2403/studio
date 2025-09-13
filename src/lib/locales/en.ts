@@ -608,6 +608,8 @@ export const en = {
     noInvitationTemplatesFound: 'No ceremony invitation templates found.',
     addCeremonyTemplate: 'Add Ceremony Template',
     placeholdersInfo: 'Use {{userName}}, {{ceremonyTitle}}, {{ceremonyDate}}, {{ceremonyHorario}}, {{ceremonyLink}}, and {{locationLink}} as placeholders.',
+    defaultCeremonyInvitationTextES: '¡Hola {{userName}}! Te confirmamos tu inscripción para la ceremonia "{{ceremonyTitle}}" el {{ceremonyDate}} a las {{ceremonyHorario}}. Aquí tienes el enlace con los detalles: {{ceremonyLink}}.\n\nUbicación: {{locationLink}}\n\n¡Te esperamos!',
+    defaultCeremonyInvitationTextEN: 'Hello {{userName}}! We are confirming your registration for the "{{ceremonyTitle}}" ceremony on {{ceremonyDate}} at {{ceremonyHorario}}. Here is the link with the details: {{ceremonyLink}}.\n\nLocation: {{locationLink}}\n\nWe look forward to seeing you!',
     // Share Memory Dialog
     shareMemoryTitle: 'Share Memory',
     shareMemoryFor: 'Sharing memory of "{{ceremony}}" with {{name}}',
