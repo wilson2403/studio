@@ -234,7 +234,7 @@ export default function AdminUsersPage() {
             } else {
                  toast({ title: t('emailsSentError'), description: result.message, variant: 'destructive' });
             }
-        } catch (error: any) => {
+        } catch (error: any) {
             toast({ title: t('emailsSentError'), description: error.message, variant: 'destructive' });
         } finally {
              emailForm.control.disabled = false;
@@ -971,3 +971,5 @@ export default function AdminUsersPage() {
         </>
     );
 }
+
+    
