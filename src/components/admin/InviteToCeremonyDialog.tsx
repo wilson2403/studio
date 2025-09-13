@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -63,7 +62,7 @@ export default function InviteToCeremonyDialog({ user, ceremony, isOpen, onClose
             </DialogTitle>
             <DialogDescription>
                 <EditableTitle
-                    tag="p"
+                    tag="span"
                     id="inviteToCeremonyFor"
                     initialValue={t('inviteToCeremonyFor', { name: user.displayName || user.email, ceremony: ceremony.title })}
                 />
