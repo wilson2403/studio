@@ -1,7 +1,8 @@
 import HomePageContent from '@/components/home/HomePageContent';
 import type { Metadata } from 'next';
 
-const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
+// By adding a version query string, we can force scrapers to fetch a new image.
+const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg?v=1.1';
 
 // Using a static metadata object for the homepage to ensure scrapers can always read it.
 export const metadata: Metadata = {
