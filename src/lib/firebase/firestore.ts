@@ -897,7 +897,13 @@ export const getAllChats = async (): Promise<Chat[]> => {
     try {
         const q = query(chatsCollection, orderBy('updatedAt', 'desc'));
         const snapshot = await getDocs(q);
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
+        return snapshot.docs.map(doc => {
+            const data = doc.data();
+            // Manually convert Firestore Timestamp to JS Date
+            const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
+            const updatedAt = data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date();
+            return { id: doc.id, ...data, createdAt, updatedAt } as Chat;
+        });
     } catch (error) {
         console.error("Error getting all chats:", error);
         logError(error, { function: 'getAllChats' });

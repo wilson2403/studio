@@ -123,7 +123,7 @@ export default function AdminChatHistoryPage() {
                                             </Avatar>
                                             <div className='flex-1 text-left'>
                                                 <p className="font-semibold truncate max-w-xs sm:max-w-md">{chat.user?.displayName || chat.user?.email || 'Anonymous'}</p>
-                                                <p className="text-sm text-muted-foreground">{chat.updatedAt ? format(chat.updatedAt.toDate(), 'PPP p') : ''}</p>
+                                                <p className="text-sm text-muted-foreground">{chat.updatedAt ? format(chat.updatedAt, 'PPP p') : ''}</p>
                                             </div>
                                         </div>
                                     </div>
