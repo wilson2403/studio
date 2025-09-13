@@ -208,7 +208,7 @@ export default function AdminUsersPage() {
         if (message.includes('{{activeCeremoniesList}}')) {
             const activeCeremonies = await getCeremonies('active');
             const ceremoniesList = activeCeremonies.map(c => `✨ ${c.title}`).join('\n');
-            const pageLink = `https://artedesanar.vercel.app/`;
+            const pageLink = `https://artedesanar.vercel.app/ceremonies`;
             message = message.replace('{{activeCeremoniesList}}', ceremoniesList)
                              .replace('{{pageLink}}', pageLink);
         }
@@ -290,7 +290,7 @@ export default function AdminUsersPage() {
                 await deleteInvitationMessage(template.id);
             } else if (template.type === 'ceremony') {
                 await deleteCeremonyInvitationMessage(template.id);
-            } else if (type === 'share-memory') {
+            } else if (template.type === 'share-memory') {
                 await deleteShareMemoryMessage(template.id);
             }
             toast({ title: t('templateDeleted') });
