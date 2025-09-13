@@ -39,6 +39,7 @@ export const en = {
     whatsappCommunityTitle: 'Join our WhatsApp community to stay informed about our events.',
     // Footer
     footerText: '© {{year}} The Art of Healing. All rights reserved.',
+    developedBy: 'developed by',
     // Login Page
     loginWelcome: 'Welcome Back!',
     loginSubtext: 'Sign in to continue your healing journey.',

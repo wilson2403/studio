@@ -39,6 +39,7 @@ export const es = {
     whatsappCommunityTitle: 'Únete a nuestra comunidad de WhatsApp para estar informado de nuestros eventos.',
     // Footer
     footerText: '© {{year}} El Arte de Sanar. Todos los derechos reservados.',
+    developedBy: 'desarrollado por',
     // Login Page
     loginWelcome: '¡Bienvenido de nuevo!',
     loginSubtext: 'Inicia sesión para continuar tu viaje de sanación.',
@@ -526,6 +527,8 @@ export const es = {
     viewUserCoursesTitle: 'Cursos de {{name}}',
     viewUserCoursesProgress: 'Progreso: {{completed}} de {{total}} cursos completados.',
     noCoursesAvailable: 'No hay cursos disponibles actualmente.',
+    viewCourses: 'Ver Cursos',
+    noCoursesInCategory: 'No hay cursos en esta categoría.',
     addCourse: 'Añadir Curso',
     editCourse: 'Editar Curso',
     addCourseDescription: 'Completa los detalles para añadir un nuevo curso.',
