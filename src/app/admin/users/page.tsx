@@ -41,6 +41,8 @@ import InviteToCeremonyDialog from '@/components/admin/InviteToCeremonyDialog';
 import ViewAnswersDialog from '@/components/questionnaire/ViewAnswersDialog';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import { cn } from '@/lib/utils';
+import EditTemplateDialog from '@/components/admin/EditTemplateDialog';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 
 const emailFormSchema = (t: (key: string) => string) => z.object({
     subject: z.string().min(1, t('errorRequired', { field: t('emailSubject') })),
@@ -48,20 +50,9 @@ const emailFormSchema = (t: (key: string) => string) => z.object({
     recipients: z.array(z.string()).min(1, t('errorSelectRecipients')),
 });
 
-const messageTemplateSchema = (t: (key: string, options?: any) => string) => z.object({
-    id: z.string(),
-    name: z.string().min(1, t('errorRequired', { field: t('templateName') })),
-    es: z.string().min(1, t('errorRequired', { field: t('templateMessageES') })),
-    en: z.string().min(1, t('errorRequired', { field: t('templateMessageEN') })),
-    type: z.enum(['invitation', 'ceremony', 'share-memory']).default('invitation'),
-});
-
-const messagesFormSchema = (t: (key: string, options?: any) => string) => z.object({
-    templates: z.array(messageTemplateSchema(t)),
-});
-
 type EmailFormValues = z.infer<ReturnType<typeof emailFormSchema>>;
-type MessagesFormValues = z.infer<ReturnType<typeof messagesFormSchema>>;
+type TemplateType = 'invitation' | 'ceremony' | 'share-memory';
+type CombinedTemplate = (InvitationMessage | CeremonyInvitationMessage | ShareMemoryMessage) & { type: TemplateType };
 
 const userStatuses: UserStatus[] = ['Interesado', 'Cliente', 'Pendiente'];
 const userRoles: UserRole[] = ['user', 'organizer', 'admin'];
@@ -78,12 +69,13 @@ export default function AdminUsersPage() {
     const [viewingUserAuditLog, setViewingUserAuditLog] = useState<UserProfile | null>(null);
     const [viewingUserCourses, setViewingUserCourses] = useState<UserProfile | null>(null);
     const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-    const [invitationTemplates, setInvitationTemplates] = useState<(InvitationMessage & { type: 'invitation' })[]>([]);
-    const [ceremonyInvitationTemplates, setCeremonyInvitationTemplates] = useState<(CeremonyInvitationMessage & { type: 'ceremony' })[]>([]);
-    const [shareMemoryTemplates, setShareMemoryTemplates] = useState<(ShareMemoryMessage & { type: 'share-memory' })[]>([]);
     const [invitingUser, setInvitingUser] = useState<UserProfile | null>(null);
     const [assigningUser, setAssigningUser] = useState<UserProfile | null>(null);
+    
+    const [allTemplates, setAllTemplates] = useState<CombinedTemplate[]>([]);
+    const [editingTemplate, setEditingTemplate] = useState<CombinedTemplate | null>(null);
     const [loadingMessages, setLoadingMessages] = useState(true);
+    
     const [analytics, setAnalytics] = useState<SectionAnalytics[]>([]);
     const [loadingAnalytics, setLoadingAnalytics] = useState(true);
     const [emailBodyLanguage, setEmailBodyLanguage] = useState<'es' | 'en'>('es');
@@ -98,15 +90,30 @@ export default function AdminUsersPage() {
         defaultValues: { subject: '', body: '', recipients: [] },
     });
 
-    const messagesForm = useForm<MessagesFormValues>({
-        resolver: zodResolver(messagesFormSchema(t)),
-        defaultValues: { templates: [] },
-    });
-    
-    const { fields: templateFields, append: appendTemplate, remove: removeTemplate } = useFieldArray({
-        control: messagesForm.control,
-        name: "templates",
-    });
+    const fetchAllMessages = async () => {
+        setLoadingMessages(true);
+        try {
+            const [invites, ceremonyInvites, memoryShares] = await Promise.all([
+                getInvitationMessages(),
+                getCeremonyInvitationMessages(),
+                getShareMemoryMessages(),
+            ]);
+
+            const formattedInvites: CombinedTemplate[] = invites.map(t => ({...t, type: 'invitation' as const}));
+            const formattedCeremony: CombinedTemplate[] = ceremonyInvites.map(t => ({...t, type: 'ceremony' as const}));
+            const formattedMemory: CombinedTemplate[] = memoryShares.map(t => ({...t, type: 'share-memory' as const}));
+            
+            const combined = [...formattedInvites, ...formattedCeremony, ...formattedMemory];
+            combined.sort((a,b) => a.name.localeCompare(b.name));
+
+            setAllTemplates(combined);
+        } catch (e) {
+             toast({ title: "Error", description: "Failed to load message templates.", variant: "destructive" });
+        } finally {
+            setLoadingMessages(false);
+        }
+    };
+
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -116,31 +123,6 @@ export default function AdminUsersPage() {
             } catch (error: any) {
                 console.error("Failed to fetch users:", error);
                 toast({ title: t('error'), description: t('errorFetchUsers'), variant: "destructive" });
-            }
-        };
-
-        const fetchAllMessages = async () => {
-            setLoadingMessages(true);
-            try {
-                const [invites, ceremonyInvites, memoryShares] = await Promise.all([
-                    getInvitationMessages(),
-                    getCeremonyInvitationMessages(),
-                    getShareMemoryMessages(),
-                ]);
-
-                const formattedInvites = invites.map(t => ({...t, type: 'invitation' as const}));
-                const formattedCeremony = ceremonyInvites.map(t => ({...t, type: 'ceremony' as const}));
-                const formattedMemory = memoryShares.map(t => ({...t, type: 'share-memory' as const}));
-
-                setInvitationTemplates(formattedInvites);
-                setCeremonyInvitationTemplates(formattedCeremony);
-                setShareMemoryTemplates(formattedMemory);
-
-                messagesForm.reset({ templates: [...formattedInvites, ...formattedCeremony, ...formattedMemory] });
-            } catch (e) {
-                 toast({ title: "Error", description: "Failed to load message templates.", variant: "destructive" });
-            } finally {
-                setLoadingMessages(false);
             }
         };
         
@@ -174,7 +156,7 @@ export default function AdminUsersPage() {
         });
 
         return () => unsubscribe();
-    }, [router, toast, t, messagesForm]);
+    }, [router, toast, t]);
 
 
     const handleRoleChange = async (uid: string, role: UserRole) => {
@@ -218,7 +200,6 @@ export default function AdminUsersPage() {
         setUsers(users.map(u => u.uid === updatedUser.uid ? updatedUser : u));
     }
 
-
     const handleSendInvite = async (template: InvitationMessage, lang: 'es' | 'en') => {
         if (!invitingUser || !invitingUser.phone) return;
         
@@ -258,41 +239,52 @@ export default function AdminUsersPage() {
         }
     };
     
-    const onMessagesSubmit = async (data: MessagesFormValues) => {
+    const handleAddTemplate = async (type: TemplateType) => {
+        const id = uuidv4();
+        let name = '';
+        let es = '';
+        let en = '';
+        if (type === 'invitation') {
+            name = t('newTemplateName', { count: allTemplates.filter(t => t.type === 'invitation').length + 1 });
+            es = t('newTemplateMessageES');
+            en = t('newTemplateMessageEN');
+            await addInvitationMessage({ id, name, es, en });
+        } else if (type === 'ceremony') {
+            name = t('newCeremonyTemplateName', { count: allTemplates.filter(t => t.type === 'ceremony').length + 1 });
+            es = t('defaultCeremonyInvitationTextES');
+            en = t('defaultCeremonyInvitationTextEN');
+            await addCeremonyInvitationMessage({ id, name, es, en });
+        } else {
+            name = t('newShareMemoryTemplateName', { count: allTemplates.filter(t => t.type === 'share-memory').length + 1 });
+            es = t('defaultShareMemoryTextES');
+            en = t('defaultShareMemoryTextEN');
+            await addShareMemoryMessage({ id, name, es, en });
+        }
+        await fetchAllMessages(); // Re-fetch all to get the new one
+        const newTemplate = allTemplates.find(t => t.id === id);
+        if (newTemplate) {
+            setEditingTemplate(newTemplate);
+        }
+    };
+
+    const handleSaveTemplate = async (template: CombinedTemplate) => {
         try {
-            for (const template of data.templates) {
-                 const { id, type, ...templateData } = template;
-                if (type === 'invitation') {
-                    await updateInvitationMessage({ id, ...templateData });
-                } else if (type === 'ceremony') {
-                    await updateCeremonyInvitationMessage({ id, ...templateData });
-                } else if (type === 'share-memory') {
-                    await updateShareMemoryMessage({ id, ...templateData });
-                }
+            const { type, ...dataToSave } = template;
+            if (type === 'invitation') {
+                await updateInvitationMessage(dataToSave as InvitationMessage);
+            } else if (type === 'ceremony') {
+                await updateCeremonyInvitationMessage(dataToSave as CeremonyInvitationMessage);
+            } else if (type === 'share-memory') {
+                await updateShareMemoryMessage(dataToSave as ShareMemoryMessage);
             }
             toast({ title: t('messagesUpdatedSuccess') });
+            await fetchAllMessages(); // Re-fetch to update list
         } catch (error: any) {
             toast({ title: t('messagesUpdatedError'), variant: 'destructive' });
         }
     };
     
-    const handleAddTemplate = async (type: 'invitation' | 'ceremony' | 'share-memory') => {
-        const id = uuidv4();
-        let newTemplate: any;
-        if(type === 'invitation') {
-            newTemplate = { id, name: 'Nueva Plantilla de Invitación', es: 'Mensaje ES...', en: 'Message EN...', type };
-            await addInvitationMessage({ id, name: newTemplate.name, es: newTemplate.es, en: newTemplate.en });
-        } else if (type === 'ceremony') {
-            newTemplate = { id, name: 'Nueva Plantilla de Ceremonia', es: 'Mensaje ES...', en: 'Message EN...', type };
-            await addCeremonyInvitationMessage({ id, name: newTemplate.name, es: newTemplate.es, en: newTemplate.en });
-        } else {
-            newTemplate = { id, name: 'Nueva Plantilla de Recuerdo', es: 'Mensaje ES...', en: 'Message EN...', type };
-            await addShareMemoryMessage({ id, name: newTemplate.name, es: newTemplate.es, en: newTemplate.en });
-        }
-        appendTemplate(newTemplate);
-    }
-    
-    const handleDeleteTemplate = async (template: {id: string, type: 'invitation' | 'ceremony' | 'share-memory'}, index: number) => {
+    const handleDeleteTemplate = async (template: CombinedTemplate) => {
         try {
             if (template.type === 'invitation') {
                 await deleteInvitationMessage(template.id);
@@ -301,8 +293,8 @@ export default function AdminUsersPage() {
             } else if (template.type === 'share-memory') {
                 await deleteShareMemoryMessage(template.id);
             }
-            removeTemplate(index);
             toast({ title: t('templateDeleted') });
+            await fetchAllMessages(); // Re-fetch to update list
         } catch(error: any) {
              toast({ title: t('errorDeletingTemplate'), variant: 'destructive' });
         }
@@ -382,15 +374,9 @@ export default function AdminUsersPage() {
     const isSuperAdmin = currentUserProfile?.role === 'admin';
     const canEditUsers = isSuperAdmin || !!currentUserProfile?.permissions?.canEditUsers;
     const canViewChatHistory = isSuperAdmin || !!currentUserProfile?.permissions?.canViewChatHistory;
-
-    const allMessageTemplates = [
-        ...invitationTemplates,
-        ...ceremonyInvitationTemplates,
-        ...shareMemoryTemplates
-    ];
     
     const handleTemplateChange = (templateId: string) => {
-        const template = allMessageTemplates.find(t => t.id === templateId);
+        const template = allTemplates.find(t => t.id === templateId);
         if (template) {
             setSelectedTemplateId(templateId);
             emailForm.setValue('body', template[emailBodyLanguage]);
@@ -400,7 +386,7 @@ export default function AdminUsersPage() {
     const handleLanguageChange = (lang: 'es' | 'en') => {
         setEmailBodyLanguage(lang);
         if (selectedTemplateId) {
-            const template = allMessageTemplates.find(t => t.id === selectedTemplateId);
+            const template = allTemplates.find(t => t.id === selectedTemplateId);
             if (template) {
                 emailForm.setValue('body', template[lang]);
             }
@@ -420,6 +406,7 @@ export default function AdminUsersPage() {
     }
 
     return (
+        <>
         <div className="container py-12 md:py-16 space-y-12">
             <div className="text-center">
                 <h1 className="text-4xl md:text-5xl font-headline bg-gradient-to-br from-white to-neutral-400 bg-clip-text text-transparent">
@@ -642,7 +629,7 @@ export default function AdminUsersPage() {
                                                 <SelectValue placeholder={t('selectTemplatePlaceholder')} />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {allMessageTemplates.map(template => (
+                                                {allTemplates.map(template => (
                                                     <SelectItem key={template.id} value={template.id}>
                                                         {template.name}
                                                     </SelectItem>
@@ -753,58 +740,33 @@ export default function AdminUsersPage() {
                         <CardContent>
                             {loadingMessages ? (
                                 <div className="space-y-4">
-                                    <Skeleton className="h-40 w-full" />
-                                    <Skeleton className="h-10 w-1/4" />
+                                    <Skeleton className="h-10 w-full" />
+                                    <Skeleton className="h-10 w-full" />
                                 </div>
                             ) : (
-                                <Form {...messagesForm}>
-                                    <form onSubmit={messagesForm.handleSubmit(onMessagesSubmit)} className="space-y-4">
-                                        <div className='flex flex-wrap gap-2'>
-                                            <Button type="button" variant="outline" onClick={() => handleAddTemplate('invitation')}><PlusCircle className="mr-2 h-4 w-4" />{t('addTemplate')}</Button>
-                                            <Button type="button" variant="outline" onClick={() => handleAddTemplate('ceremony')}><PlusCircle className="mr-2 h-4 w-4" />{t('addCeremonyTemplate')}</Button>
-                                            <Button type="button" variant="outline" onClick={() => handleAddTemplate('share-memory')}><PlusCircle className="mr-2 h-4 w-4" />{t('addShareMemoryTemplate')}</Button>
-                                        </div>
-                                         <div className="space-y-4">
-                                            {templateFields.map((field, index) => (
-                                                <Card key={field.id} className="bg-muted/20">
-                                                    <CardHeader>
-                                                        <div className="flex justify-between items-center">
-                                                            <FormField control={messagesForm.control} name={`templates.${index}.name`} render={({ field }) => ( <FormItem className="w-full"><FormLabel className='sr-only'>{t('templateName')}</FormLabel><FormControl><Input {...field} className="text-lg font-semibold" /></FormControl><FormMessage /></FormItem> )}/>
-                                                            <AlertDialog>
-                                                                <AlertDialogTrigger asChild>
-                                                                    <Button type="button" variant="ghost" size="icon" className="text-destructive h-8 w-8 ml-2">
-                                                                        <Trash2 className="h-4 w-4" />
-                                                                    </Button>
-                                                                </AlertDialogTrigger>
-                                                                <AlertDialogContent>
-                                                                    <AlertDialogHeader>
-                                                                        <AlertDialogTitle>{t('deleteTemplate')}</AlertDialogTitle>
-                                                                        <AlertDialogDescription>
-                                                                            {t('deleteTemplateConfirmDescription', { name: field.name })}
-                                                                        </AlertDialogDescription>
-                                                                    </AlertDialogHeader>
-                                                                    <AlertDialogFooter>
-                                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                                        <AlertDialogAction onClick={() => handleDeleteTemplate(field, index)}>{t('delete')}</AlertDialogAction>
-                                                                    </AlertDialogFooter>
-                                                                </AlertDialogContent>
-                                                            </AlertDialog>
-                                                        </div>
-                                                    </CardHeader>
-                                                    <CardContent className="space-y-4">
-                                                        <FormField control={messagesForm.control} name={`templates.${index}.es`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageES')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
-                                                        <FormField control={messagesForm.control} name={`templates.${index}.en`} render={({ field }) => ( <FormItem><FormLabel>{t('templateMessageEN')}</FormLabel><FormControl><Textarea {...field} rows={5} /></FormControl><FormMessage /></FormItem> )}/>
-                                                        {field.type === 'ceremony' && <p className="text-xs text-muted-foreground mt-2">{t('placeholdersInfo')}</p>}
-                                                        {field.type === 'share-memory' && <p className="text-xs text-muted-foreground mt-2">{t('shareMemoryPlaceholdersInfo')}</p>}
-                                                    </CardContent>
-                                                </Card>
-                                            ))}
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <Button type="submit" disabled={messagesForm.formState.isSubmitting}><Save className="mr-2 h-4 w-4"/>{messagesForm.formState.isSubmitting ? t('saving') : t('saveChanges')}</Button>
-                                        </div>
-                                    </form>
-                                </Form>
+                                <div className="space-y-4">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4" />{t('addTemplate')}</Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent>
+                                            <DropdownMenuItem onClick={() => handleAddTemplate('invitation')}>{t('questionnaireInvitationTemplates')}</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleAddTemplate('ceremony')}>{t('ceremonyInvitationTemplates')}</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleAddTemplate('share-memory')}>{t('shareMemoryTemplates')}</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    <div className="space-y-2">
+                                        {allTemplates.map((template) => (
+                                            <div key={template.id} className="flex items-center justify-between rounded-lg border p-3">
+                                                <div>
+                                                    <p className='font-semibold'>{template.name}</p>
+                                                    <p className='text-xs text-muted-foreground'>({t(`templateType_${template.type}`)})</p>
+                                                </div>
+                                                <Button variant="ghost" size="sm" onClick={() => setEditingTemplate(template)}><Edit className="mr-2 h-4 w-4" />{t('edit')}</Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             )}
                         </CardContent>
                     </Card>
@@ -895,6 +857,17 @@ export default function AdminUsersPage() {
                     </Card>
                 </TabsContent>
             </Tabs>
+
+            {editingTemplate && (
+                <EditTemplateDialog
+                    isOpen={!!editingTemplate}
+                    onClose={() => setEditingTemplate(null)}
+                    template={editingTemplate}
+                    onSave={handleSaveTemplate}
+                    onDelete={handleDeleteTemplate}
+                />
+            )}
+
             {viewingUserQuestionnaire && (
                 <ViewAnswersDialog
                     user={viewingUserQuestionnaire} 
@@ -938,8 +911,8 @@ export default function AdminUsersPage() {
                     isOpen={!!assigningUser}
                     onClose={() => setAssigningUser(null)}
                     onUpdate={handleCeremonyAssignmentUpdate}
-                    invitationTemplates={ceremonyInvitationTemplates}
-                    shareMemoryTemplates={shareMemoryTemplates}
+                    invitationTemplates={(allTemplates.filter(t => t.type === 'ceremony') as unknown as CeremonyInvitationMessage[])}
+                    shareMemoryTemplates={(allTemplates.filter(t => t.type === 'share-memory') as unknown as ShareMemoryMessage[])}
                 />
             )}
              {invitingUser && (
@@ -951,14 +924,14 @@ export default function AdminUsersPage() {
                         </DialogHeader>
                         <ScrollArea className="max-h-80 my-4">
                             <div className="space-y-4 pr-6">
-                                {allMessageTemplates.map(template => (
+                                {allTemplates.filter(t => t.type === 'invitation').map(template => (
                                     <div key={template.id} className="p-3 rounded-md border">
                                         <p className="font-semibold mb-2">{template.name}</p>
                                         <div className='flex flex-col sm:flex-row gap-2'>
-                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template, 'es')}>
+                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template as InvitationMessage, 'es')}>
                                                 {t('sendInSpanish')}
                                             </Button>
-                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template, 'en')}>
+                                            <Button size="sm" className='flex-1' onClick={() => handleSendInvite(template as InvitationMessage, 'en')}>
                                                 {t('sendInEnglish')}
                                             </Button>
                                         </div>
@@ -975,16 +948,6 @@ export default function AdminUsersPage() {
                 </Dialog>
             )}
         </div>
+        </>
     );
 }
-
-    
-
-    
-
-
-
-
-    
-
-    
