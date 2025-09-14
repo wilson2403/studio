@@ -83,13 +83,18 @@ export const getAllContent = async (): Promise<Content[]> => {
     }
 };
 
-export const getContent = async (id: string): Promise<string | { [key: string]: string } | null> => {
+export const getContent = async (id: string): Promise<Content['value'] | null> => {
   if (!id) return null;
   try {
     const docRef = doc(db, 'content', id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data().value;
+      const data = docSnap.data();
+      // For backward compatibility, if visible is not defined, we assume it's visible.
+      if (data.visible === false) {
+          return null;
+      }
+      return data.value;
     }
     return null;
   } catch (error: any) {
@@ -103,16 +108,16 @@ export const getContent = async (id: string): Promise<string | { [key: string]: 
   }
 }
 
-export const setContent = async (id: string, value: string | { [key: string]: string }, type: Content['type'] = 'text'): Promise<void> => {
+export const setContent = async (id: string, data: Content): Promise<void> => {
    try {
     const docRef = doc(db, 'content', id);
     // Use setDoc with merge: true which will create the document if it doesn't exist,
     // or update it if it does.
-    await setDoc(docRef, { value, type }, { merge: true });
-    await logUserAction('update_content', { targetId: id, changes: { value, type } });
+    await setDoc(docRef, { value: data.value, type: data.type, visible: data.visible }, { merge: true });
+    await logUserAction('update_content', { targetId: id, changes: { value: data.value, type: data.type, visible: data.visible } });
   } catch (error) {
     console.error("Error setting content: ", error);
-    logError(error, { function: 'setContent', id, value, type });
+    logError(error, { function: 'setContent', id, data });
     throw error;
   }
 }
@@ -1225,7 +1230,7 @@ export const exportAllData = async (): Promise<BackupData> => {
   const guides = guidesSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Guide));
 
   const contentSnapshot = await getDocs(contentCollection);
-  const content = contentSnapshot.docs.map(d => ({ id: d.id, value: d.data().value }));
+  const content = contentSnapshot.docs.map(d => ({ id: d.id, ...d.data() } as Content));
 
   const settingsSnapshot = await getDocs(settingsCollection);
   const settings = settingsSnapshot.docs.map(d => ({ id: d.id, value: d.data() }));
@@ -1327,7 +1332,7 @@ export const importAllData = async (data: BackupData): Promise<void> => {
         data.content.forEach(contentItem => {
             if (contentItem && contentItem.id) {
                 const docRef = doc(db, 'content', contentItem.id);
-                batch.set(docRef, { value: contentItem.value });
+                batch.set(docRef, { value: contentItem.value, type: contentItem.type, visible: contentItem.visible });
             }
         });
     }
@@ -1796,5 +1801,3 @@ export type { Chat };
 export type { UserProfile };
 export type { DreamEntry };
 export type { Content };
-
-    

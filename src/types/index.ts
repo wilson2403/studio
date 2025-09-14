@@ -205,13 +205,14 @@ export type Content = {
     id: string;
     value: string | { es: string; en: string };
     type?: 'text' | 'image_url' | 'video_url' | 'link_url';
+    visible?: boolean;
 };
 
 export type BackupData = {
     users: UserProfile[];
     ceremonies: Ceremony[];
     guides: Guide[];
-    content: { id: string; value: any }[];
+    content: Content[];
     settings: { id: string; value: any }[];
     courses?: Course[];
     testimonials?: Testimonial[];
@@ -363,5 +364,3 @@ export type DreamEntry = {
         lucidDreaming?: string[];
     }
 };
-
-    

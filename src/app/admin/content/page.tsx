@@ -6,7 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Save, Search, PlusCircle, X } from 'lucide-react';
+import { FileText, Save, Search, PlusCircle, X, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllContent, setContent, Content } from '@/lib/firebase/firestore';
@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '../ui/checkbox';
 
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
@@ -32,6 +33,7 @@ const newContentSchema = (t: (key: string) => string) => z.object({
   type: z.enum(['text', 'image_url', 'video_url', 'link_url']),
   es: z.string().min(1, t('errorRequired')),
   en: z.string().min(1, t('errorRequired')),
+  visible: z.boolean().default(true),
 });
 
 type NewContentFormValues = z.infer<ReturnType<typeof newContentSchema>>;
@@ -52,7 +54,7 @@ export default function AdminContentPage() {
 
     const newContentForm = useForm<NewContentFormValues>({
         resolver: zodResolver(newContentSchema(t)),
-        defaultValues: { id: '', type: 'text', es: '', en: '' }
+        defaultValues: { id: '', type: 'text', es: '', en: '', visible: true }
     });
 
     useEffect(() => {
@@ -91,15 +93,22 @@ export default function AdminContentPage() {
         fetchAllContent();
     }, [fetchAllContent]);
 
-    const handleContentChange = useCallback((id: string, lang: 'es' | 'en' | 'single', value: string) => {
+    const handleContentChange = useCallback((id: string, field: 'es' | 'en' | 'single' | 'type' | 'visible', value: string | boolean) => {
         setContentItems(prev =>
             prev.map(item => {
                 if (item.id === id) {
-                    if (lang === 'single') {
-                        return { ...item, value };
+                    const updatedItem = { ...item };
+                    if (field === 'single') {
+                        updatedItem.value = value as string;
+                    } else if (field === 'type') {
+                        updatedItem.type = value as Content['type'];
+                    } else if (field === 'visible') {
+                        updatedItem.visible = value as boolean;
+                    } else if (field === 'es' || field === 'en') {
+                        const oldValue = typeof item.value === 'object' ? item.value : { es: item.value as string, en: item.value as string };
+                        updatedItem.value = { ...oldValue, [field]: value as string };
                     }
-                    const oldValue = typeof item.value === 'object' ? item.value : { es: item.value as string, en: item.value as string };
-                    return { ...item, value: { ...oldValue, [lang]: value } };
+                    return updatedItem;
                 }
                 return item;
             })
@@ -110,7 +119,7 @@ export default function AdminContentPage() {
         setIsSaving(true);
         try {
             await Promise.all(
-                groupItems.map(item => setContent(item.id, item.value))
+                groupItems.map(item => setContent(item.id, item))
             );
             toast({ title: t('contentSavedSuccess') });
         } catch (error) {
@@ -126,9 +135,10 @@ export default function AdminContentPage() {
             const newContentItem: Content = {
                 id: data.id,
                 value: { es: data.es, en: data.en },
-                type: data.type
+                type: data.type,
+                visible: data.visible,
             };
-            await setContent(data.id, newContentItem.value, newContentItem.type);
+            await setContent(data.id, newContentItem);
             toast({ title: t('contentAddedSuccess') });
             setIsAdding(false);
             newContentForm.reset();
@@ -148,8 +158,8 @@ export default function AdminContentPage() {
             if (typeof item.value === 'string') {
                 return item.value.toLowerCase().includes(search);
             }
-            if (typeof item.value === 'object') {
-                return item.value.es.toLowerCase().includes(search) || item.value.en.toLowerCase().includes(search);
+            if (typeof item.value === 'object' && item.value) {
+                return item.value.es?.toLowerCase().includes(search) || item.value.en?.toLowerCase().includes(search);
             }
             return false;
         });
@@ -215,25 +225,46 @@ export default function AdminContentPage() {
                                         </FormItem>
                                         )}
                                     />
-                                    <FormField
-                                        control={newContentForm.control}
-                                        name="type"
-                                        render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t('formContentType')}</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl><SelectTrigger><SelectValue placeholder={t('formSelectType')} /></SelectTrigger></FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="text">{t('contentTypeText')}</SelectItem>
-                                                    <SelectItem value="image_url">{t('contentTypeImageUrl')}</SelectItem>
-                                                    <SelectItem value="video_url">{t('contentTypeVideoUrl')}</SelectItem>
-                                                    <SelectItem value="link_url">{t('contentTypeLinkUrl')}</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                        )}
-                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <FormField
+                                            control={newContentForm.control}
+                                            name="type"
+                                            render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t('formContentType')}</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl><SelectTrigger><SelectValue placeholder={t('formSelectType')} /></SelectTrigger></FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="text">{t('contentTypeText')}</SelectItem>
+                                                        <SelectItem value="image_url">{t('contentTypeImageUrl')}</SelectItem>
+                                                        <SelectItem value="video_url">{t('contentTypeVideoUrl')}</SelectItem>
+                                                        <SelectItem value="link_url">{t('contentTypeLinkUrl')}</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                            )}
+                                        />
+                                         <FormField
+                                            control={newContentForm.control}
+                                            name="visible"
+                                            render={({ field }) => (
+                                            <FormItem className="flex flex-row items-end space-x-3 space-y-0 rounded-md border p-4">
+                                                <FormControl>
+                                                <Checkbox
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                                </FormControl>
+                                                <div className="space-y-1 leading-none">
+                                                <FormLabel>
+                                                    {t('visible')}
+                                                </FormLabel>
+                                                </div>
+                                            </FormItem>
+                                            )}
+                                        />
+                                    </div>
                                     <FormField
                                         control={newContentForm.control}
                                         name="es"
@@ -282,14 +313,30 @@ export default function AdminContentPage() {
                                     </AccordionTrigger>
                                     <AccordionContent className="pt-4 border-t space-y-6">
                                         {items.map(item => {
-                                            const isMultiLanguage = typeof item.value === 'object';
-                                            const itemType = item.type || (typeof item.value === 'string' && item.value.startsWith('http') ? 'url' : 'text');
+                                            const isMultiLanguage = typeof item.value === 'object' && item.value !== null;
+                                            const itemType = item.type || (typeof item.value === 'string' && item.value.startsWith('http') ? 'link_url' : 'text');
+                                            const isVisible = item.visible !== false;
 
                                             return (
                                                 <div key={item.id} className="p-4 border rounded-lg bg-background/50 space-y-3">
-                                                    <div className="flex justify-between items-center">
+                                                    <div className="flex justify-between items-center gap-4 flex-wrap">
                                                         <h3 className="font-mono text-sm font-semibold text-muted-foreground">{item.id}</h3>
-                                                        <span className='text-xs font-mono bg-muted px-2 py-1 rounded'>{t(`contentType_${itemType}`)}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <Select value={itemType} onValueChange={(value) => handleContentChange(item.id, 'type', value)}>
+                                                                <SelectTrigger className="h-8 text-xs w-36">
+                                                                    <SelectValue placeholder={t('formSelectType')} />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="text">{t('contentTypeText')}</SelectItem>
+                                                                    <SelectItem value="image_url">{t('contentTypeImageUrl')}</SelectItem>
+                                                                    <SelectItem value="video_url">{t('contentTypeVideoUrl')}</SelectItem>
+                                                                    <SelectItem value="link_url">{t('contentTypeLinkUrl')}</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <Button variant="ghost" size="icon" className='h-8 w-8' onClick={() => handleContentChange(item.id, 'visible', !isVisible)}>
+                                                                {isVisible ? <Eye className='h-4 w-4' /> : <EyeOff className='h-4 w-4 text-muted-foreground' />}
+                                                            </Button>
+                                                        </div>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         {isMultiLanguage ? (
@@ -297,7 +344,7 @@ export default function AdminContentPage() {
                                                                 <div>
                                                                     <label className='text-xs font-bold'>ES</label>
                                                                     <Textarea
-                                                                        value={item.value.es}
+                                                                        value={item.value.es || ''}
                                                                         onChange={(e) => handleContentChange(item.id, 'es', e.target.value)}
                                                                         rows={3}
                                                                     />
@@ -305,7 +352,7 @@ export default function AdminContentPage() {
                                                                  <div>
                                                                     <label className='text-xs font-bold'>EN</label>
                                                                     <Textarea
-                                                                        value={item.value.en}
+                                                                        value={item.value.en || ''}
                                                                         onChange={(e) => handleContentChange(item.id, 'en', e.target.value)}
                                                                         rows={3}
                                                                     />
@@ -340,5 +387,3 @@ export default function AdminContentPage() {
         </div>
     )
 }
-
-    
