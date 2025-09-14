@@ -74,7 +74,7 @@ export default function Chatbot() {
                 setLoading(true);
                 setLoadingDreams(true);
                 
-                const chatHistory = await getChat(user.email!);
+                const chatHistory = await getChat(user.uid);
                 if (chatHistory?.messages) {
                     setMessages(chatHistory.messages);
                 } else {
@@ -95,7 +95,7 @@ export default function Chatbot() {
         };
 
         if (isOpen) {
-            const newChatId = user?.email || uuidv4();
+            const newChatId = user?.uid || uuidv4();
             setChatId(newChatId);
 
             if(user) {
@@ -128,7 +128,7 @@ export default function Chatbot() {
         try {
             let currentChatId = chatId;
             if (!currentChatId) {
-                const newId = user?.email || uuidv4();
+                const newId = user?.uid || uuidv4();
                 setChatId(newId);
                 currentChatId = newId;
             }
@@ -270,7 +270,7 @@ export default function Chatbot() {
                     </TabsList>
                     
                     <TabsContent value="guide" className="flex-1 flex flex-col h-0">
-                        <div className="flex items-center justify-between p-4 border-b">
+                        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
                             <div className='flex items-center gap-3'>
                                 <div className="p-2 bg-primary/10 rounded-full">
                                 <Bot className="h-6 w-6 text-primary" />
@@ -315,7 +315,7 @@ export default function Chatbot() {
                             </div>
                         </ScrollArea>
 
-                        <div className="p-4 border-t">
+                        <div className="p-4 border-t flex-shrink-0">
                             <form onSubmit={handleSubmit} className="flex items-center gap-2">
                                 <Input
                                     value={input}
@@ -343,38 +343,12 @@ export default function Chatbot() {
                     </TabsContent>
                     
                     <TabsContent value="interpreter" className="flex-1 flex flex-col h-0">
-                         <div className="p-4 border-b text-center">
+                         <div className="flex-shrink-0 p-4 border-b text-center">
                             <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
                             <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
                          </div>
-                         <div className="flex-1 flex flex-col p-4 gap-4">
-                            <div className="relative">
-                                <Textarea 
-                                    placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
-                                    value={dreamInput}
-                                    onChange={(e) => setDreamInput(e.target.value)}
-                                    rows={4}
-                                    className="pr-12"
-                                />
-                                 <Button 
-                                    type="button" 
-                                    size="icon" 
-                                    variant={isDreamRecording ? 'destructive' : 'ghost'} 
-                                    className="absolute right-2 bottom-2"
-                                    onMouseDown={() => startRecording('dream')}
-                                    onMouseUp={() => stopRecording('dream')}
-                                    onTouchStart={() => startRecording('dream')}
-                                    onTouchEnd={() => stopRecording('dream')}
-                                >
-                                    <Mic className="h-4 w-4" />
-                                </Button>
-                            </div>
-                            <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()}>
-                                {isInterpreting ? t('interpreting') : t('interpretDream')}
-                            </Button>
-                            
-                            <ScrollArea className="flex-1 -mx-4">
-                                <div className="px-4 space-y-4">
+                         <ScrollArea className="flex-1">
+                             <div className="p-4 space-y-4">
                                 {loadingDreams && <Skeleton className="h-24 w-full"/>}
                                 {!loadingDreams && dreamEntries.length === 0 && (
                                     <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
@@ -394,16 +368,41 @@ export default function Chatbot() {
                                         )}
                                     </div>
                                 ))}
-                                </div>
-                            </ScrollArea>
-                            {lucidDreamingTips.length > 0 && (
-                                <div className='pt-4 border-t'>
-                                    <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
-                                    <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
-                                        {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
-                                    </ul>
-                                </div>
-                            )}
+                                {lucidDreamingTips.length > 0 && (
+                                    <div className='pt-4 border-t'>
+                                        <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
+                                        <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
+                                            {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
+                             </div>
+                         </ScrollArea>
+                         <div className="flex-shrink-0 p-4 border-t space-y-2">
+                             <div className="relative">
+                                <Textarea 
+                                    placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
+                                    value={dreamInput}
+                                    onChange={(e) => setDreamInput(e.target.value)}
+                                    rows={3}
+                                    className="pr-12"
+                                />
+                                 <Button 
+                                    type="button" 
+                                    size="icon" 
+                                    variant={isDreamRecording ? 'destructive' : 'ghost'} 
+                                    className="absolute right-2 bottom-2"
+                                    onMouseDown={() => startRecording('dream')}
+                                    onMouseUp={() => stopRecording('dream')}
+                                    onTouchStart={() => startRecording('dream')}
+                                    onTouchEnd={() => stopRecording('dream')}
+                                >
+                                    <Mic className="h-4 w-4" />
+                                </Button>
+                            </div>
+                            <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
+                                {isInterpreting ? t('interpreting') : t('interpretDream')}
+                            </Button>
                          </div>
                     </TabsContent>
                 </Tabs>
