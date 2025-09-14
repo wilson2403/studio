@@ -36,7 +36,7 @@ export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
 const spiritualGuidePrompt = ai.definePrompt({
     name: 'spiritualGuidePrompt',
-    model: 'googleai/gemini-1.5-flash-preview',
+    model: 'googleai/gemini-1.5-flash-latest',
     input: { schema: z.object({ question: z.string(), history: z.array(ChatMessageSchema) }) },
     output: { schema: z.object({ answer: z.string() })},
     prompt: `Eres el Guía Espiritual de "El Arte de Sanar", un centro de sanación con medicina ancestral Ayahuasca. Tu propósito es ofrecer apoyo, sabiduría y guía a quienes buscan sanación y crecimiento espiritual.
