@@ -67,7 +67,7 @@ export default function Chatbot() {
             scrollAreaRef.current?.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
         }
     }, [messages]);
-
+    
     useEffect(() => {
         const fetchUserData = async () => {
             if (user?.uid) {
@@ -102,6 +102,7 @@ export default function Chatbot() {
                 fetchUserData();
             } else {
                  setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
+                 setDreamEntries([]);
             }
         } else {
             // Reset on close
@@ -114,6 +115,7 @@ export default function Chatbot() {
             }
         }
     }, [isOpen, user, t]);
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -343,67 +345,67 @@ export default function Chatbot() {
                     </TabsContent>
                     
                     <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
-                         <div className="flex-shrink-0 p-4 border-b text-center">
+                        <div className="flex-shrink-0 p-4 border-b text-center">
                             <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
                             <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
-                         </div>
-                         <ScrollArea className="flex-1 p-4">
-                             <div className="space-y-4">
-                                {loadingDreams && <Skeleton className="h-24 w-full"/>}
-                                {!loadingDreams && dreamEntries.length === 0 && (
-                                    <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
-                                )}
-                                {dreamEntries.map((entry, index) => (
-                                    <div key={index} className="p-3 border rounded-lg bg-muted/30">
-                                        <p className="text-xs text-muted-foreground">{format(entry.date, 'PPP', { locale })}</p>
-                                        <p className="font-semibold mt-1">{t('yourDream')}</p>
-                                        <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
-                                        <p className="font-semibold mt-2">{t('interpretation')}</p>
-                                        <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
-                                        {entry.recommendations?.personal && (
-                                            <>
-                                                <p className="font-semibold mt-2">{t('recommendations')}</p>
-                                                <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
-                                            </>
-                                        )}
-                                    </div>
-                                ))}
-                                {lucidDreamingTips.length > 0 && (
-                                    <div className='pt-4 border-t'>
-                                        <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
-                                        <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
-                                            {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
-                                        </ul>
-                                    </div>
-                                )}
-                             </div>
-                         </ScrollArea>
-                         <div className="flex-shrink-0 p-4 border-t space-y-2">
-                             <div className="relative">
-                                <Textarea 
-                                    placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
-                                    value={dreamInput}
-                                    onChange={(e) => setDreamInput(e.target.value)}
-                                    rows={3}
-                                    className="pr-12"
-                                />
-                                 <Button 
-                                    type="button" 
-                                    size="icon" 
-                                    variant={isDreamRecording ? 'destructive' : 'ghost'} 
-                                    className="absolute right-2 bottom-2"
-                                    onMouseDown={() => startRecording('dream')}
-                                    onMouseUp={() => stopRecording('dream')}
-                                    onTouchStart={() => startRecording('dream')}
-                                    onTouchEnd={() => stopRecording('dream')}
-                                >
-                                    <Mic className="h-4 w-4" />
-                                </Button>
+                        </div>
+                        <ScrollArea className="flex-1 p-4">
+                            <div className="space-y-4">
+                            {loadingDreams && <Skeleton className="h-24 w-full"/>}
+                            {!loadingDreams && dreamEntries.length === 0 && (
+                                <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
+                            )}
+                            {dreamEntries.map((entry, index) => (
+                                <div key={index} className="p-3 border rounded-lg bg-muted/30">
+                                    <p className="text-xs text-muted-foreground">{format(entry.date, 'PPP', { locale })}</p>
+                                    <p className="font-semibold mt-1">{t('yourDream')}</p>
+                                    <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
+                                    <p className="font-semibold mt-2">{t('interpretation')}</p>
+                                    <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
+                                    {entry.recommendations?.personal && (
+                                        <>
+                                            <p className="font-semibold mt-2">{t('recommendations')}</p>
+                                            <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
+                                        </>
+                                    )}
+                                </div>
+                            ))}
+                            {lucidDreamingTips.length > 0 && (
+                                <div className='pt-4 border-t'>
+                                    <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
+                                    <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
+                                        {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
+                                    </ul>
+                                </div>
+                            )}
                             </div>
-                            <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
-                                {isInterpreting ? t('interpreting') : t('interpretDream')}
+                        </ScrollArea>
+                        <div className="flex-shrink-0 p-4 border-t space-y-2">
+                            <div className="relative">
+                            <Textarea 
+                                placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
+                                value={dreamInput}
+                                onChange={(e) => setDreamInput(e.target.value)}
+                                rows={3}
+                                className="pr-12"
+                            />
+                                <Button 
+                                type="button" 
+                                size="icon" 
+                                variant={isDreamRecording ? 'destructive' : 'ghost'} 
+                                className="absolute right-2 bottom-2"
+                                onMouseDown={() => startRecording('dream')}
+                                onMouseUp={() => stopRecording('dream')}
+                                onTouchStart={() => startRecording('dream')}
+                                onTouchEnd={() => stopRecording('dream')}
+                            >
+                                <Mic className="h-4 w-4" />
                             </Button>
-                         </div>
+                        </div>
+                        <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
+                            {isInterpreting ? t('interpreting') : t('interpretDream')}
+                        </Button>
+                        </div>
                     </TabsContent>
                 </Tabs>
             </PopoverContent>
