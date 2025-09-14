@@ -60,7 +60,13 @@ export default function Chatbot() {
                 setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
                 setLoading(false);
             }, 1000);
-            setChatId(uuidv4());
+            
+            if (user?.email) {
+                setChatId(user.email);
+            } else {
+                setChatId(uuidv4());
+            }
+
         } else if (!isOpen) {
             // Reset on close
             setMessages([]);
@@ -69,7 +75,7 @@ export default function Chatbot() {
                 mediaRecorderRef.current.stop();
             }
         }
-    }, [isOpen, t]);
+    }, [isOpen, t, user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -81,13 +87,15 @@ export default function Chatbot() {
         setLoading(true);
 
         try {
-            if (!chatId) {
-                console.error("Chat ID is not set!");
-                setLoading(false);
-                return;
+            let currentChatId = chatId;
+            if (!currentChatId) {
+                const newId = user?.email || uuidv4();
+                setChatId(newId);
+                currentChatId = newId;
             }
+
             const response = await continueChat({
-                chatId,
+                chatId: currentChatId,
                 question: input,
                 user: user ? { uid: user.uid, email: user.email, displayName: user.displayName } : null
             });
@@ -229,4 +237,3 @@ export default function Chatbot() {
         </Popover>
     );
 }
-

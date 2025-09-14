@@ -36,9 +36,9 @@ export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
 const spiritualGuidePrompt = ai.definePrompt({
     name: 'spiritualGuidePrompt',
+    model: 'googleai/gemini-1.5-flash-preview',
     input: { schema: z.object({ question: z.string(), history: z.array(ChatMessageSchema) }) },
     output: { schema: z.object({ answer: z.string() })},
-    model: 'googleai/gemini-1.5-flash-preview',
     prompt: `Eres el Guía Espiritual de "El Arte de Sanar", un centro de sanación con medicina ancestral Ayahuasca. Tu propósito es ofrecer apoyo, sabiduría y guía a quienes buscan sanación y crecimiento espiritual.
 
 Tu tono debe ser siempre:
@@ -76,6 +76,8 @@ Tu respuesta como Guía Espiritual (role: model):`,
 
 async function runContinueChatFlow(input: ChatInput): Promise<ChatOutput> {
     const { question, chatId, user } = input;
+    
+    console.log('Continuing chat with ID:', chatId);
     
     // Retrieve existing chat history from Firestore
     const existingChat = await getChat(chatId);
