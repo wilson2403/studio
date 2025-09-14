@@ -17,6 +17,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { EditableTitle } from '../home/EditableTitle';
+import { EditableProvider } from '../home/EditableProvider';
 
 interface TutorialDialogProps {
   isOpen: boolean;
@@ -78,47 +79,49 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md p-0 flex flex-col">
-        <DialogHeader className="p-6 text-center">
-            <EditableTitle tag="h2" id="tutorialTitle" initialValue={t('tutorialTitle')} className="text-lg font-semibold" />
-            <EditableTitle tag="p" id="tutorialDescription" initialValue={t('tutorialDescription')} className="text-sm text-muted-foreground" />
-        </DialogHeader>
-        <div className="flex-grow flex flex-col">
-            <Carousel setApi={setApi} className='w-full'>
-              <CarouselContent>
-                {tutorialSlides.map((slide, index) => (
-                  <CarouselItem key={index}>
-                    <div className="flex flex-col items-center text-center px-6">
-                       <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4 bg-muted">
-                         <Image src={slide.image} alt={t(slide.titleKey)} fill className="object-contain" />
-                       </div>
-                      <div className="p-2 bg-primary/10 rounded-full mb-4">
-                        <slide.icon className="h-8 w-8 text-primary" />
-                      </div>
-                      <EditableTitle tag="h3" id={slide.titleKey} initialValue={t(slide.titleKey)} className="text-xl font-bold mb-2" />
-                      <EditableTitle tag="p" id={slide.descriptionKey} initialValue={t(slide.descriptionKey)} className="text-muted-foreground text-sm" />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
-        </div>
-        <DialogFooter className="p-6 mt-auto flex-row justify-between items-center w-full">
-            <div className="flex items-center justify-center gap-2">
-                {tutorialSlides.map((_, i) => (
-                    <div key={i} className={cn("h-2 w-2 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
-                ))}
+        <EditableProvider>
+            <DialogHeader className="p-6 text-center">
+                <EditableTitle tag="h2" id="tutorialTitle" initialValue={t('tutorialTitle')} className="text-lg font-semibold" />
+                <EditableTitle tag="p" id="tutorialDescription" initialValue={t('tutorialDescription')} className="text-sm text-muted-foreground" />
+            </DialogHeader>
+            <div className="flex-grow flex flex-col">
+                <Carousel setApi={setApi} className='w-full'>
+                  <CarouselContent>
+                    {tutorialSlides.map((slide, index) => (
+                      <CarouselItem key={index}>
+                        <div className="flex flex-col items-center text-center px-6">
+                           <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4 bg-muted">
+                             <Image src={slide.image} alt={t(slide.titleKey)} fill className="object-contain" />
+                           </div>
+                          <div className="p-2 bg-primary/10 rounded-full mb-4">
+                            <slide.icon className="h-8 w-8 text-primary" />
+                          </div>
+                          <EditableTitle tag="h3" id={slide.titleKey} initialValue={t(slide.titleKey)} className="text-xl font-bold mb-2" />
+                          <EditableTitle tag="p" id={slide.descriptionKey} initialValue={t(slide.descriptionKey)} className="text-muted-foreground text-sm" />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
             </div>
-            <div className="flex gap-2">
-                {currentStep < tutorialSlides.length - 1 ? (
-                    <>
-                        <Button variant="ghost" onClick={onClose}><EditableTitle tag="span" id="tutorialSkip" initialValue={t('tutorialSkip')} isInsideButton/></Button>
-                        <Button onClick={() => api?.scrollNext()}><EditableTitle tag="span" id="tutorialNext" initialValue={t('tutorialNext')} isInsideButton/></Button>
-                    </>
-                ) : (
-                    <Button onClick={onClose} className="w-full"><EditableTitle tag="span" id="tutorialDone" initialValue={t('tutorialDone')} isInsideButton/></Button>
-                )}
-            </div>
-        </DialogFooter>
+            <DialogFooter className="p-6 mt-auto flex-row justify-between items-center w-full">
+                <div className="flex items-center justify-center gap-2">
+                    {tutorialSlides.map((_, i) => (
+                        <div key={i} className={cn("h-2 w-2 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />
+                    ))}
+                </div>
+                <div className="flex gap-2">
+                    {currentStep < tutorialSlides.length - 1 ? (
+                        <>
+                            <Button variant="ghost" onClick={onClose}><EditableTitle tag="span" id="tutorialSkip" initialValue={t('tutorialSkip')} isInsideButton/></Button>
+                            <Button onClick={() => api?.scrollNext()}><EditableTitle tag="span" id="tutorialNext" initialValue={t('tutorialNext')} isInsideButton/></Button>
+                        </>
+                    ) : (
+                        <Button onClick={onClose} className="w-full"><EditableTitle tag="span" id="tutorialDone" initialValue={t('tutorialDone')} isInsideButton/></Button>
+                    )}
+                </div>
+            </DialogFooter>
+        </EditableProvider>
       </DialogContent>
     </Dialog>
   );

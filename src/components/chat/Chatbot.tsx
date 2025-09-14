@@ -24,7 +24,7 @@ import { Textarea } from '../ui/textarea';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { EditableTitle } from '../home/EditableTitle';
-import { useEditable } from '../home/EditableProvider';
+import { EditableProvider } from '../home/EditableProvider';
 
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +35,6 @@ export default function Chatbot() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [chatId, setChatId] = useState<string | null>(null);
     const { t, i18n } = useTranslation();
-    const { content, fetchContent } = useEditable();
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const [isRecording, setIsRecording] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -51,12 +50,6 @@ export default function Chatbot() {
     const [isDreamRecording, setIsDreamRecording] = useState(false);
 
     const locale = i18n.language === 'es' ? es : enUS;
-
-    useEffect(() => {
-        fetchContent('dreamInputPlaceholder', 'Describe aquí tu sueño o experiencia...');
-    }, [fetchContent]);
-
-    const dreamInputPlaceholder = content.dreamInputPlaceholder || t('dreamInputPlaceholder');
 
 
      useEffect(() => {
@@ -260,165 +253,167 @@ export default function Chatbot() {
     };
 
     return (
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
-                <Button
-                    variant="default"
-                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-500"
+        <EditableProvider>
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="default"
+                        className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-500"
+                    >
+                        <Bot className="h-8 w-8" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                    side="top"
+                    align="end"
+                    className="w-[90vw] max-w-lg h-[70vh] flex flex-col p-0 rounded-xl"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
                 >
-                    <Bot className="h-8 w-8" />
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent
-                side="top"
-                align="end"
-                className="w-[90vw] max-w-lg h-[70vh] flex flex-col p-0 rounded-xl"
-                onOpenAutoFocus={(e) => e.preventDefault()}
-            >
-                <Tabs defaultValue="guide" className="w-full h-full flex flex-col">
-                    <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="guide"><MessageCircle className="mr-2"/><EditableTitle tag="span" id="spiritualGuide" initialValue={t('spiritualGuide')} /></TabsTrigger>
-                        <TabsTrigger value="interpreter"><NotebookText className="mr-2"/><EditableTitle tag="span" id="dreamInterpreter" initialValue={t('dreamInterpreter')} /></TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="guide" className="flex-1 flex flex-col min-h-0">
-                        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
-                            <div className='flex items-center gap-3'>
-                                <div className="p-2 bg-primary/10 rounded-full">
-                                <Bot className="h-6 w-6 text-primary" />
+                    <Tabs defaultValue="guide" className="w-full h-full flex flex-col">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="guide"><MessageCircle className="mr-2"/><EditableTitle tag="span" id="spiritualGuide" initialValue={t('spiritualGuide')} /></TabsTrigger>
+                            <TabsTrigger value="interpreter"><NotebookText className="mr-2"/><EditableTitle tag="span" id="dreamInterpreter" initialValue={t('dreamInterpreter')} /></TabsTrigger>
+                        </TabsList>
+                        
+                        <TabsContent value="guide" className="flex-1 flex flex-col min-h-0">
+                            <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
+                                <div className='flex items-center gap-3'>
+                                    <div className="p-2 bg-primary/10 rounded-full">
+                                    <Bot className="h-6 w-6 text-primary" />
+                                    </div>
+                                    <div>
+                                        <EditableTitle tag="h3" id="spiritualGuide" initialValue={t('spiritualGuide')} className="text-lg font-headline" />
+                                        <EditableTitle tag="p" id="online" initialValue={t('online')} className="text-sm text-muted-foreground" />
+                                    </div>
                                 </div>
-                                <div>
-                                    <EditableTitle tag="h3" id="spiritualGuide" initialValue={t('spiritualGuide')} className="text-lg font-headline" />
-                                    <EditableTitle tag="p" id="online" initialValue={t('online')} className="text-sm text-muted-foreground" />
-                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                                    <X className="h-4 w-4" />
+                                </Button>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
 
-                        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-                            <div className="space-y-4">
-                                {messages.map((message, index) => (
-                                    <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-start' : 'justify-start')}>
-                                        {message.role === 'model' ? (
-                                            <Bot className="h-6 w-6 text-primary flex-shrink-0" />
-                                        ) : (
-                                            <Avatar className="h-6 w-6 flex-shrink-0">
-                                                <AvatarImage src={user?.photoURL || undefined} />
-                                                <AvatarFallback>
-                                                <User className="h-4 w-4" />
-                                                </AvatarFallback>
-                                            </Avatar>
-                                        )}
-                                        <div className={cn("max-w-xs md:max-w-sm rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'bg-transparent border')}>
-                                            <p className="whitespace-pre-wrap">{message.content}</p>
+                            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+                                <div className="space-y-4">
+                                    {messages.map((message, index) => (
+                                        <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-start' : 'justify-start')}>
+                                            {message.role === 'model' ? (
+                                                <Bot className="h-6 w-6 text-primary flex-shrink-0" />
+                                            ) : (
+                                                <Avatar className="h-6 w-6 flex-shrink-0">
+                                                    <AvatarImage src={user?.photoURL || undefined} />
+                                                    <AvatarFallback>
+                                                    <User className="h-4 w-4" />
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                            )}
+                                            <div className={cn("max-w-xs md:max-w-sm rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'bg-transparent border')}>
+                                                <p className="whitespace-pre-wrap">{message.content}</p>
+                                            </div>
                                         </div>
+                                    ))}
+                                    {loading && (
+                                        <div className="flex items-start gap-3">
+                                            <Bot className="h-6 w-6 text-primary" />
+                                            <div className="bg-transparent border rounded-lg px-4 py-2">
+                                                <Skeleton className="h-4 w-10 bg-primary/20" />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </ScrollArea>
+
+                            <div className="flex-shrink-0 p-4 border-t">
+                                <form onSubmit={handleSubmit} className="flex items-center gap-2">
+                                    <Input
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        placeholder={isRecording ? t('recording') : t('typeYourMessage')}
+                                        autoComplete="off"
+                                        disabled={loading}
+                                    />
+                                    <Button 
+                                        type="button" 
+                                        size="icon" 
+                                        variant={isRecording ? 'destructive' : 'outline'} 
+                                        onMouseDown={() => startRecording('chat')}
+                                        onMouseUp={() => stopRecording('chat')}
+                                        onTouchStart={() => startRecording('chat')}
+                                        onTouchEnd={() => stopRecording('chat')}
+                                    >
+                                        <Mic className="h-4 w-4" />
+                                    </Button>
+                                    <Button type="submit" size="icon" disabled={loading || !input.trim()}>
+                                        <Send className="h-4 w-4" />
+                                    </Button>
+                                </form>
+                            </div>
+                        </TabsContent>
+                        
+                        <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
+                            <div className="flex-shrink-0 p-4 border-b text-center">
+                                <EditableTitle tag="h3" id="dreamInterpreter" initialValue={t('dreamInterpreter')} className="text-lg font-headline" />
+                                <EditableTitle tag="p" id="dreamInterpreterDescription" initialValue={t('dreamInterpreterDescription')} className="text-sm text-muted-foreground" />
+                            </div>
+                            <ScrollArea className="flex-1 p-4">
+                                <div className="space-y-4">
+                                {loadingDreams && <Skeleton className="h-24 w-full"/>}
+                                {!loadingDreams && dreamEntries.length === 0 && (
+                                    <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
+                                )}
+                                {dreamEntries.map((entry, index) => (
+                                    <div key={index} className="p-3 border rounded-lg bg-muted/30">
+                                        <p className="text-xs text-muted-foreground">{format(entry.date, 'PPP', { locale })}</p>
+                                        <p className="font-semibold mt-1">{t('yourDream')}</p>
+                                        <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
+                                        <p className="font-semibold mt-2">{t('interpretation')}</p>
+                                        <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
+                                        {entry.recommendations?.personal && (
+                                            <>
+                                                <p className="font-semibold mt-2">{t('recommendations')}</p>
+                                                <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
+                                            </>
+                                        )}
                                     </div>
                                 ))}
-                                {loading && (
-                                    <div className="flex items-start gap-3">
-                                        <Bot className="h-6 w-6 text-primary" />
-                                        <div className="bg-transparent border rounded-lg px-4 py-2">
-                                            <Skeleton className="h-4 w-10 bg-primary/20" />
-                                        </div>
+                                {lucidDreamingTips.length > 0 && (
+                                    <div className='pt-4 border-t'>
+                                        <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
+                                        <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
+                                            {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
+                                        </ul>
                                     </div>
                                 )}
-                            </div>
-                        </ScrollArea>
-
-                        <div className="flex-shrink-0 p-4 border-t">
-                            <form onSubmit={handleSubmit} className="flex items-center gap-2">
-                                <Input
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    placeholder={isRecording ? t('recording') : t('typeYourMessage')}
-                                    autoComplete="off"
-                                    disabled={loading}
+                                </div>
+                            </ScrollArea>
+                            <div className="flex-shrink-0 p-4 border-t space-y-2">
+                                <div className="relative">
+                                <Textarea 
+                                    placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
+                                    value={dreamInput}
+                                    onChange={(e) => setDreamInput(e.target.value)}
+                                    rows={3}
+                                    className="pr-12"
                                 />
-                                <Button 
+                                    <Button 
                                     type="button" 
                                     size="icon" 
-                                    variant={isRecording ? 'destructive' : 'outline'} 
-                                    onMouseDown={() => startRecording('chat')}
-                                    onMouseUp={() => stopRecording('chat')}
-                                    onTouchStart={() => startRecording('chat')}
-                                    onTouchEnd={() => stopRecording('chat')}
+                                    variant={isDreamRecording ? 'destructive' : 'ghost'} 
+                                    className="absolute right-2 bottom-2"
+                                    onMouseDown={() => startRecording('dream')}
+                                    onMouseUp={() => stopRecording('dream')}
+                                    onTouchStart={() => startRecording('dream')}
+                                    onTouchEnd={() => stopRecording('dream')}
                                 >
                                     <Mic className="h-4 w-4" />
                                 </Button>
-                                <Button type="submit" size="icon" disabled={loading || !input.trim()}>
-                                    <Send className="h-4 w-4" />
-                                </Button>
-                            </form>
-                        </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
-                        <div className="flex-shrink-0 p-4 border-b text-center">
-                            <EditableTitle tag="h3" id="dreamInterpreter" initialValue={t('dreamInterpreter')} className="text-lg font-headline" />
-                            <EditableTitle tag="p" id="dreamInterpreterDescription" initialValue={t('dreamInterpreterDescription')} className="text-sm text-muted-foreground" />
-                        </div>
-                        <ScrollArea className="flex-1 p-4">
-                            <div className="space-y-4">
-                            {loadingDreams && <Skeleton className="h-24 w-full"/>}
-                            {!loadingDreams && dreamEntries.length === 0 && (
-                                <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
-                            )}
-                            {dreamEntries.map((entry, index) => (
-                                <div key={index} className="p-3 border rounded-lg bg-muted/30">
-                                    <p className="text-xs text-muted-foreground">{format(entry.date, 'PPP', { locale })}</p>
-                                    <p className="font-semibold mt-1">{t('yourDream')}</p>
-                                    <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
-                                    <p className="font-semibold mt-2">{t('interpretation')}</p>
-                                    <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
-                                    {entry.recommendations?.personal && (
-                                        <>
-                                            <p className="font-semibold mt-2">{t('recommendations')}</p>
-                                            <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
-                                        </>
-                                    )}
-                                </div>
-                            ))}
-                            {lucidDreamingTips.length > 0 && (
-                                <div className='pt-4 border-t'>
-                                    <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
-                                    <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
-                                        {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
-                                    </ul>
-                                </div>
-                            )}
                             </div>
-                        </ScrollArea>
-                        <div className="flex-shrink-0 p-4 border-t space-y-2">
-                            <div className="relative">
-                            <Textarea 
-                                placeholder={isDreamRecording ? t('recording') : (typeof dreamInputPlaceholder === 'string' ? dreamInputPlaceholder : '')}
-                                value={dreamInput}
-                                onChange={(e) => setDreamInput(e.target.value)}
-                                rows={3}
-                                className="pr-12"
-                            />
-                                <Button 
-                                type="button" 
-                                size="icon" 
-                                variant={isDreamRecording ? 'destructive' : 'ghost'} 
-                                className="absolute right-2 bottom-2"
-                                onMouseDown={() => startRecording('dream')}
-                                onMouseUp={() => stopRecording('dream')}
-                                onTouchStart={() => startRecording('dream')}
-                                onTouchEnd={() => stopRecording('dream')}
-                            >
-                                <Mic className="h-4 w-4" />
+                            <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
+                               <EditableTitle tag="span" id="interpretDream" initialValue={t('interpretDream')} isInsideButton />
                             </Button>
-                        </div>
-                        <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
-                           <EditableTitle tag="span" id="interpretDream" initialValue={t('interpretDream')} isInsideButton />
-                        </Button>
-                        </div>
-                    </TabsContent>
-                </Tabs>
-            </PopoverContent>
-        </Popover>
+                            </div>
+                        </TabsContent>
+                    </Tabs>
+                </PopoverContent>
+            </Popover>
+        </EditableProvider>
     );
 }
