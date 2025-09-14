@@ -783,12 +783,26 @@ export const es = {
     themeDeletedError: 'Error al eliminar el tema.',
     migrationTitle: 'Migración de Contenido',
     language: 'Idioma',
+    // Content Management Page
+    addNewContent: 'Añadir Nuevo Contenido',
+    saveContent: 'Guardar Contenido',
+    contentAddedSuccess: 'Contenido añadido con éxito.',
+    errorAddingContent: 'Error al añadir el contenido.',
+    formVariableId: 'ID de la Variable',
+    errorInvalidId: 'El ID solo puede contener letras, números y guiones bajos.',
+    formContentType: 'Tipo de Contenido',
+    formSelectType: 'Seleccionar tipo',
+    contentTypeText: 'Texto',
+    contentTypeImageUrl: 'URL de Imagen',
+    contentTypeVideoUrl: 'URL de Video',
+    contentTypeLinkUrl: 'URL de Enlace',
+    formSpanishText: 'Texto en Español',
+    formEnglishText: 'Texto en Inglés',
+    contentType_text: 'Texto',
+    contentType_image_url: 'URL de Imagen',
+    contentType_video_url: 'URL de Video',
+    contentType_link_url: 'URL de Enlace',
+    contentType_url: 'URL',
 };
 
-
-
-
-
-
-
-
+    

@@ -42,7 +42,7 @@ export const en = {
     // Explore More
     exploreMoreTitle: 'Explore More',
     exploreMedicineTitle: 'The Medicine',
-    exploreMedicineDescription: 'Learn about the history, benefits, and transformative power of the sacred Ayahuasca brew.',
+    exploreMedicineDescription: 'Learn about the history, benefits, and the transformative power of the sacred Ayahuasca brew.',
     homeButtonMedicine: 'Know the Medicine',
     exploreGuidesTitle: 'The Guides',
     exploreGuidesDescription: 'Meet the experienced team that will accompany you with respect and professionalism on your journey.',
@@ -783,12 +783,26 @@ export const en = {
     themeDeletedError: 'Error deleting theme.',
     migrationTitle: 'Content Migration',
     language: 'Language',
+    // Content Management Page
+    addNewContent: 'Add New Content',
+    saveContent: 'Save Content',
+    contentAddedSuccess: 'Content added successfully.',
+    errorAddingContent: 'Error adding content.',
+    formVariableId: 'Variable ID',
+    errorInvalidId: 'ID can only contain letters, numbers, and underscores.',
+    formContentType: 'Content Type',
+    formSelectType: 'Select type',
+    contentTypeText: 'Text',
+    contentTypeImageUrl: 'Image URL',
+    contentTypeVideoUrl: 'Video URL',
+    contentTypeLinkUrl: 'Link URL',
+    formSpanishText: 'Spanish Text',
+    formEnglishText: 'English Text',
+    contentType_text: 'Text',
+    contentType_image_url: 'Image URL',
+    contentType_video_url: 'Video URL',
+    contentType_link_url: 'Link URL',
+    contentType_url: 'URL',
 };
 
-
-
-
-
-
-
-
+    

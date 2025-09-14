@@ -2,7 +2,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit, collectionGroup, Timestamp } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings, PredefinedTheme, DreamEntry } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings, PredefinedTheme, DreamEntry, Content } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from './config';
 import { v4 as uuidv4 } from 'uuid';
@@ -72,10 +72,10 @@ export const logUserAction = async (action: string, details?: Partial<Omit<Audit
 
 
 // --- Page Content ---
-export const getAllContent = async (): Promise<{ id: string; value: any }[]> => {
+export const getAllContent = async (): Promise<Content[]> => {
     try {
         const snapshot = await getDocs(contentCollection);
-        return snapshot.docs.map(doc => ({ id: doc.id, value: doc.data().value }));
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Content));
     } catch (error) {
         console.error("Error getting all content:", error);
         logError(error, { function: 'getAllContent' });
@@ -103,16 +103,16 @@ export const getContent = async (id: string): Promise<string | { [key: string]: 
   }
 }
 
-export const setContent = async (id: string, value: string | { [key: string]: string }): Promise<void> => {
+export const setContent = async (id: string, value: string | { [key: string]: string }, type: Content['type'] = 'text'): Promise<void> => {
    try {
     const docRef = doc(db, 'content', id);
     // Use setDoc with merge: true which will create the document if it doesn't exist,
     // or update it if it does.
-    await setDoc(docRef, { value }, { merge: true });
-    await logUserAction('update_content', { targetId: id, changes: { value } });
+    await setDoc(docRef, { value, type }, { merge: true });
+    await logUserAction('update_content', { targetId: id, changes: { value, type } });
   } catch (error) {
     console.error("Error setting content: ", error);
-    logError(error, { function: 'setContent', id, value });
+    logError(error, { function: 'setContent', id, value, type });
     throw error;
   }
 }
@@ -1795,4 +1795,6 @@ export const getAllDreamEntries = async (): Promise<(DreamEntry & { id: string; 
 export type { Chat };
 export type { UserProfile };
 export type { DreamEntry };
+export type { Content };
 
+    

@@ -201,6 +201,12 @@ export type ShareMemoryMessage = {
   en: string;
 };
 
+export type Content = {
+    id: string;
+    value: string | { es: string; en: string };
+    type?: 'text' | 'image_url' | 'video_url' | 'link_url';
+};
+
 export type BackupData = {
     users: UserProfile[];
     ceremonies: Ceremony[];
@@ -357,3 +363,5 @@ export type DreamEntry = {
         lucidDreaming?: string[];
     }
 };
+
+    
