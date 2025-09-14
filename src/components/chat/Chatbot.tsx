@@ -286,22 +286,22 @@ export default function Chatbot() {
 
 
     return (
-        <EditableProvider>
-            <Popover open={isOpen} onOpenChange={setIsOpen}>
-                <PopoverTrigger asChild>
-                    <Button
-                        variant="default"
-                        className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-500"
-                    >
-                        <Bot className="h-8 w-8" />
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                    side="top"
-                    align="end"
-                    className="w-[90vw] max-w-lg h-[70vh] flex flex-col p-0 rounded-xl"
-                    onOpenAutoFocus={(e) => e.preventDefault()}
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="default"
+                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-500"
                 >
+                    <Bot className="h-8 w-8" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent
+                side="top"
+                align="end"
+                className="w-[90vw] max-w-lg h-[70vh] flex flex-col p-0 rounded-xl"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+            >
+                <EditableProvider>
                     <Tabs defaultValue="guide" className="w-full h-full flex flex-col">
                         <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="guide"><MessageCircle className="mr-2"/><EditableTitle tag="span" id="spiritualGuide" initialValue={t('spiritualGuide')} /></TabsTrigger>
@@ -450,8 +450,10 @@ export default function Chatbot() {
                             </div>
                         </TabsContent>
                     </Tabs>
-                </PopoverContent>
-            </Popover>
-        </EditableProvider>
+                </EditableProvider>
+            </PopoverContent>
+        </Popover>
     );
 }
+
+    
