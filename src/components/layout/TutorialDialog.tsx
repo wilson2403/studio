@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -29,7 +30,16 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
 
   useEffect(() => {
     if (!api) return;
-    api.on("select", () => setCurrentStep(api.selectedScrollSnap()));
+    const onSelect = () => {
+        if (api) {
+            setCurrentStep(api.selectedScrollSnap());
+        }
+    };
+    api.on("select", onSelect);
+    // Cleanup
+    return () => {
+        api.off("select", onSelect);
+    };
   }, [api]);
 
   const tutorialSlides = [
@@ -67,30 +77,32 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md p-0">
+      <DialogContent className="sm:max-w-md p-0 flex flex-col">
         <DialogHeader className="p-6 text-center">
           <DialogTitle>{t('tutorialTitle')}</DialogTitle>
           <DialogDescription>{t('tutorialDescription')}</DialogDescription>
         </DialogHeader>
-        <Carousel setApi={setApi}>
-          <CarouselContent>
-            {tutorialSlides.map((slide, index) => (
-              <CarouselItem key={index}>
-                <div className="flex flex-col items-center text-center p-6 pt-0">
-                   <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-4 bg-muted">
-                     <Image src={slide.image} alt={slide.title} fill className="object-contain" />
-                   </div>
-                  <div className="p-2 bg-primary/10 rounded-full mb-4">
-                    <slide.icon className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{slide.title}</h3>
-                  <p className="text-muted-foreground">{slide.description}</p>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-        <DialogFooter className="p-6 pt-0 flex-row justify-between items-center w-full">
+        <div className="flex-grow flex flex-col">
+            <Carousel setApi={setApi} className='w-full'>
+              <CarouselContent>
+                {tutorialSlides.map((slide, index) => (
+                  <CarouselItem key={index}>
+                    <div className="flex flex-col items-center text-center px-6">
+                       <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4 bg-muted">
+                         <Image src={slide.image} alt={slide.title} fill className="object-contain" />
+                       </div>
+                      <div className="p-2 bg-primary/10 rounded-full mb-4">
+                        <slide.icon className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">{slide.title}</h3>
+                      <p className="text-muted-foreground text-sm">{slide.description}</p>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+        </div>
+        <DialogFooter className="p-6 mt-auto flex-row justify-between items-center w-full">
             <div className="flex items-center justify-center gap-2">
                 {tutorialSlides.map((_, i) => (
                     <div key={i} className={cn("h-2 w-2 rounded-full transition-all", i === currentStep ? 'w-4 bg-primary' : 'bg-muted-foreground/30')} />

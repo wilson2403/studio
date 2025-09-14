@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -104,9 +105,6 @@ export default function MyDreamsPage() {
             <NotebookText className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">{t('noDreamsFound')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{t('myDreamsSubtitle')}</p>
-            <Button asChild className="mt-6">
-                <Link href="/">{t('goToInterpreter')}</Link>
-            </Button>
           </div>
         )}
       </div>
