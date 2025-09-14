@@ -305,7 +305,7 @@ export default function Chatbot() {
                     <Tabs defaultValue="guide" className="w-full h-full flex flex-col">
                         <TabsList className="grid w-full grid-cols-2">
                             <TabsTrigger value="guide"><MessageCircle className="mr-2"/><EditableTitle tag="span" id="spiritualGuide" initialValue={t('spiritualGuide')} /></TabsTrigger>
-                            <TabsTrigger value="interpreter"><NotebookText className="mr-2"/><EditableTitle tag="span" id="dreamInterpreter" initialValue={t('dreamInterpreter')} /></TabsTrigger>
+                            <TabsTrigger value="interpreter"><NotebookText className="mr-2"/>{t('dreamInterpreter')}</TabsTrigger>
                         </TabsList>
                         
                         <TabsContent value="guide" className="flex-1 flex flex-col min-h-0">
@@ -388,8 +388,8 @@ export default function Chatbot() {
                         
                         <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
                             <div className="flex-shrink-0 p-4 border-b text-center">
-                                <EditableTitle tag="h3" id="dreamInterpreter" initialValue={t('dreamInterpreter')} className="text-lg font-headline" />
-                                <EditableTitle tag="p" id="dreamInterpreterDescription" initialValue={t('dreamInterpreterDescription')} className="text-sm text-muted-foreground" />
+                                <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
+                                <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
                             </div>
                             <ScrollArea className="flex-1 p-4">
                                 <div className="space-y-4">
@@ -445,7 +445,7 @@ export default function Chatbot() {
                                 </Button>
                             </div>
                             <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
-                               <EditableTitle tag="span" id="interpretDream" initialValue={t('interpretDream')} isInsideButton />
+                               {t('interpretDream')}
                             </Button>
                             </div>
                         </TabsContent>
@@ -455,5 +455,3 @@ export default function Chatbot() {
         </Popover>
     );
 }
-
-    
