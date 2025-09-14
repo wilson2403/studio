@@ -45,26 +45,26 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
   const tutorialSlides = [
     {
       icon: Bot,
-      title: t('tutorialSlideSpiritualGuideTitle'),
-      description: t('tutorialSlideSpiritualGuideDescription'),
+      titleKey: 'tutorialSlideSpiritualGuideTitle',
+      descriptionKey: 'tutorialSlideSpiritualGuideDescription',
       image: '/images/tutorial-guide.png'
     },
     {
       icon: NotebookText,
-      title: t('tutorialSlideDreamInterpreterTitle'),
-      description: t('tutorialSlideDreamInterpreterDescription'),
+      titleKey: 'tutorialSlideDreamInterpreterTitle',
+      descriptionKey: 'tutorialSlideDreamInterpreterDescription',
       image: '/images/tutorial-dream.png'
     },
     {
       icon: Sparkles,
-      title: t('tutorialSlidePreparationTitle'),
-      description: t('tutorialSlidePreparationDescription'),
+      titleKey: 'tutorialSlidePreparationTitle',
+      descriptionKey: 'tutorialSlidePreparationDescription',
       image: '/images/tutorial-prep.png'
     },
     {
       icon: Users,
-      title: t('tutorialSlideCommunityTitle'),
-      description: t('tutorialSlideCommunityDescription'),
+      titleKey: 'tutorialSlideCommunityTitle',
+      descriptionKey: 'tutorialSlideCommunityDescription',
       image: '/images/tutorial-community.png'
     },
   ];
@@ -89,13 +89,13 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
                   <CarouselItem key={index}>
                     <div className="flex flex-col items-center text-center px-6">
                        <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4 bg-muted">
-                         <Image src={slide.image} alt={slide.title} fill className="object-contain" />
+                         <Image src={slide.image} alt={t(slide.titleKey)} fill className="object-contain" />
                        </div>
                       <div className="p-2 bg-primary/10 rounded-full mb-4">
                         <slide.icon className="h-8 w-8 text-primary" />
                       </div>
-                      <h3 className="text-xl font-bold mb-2">{slide.title}</h3>
-                      <p className="text-muted-foreground text-sm">{slide.description}</p>
+                      <h3 className="text-xl font-bold mb-2">{t(slide.titleKey)}</h3>
+                      <p className="text-muted-foreground text-sm">{t(slide.descriptionKey)}</p>
                     </div>
                   </CarouselItem>
                 ))}
