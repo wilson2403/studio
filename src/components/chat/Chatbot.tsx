@@ -15,7 +15,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { v4 as uuidv4 } from 'uuid';
-import { getUserProfile, UserProfile, getDreamEntries, DreamEntry, saveDreamEntry } from '@/lib/firebase/firestore';
+import { getUserProfile, UserProfile, getDreamEntries, DreamEntry, getChat } from '@/lib/firebase/firestore';
 import { interpretDreamAndGetRecommendations } from '@/ai/flows/dream-interpreter-flow';
 import { transcribeAudio } from '@/ai/flows/speech-to-text-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -69,37 +69,41 @@ export default function Chatbot() {
     }, [messages]);
 
     useEffect(() => {
-        const fetchUserDreamEntries = async () => {
+        const fetchUserData = async () => {
             if (user?.uid) {
+                // Fetch dreams
                 setLoadingDreams(true);
                 const entries = await getDreamEntries(user.uid);
                 setDreamEntries(entries);
-                // Extract unique tips
                 const tips = new Set<string>();
                 entries.forEach(entry => {
                     entry.recommendations?.lucidDreaming?.forEach(tip => tips.add(tip));
                 });
                 setLucidDreamingTips(Array.from(tips));
                 setLoadingDreams(false);
+                
+                // Fetch chat history
+                setLoading(true);
+                const chatHistory = await getChat(user.email!);
+                if (chatHistory?.messages) {
+                    setMessages(chatHistory.messages);
+                } else {
+                     setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
+                }
+                setLoading(false);
             }
         };
 
-        if (isOpen && messages.length === 0) {
-            setLoading(true);
-            setTimeout(() => {
-                setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
-                setLoading(false);
-            }, 1000);
-            
-            if (user?.email) {
-                setChatId(user.email);
+        if (isOpen) {
+            const newChatId = user?.email || uuidv4();
+            setChatId(newChatId);
+
+            if(user) {
+                fetchUserData();
             } else {
-                setChatId(uuidv4());
+                 setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
             }
-
-            fetchUserDreamEntries();
-
-        } else if (!isOpen) {
+        } else {
             // Reset on close
             setMessages([]);
             setChatId(null);
@@ -109,7 +113,7 @@ export default function Chatbot() {
                 mediaRecorderRef.current.stop();
             }
         }
-    }, [isOpen, t, user]);
+    }, [isOpen, user, t]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
