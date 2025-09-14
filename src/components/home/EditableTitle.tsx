@@ -70,8 +70,8 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
       {isAdmin && (
         <span
             className={cn(
-                'h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer',
-                isInsideButton ? 'group-hover:bg-transparent' : 'absolute -right-10 top-1/2 -translate-y-1/2 group-hover:bg-accent'
+                'h-8 w-8 rounded-full flex items-center justify-center cursor-pointer transition-colors',
+                isInsideButton ? 'bg-transparent' : 'absolute -right-10 top-1/2 -translate-y-1/2 hover:bg-accent'
             )}
             onClick={handleEditClick}
         >
