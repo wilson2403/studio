@@ -1747,23 +1747,22 @@ export const getDreamEntries = async (uid: string): Promise<DreamEntry[]> => {
 export const getAllDreamEntries = async (): Promise<(DreamEntry & { id: string; user: UserProfile })[]> => {
   try {
     const dreamJournalGroup = collectionGroup(db, 'dreamJournal');
-    const q = query(dreamJournalGroup, orderBy('date', 'desc'));
+    const q = query(dreamJournalGroup); // Removed orderBy
     const snapshot = await getDocs(q);
 
     const entriesWithUsers: (DreamEntry & { id: string; user: UserProfile })[] = [];
 
-    // Create a map to cache user profiles and avoid fetching the same user multiple times
     const userProfileCache = new Map<string, UserProfile | null>();
 
     for (const entryDoc of snapshot.docs) {
       const entryData = entryDoc.data() as Omit<DreamEntry, 'date'> & { date: Timestamp };
-      const userDocRef = entryDoc.ref.parent.parent; // user document is the parent of the 'dreamJournal' collection
+      const userDocRef = entryDoc.ref.parent.parent; 
 
       if (userDocRef) {
         const userId = userDocRef.id;
         let userProfile = userProfileCache.get(userId);
 
-        if (userProfile === undefined) { // Check for undefined, as null is a valid cached value
+        if (userProfile === undefined) {
           userProfile = await getUserProfile(userId);
           userProfileCache.set(userId, userProfile);
         }
@@ -1779,6 +1778,9 @@ export const getAllDreamEntries = async (): Promise<(DreamEntry & { id: string; 
       }
     }
     
+    // Sort in-memory
+    entriesWithUsers.sort((a, b) => b.date.getTime() - a.date.getTime());
+
     return entriesWithUsers;
   } catch (error) {
     console.error("Error getting all dream entries:", error);
@@ -1791,3 +1793,5 @@ export const getAllDreamEntries = async (): Promise<(DreamEntry & { id: string; 
 export type { Chat };
 export type { UserProfile };
 export type { DreamEntry };
+
+    
