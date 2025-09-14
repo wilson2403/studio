@@ -5,3 +5,4 @@ import './flows/chat-flow';
 import './flows/settings-flow';
 import './flows/testimonial-flow';
 import './flows/speech-to-text-flow';
+import './flows/dream-interpreter-flow';

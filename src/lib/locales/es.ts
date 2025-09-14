@@ -210,6 +210,18 @@ export const es = {
     microphoneErrorDescription: 'No se pudo acceder al micrófono. Por favor, revisa los permisos en tu navegador.',
     transcriptionErrorTitle: 'Error de Transcripción',
     transcriptionErrorDescription: 'No se pudo transcribir el audio. Por favor, intenta de nuevo.',
+    dreamInterpreter: 'Intérprete de Sueños',
+    dreamInterpreterDescription: 'Registra y analiza tus sueños y experiencias.',
+    dreamInputPlaceholder: 'Describe tu sueño o experiencia aquí...',
+    interpretDream: 'Interpretar',
+    interpreting: 'Interpretando...',
+    dreamInterpretationError: 'Error al interpretar el sueño. Por favor, inténtalo de nuevo.',
+    noDreamEntries: 'Aún no hay registros de sueños.',
+    yourDream: 'Tu Sueño/Experiencia',
+    interpretation: 'Interpretación',
+    recommendations: 'Recomendaciones',
+    lucidDreamingTips: 'Consejos para Sueños Lúcidos',
+    dreamInterpreterAuth: 'Debes iniciar sesión para usar el intérprete de sueños.',
     // My Chats Page
     myChatsTitle: 'Mis Chats',
     myChatsSubtitle: 'Revisa tus conversaciones pasadas con nuestro guía espiritual.',
@@ -742,6 +754,7 @@ export const es = {
     migrationTitle: 'Migración de Contenido',
     language: 'Idioma',
 };
+
 
 
 

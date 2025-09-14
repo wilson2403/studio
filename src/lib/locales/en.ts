@@ -210,6 +210,18 @@ export const en = {
     microphoneErrorDescription: 'Could not access the microphone. Please check the permissions in your browser.',
     transcriptionErrorTitle: 'Transcription Error',
     transcriptionErrorDescription: 'Could not transcribe the audio. Please try again.',
+    dreamInterpreter: 'Dream Interpreter',
+    dreamInterpreterDescription: 'Record and analyze your dreams and experiences.',
+    dreamInputPlaceholder: 'Describe your dream or experience here...',
+    interpretDream: 'Interpret',
+    interpreting: 'Interpreting...',
+    dreamInterpretationError: 'Error interpreting the dream. Please try again.',
+    noDreamEntries: 'No dream entries yet.',
+    yourDream: 'Your Dream/Experience',
+    interpretation: 'Interpretation',
+    recommendations: 'Recommendations',
+    lucidDreamingTips: 'Lucid Dreaming Tips',
+    dreamInterpreterAuth: 'You must be logged in to use the dream interpreter.',
     // My Chats Page
     myChatsTitle: 'My Chats',
     myChatsSubtitle: 'Review your past conversations with our spiritual guide.',
@@ -234,7 +246,7 @@ export const en = {
     allUsersDescription: 'Search, edit, and manage all registered users.',
     searchUserPlaceholder: 'Search by name, email, or phone...',
     userStatus: 'User Status',
-    userRole: 'Rol del Usuario',
+    userRole: 'User Role',
     permissions: 'Permissions',
     permission_canEditCeremonies: 'Edit Ceremonies',
     permission_canEditCourses: 'Edit Courses',
@@ -742,6 +754,7 @@ export const en = {
     migrationTitle: 'Content Migration',
     language: 'Language',
 };
+
 
 
 

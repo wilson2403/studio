@@ -2,7 +2,7 @@
 
 import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db, storage } from './config';
-import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings, PredefinedTheme } from '@/types';
+import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings, PredefinedTheme, DreamEntry } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 import { auth } from './config';
 import { v4 as uuidv4 } from 'uuid';
@@ -1706,6 +1706,38 @@ export const getPublicTestimonials = async (): Promise<Testimonial[]> => {
     }
 };
 
+// --- Dream Journal ---
+export const saveDreamEntry = async (uid: string, entry: DreamEntry): Promise<void> => {
+    try {
+        const dreamJournalCollection = collection(db, `users/${uid}/dreamJournal`);
+        await addDoc(dreamJournalCollection, entry);
+    } catch (error) {
+        console.error("Error saving dream entry:", error);
+        logError(error, { function: 'saveDreamEntry', uid });
+        throw error;
+    }
+};
+
+export const getDreamEntries = async (uid: string): Promise<DreamEntry[]> => {
+    if (!uid) return [];
+    try {
+        const dreamJournalCollection = collection(db, `users/${uid}/dreamJournal`);
+        const q = query(dreamJournalCollection, orderBy('date', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                ...data,
+                date: (data.date as Timestamp).toDate(),
+            } as DreamEntry;
+        });
+    } catch (error) {
+        console.error("Error getting dream entries:", error);
+        logError(error, { function: 'getDreamEntries', uid });
+        return [];
+    }
+};
 
 export type { Chat };
 export type { UserProfile };
+export type { DreamEntry };
