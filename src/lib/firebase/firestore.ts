@@ -127,6 +127,19 @@ export const setContent = async (id: string, data: Content): Promise<void> => {
   }
 }
 
+export const deleteContent = async (id: string): Promise<void> => {
+    try {
+        const docRef = doc(db, 'content', id);
+        await deleteDoc(docRef);
+        await logUserAction('delete_content', { targetId: id });
+    } catch (error) {
+        console.error("Error deleting content: ", error);
+        logError(error, { function: 'deleteContent', id });
+        throw error;
+    }
+};
+
+
 
 // --- Ceremonies ---
 
@@ -1811,4 +1824,3 @@ export type { Chat };
 export type { UserProfile };
 export type { DreamEntry };
 export type { Content };
-

@@ -471,6 +471,14 @@ export const es = {
     contentType_link_url: 'URL de Enlace',
     contentType_url: 'URL',
     page: 'Página',
+    contentDeletedSuccess: 'Contenido eliminado con éxito.',
+    contentDeletedError: 'Error al eliminar el contenido.',
+    contentDeleteConfirmTitle: '¿Eliminar Contenido?',
+    contentDeleteConfirmDescription: '¿Estás seguro de que quieres eliminar el contenido con ID "{{id}}"? Esta acción no se puede deshacer.',
+
+    dreamInterpreter: 'Intérprete de Sueños',
+    dreamInterpreterDescription: 'Describe tu sueño o experiencia y obtén una interpretación espiritual.',
 };
 
     
+

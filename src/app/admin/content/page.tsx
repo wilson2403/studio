@@ -6,10 +6,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Save, Search, PlusCircle, X, Eye, EyeOff } from 'lucide-react';
+import { FileText, Save, Search, PlusCircle, X, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllContent, setContent, Content } from '@/lib/firebase/firestore';
+import { getAllContent, setContent, Content, deleteContent } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+
 
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
@@ -110,7 +112,7 @@ export default function AdminContentPage() {
                         updatedItem.page = value as string;
                     } else if (field === 'es' || field === 'en') {
                         const oldValue = typeof item.value === 'object' ? item.value : { es: item.value as string, en: item.value as string };
-                        updatedItem.value = { ...oldValue, [field]: value as string };
+                        updatedItem.value = { ...(oldValue || {es: '', en: ''}), [field]: value as string };
                     }
                     return updatedItem;
                 }
@@ -155,6 +157,16 @@ export default function AdminContentPage() {
         }
     }
 
+    const handleDeleteContent = async (id: string) => {
+        try {
+            await deleteContent(id);
+            setContentItems(prev => prev.filter(item => item.id !== id));
+            toast({ title: t('contentDeletedSuccess') });
+        } catch (error) {
+            toast({ title: t('contentDeletedError'), variant: 'destructive' });
+        }
+    }
+
 
     const filteredAndGroupedContent: GroupedContent = useMemo(() => {
         const filtered = contentItems.filter(item => {
@@ -165,7 +177,7 @@ export default function AdminContentPage() {
                 return item.value.toLowerCase().includes(search);
             }
             if (typeof item.value === 'object' && item.value) {
-                return item.value.es?.toLowerCase().includes(search) || item.value.en?.toLowerCase().includes(search);
+                return (item.value.es || '').toLowerCase().includes(search) || (item.value.en || '').toLowerCase().includes(search);
             }
             return false;
         });
@@ -355,6 +367,23 @@ export default function AdminContentPage() {
                                                             <Button variant="ghost" size="icon" className='h-8 w-8' onClick={() => handleContentChange(item.id, 'visible', !isVisible)}>
                                                                 {isVisible ? <Eye className='h-4 w-4' /> : <EyeOff className='h-4 w-4 text-muted-foreground' />}
                                                             </Button>
+                                                            <AlertDialog>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <Button variant="ghost" size="icon" className='h-8 w-8 text-destructive'>
+                                                                        <Trash2 className="h-4 w-4" />
+                                                                    </Button>
+                                                                </AlertDialogTrigger>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>{t('contentDeleteConfirmTitle')}</AlertDialogTitle>
+                                                                        <AlertDialogDescription>{t('contentDeleteConfirmDescription', { id: item.id })}</AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                        <AlertDialogAction onClick={() => handleDeleteContent(item.id)}>{t('delete')}</AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
                                                         </div>
                                                     </div>
                                                      <div className="space-y-1">
@@ -369,7 +398,7 @@ export default function AdminContentPage() {
                                                         {isMultiLanguage ? (
                                                             <>
                                                                 <div>
-                                                                    <label className='text-xs font-bold'>ES</label>
+                                                                    <Label className='text-xs font-bold'>ES</Label>
                                                                     <Textarea
                                                                         value={item.value.es || ''}
                                                                         onChange={(e) => handleContentChange(item.id, 'es', e.target.value)}
@@ -377,7 +406,7 @@ export default function AdminContentPage() {
                                                                     />
                                                                 </div>
                                                                  <div>
-                                                                    <label className='text-xs font-bold'>EN</label>
+                                                                    <Label className='text-xs font-bold'>EN</Label>
                                                                     <Textarea
                                                                         value={item.value.en || ''}
                                                                         onChange={(e) => handleContentChange(item.id, 'en', e.target.value)}

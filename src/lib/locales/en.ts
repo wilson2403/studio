@@ -471,6 +471,14 @@ export const en = {
     contentType_link_url: 'Link URL',
     contentType_url: 'URL',
     page: 'Page',
+    contentDeletedSuccess: 'Content deleted successfully.',
+    contentDeletedError: 'Error deleting content.',
+    contentDeleteConfirmTitle: 'Delete Content?',
+    contentDeleteConfirmDescription: 'Are you sure you want to delete the content with ID "{{id}}"? This action cannot be undone.',
+
+    dreamInterpreter: 'Dream Interpreter',
+    dreamInterpreterDescription: 'Describe your dream or experience and get a spiritual interpretation.',
 };
 
     
+
