@@ -11,10 +11,12 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { getChat, saveChatMessage, logError } from '@/lib/firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
 
 const ChatMessageSchema = z.object({
   role: z.enum(['user', 'model']),
   content: z.string(),
+  createdAt: z.custom<Timestamp>().optional(),
 });
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 
@@ -87,11 +89,13 @@ async function runContinueChatFlow(input: ChatInput): Promise<ChatOutput> {
     const { output } = await spiritualGuidePrompt({ history, question });
     const answer = output?.answer || "Lo siento, estoy teniendo problemas para conectarme en este momento. Por favor, inténtalo de nuevo en un momento.";
 
+    const now = Timestamp.now();
+
     // Save the full conversation history to Firestore
     const updatedHistory: ChatMessage[] = [
         ...history,
-        { role: 'user', content: question },
-        { role: 'model', content: answer }
+        { role: 'user', content: question, createdAt: now },
+        { role: 'model', content: answer, createdAt: now }
     ];
     
     try {

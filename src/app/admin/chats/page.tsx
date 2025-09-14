@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
@@ -10,17 +10,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Bot, MessageCircle, NotebookText, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllChats, Chat, getUserProfile, getAllDreamEntries, DreamEntry, UserProfile } from '@/lib/firebase/firestore';
+import { getAllChats, Chat, getUserProfile, getAllDreamEntries, DreamEntry, UserProfile, ChatMessage } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { es, enUS } from 'date-fns/locale';
+import { Separator } from '@/components/ui/separator';
 
 type DreamEntryWithUser = DreamEntry & { user: UserProfile };
+
+const DateSeparator = ({ date, locale }: { date: Date, locale: Locale }) => {
+  let dateText: string;
+  if (isToday(date)) {
+    dateText = 'Hoy';
+  } else if (isYesterday(date)) {
+    dateText = 'Ayer';
+  } else {
+    dateText = format(date, 'PPP', { locale });
+  }
+
+  return (
+    <div className="relative my-4 text-center">
+      <Separator />
+      <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-muted/20 px-2 text-xs text-muted-foreground">{dateText}</span>
+    </div>
+  );
+};
+
 
 export default function AdminInteractionHistoryPage() {
     const [loading, setLoading] = useState(true);
@@ -81,6 +101,18 @@ export default function AdminInteractionHistoryPage() {
         
     }, [isAuthorized, toast, t]);
 
+    const groupMessagesByDate = (messages: ChatMessage[]) => {
+        return messages.reduce((acc, message) => {
+            const messageDate = message.createdAt?.toDate ? message.createdAt.toDate() : new Date();
+            const dateStr = format(messageDate, 'yyyy-MM-dd');
+            if (!acc[dateStr]) {
+                acc[dateStr] = [];
+            }
+            acc[dateStr].push(message);
+            return acc;
+        }, {} as Record<string, ChatMessage[]>);
+    };
+
 
     if (!isAuthorized || loading) {
         return (
@@ -122,46 +154,54 @@ export default function AdminInteractionHistoryPage() {
                         </CardHeader>
                         <CardContent>
                             <Accordion type="single" collapsible className="w-full space-y-4">
-                                {chats.map((chat) => (
-                                    <AccordionItem key={chat.id} value={chat.id} className="border rounded-lg bg-muted/20 px-4">
-                                        <AccordionTrigger className="w-full hover:no-underline">
-                                            <div className="flex items-center justify-between gap-4 w-full">
-                                                <div className='flex items-center gap-4'>
-                                                    <Avatar className='h-9 w-9'>
-                                                        <AvatarImage src={chat.user?.photoURL || undefined} />
-                                                        <AvatarFallback>{chat.user?.displayName?.charAt(0) || chat.user?.email?.charAt(0) || 'U'}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className='flex-1 text-left'>
-                                                        <p className="font-semibold truncate max-w-xs sm:max-w-md">{chat.user?.displayName || chat.user?.email || 'Anonymous'}</p>
-                                                        <p className="text-sm text-muted-foreground">{chat.updatedAt ? format(chat.updatedAt, 'PPP p', { locale }) : ''}</p>
+                                {chats.map((chat) => {
+                                    const groupedMessages = groupMessagesByDate(chat.messages);
+                                    return (
+                                        <AccordionItem key={chat.id} value={chat.id} className="border rounded-lg bg-muted/20 px-4">
+                                            <AccordionTrigger className="w-full hover:no-underline">
+                                                <div className="flex items-center justify-between gap-4 w-full">
+                                                    <div className='flex items-center gap-4'>
+                                                        <Avatar className='h-9 w-9'>
+                                                            <AvatarImage src={chat.user?.photoURL || undefined} />
+                                                            <AvatarFallback>{chat.user?.displayName?.charAt(0) || chat.user?.email?.charAt(0) || 'U'}</AvatarFallback>
+                                                        </Avatar>
+                                                        <div className='flex-1 text-left'>
+                                                            <p className="font-semibold truncate max-w-xs sm:max-w-md">{chat.user?.displayName || chat.user?.email || 'Anonymous'}</p>
+                                                            <p className="text-sm text-muted-foreground">{chat.updatedAt ? format(chat.updatedAt, 'PPP p', { locale }) : ''}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </AccordionTrigger>
-                                        <AccordionContent>
-                                            <ScrollArea className="h-72 w-full rounded-md border p-4 mt-2">
-                                                <div className="space-y-4">
-                                                    {chat.messages.map((message, index) => (
-                                                        <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-start' : 'justify-end')}>
-                                                            {message.role === 'user' && (
-                                                                <Avatar className="h-6 w-6 flex-shrink-0">
-                                                                    <AvatarImage src={chat.user?.photoURL || undefined} />
-                                                                    <AvatarFallback>
-                                                                    <User className="h-4 w-4" />
-                                                                    </AvatarFallback>
-                                                                </Avatar>
-                                                            )}
-                                                            <div className={cn("max-w-xs md:max-w-md rounded-lg px-4 py-2", message.role === 'user' ? 'bg-muted' : 'bg-primary text-primary-foreground')}>
-                                                                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                            </AccordionTrigger>
+                                            <AccordionContent>
+                                                <ScrollArea className="h-72 w-full rounded-md border p-4 mt-2">
+                                                    <div className="space-y-4">
+                                                         {Object.entries(groupedMessages).map(([date, dayMessages]) => (
+                                                            <div key={date}>
+                                                                <DateSeparator date={parseISO(date)} locale={locale} />
+                                                                {dayMessages.map((message, index) => (
+                                                                    <div key={index} className={cn("flex items-start gap-3 mt-4", message.role === 'user' ? 'justify-start' : 'justify-end')}>
+                                                                        {message.role === 'user' && (
+                                                                            <Avatar className="h-6 w-6 flex-shrink-0">
+                                                                                <AvatarImage src={chat.user?.photoURL || undefined} />
+                                                                                <AvatarFallback>
+                                                                                <User className="h-4 w-4" />
+                                                                                </AvatarFallback>
+                                                                            </Avatar>
+                                                                        )}
+                                                                        <div className={cn("max-w-xs md:max-w-md rounded-lg px-4 py-2", message.role === 'user' ? 'bg-muted' : 'bg-primary text-primary-foreground')}>
+                                                                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                                                        </div>
+                                                                        {message.role === 'model' && <Bot className="h-6 w-6 text-primary flex-shrink-0" />}
+                                                                    </div>
+                                                                ))}
                                                             </div>
-                                                            {message.role === 'model' && <Bot className="h-6 w-6 text-primary flex-shrink-0" />}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </ScrollArea>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                ))}
+                                                        ))}
+                                                    </div>
+                                                </ScrollArea>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    )
+                                })}
                             </Accordion>
                             {chats.length === 0 && (
                                 <p className='text-center text-muted-foreground py-8'>{t('noConversationsFound')}</p>

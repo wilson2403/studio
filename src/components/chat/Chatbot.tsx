@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Bot, Send, User, X, Mic, NotebookText, MessageCircle } from 'lucide-react';
@@ -21,10 +21,30 @@ import { transcribeAudio } from '@/ai/flows/speech-to-text-flow';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Textarea } from '../ui/textarea';
-import { format } from 'date-fns';
+import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { EditableTitle } from '../home/EditableTitle';
 import { EditableProvider } from '../home/EditableProvider';
+import { Separator } from '../ui/separator';
+
+const DateSeparator = ({ date, locale }: { date: Date, locale: Locale }) => {
+  let dateText: string;
+  if (isToday(date)) {
+    dateText = 'Hoy';
+  } else if (isYesterday(date)) {
+    dateText = 'Ayer';
+  } else {
+    dateText = format(date, 'PPP', { locale });
+  }
+
+  return (
+    <div className="relative my-4 text-center">
+      <Separator />
+      <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 bg-popover px-2 text-xs text-muted-foreground">{dateText}</span>
+    </div>
+  );
+};
+
 
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -81,7 +101,7 @@ export default function Chatbot() {
                 if (chatHistory?.messages) {
                     setMessages(chatHistory.messages);
                 } else {
-                     setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
+                     setMessages([{ role: 'model', content: t('chatbotWelcome'), createdAt: new Date() as any }]);
                 }
                 
                 const entries = await getDreamEntries(user.uid);
@@ -104,7 +124,7 @@ export default function Chatbot() {
             if(user) {
                 fetchUserData();
             } else {
-                 setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
+                 setMessages([{ role: 'model', content: t('chatbotWelcome'), createdAt: new Date() as any }]);
                  setDreamEntries([]);
             }
         } else {
@@ -124,7 +144,7 @@ export default function Chatbot() {
         e.preventDefault();
         if (!input.trim() || loading) return;
 
-        const userMessage: ChatMessage = { role: 'user', content: input };
+        const userMessage: ChatMessage = { role: 'user', content: input, createdAt: new Date() as any };
         setMessages(prev => [...prev, userMessage]);
         const question = input;
         setInput('');
@@ -145,12 +165,12 @@ export default function Chatbot() {
             });
             
             if (response.answer) {
-                setMessages(prev => [...prev, { role: 'model', content: response.answer }]);
+                setMessages(prev => [...prev, { role: 'model', content: response.answer, createdAt: new Date() as any }]);
             }
 
         } catch (error) {
             console.error("Error with chat flow:", error);
-            setMessages(prev => [...prev, { role: 'model', content: t('chatbotError') }]);
+            setMessages(prev => [...prev, { role: 'model', content: t('chatbotError'), createdAt: new Date() as any }]);
         } finally {
             setLoading(false);
         }
@@ -252,6 +272,19 @@ export default function Chatbot() {
         else setIsDreamRecording(false);
     };
 
+    const groupedMessages = useMemo(() => {
+        return messages.reduce((acc, message) => {
+            const messageDate = message.createdAt?.toDate ? message.createdAt.toDate() : new Date();
+            const dateStr = format(messageDate, 'yyyy-MM-dd');
+            if (!acc[dateStr]) {
+                acc[dateStr] = [];
+            }
+            acc[dateStr].push(message);
+            return acc;
+        }, {} as Record<string, ChatMessage[]>);
+    }, [messages]);
+
+
     return (
         <EditableProvider>
             <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -293,25 +326,30 @@ export default function Chatbot() {
 
                             <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
                                 <div className="space-y-4">
-                                    {messages.map((message, index) => (
-                                        <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-start' : 'justify-start')}>
-                                            {message.role === 'model' ? (
-                                                <Bot className="h-6 w-6 text-primary flex-shrink-0" />
-                                            ) : (
-                                                <Avatar className="h-6 w-6 flex-shrink-0">
-                                                    <AvatarImage src={user?.photoURL || undefined} />
-                                                    <AvatarFallback>
-                                                    <User className="h-4 w-4" />
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                            )}
-                                            <div className={cn("max-w-xs md:max-w-sm rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'bg-transparent border')}>
-                                                <p className="whitespace-pre-wrap">{message.content}</p>
-                                            </div>
+                                     {Object.entries(groupedMessages).map(([date, dayMessages]) => (
+                                        <div key={date}>
+                                            <DateSeparator date={parseISO(date)} locale={locale} />
+                                            {dayMessages.map((message, index) => (
+                                                <div key={index} className={cn("flex items-start gap-3 mt-4", message.role === 'user' ? 'justify-start' : 'justify-start')}>
+                                                    {message.role === 'model' ? (
+                                                        <Bot className="h-6 w-6 text-primary flex-shrink-0" />
+                                                    ) : (
+                                                        <Avatar className="h-6 w-6 flex-shrink-0">
+                                                            <AvatarImage src={user?.photoURL || undefined} />
+                                                            <AvatarFallback>
+                                                            <User className="h-4 w-4" />
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                    )}
+                                                    <div className={cn("max-w-xs md:max-w-sm rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'bg-transparent border')}>
+                                                        <p className="whitespace-pre-wrap">{message.content}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     ))}
                                     {loading && (
-                                        <div className="flex items-start gap-3">
+                                        <div className="flex items-start gap-3 mt-4">
                                             <Bot className="h-6 w-6 text-primary" />
                                             <div className="bg-transparent border rounded-lg px-4 py-2">
                                                 <Skeleton className="h-4 w-10 bg-primary/20" />

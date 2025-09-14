@@ -141,6 +141,7 @@ export type PredefinedTheme = {
 export type ChatMessage = {
     role: 'user' | 'model';
     content: string;
+    createdAt?: Timestamp;
 };
 
 export type Chat = {
@@ -347,3 +348,12 @@ export type Testimonial = {
     createdAt: Date;
     isPublic?: boolean;
 }
+export type DreamEntry = {
+    date: Date;
+    dream: string;
+    interpretation: string;
+    recommendations?: {
+        personal?: string;
+        lucidDreaming?: string[];
+    }
+};
