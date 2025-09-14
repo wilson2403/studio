@@ -27,20 +27,6 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
   const { t, i18n } = useTranslation();
   const [api, setApi] = useState<CarouselApi>();
   const [currentStep, setCurrentStep] = useState(0);
-  const [loadingTranslations, setLoadingTranslations] = useState(true);
-
-  useEffect(() => {
-    // Check if i18next has initialized
-    if (i18n.isInitialized) {
-      setLoadingTranslations(false);
-    } else {
-      const handleInitialized = () => setLoadingTranslations(false);
-      i18n.on('initialized', handleInitialized);
-      return () => {
-        i18n.off('initialized', handleInitialized);
-      };
-    }
-  }, [i18n]);
 
   useEffect(() => {
     if (!api) return;
@@ -88,10 +74,6 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
       onClose();
     }
   };
-
-  if (loadingTranslations) {
-      return null;
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
