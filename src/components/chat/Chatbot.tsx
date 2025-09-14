@@ -15,7 +15,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { v4 as uuidv4 } from 'uuid';
-import { getUserProfile, UserProfile, getDreamEntries, DreamEntry, getChat } from '@/lib/firebase/firestore';
+import { getUserProfile, UserProfile, getChat, getDreamEntries, DreamEntry } from '@/lib/firebase/firestore';
 import { interpretDreamAndGetRecommendations } from '@/ai/flows/dream-interpreter-flow';
 import { transcribeAudio } from '@/ai/flows/speech-to-text-flow';
 import { useToast } from '@/hooks/use-toast';
@@ -71,8 +71,16 @@ export default function Chatbot() {
     useEffect(() => {
         const fetchUserData = async () => {
             if (user?.uid) {
-                // Fetch dreams
+                setLoading(true);
                 setLoadingDreams(true);
+                
+                const chatHistory = await getChat(user.email!);
+                if (chatHistory?.messages) {
+                    setMessages(chatHistory.messages);
+                } else {
+                     setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
+                }
+                
                 const entries = await getDreamEntries(user.uid);
                 setDreamEntries(entries);
                 const tips = new Set<string>();
@@ -80,17 +88,9 @@ export default function Chatbot() {
                     entry.recommendations?.lucidDreaming?.forEach(tip => tips.add(tip));
                 });
                 setLucidDreamingTips(Array.from(tips));
-                setLoadingDreams(false);
-                
-                // Fetch chat history
-                setLoading(true);
-                const chatHistory = await getChat(user.email!);
-                if (chatHistory?.messages) {
-                    setMessages(chatHistory.messages);
-                } else {
-                     setMessages([{ role: 'model', content: t('chatbotWelcome') }]);
-                }
+
                 setLoading(false);
+                setLoadingDreams(false);
             }
         };
 
