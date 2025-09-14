@@ -113,8 +113,13 @@ export const setContent = async (id: string, data: Content): Promise<void> => {
     const docRef = doc(db, 'content', id);
     // Use setDoc with merge: true which will create the document if it doesn't exist,
     // or update it if it does.
-    await setDoc(docRef, { value: data.value, type: data.type, visible: data.visible }, { merge: true });
-    await logUserAction('update_content', { targetId: id, changes: { value: data.value, type: data.type, visible: data.visible } });
+    await setDoc(docRef, { 
+        value: data.value, 
+        type: data.type, 
+        visible: data.visible,
+        page: data.page || null // Ensure page is saved, use null if undefined
+    }, { merge: true });
+    await logUserAction('update_content', { targetId: id, changes: data });
   } catch (error) {
     console.error("Error setting content: ", error);
     logError(error, { function: 'setContent', id, data });
@@ -1332,7 +1337,12 @@ export const importAllData = async (data: BackupData): Promise<void> => {
         data.content.forEach(contentItem => {
             if (contentItem && contentItem.id) {
                 const docRef = doc(db, 'content', contentItem.id);
-                batch.set(docRef, { value: contentItem.value, type: contentItem.type, visible: contentItem.visible });
+                batch.set(docRef, { 
+                    value: contentItem.value, 
+                    type: contentItem.type, 
+                    visible: contentItem.visible,
+                    page: contentItem.page 
+                });
             }
         });
     }
@@ -1801,3 +1811,4 @@ export type { Chat };
 export type { UserProfile };
 export type { DreamEntry };
 export type { Content };
+

@@ -30,6 +30,7 @@ type GroupedContent = {
 
 const newContentSchema = (t: (key: string) => string) => z.object({
   id: z.string().min(1, t('errorRequired')).regex(/^[a-zA-Z0-9_]+$/, t('errorInvalidId')),
+  page: z.string().min(1, t('errorRequired')),
   type: z.enum(['text', 'image_url', 'video_url', 'link_url']),
   es: z.string().min(1, t('errorRequired')),
   en: z.string().min(1, t('errorRequired')),
@@ -54,7 +55,7 @@ export default function AdminContentPage() {
 
     const newContentForm = useForm<NewContentFormValues>({
         resolver: zodResolver(newContentSchema(t)),
-        defaultValues: { id: '', type: 'text', es: '', en: '', visible: true }
+        defaultValues: { id: '', page: '', type: 'text', es: '', en: '', visible: true }
     });
 
     useEffect(() => {
@@ -80,7 +81,7 @@ export default function AdminContentPage() {
             setLoading(true);
             try {
                 const allContent = await getAllContent();
-                setContentItems(allContent.sort((a,b) => a.id.localeCompare(b.id)));
+                setContentItems(allContent.sort((a,b) => (a.page || 'zzz').localeCompare(b.page || 'zzz') || a.id.localeCompare(b.id)));
             } catch (error) {
                 toast({ title: t('errorFetchContent'), variant: 'destructive' });
             } finally {
@@ -93,7 +94,7 @@ export default function AdminContentPage() {
         fetchAllContent();
     }, [fetchAllContent]);
 
-    const handleContentChange = useCallback((id: string, field: 'es' | 'en' | 'single' | 'type' | 'visible', value: string | boolean) => {
+    const handleContentChange = useCallback((id: string, field: 'es' | 'en' | 'single' | 'type' | 'visible' | 'page', value: string | boolean) => {
         setContentItems(prev =>
             prev.map(item => {
                 if (item.id === id) {
@@ -104,6 +105,8 @@ export default function AdminContentPage() {
                         updatedItem.type = value as Content['type'];
                     } else if (field === 'visible') {
                         updatedItem.visible = value as boolean;
+                    } else if (field === 'page') {
+                        updatedItem.page = value as string;
                     } else if (field === 'es' || field === 'en') {
                         const oldValue = typeof item.value === 'object' ? item.value : { es: item.value as string, en: item.value as string };
                         updatedItem.value = { ...oldValue, [field]: value as string };
@@ -137,6 +140,7 @@ export default function AdminContentPage() {
                 value: { es: data.es, en: data.en },
                 type: data.type,
                 visible: data.visible,
+                page: data.page,
             };
             await setContent(data.id, newContentItem);
             toast({ title: t('contentAddedSuccess') });
@@ -155,6 +159,7 @@ export default function AdminContentPage() {
         const filtered = contentItems.filter(item => {
             const search = searchTerm.toLowerCase();
             if (item.id.toLowerCase().includes(search)) return true;
+            if (item.page && item.page.toLowerCase().includes(search)) return true;
             if (typeof item.value === 'string') {
                 return item.value.toLowerCase().includes(search);
             }
@@ -165,7 +170,7 @@ export default function AdminContentPage() {
         });
 
         return filtered.reduce((acc, item) => {
-            const groupName = item.id.split(/[A-Z_.]/)[0] || 'general';
+            const groupName = item.page || 'general';
             if (!acc[groupName]) {
                 acc[groupName] = [];
             }
@@ -214,17 +219,30 @@ export default function AdminContentPage() {
                              <h3 className="text-lg font-semibold mb-4">{t('addNewContent')}</h3>
                              <Form {...newContentForm}>
                                 <form onSubmit={newContentForm.handleSubmit(onNewContentSubmit)} className="space-y-4">
-                                     <FormField
-                                        control={newContentForm.control}
-                                        name="id"
-                                        render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>{t('formVariableId')}</FormLabel>
-                                            <FormControl><Input {...field} placeholder="ejemploContenido" /></FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                        )}
-                                    />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <FormField
+                                            control={newContentForm.control}
+                                            name="id"
+                                            render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t('formVariableId')}</FormLabel>
+                                                <FormControl><Input {...field} placeholder="ejemploContenido" /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={newContentForm.control}
+                                            name="page"
+                                            render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>{t('page')}</FormLabel>
+                                                <FormControl><Input {...field} placeholder="home" /></FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                            )}
+                                        />
+                                    </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <FormField
                                             control={newContentForm.control}
@@ -338,6 +356,14 @@ export default function AdminContentPage() {
                                                             </Button>
                                                         </div>
                                                     </div>
+                                                     <div className="space-y-1">
+                                                        <Label className="text-xs font-bold">{t('page')}</Label>
+                                                        <Input 
+                                                          value={item.page || ''}
+                                                          onChange={(e) => handleContentChange(item.id, 'page', e.target.value)}
+                                                          className="h-8"
+                                                        />
+                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         {isMultiLanguage ? (
                                                             <>
@@ -387,3 +413,4 @@ export default function AdminContentPage() {
         </div>
     )
 }
+

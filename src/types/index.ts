@@ -206,6 +206,7 @@ export type Content = {
     value: string | { es: string; en: string };
     type?: 'text' | 'image_url' | 'video_url' | 'link_url';
     visible?: boolean;
+    page?: string;
 };
 
 export type BackupData = {
@@ -364,3 +365,4 @@ export type DreamEntry = {
         lucidDreaming?: string[];
     }
 };
+
