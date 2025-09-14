@@ -204,6 +204,12 @@ export const en = {
     typeYourMessage: 'Type your message...',
     send: 'Send',
     chatbotError: 'I\'m sorry, I\'m having trouble connecting right now. Please try again later or contact a human guide.',
+    recording: 'Recording...',
+    transcribing: 'Transcribing...',
+    microphoneErrorTitle: 'Microphone Error',
+    microphoneErrorDescription: 'Could not access the microphone. Please check the permissions in your browser.',
+    transcriptionErrorTitle: 'Transcription Error',
+    transcriptionErrorDescription: 'Could not transcribe the audio. Please try again.',
     // My Chats Page
     myChatsTitle: 'My Chats',
     myChatsSubtitle: 'Review your past conversations with our spiritual guide.',
@@ -736,4 +742,5 @@ export const en = {
     migrationTitle: 'Content Migration',
     language: 'Language',
 };
+
 

@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Bot, Send, User, X } from 'lucide-react';
+import { Bot, Send, User, X, Mic } from 'lucide-react';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -15,6 +16,8 @@ import { auth } from '@/lib/firebase/config';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { v4 as uuidv4 } from 'uuid';
 import { getUserProfile, UserProfile } from '@/lib/firebase/firestore';
+import { transcribeAudio } from '@/ai/flows/speech-to-text-flow';
+import { useToast } from '@/hooks/use-toast';
 
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -26,6 +29,10 @@ export default function Chatbot() {
     const [chatId, setChatId] = useState<string | null>(null);
     const { t } = useTranslation();
     const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const [isRecording, setIsRecording] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+    const { toast } = useToast();
 
      useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -58,6 +65,9 @@ export default function Chatbot() {
             // Reset on close
             setMessages([]);
             setChatId(null);
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+                mediaRecorderRef.current.stop();
+            }
         }
     }, [isOpen, t]);
 
@@ -91,6 +101,49 @@ export default function Chatbot() {
             setMessages(prev => [...prev, { role: 'model', content: t('chatbotError') }]);
         } finally {
             setLoading(false);
+        }
+    };
+    
+    const handleAudioRecording = async () => {
+        if (isRecording) {
+            mediaRecorderRef.current?.stop();
+            setIsRecording(false);
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                audioChunksRef.current.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = async () => {
+                    const base64Audio = reader.result as string;
+                    try {
+                        setInput(t('transcribing'));
+                        const { transcription } = await transcribeAudio(base64Audio);
+                        setInput(transcription);
+                    } catch (error) {
+                        toast({ title: t('transcriptionErrorTitle'), description: t('transcriptionErrorDescription'), variant: 'destructive' });
+                        setInput('');
+                    }
+                };
+                 stream.getTracks().forEach(track => track.stop());
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+        } catch (error) {
+            console.error("Error accessing microphone:", error);
+            toast({ title: t('microphoneErrorTitle'), description: t('microphoneErrorDescription'), variant: 'destructive' });
         }
     };
 
@@ -160,10 +213,13 @@ export default function Chatbot() {
                         <Input
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder={t('typeYourMessage')}
+                            placeholder={isRecording ? t('recording') : t('typeYourMessage')}
                             autoComplete="off"
                             disabled={loading}
                         />
+                         <Button type="button" size="icon" variant={isRecording ? 'destructive' : 'outline'} onClick={handleAudioRecording}>
+                            <Mic className="h-4 w-4" />
+                         </Button>
                         <Button type="submit" size="icon" disabled={loading || !input.trim()}>
                             <Send className="h-4 w-4" />
                         </Button>
@@ -173,3 +229,4 @@ export default function Chatbot() {
         </Popover>
     );
 }
+

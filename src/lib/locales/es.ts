@@ -204,6 +204,12 @@ export const es = {
     typeYourMessage: 'Escribe tu mensaje...',
     send: 'Enviar',
     chatbotError: 'Lo siento, estoy teniendo problemas para conectarme en este momento. Por favor, inténtalo de nuevo más tarde o contacta a un guía humano.',
+    recording: 'Grabando...',
+    transcribing: 'Transcribiendo...',
+    microphoneErrorTitle: 'Error de Micrófono',
+    microphoneErrorDescription: 'No se pudo acceder al micrófono. Por favor, revisa los permisos en tu navegador.',
+    transcriptionErrorTitle: 'Error de Transcripción',
+    transcriptionErrorDescription: 'No se pudo transcribir el audio. Por favor, intenta de nuevo.',
     // My Chats Page
     myChatsTitle: 'Mis Chats',
     myChatsSubtitle: 'Revisa tus conversaciones pasadas con nuestro guía espiritual.',
@@ -736,4 +742,5 @@ export const es = {
     migrationTitle: 'Migración de Contenido',
     language: 'Idioma',
 };
+
 

@@ -4,3 +4,4 @@ import './flows/email-flow';
 import './flows/chat-flow';
 import './flows/settings-flow';
 import './flows/testimonial-flow';
+import './flows/speech-to-text-flow';
