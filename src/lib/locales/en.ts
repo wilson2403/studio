@@ -393,11 +393,19 @@ export const en = {
     errorDeletingAllLogs: 'Error deleting all logs.',
     errorFetchLogs: 'Error fetching logs.',
     // Chat History Page
+    interactionHistoryTitle: 'Interaction History',
+    interactionHistorySubtitle: 'Review user interactions with the AI assistant.',
     chatHistoryTitle: 'Chat History',
     chatHistorySubtitle: 'Review conversations between users and the AI guide.',
     allConversations: 'All Conversations',
     allConversationsDescription: 'Browse the chat history of all users.',
     noConversationsFound: 'No conversations found.',
+    conversationsTab: 'Conversations',
+    dreamsTab: 'Dream Interpretations',
+    allDreamEntries: 'All Dream Entries',
+    allDreamEntriesDescription: 'Browse all dream and experience interpretations from users.',
+    noDreamEntriesAdmin: 'No dream entries have been recorded by users yet.',
+    userDream: "User's Dream/Experience",
     // Courses Page
     authRequiredCoursesTitle: 'Access to Courses',
     authRequiredCoursesDescription: 'To view the preparation material, please sign in or create an account.',
@@ -776,6 +784,7 @@ export const en = {
     migrationTitle: 'Content Migration',
     language: 'Language',
 };
+
 
 
 

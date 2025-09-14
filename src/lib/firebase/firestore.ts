@@ -1,6 +1,6 @@
 
 
-import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, updateDoc, addDoc, deleteDoc, getDoc, query, serverTimestamp, writeBatch, where, orderBy, increment, arrayUnion, arrayRemove, limit, collectionGroup, Timestamp } from 'firebase/firestore';
 import { db, storage } from './config';
 import type { Ceremony, Guide, UserProfile, ThemeSettings, Chat, ChatMessage, QuestionnaireAnswers, UserStatus, ErrorLog, InvitationMessage, BackupData, SectionClickLog, SectionAnalytics, Course, VideoProgress, UserRole, AuditLog, CeremonyInvitationMessage, Testimonial, ShareMemoryMessage, EnvironmentSettings, PredefinedTheme, DreamEntry } from '@/types';
 import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
@@ -818,11 +818,17 @@ export const deletePredefinedTheme = async (themeId: string): Promise<void> => {
 export const hasChats = async (userId: string): Promise<boolean> => {
     if (!userId) return false;
     try {
-        const q = query(chatsCollection, where('user.uid', '==', userId), limit(1));
-        const snapshot = await getDocs(q);
-        return !snapshot.empty;
+        const chatQuery = query(chatsCollection, where('user.uid', '==', userId), limit(1));
+        const chatSnapshot = await getDocs(chatQuery);
+        if (!chatSnapshot.empty) return true;
+
+        const dreamJournalCollection = collection(db, `users/${userId}/dreamJournal`);
+        const dreamQuery = query(dreamJournalCollection, limit(1));
+        const dreamSnapshot = await getDocs(dreamQuery);
+        return !dreamSnapshot.empty;
+
     } catch (e) {
-        console.error("Error checking for user chats:", e);
+        console.error("Error checking for user interactions:", e);
         logError(e, { function: 'hasChats', userId });
         return false;
     }
@@ -1737,6 +1743,50 @@ export const getDreamEntries = async (uid: string): Promise<DreamEntry[]> => {
         return [];
     }
 };
+
+export const getAllDreamEntries = async (): Promise<(DreamEntry & { id: string; user: UserProfile })[]> => {
+  try {
+    const dreamJournalGroup = collectionGroup(db, 'dreamJournal');
+    const q = query(dreamJournalGroup, orderBy('date', 'desc'));
+    const snapshot = await getDocs(q);
+
+    const entriesWithUsers: (DreamEntry & { id: string; user: UserProfile })[] = [];
+
+    // Create a map to cache user profiles and avoid fetching the same user multiple times
+    const userProfileCache = new Map<string, UserProfile | null>();
+
+    for (const entryDoc of snapshot.docs) {
+      const entryData = entryDoc.data() as Omit<DreamEntry, 'date'> & { date: Timestamp };
+      const userDocRef = entryDoc.ref.parent.parent; // user document is the parent of the 'dreamJournal' collection
+
+      if (userDocRef) {
+        const userId = userDocRef.id;
+        let userProfile = userProfileCache.get(userId);
+
+        if (userProfile === undefined) { // Check for undefined, as null is a valid cached value
+          userProfile = await getUserProfile(userId);
+          userProfileCache.set(userId, userProfile);
+        }
+        
+        if (userProfile) {
+          entriesWithUsers.push({
+            id: entryDoc.id,
+            ...entryData,
+            date: entryData.date.toDate(),
+            user: userProfile,
+          });
+        }
+      }
+    }
+    
+    return entriesWithUsers;
+  } catch (error) {
+    console.error("Error getting all dream entries:", error);
+    logError(error, { function: 'getAllDreamEntries' });
+    return [];
+  }
+};
+
 
 export type { Chat };
 export type { UserProfile };

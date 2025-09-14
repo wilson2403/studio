@@ -393,11 +393,19 @@ export const es = {
     errorDeletingAllLogs: 'Error al eliminar todos los registros.',
     errorFetchLogs: 'Error al cargar los registros.',
     // Chat History Page
+    interactionHistoryTitle: 'Historial de Interacciones',
+    interactionHistorySubtitle: 'Revisa las interacciones de los usuarios con el asistente de IA.',
     chatHistoryTitle: 'Historial de Chats',
     chatHistorySubtitle: 'Revisa las conversaciones entre los usuarios y el guía de IA.',
     allConversations: 'Todas las Conversaciones',
     allConversationsDescription: 'Explora el historial de chats de todos los usuarios.',
     noConversationsFound: 'No se encontraron conversaciones.',
+    conversationsTab: 'Conversaciones',
+    dreamsTab: 'Interpretaciones de Sueños',
+    allDreamEntries: 'Todos los Registros de Sueños',
+    allDreamEntriesDescription: 'Explora todas las interpretaciones de sueños y experiencias de los usuarios.',
+    noDreamEntriesAdmin: 'Los usuarios aún no han registrado ninguna entrada de sueños.',
+    userDream: "Sueño/Experiencia del Usuario",
     // Courses Page
     authRequiredCoursesTitle: 'Acceso a Cursos',
     authRequiredCoursesDescription: 'Para ver el material de preparación, por favor inicia sesión o crea una cuenta.',
@@ -776,6 +784,7 @@ export const es = {
     migrationTitle: 'Migración de Contenido',
     language: 'Idioma',
 };
+
 
 
 
