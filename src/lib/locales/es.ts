@@ -25,7 +25,7 @@ export const es = {
     tutorialSkip: 'Omitir',
     tutorialSlideSpiritualGuideTitle: 'Guía Espiritual IA',
     tutorialSlideSpiritualGuideDescription: 'Haz preguntas sobre ceremonias, preparación o medicina ancestral. Nuestra IA está para asistirte al instante.',
-    tutorialSlideDreamInterpreterTitle: 'Intérprete de Sueños',
+    tutorialSlideDreamInterpreterTitle: 'Intérprete de Sueños y Experiencias',
     tutorialSlideDreamInterpreterDescription: 'Registra tus sueños y experiencias espirituales. Nuestra IA te ayudará a encontrar significado y te dará recomendaciones personales.',
     tutorialSlidePreparationTitle: 'Preparación Personalizada',
     tutorialSlidePreparationDescription: 'Completa un breve cuestionario para recibir una guía paso a paso para tu preparación física y mental.',
@@ -226,9 +226,9 @@ export const es = {
     microphoneErrorDescription: 'No se pudo acceder al micrófono. Por favor, revisa los permisos en tu navegador.',
     transcriptionErrorTitle: 'Error de Transcripción',
     transcriptionErrorDescription: 'No se pudo transcribir el audio. Por favor, intenta de nuevo.',
-    dreamInterpreter: 'Intérprete de Sueños',
-    dreamInterpreterDescription: 'Registra y analiza tus sueños y experiencias.',
-    dreamInputPlaceholder: 'Describe tu sueño o experiencia aquí...',
+    dreamInterpreter: 'Intérprete de Experiencias y Sueños',
+    dreamInterpreterDescription: 'Registra y analiza tus sueños y experiencias espirituales.',
+    dreamInputPlaceholder: 'Describe aquí tu sueño o experiencia...',
     interpretDream: 'Interpretar',
     interpreting: 'Interpretando...',
     dreamInterpretationError: 'Error al interpretar el sueño. Por favor, inténtalo de nuevo.',
@@ -776,6 +776,7 @@ export const es = {
     migrationTitle: 'Migración de Contenido',
     language: 'Idioma',
 };
+
 
 
 

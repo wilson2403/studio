@@ -25,7 +25,7 @@ export const en = {
     tutorialSkip: 'Skip',
     tutorialSlideSpiritualGuideTitle: 'AI Spiritual Guide',
     tutorialSlideSpiritualGuideDescription: 'Ask questions about ceremonies, preparation, or ancestral medicine. Our AI is here to assist you instantly.',
-    tutorialSlideDreamInterpreterTitle: 'Dream Interpreter',
+    tutorialSlideDreamInterpreterTitle: 'Dream & Experience Interpreter',
     tutorialSlideDreamInterpreterDescription: 'Record your dreams and spiritual experiences. Our AI will help you find meaning and give you personalized recommendations.',
     tutorialSlidePreparationTitle: 'Personalized Preparation',
     tutorialSlidePreparationDescription: 'Complete a brief questionnaire to receive a step-by-step guide for your physical and mental preparation.',
@@ -226,8 +226,8 @@ export const en = {
     microphoneErrorDescription: 'Could not access the microphone. Please check the permissions in your browser.',
     transcriptionErrorTitle: 'Transcription Error',
     transcriptionErrorDescription: 'Could not transcribe the audio. Please try again.',
-    dreamInterpreter: 'Dream Interpreter',
-    dreamInterpreterDescription: 'Record and analyze your dreams and experiences.',
+    dreamInterpreter: 'Interpreter of Experiences and Dreams',
+    dreamInterpreterDescription: 'Record and analyze your dreams and spiritual experiences.',
     dreamInputPlaceholder: 'Describe your dream or experience here...',
     interpretDream: 'Interpret',
     interpreting: 'Interpreting...',
@@ -776,6 +776,7 @@ export const en = {
     migrationTitle: 'Content Migration',
     language: 'Language',
 };
+
 
 
 
