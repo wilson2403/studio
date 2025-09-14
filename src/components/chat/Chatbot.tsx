@@ -61,7 +61,7 @@ export default function Chatbot() {
                 setLoading(false);
             }, 1000);
             
-            if (user?.email) {
+             if (user?.email) {
                 setChatId(user.email);
             } else {
                 setChatId(uuidv4());
@@ -93,6 +93,7 @@ export default function Chatbot() {
                 setChatId(newId);
                 currentChatId = newId;
             }
+            console.log('Using chatId:', currentChatId);
 
             const response = await continueChat({
                 chatId: currentChatId,
@@ -112,13 +113,8 @@ export default function Chatbot() {
         }
     };
     
-    const handleAudioRecording = async () => {
-        if (isRecording) {
-            mediaRecorderRef.current?.stop();
-            setIsRecording(false);
-            return;
-        }
-
+     const startRecording = async () => {
+        if (isRecording) return;
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const mediaRecorder = new MediaRecorder(stream);
@@ -144,7 +140,7 @@ export default function Chatbot() {
                         setInput('');
                     }
                 };
-                 stream.getTracks().forEach(track => track.stop());
+                stream.getTracks().forEach(track => track.stop());
             };
 
             mediaRecorder.start();
@@ -153,6 +149,13 @@ export default function Chatbot() {
             console.error("Error accessing microphone:", error);
             toast({ title: t('microphoneErrorTitle'), description: t('microphoneErrorDescription'), variant: 'destructive' });
         }
+    };
+
+    const stopRecording = () => {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+            mediaRecorderRef.current.stop();
+        }
+        setIsRecording(false);
     };
 
     return (
@@ -225,7 +228,15 @@ export default function Chatbot() {
                             autoComplete="off"
                             disabled={loading}
                         />
-                         <Button type="button" size="icon" variant={isRecording ? 'destructive' : 'outline'} onClick={handleAudioRecording}>
+                         <Button 
+                            type="button" 
+                            size="icon" 
+                            variant={isRecording ? 'destructive' : 'outline'} 
+                            onMouseDown={startRecording}
+                            onMouseUp={stopRecording}
+                            onTouchStart={startRecording}
+                            onTouchEnd={stopRecording}
+                         >
                             <Mic className="h-4 w-4" />
                          </Button>
                         <Button type="submit" size="icon" disabled={loading || !input.trim()}>
