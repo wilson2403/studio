@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import {
@@ -17,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { EditableTitle } from '../home/EditableTitle';
 
 interface TutorialDialogProps {
   isOpen: boolean;
@@ -79,8 +79,8 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md p-0 flex flex-col">
         <DialogHeader className="p-6 text-center">
-          <DialogTitle>{t('tutorialTitle')}</DialogTitle>
-          <DialogDescription>{t('tutorialDescription')}</DialogDescription>
+            <EditableTitle tag="h2" id="tutorialTitle" initialValue={t('tutorialTitle')} className="text-lg font-semibold" />
+            <EditableTitle tag="p" id="tutorialDescription" initialValue={t('tutorialDescription')} className="text-sm text-muted-foreground" />
         </DialogHeader>
         <div className="flex-grow flex flex-col">
             <Carousel setApi={setApi} className='w-full'>
@@ -94,8 +94,8 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
                       <div className="p-2 bg-primary/10 rounded-full mb-4">
                         <slide.icon className="h-8 w-8 text-primary" />
                       </div>
-                      <h3 className="text-xl font-bold mb-2">{t(slide.titleKey)}</h3>
-                      <p className="text-muted-foreground text-sm">{t(slide.descriptionKey)}</p>
+                      <EditableTitle tag="h3" id={slide.titleKey} initialValue={t(slide.titleKey)} className="text-xl font-bold mb-2" />
+                      <EditableTitle tag="p" id={slide.descriptionKey} initialValue={t(slide.descriptionKey)} className="text-muted-foreground text-sm" />
                     </div>
                   </CarouselItem>
                 ))}
@@ -111,11 +111,11 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
             <div className="flex gap-2">
                 {currentStep < tutorialSlides.length - 1 ? (
                     <>
-                        <Button variant="ghost" onClick={onClose}>{t('tutorialSkip')}</Button>
-                        <Button onClick={() => api?.scrollNext()}>{t('tutorialNext')}</Button>
+                        <Button variant="ghost" onClick={onClose}><EditableTitle tag="span" id="tutorialSkip" initialValue={t('tutorialSkip')} isInsideButton/></Button>
+                        <Button onClick={() => api?.scrollNext()}><EditableTitle tag="span" id="tutorialNext" initialValue={t('tutorialNext')} isInsideButton/></Button>
                     </>
                 ) : (
-                    <Button onClick={onClose} className="w-full">{t('tutorialDone')}</Button>
+                    <Button onClick={onClose} className="w-full"><EditableTitle tag="span" id="tutorialDone" initialValue={t('tutorialDone')} isInsideButton/></Button>
                 )}
             </div>
         </DialogFooter>

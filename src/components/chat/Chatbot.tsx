@@ -23,6 +23,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { Textarea } from '../ui/textarea';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
+import { EditableTitle } from '../home/EditableTitle';
+import { useEditable } from '../home/EditableProvider';
 
 export default function Chatbot() {
     const [isOpen, setIsOpen] = useState(false);
@@ -33,6 +35,7 @@ export default function Chatbot() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [chatId, setChatId] = useState<string | null>(null);
     const { t, i18n } = useTranslation();
+    const { content, fetchContent } = useEditable();
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const [isRecording, setIsRecording] = useState(false);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -48,6 +51,13 @@ export default function Chatbot() {
     const [isDreamRecording, setIsDreamRecording] = useState(false);
 
     const locale = i18n.language === 'es' ? es : enUS;
+
+    useEffect(() => {
+        fetchContent('dreamInputPlaceholder', 'Describe aquí tu sueño o experiencia...');
+    }, [fetchContent]);
+
+    const dreamInputPlaceholder = content.dreamInputPlaceholder || t('dreamInputPlaceholder');
+
 
      useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -267,8 +277,8 @@ export default function Chatbot() {
             >
                 <Tabs defaultValue="guide" className="w-full h-full flex flex-col">
                     <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="guide"><MessageCircle className="mr-2"/>{t('spiritualGuide')}</TabsTrigger>
-                        <TabsTrigger value="interpreter"><NotebookText className="mr-2"/>{t('dreamInterpreter')}</TabsTrigger>
+                        <TabsTrigger value="guide"><MessageCircle className="mr-2"/><EditableTitle tag="span" id="spiritualGuide" initialValue={t('spiritualGuide')} /></TabsTrigger>
+                        <TabsTrigger value="interpreter"><NotebookText className="mr-2"/><EditableTitle tag="span" id="dreamInterpreter" initialValue={t('dreamInterpreter')} /></TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="guide" className="flex-1 flex flex-col min-h-0">
@@ -278,8 +288,8 @@ export default function Chatbot() {
                                 <Bot className="h-6 w-6 text-primary" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-headline">{t('spiritualGuide')}</h3>
-                                    <p className="text-sm text-muted-foreground">{t('online')}</p>
+                                    <EditableTitle tag="h3" id="spiritualGuide" initialValue={t('spiritualGuide')} className="text-lg font-headline" />
+                                    <EditableTitle tag="p" id="online" initialValue={t('online')} className="text-sm text-muted-foreground" />
                                 </div>
                             </div>
                             <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
@@ -346,8 +356,8 @@ export default function Chatbot() {
                     
                     <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
                         <div className="flex-shrink-0 p-4 border-b text-center">
-                            <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
-                            <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
+                            <EditableTitle tag="h3" id="dreamInterpreter" initialValue={t('dreamInterpreter')} className="text-lg font-headline" />
+                            <EditableTitle tag="p" id="dreamInterpreterDescription" initialValue={t('dreamInterpreterDescription')} className="text-sm text-muted-foreground" />
                         </div>
                         <ScrollArea className="flex-1 p-4">
                             <div className="space-y-4">
@@ -383,7 +393,7 @@ export default function Chatbot() {
                         <div className="flex-shrink-0 p-4 border-t space-y-2">
                             <div className="relative">
                             <Textarea 
-                                placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
+                                placeholder={isDreamRecording ? t('recording') : (typeof dreamInputPlaceholder === 'string' ? dreamInputPlaceholder : '')}
                                 value={dreamInput}
                                 onChange={(e) => setDreamInput(e.target.value)}
                                 rows={3}
@@ -403,7 +413,7 @@ export default function Chatbot() {
                             </Button>
                         </div>
                         <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
-                            {isInterpreting ? t('interpreting') : t('interpretDream')}
+                           <EditableTitle tag="span" id="interpretDream" initialValue={t('interpretDream')} isInsideButton />
                         </Button>
                         </div>
                     </TabsContent>
@@ -412,5 +422,3 @@ export default function Chatbot() {
         </Popover>
     );
 }
-
-    
