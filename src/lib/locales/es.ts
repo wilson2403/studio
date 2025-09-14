@@ -16,6 +16,7 @@ export const es = {
     changeLanguage: 'Cambiar idioma',
     editProfileTitle: 'Editar Perfil',
     help: 'Ayuda',
+    myInterpreter: 'Mi Intérprete',
     // Tutorial
     tutorialTitle: '¡Bienvenido a El Arte de Sanar!',
     tutorialDescription: 'Aquí tienes una guía rápida para empezar tu viaje.',
@@ -248,6 +249,12 @@ export const es = {
     lastMessageOn: 'Último mensaje a las {{time}}',
     continueDialog: 'Continuar Conversación',
     backToHistory: 'Volver al historial de chats',
+    // My Dreams Page
+    myDreamsTitle: 'Mi Diario de Sueños',
+    myDreamsSubtitle: 'Un espacio para explorar los mensajes de tu subconsciente.',
+    myDreamsDescription: 'Aquí están tus sueños registrados y sus interpretaciones.',
+    noDreamsFound: 'Aún no has registrado ningún sueño.',
+    goToInterpreter: 'Ir al Intérprete',
     // Admin
     adminPanel: 'Panel de Administración',
     adminPanelSubtitle: 'Gestiona el contenido, los usuarios y la configuración de la aplicación.',
@@ -769,6 +776,7 @@ export const es = {
     migrationTitle: 'Migración de Contenido',
     language: 'Idioma',
 };
+
 
 
 

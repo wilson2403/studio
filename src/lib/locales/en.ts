@@ -16,6 +16,7 @@ export const en = {
     changeLanguage: 'Change language',
     editProfileTitle: 'Edit Profile',
     help: 'Help',
+    myInterpreter: 'My Interpreter',
     // Tutorial
     tutorialTitle: 'Welcome to The Art of Healing!',
     tutorialDescription: 'Here’s a quick guide to help you get started on your journey.',
@@ -248,6 +249,12 @@ export const en = {
     lastMessageOn: 'Last message at {{time}}',
     continueDialog: 'Continue Conversation',
     backToHistory: 'Back to chat history',
+    // My Dreams Page
+    myDreamsTitle: 'My Dream Journal',
+    myDreamsSubtitle: 'A space to explore the messages from your subconscious.',
+    myDreamsDescription: 'Here are your recorded dreams and their interpretations.',
+    noDreamsFound: 'You have not recorded any dreams yet.',
+    goToInterpreter: 'Go to Interpreter',
     // Admin
     adminPanel: 'Admin Panel',
     adminPanelSubtitle: 'Manage the application\'s content, users, and settings.',
@@ -769,6 +776,7 @@ export const en = {
     migrationTitle: 'Content Migration',
     language: 'Language',
 };
+
 
 
 

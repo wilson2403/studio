@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, HelpCircle, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2, FileText, Anchor } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, HelpCircle, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2, FileText, Anchor, NotebookText } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -235,6 +235,10 @@ export default function Header() {
                 <Bot className="mr-2 h-4 w-4" />
                 <span>{t('myChatsTitle')}</span>
             </DropdownMenuItem>
+             <DropdownMenuItem onMouseDown={() => router.push('/dreams')}>
+                <NotebookText className="mr-2 h-4 w-4" />
+                <span>{t('myInterpreter')}</span>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsTutorialOpen(true)}>
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>{t('help')}</span>
@@ -403,6 +407,12 @@ export default function Header() {
                               </Link>
                           </SheetClose>
                           <SheetClose asChild>
+                              <Link href="/dreams" className="transition-colors hover:text-primary flex items-center gap-2">
+                                  <NotebookText className="h-5 w-5" />
+                                  {t('myInterpreter')}
+                              </Link>
+                          </SheetClose>
+                          <SheetClose asChild>
                               <button onClick={() => setIsTutorialOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
                                   <HelpCircle className="h-5 w-5" />
                                   <span>{t('help')}</span>
@@ -476,4 +486,5 @@ export default function Header() {
     </>
   );
 }
+
 
