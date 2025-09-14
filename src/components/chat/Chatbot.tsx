@@ -45,6 +45,7 @@ export default function Chatbot() {
     const [isInterpreting, setIsInterpreting] = useState(false);
     const [loadingDreams, setLoadingDreams] = useState(false);
     const [lucidDreamingTips, setLucidDreamingTips] = useState<string[]>([]);
+    const [isDreamRecording, setIsDreamRecording] = useState(false);
 
     const locale = i18n.language === 'es' ? es : enUS;
 
@@ -185,8 +186,8 @@ export default function Chatbot() {
         }
     }
     
-     const startRecording = async () => {
-        if (isRecording) return;
+     const startRecording = async (target: 'chat' | 'dream') => {
+        if (isRecording || isDreamRecording) return;
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const mediaRecorder = new MediaRecorder(stream);
@@ -204,30 +205,42 @@ export default function Chatbot() {
                 reader.onloadend = async () => {
                     const base64Audio = reader.result as string;
                     try {
-                        setInput(t('transcribing'));
+                        if (target === 'chat') {
+                            setInput(t('transcribing'));
+                        } else {
+                            setDreamInput(t('transcribing'));
+                        }
                         const { transcription } = await transcribeAudio(base64Audio);
-                        setInput(transcription);
+                        if (target === 'chat') {
+                            setInput(transcription);
+                        } else {
+                            setDreamInput(transcription);
+                        }
                     } catch (error) {
                         toast({ title: t('transcriptionErrorTitle'), description: t('transcriptionErrorDescription'), variant: 'destructive' });
-                        setInput('');
+                        if (target === 'chat') setInput('');
+                        else setDreamInput('');
                     }
                 };
                 stream.getTracks().forEach(track => track.stop());
             };
 
             mediaRecorder.start();
-            setIsRecording(true);
+            if (target === 'chat') setIsRecording(true);
+            else setIsDreamRecording(true);
+
         } catch (error) {
             console.error("Error accessing microphone:", error);
             toast({ title: t('microphoneErrorTitle'), description: t('microphoneErrorDescription'), variant: 'destructive' });
         }
     };
 
-    const stopRecording = () => {
+    const stopRecording = (target: 'chat' | 'dream') => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
             mediaRecorderRef.current.stop();
         }
-        setIsRecording(false);
+        if (target === 'chat') setIsRecording(false);
+        else setIsDreamRecording(false);
     };
 
     return (
@@ -311,10 +324,10 @@ export default function Chatbot() {
                                     type="button" 
                                     size="icon" 
                                     variant={isRecording ? 'destructive' : 'outline'} 
-                                    onMouseDown={startRecording}
-                                    onMouseUp={stopRecording}
-                                    onTouchStart={startRecording}
-                                    onTouchEnd={stopRecording}
+                                    onMouseDown={() => startRecording('chat')}
+                                    onMouseUp={() => stopRecording('chat')}
+                                    onTouchStart={() => startRecording('chat')}
+                                    onTouchEnd={() => stopRecording('chat')}
                                 >
                                     <Mic className="h-4 w-4" />
                                 </Button>
@@ -331,12 +344,27 @@ export default function Chatbot() {
                             <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
                          </div>
                          <div className="flex-1 flex flex-col p-4 gap-4">
-                            <Textarea 
-                                placeholder={t('dreamInputPlaceholder')}
-                                value={dreamInput}
-                                onChange={(e) => setDreamInput(e.target.value)}
-                                rows={4}
-                            />
+                            <div className="relative">
+                                <Textarea 
+                                    placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
+                                    value={dreamInput}
+                                    onChange={(e) => setDreamInput(e.target.value)}
+                                    rows={4}
+                                    className="pr-12"
+                                />
+                                 <Button 
+                                    type="button" 
+                                    size="icon" 
+                                    variant={isDreamRecording ? 'destructive' : 'ghost'} 
+                                    className="absolute right-2 bottom-2"
+                                    onMouseDown={() => startRecording('dream')}
+                                    onMouseUp={() => stopRecording('dream')}
+                                    onTouchStart={() => startRecording('dream')}
+                                    onTouchEnd={() => stopRecording('dream')}
+                                >
+                                    <Mic className="h-4 w-4" />
+                                </Button>
+                            </div>
                             <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()}>
                                 {isInterpreting ? t('interpreting') : t('interpretDream')}
                             </Button>
@@ -379,3 +407,4 @@ export default function Chatbot() {
         </Popover>
     );
 }
+

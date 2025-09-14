@@ -15,6 +15,21 @@ export const es = {
     signOut: 'Cerrar Sesión',
     changeLanguage: 'Cambiar idioma',
     editProfileTitle: 'Editar Perfil',
+    help: 'Ayuda',
+    // Tutorial
+    tutorialTitle: '¡Bienvenido a El Arte de Sanar!',
+    tutorialDescription: 'Aquí tienes una guía rápida para empezar tu viaje.',
+    tutorialNext: 'Siguiente',
+    tutorialDone: 'Hecho',
+    tutorialSkip: 'Omitir',
+    tutorialSlideSpiritualGuideTitle: 'Guía Espiritual IA',
+    tutorialSlideSpiritualGuideDescription: 'Haz preguntas sobre ceremonias, preparación o medicina ancestral. Nuestra IA está para asistirte al instante.',
+    tutorialSlideDreamInterpreterTitle: 'Intérprete de Sueños',
+    tutorialSlideDreamInterpreterDescription: 'Registra tus sueños y experiencias espirituales. Nuestra IA te ayudará a encontrar significado y te dará recomendaciones personales.',
+    tutorialSlidePreparationTitle: 'Preparación Personalizada',
+    tutorialSlidePreparationDescription: 'Completa un breve cuestionario para recibir una guía paso a paso para tu preparación física y mental.',
+    tutorialSlideCommunityTitle: 'Conecta con la Comunidad',
+    tutorialSlideCommunityDescription: 'Explora las ceremonias pasadas y futuras, e inscríbete para unirte a una experiencia única de conexión y sanación.',
     // Hero
     heroTitle: 'Un Encuentro Sagrado con Medicinas Ancestrales',
     heroSubtitle: 'Descubre cómo la Ayahuasca puede transformar tu vida, brindándote claridad, sanación emocional y una renovada conexión con el universo. Únete a nosotros en esta experiencia transformadora, donde la tradición se encuentra con la guía experta para un viaje inolvidable.',
@@ -754,6 +769,7 @@ export const es = {
     migrationTitle: 'Migración de Contenido',
     language: 'Idioma',
 };
+
 
 
 

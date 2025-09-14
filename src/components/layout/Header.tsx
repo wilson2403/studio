@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, Palette, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2, FileText, Anchor } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, HelpCircle, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2, FileText, Anchor } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -40,8 +40,9 @@ import { Badge } from '../ui/badge';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
+import TutorialDialog from './TutorialDialog';
 
-const APP_VERSION = '3.1';
+const APP_VERSION = '3.2';
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type NavLinkDef = {
@@ -57,6 +58,7 @@ export default function Header() {
   const { user, userProfile, loading } = useAuth();
   const [navLoading, setNavLoading] = useState(true);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const [newErrorCount, setNewErrorCount] = useState(0);
   const [navSettings, setNavSettings] = useState<SystemSettings['navLinks'] | null>(null);
@@ -101,6 +103,17 @@ export default function Header() {
 
     fetchNavSettings();
   }, []);
+  
+  useEffect(() => {
+    // Show tutorial on first visit after login
+    if (user && !loading) {
+      const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
+      if (!hasSeenTutorial) {
+        setIsTutorialOpen(true);
+        localStorage.setItem('hasSeenTutorial', 'true');
+      }
+    }
+  }, [user, loading]);
 
   useEffect(() => {
         if (isAdmin) {
@@ -221,6 +234,10 @@ export default function Header() {
             <DropdownMenuItem onMouseDown={() => router.push('/chats')}>
                 <Bot className="mr-2 h-4 w-4" />
                 <span>{t('myChatsTitle')}</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsTutorialOpen(true)}>
+                <HelpCircle className="mr-2 h-4 w-4" />
+                <span>{t('help')}</span>
             </DropdownMenuItem>
             {(isAdmin || organizerHasPerms) && (
               <>
@@ -385,6 +402,12 @@ export default function Header() {
                                   {t('myChatsTitle')}
                               </Link>
                           </SheetClose>
+                          <SheetClose asChild>
+                              <button onClick={() => setIsTutorialOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
+                                  <HelpCircle className="h-5 w-5" />
+                                  <span>{t('help')}</span>
+                              </button>
+                          </SheetClose>
                         </>
                       )}
                       {(isAdmin || organizerHasPerms) && (
@@ -446,6 +469,11 @@ export default function Header() {
           isOpen={isProfileDialogOpen}
           onClose={() => setIsProfileDialogOpen(false)}
       />
+      <TutorialDialog 
+          isOpen={isTutorialOpen}
+          onClose={() => setIsTutorialOpen(false)}
+      />
     </>
   );
 }
+

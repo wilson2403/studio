@@ -15,6 +15,21 @@ export const en = {
     signOut: 'Sign Out',
     changeLanguage: 'Change language',
     editProfileTitle: 'Edit Profile',
+    help: 'Help',
+    // Tutorial
+    tutorialTitle: 'Welcome to The Art of Healing!',
+    tutorialDescription: 'Here’s a quick guide to help you get started on your journey.',
+    tutorialNext: 'Next',
+    tutorialDone: 'Done',
+    tutorialSkip: 'Skip',
+    tutorialSlideSpiritualGuideTitle: 'AI Spiritual Guide',
+    tutorialSlideSpiritualGuideDescription: 'Ask questions about ceremonies, preparation, or ancestral medicine. Our AI is here to assist you instantly.',
+    tutorialSlideDreamInterpreterTitle: 'Dream Interpreter',
+    tutorialSlideDreamInterpreterDescription: 'Record your dreams and spiritual experiences. Our AI will help you find meaning and give you personalized recommendations.',
+    tutorialSlidePreparationTitle: 'Personalized Preparation',
+    tutorialSlidePreparationDescription: 'Complete a brief questionnaire to receive a step-by-step guide for your physical and mental preparation.',
+    tutorialSlideCommunityTitle: 'Connect with the Community',
+    tutorialSlideCommunityDescription: 'Explore past and future ceremonies, and sign up to join a unique experience of connection and healing.',
     // Hero
     heroTitle: 'A Sacred Encounter with Ancestral Medicines',
     heroSubtitle: 'Discover how Ayahuasca can transform your life, bringing you clarity, emotional healing, and a renewed connection with the universe. Join us in this transformative experience, where tradition meets expert guidance for an unforgettable journey.',
@@ -754,6 +769,7 @@ export const en = {
     migrationTitle: 'Content Migration',
     language: 'Language',
 };
+
 
 
 
