@@ -269,7 +269,7 @@ export default function Chatbot() {
                         <TabsTrigger value="interpreter"><NotebookText className="mr-2"/>{t('dreamInterpreter')}</TabsTrigger>
                     </TabsList>
                     
-                    <TabsContent value="guide" className="flex-1 flex flex-col h-0">
+                    <TabsContent value="guide" className="flex-1 flex flex-col min-h-0">
                         <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
                             <div className='flex items-center gap-3'>
                                 <div className="p-2 bg-primary/10 rounded-full">
@@ -315,7 +315,7 @@ export default function Chatbot() {
                             </div>
                         </ScrollArea>
 
-                        <div className="p-4 border-t flex-shrink-0">
+                        <div className="flex-shrink-0 p-4 border-t">
                             <form onSubmit={handleSubmit} className="flex items-center gap-2">
                                 <Input
                                     value={input}
@@ -342,7 +342,7 @@ export default function Chatbot() {
                         </div>
                     </TabsContent>
                     
-                    <TabsContent value="interpreter" className="flex-1 flex flex-col h-0">
+                    <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
                          <div className="flex-shrink-0 p-4 border-b text-center">
                             <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
                             <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
@@ -410,3 +410,5 @@ export default function Chatbot() {
         </Popover>
     );
 }
+
+    
