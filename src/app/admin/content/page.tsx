@@ -4,7 +4,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Save, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -35,6 +35,7 @@ export default function AdminContentPage() {
     const [isSaving, setIsSaving] = useState(false);
 
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { t } = useTranslation();
     const { toast } = useToast();
 
@@ -48,6 +49,13 @@ export default function AdminContentPage() {
         });
         return () => unsubscribe();
     }, [router]);
+    
+    useEffect(() => {
+        const initialSearch = searchParams.get('search');
+        if (initialSearch) {
+            setSearchTerm(initialSearch);
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         if (isAuthorized) {

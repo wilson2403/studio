@@ -106,7 +106,9 @@ export const getContent = async (id: string): Promise<string | { [key: string]: 
 export const setContent = async (id: string, value: string | { [key: string]: string }): Promise<void> => {
    try {
     const docRef = doc(db, 'content', id);
-    await setDoc(docRef, { value });
+    // Use setDoc with merge: true which will create the document if it doesn't exist,
+    // or update it if it does.
+    await setDoc(docRef, { value }, { merge: true });
     await logUserAction('update_content', { targetId: id, changes: { value } });
   } catch (error) {
     console.error("Error setting content: ", error);
@@ -1794,4 +1796,3 @@ export type { Chat };
 export type { UserProfile };
 export type { DreamEntry };
 
-    
