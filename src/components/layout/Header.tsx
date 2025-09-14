@@ -392,7 +392,7 @@ export default function Header() {
                                   {t('navCourses')}
                               </Link>
                           </SheetClose>
-                          <SheetClose asChild>
+                           <SheetClose asChild>
                               <button onClick={() => setIsTutorialOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
                                   <HelpCircle className="h-5 w-5" />
                                   <span>{t('help')}</span>
