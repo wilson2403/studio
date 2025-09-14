@@ -285,8 +285,8 @@ export default function Chatbot() {
                             </Button>
                         </div>
 
-                        <ScrollArea className="flex-1 p-4">
-                            <div ref={scrollAreaRef} className="space-y-4">
+                        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+                            <div className="space-y-4">
                                 {messages.map((message, index) => (
                                     <div key={index} className={cn("flex items-start gap-3", message.role === 'user' ? 'justify-start' : 'justify-start')}>
                                         {message.role === 'model' ? (
@@ -347,8 +347,8 @@ export default function Chatbot() {
                             <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
                             <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
                          </div>
-                         <ScrollArea className="flex-1">
-                             <div className="p-4 space-y-4">
+                         <ScrollArea className="flex-1 p-4">
+                             <div className="space-y-4">
                                 {loadingDreams && <Skeleton className="h-24 w-full"/>}
                                 {!loadingDreams && dreamEntries.length === 0 && (
                                     <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
@@ -410,5 +410,3 @@ export default function Chatbot() {
         </Popover>
     );
 }
-
-    
