@@ -15,7 +15,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { v4 as uuidv4 } from 'uuid';
-import { getUserProfile, UserProfile, saveDreamEntry, getDreamEntries, DreamEntry } from '@/lib/firebase/firestore';
+import { getUserProfile, UserProfile, getDreamEntries, DreamEntry } from '@/lib/firebase/firestore';
 import { interpretDreamAndGetRecommendations } from '@/ai/flows/dream-interpreter-flow';
 import { transcribeAudio } from '@/ai/flows/speech-to-text-flow';
 import { useToast } from '@/hooks/use-toast';
