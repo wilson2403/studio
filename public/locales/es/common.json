@@ -669,5 +669,11 @@
   "shareCeremonyMemoryButton": "Compartir Recuerdo",
   "myDreamsNav": "Mis Sueños",
   "spiritualGuideDescription": "Pregunta sobre la medicina, las ceremonias y cómo prepararte.",
-  "interpreting": "Interpretando..."
+  "interpreting": "Interpretando...",
+  "myChatsDescription": "Aquí puedes revisar el historial de todas tus conversaciones con el Guía Espiritual.",
+  "conversationOnDate": "Conversación del {{date}}",
+  "myDreamsTitle": "Mis Sueños",
+  "myDreamsDescription": "Aquí puedes revisar el historial de todas tus interpretaciones de sueños.",
+  "authRequiredForChats": "Necesitas iniciar sesión para ver tu historial de chats.",
+  "noConversationsDescription": "Inicia una conversación con nuestro guía espiritual y aparecerá aquí."
 }
