@@ -361,7 +361,7 @@ export default function Chatbot() {
                                 </div>
                             </ScrollArea>
 
-                            <div className="flex-shrink-0 p-4 border-t">
+                            <div className="flex-shrink-0 p-4 border-t mt-auto">
                                 <form onSubmit={handleSubmit} className="flex items-center gap-2">
                                     <Input
                                         value={input}
@@ -389,7 +389,7 @@ export default function Chatbot() {
                         </TabsContent>
                         
                         <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
-                             <div className="flex-shrink-0 p-4 border-b text-center">
+                            <div className="flex-shrink-0 p-4 border-b text-center">
                                 <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
                                 <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
                             </div>
@@ -435,7 +435,7 @@ export default function Chatbot() {
                                     </div>
                                 )}
                             </ScrollArea>
-                            <div className="flex-shrink-0 p-4 border-t space-y-2">
+                            <div className="flex-shrink-0 p-4 border-t space-y-2 mt-auto">
                                 <div className="relative">
                                 <Textarea 
                                     placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
@@ -468,3 +468,5 @@ export default function Chatbot() {
         </Popover>
     );
 }
+
+    
