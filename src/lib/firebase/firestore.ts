@@ -108,7 +108,7 @@ export const getContent = async (id: string): Promise<Content['value'] | null> =
   }
 }
 
-export const setContent = async (id: string, data: Content): Promise<void> => {
+export const setContent = async (id: string, data: Partial<Content>): Promise<void> => {
    try {
     const docRef = doc(db, 'content', id);
     // Use setDoc with merge: true which will create the document if it doesn't exist,
@@ -126,6 +126,18 @@ export const setContent = async (id: string, data: Content): Promise<void> => {
     throw error;
   }
 }
+
+export const updateContentFields = async (id: string, data: Partial<Content>): Promise<void> => {
+    try {
+        const docRef = doc(db, 'content', id);
+        await updateDoc(docRef, data);
+        await logUserAction('update_content', { targetId: id, changes: data });
+    } catch (error) {
+        console.error("Error updating content fields: ", error);
+        logError(error, { function: 'updateContentFields', id, data });
+        throw error;
+    }
+};
 
 export const deleteContent = async (id: string): Promise<void> => {
     try {

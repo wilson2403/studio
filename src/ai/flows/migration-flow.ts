@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { setContent, logError, getContent } from '@/lib/firebase/firestore';
+import { setContent, logError, getContent, updateContentFields } from '@/lib/firebase/firestore';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -46,18 +46,23 @@ export const migrateContent = ai.defineFlow(
 
       for (const key of allKeys) {
         try {
-          // Check if the key already exists in Firestore
-          const existingContent = await getContent(key);
-          if (existingContent !== null) {
-            // Key exists, skip it
-            continue;
-          }
-
           const esValue = esJson[key] || '';
           const enValue = enJson[key] || '';
 
-          // Only process if at least one language has a value
           if (esValue || enValue) {
+            // Check if the key already exists in Firestore
+            const existingContent = await getContent(key);
+            
+            if (existingContent !== null && typeof existingContent === 'object') {
+              // Key exists, update only the 'es' and 'en' fields of the value
+              const updatedValue = {
+                es: esValue,
+                en: enValue
+              };
+              await updateContentFields(key, { value: updatedValue });
+              processedKeys++;
+            } else if (existingContent === null) {
+              // Key does not exist, create it
               const contentData = {
                 id: key,
                 value: { es: esValue, en: enValue },
@@ -67,6 +72,8 @@ export const migrateContent = ai.defineFlow(
               };
               await setContent(key, contentData);
               processedKeys++;
+            }
+            // If existingContent is a string or some other legacy format, we skip it to be safe.
           }
         } catch (e: any) {
           const errorMessage = `Failed to process key "${key}": ${e.message}`;
@@ -78,7 +85,7 @@ export const migrateContent = ai.defineFlow(
       if (errors.length > 0) {
           return {
               success: false,
-              message: `Migration completed with ${errors.length} errors. ${processedKeys} new keys were added.`,
+              message: `Migration completed with ${errors.length} errors. ${processedKeys} keys were processed.`,
               processedKeys,
               errors,
           };
@@ -86,7 +93,7 @@ export const migrateContent = ai.defineFlow(
 
       return {
         success: true,
-        message: `Successfully migrated ${processedKeys} new keys to Firestore.`,
+        message: `Successfully processed ${processedKeys} keys.`,
         processedKeys,
         errors: [],
       };
