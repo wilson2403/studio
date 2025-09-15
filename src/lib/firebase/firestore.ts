@@ -1352,7 +1352,7 @@ export const importAllData = async (data: BackupData): Promise<void> => {
                 const docRef = doc(db, 'content', contentItem.id);
                 batch.set(docRef, { 
                     value: contentItem.value, 
-                    type: contentItem.type, 
+                    type: contentItem.type || 'text', 
                     visible: contentItem.visible,
                     page: contentItem.page 
                 });
