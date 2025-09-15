@@ -640,5 +640,8 @@
     "themeDeletedSuccess": "Theme deleted.",
     "themeDeletedError": "Error deleting theme.",
     "migrationTitle": "Content Migration",
-    "myChatsTitle": "My Chats"
+    "myChatsTitle": "My Chats",
+    "addNewContent": "Add New Content",
+    "dreamInterpreter": "Dream Interpreter",
+    "dreamInterpreterDescription": "Describe your dream or experience for a symbolic interpretation.",
 }
