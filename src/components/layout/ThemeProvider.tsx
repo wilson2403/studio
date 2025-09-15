@@ -3,7 +3,7 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import type { ThemeProviderProps } from "next-themes/dist/types"
-import { getThemeSettings } from "@/lib/firebase/firestore"
+import { getThemeSettings, getPredefinedThemes } from "@/lib/firebase/firestore"
 
 function applyTheme(settings: any) {
   if (!settings || !settings.light || !settings.dark) {
@@ -32,9 +32,18 @@ function applyTheme(settings: any) {
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     React.useEffect(() => {
         const fetchAndApplyTheme = async () => {
-            const themeSettings = await getThemeSettings();
-            if (themeSettings) {
-                applyTheme(themeSettings);
+            const activeThemeId = localStorage.getItem('activeThemeId');
+            if (activeThemeId) {
+                 const themes = await getPredefinedThemes();
+                 const activeTheme = themes.find(t => t.id === activeThemeId);
+                 if (activeTheme) {
+                     applyTheme(activeTheme.colors);
+                 }
+            } else {
+                const themeSettings = await getThemeSettings();
+                if (themeSettings) {
+                    applyTheme(themeSettings);
+                }
             }
         };
         fetchAndApplyTheme();
