@@ -88,9 +88,7 @@ export default function TutorialDialog({ isOpen, onClose, user }: TutorialDialog
                     <EditableTitle tag="h2" id="tutorialTitle" initialValue={t('tutorialTitle')} className="text-lg font-semibold" />
                 </DialogTitle>
                 <DialogDescription>
-                  <p>
                     <EditableTitle tag="span" id="tutorialDescription" initialValue={t('tutorialDescription')} />
-                  </p>
                 </DialogDescription>
             </DialogHeader>
             <div className="flex-grow flex flex-col">
