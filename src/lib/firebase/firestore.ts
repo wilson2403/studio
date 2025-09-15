@@ -1376,7 +1376,7 @@ export const importAllData = async (data: BackupData): Promise<void> => {
                 batch.set(docRef, { 
                     value: contentItem.value, 
                     type: contentItem.type || 'text', 
-                    visible: contentItem.visible,
+                    visible: contentItem.visible !== undefined ? contentItem.visible : true,
                     page: contentItem.page 
                 });
             }
