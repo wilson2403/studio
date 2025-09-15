@@ -54,14 +54,30 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
   };
 
   const RenderTag = Tag;
-  const WrapperTag = isInsideButton || Tag === 'span' ? 'span' : 'div';
+  
+  if (isInsideButton || Tag === 'span' || Tag === 'p') {
+    return (
+        <RenderTag className={cn("relative group inline-flex items-center gap-2", className)}>
+            {displayValue.split('\n').map((line, index) => (
+                <span key={index} className="block">{line}</span>
+            ))}
+            {isAdmin && (
+                <span
+                    className={cn(
+                        'h-6 w-6 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors ml-2',
+                        isInsideButton ? 'bg-transparent' : 'hover:bg-accent'
+                    )}
+                    onClick={handleEditClick}
+                >
+                    <Edit className={cn("h-3 w-3", isInsideButton ? 'text-inherit' : 'text-accent-foreground')} />
+                </span>
+            )}
+        </RenderTag>
+    );
+  }
 
   return (
-    <WrapperTag className={cn(
-      "relative group flex items-center justify-center gap-2",
-      Tag !== 'p' && Tag !== 'span' && "w-full",
-      (Tag === 'p' || Tag === 'span') && 'inline-block'
-    )}>
+    <div className={cn("relative group flex items-center justify-center gap-2 w-full")}>
       <RenderTag className={className}>
         {displayValue.split('\n').map((line, index) => (
           <span key={index} className="block">{line}</span>
@@ -71,13 +87,13 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
         <span
             className={cn(
                 'h-8 w-8 rounded-full flex items-center justify-center cursor-pointer transition-colors',
-                isInsideButton ? 'bg-transparent' : 'absolute -right-10 top-1/2 -translate-y-1/2 hover:bg-accent'
+                'absolute -right-10 top-1/2 -translate-y-1/2 hover:bg-accent'
             )}
             onClick={handleEditClick}
         >
-            <Edit className={cn("h-4 w-4", isInsideButton ? 'text-inherit' : 'text-accent-foreground')} />
+            <Edit className={cn("h-4 w-4", 'text-accent-foreground')} />
         </span>
       )}
-    </WrapperTag>
+    </div>
   );
 };
