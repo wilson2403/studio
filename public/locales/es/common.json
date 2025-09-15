@@ -674,6 +674,17 @@
   "startMigrationButton": "Iniciar Migración",
   "ayahuascaBenefitClarityDescription": "Obtén una nueva perspectiva sobre tu vida, tus relaciones y tu propósito. La Ayahuasca te ayuda a ver más allá del velo de la confusión y a encontrar respuestas que residen en tu interior.",
   "ayahuascaBenefitHealingDescription": "Libera traumas, miedos y bloqueos emocionales arraigados. La medicina te permite enfrentar y procesar emociones reprimidas en un espacio seguro y contenido, abriendo el corazón a la compasión y el perdón.",
-  "ayahuascaBenefitConnectionDescription": "Experimenta una sensación de unidad con la naturaleza, el universo y tu verdadero ser. La Ayahuasca expande la conciencia y te recuerda que eres parte de algo mucho más grande."
-  
+  "ayahuascaBenefitConnectionDescription": "Experimenta una sensación de unidad con la naturaleza, el universo y tu verdadero ser. La Ayahuasca expande la conciencia y te recuerda que eres parte de algo mucho más grande.",
+  "tutorialDescription": "Demos un recorrido rápido por las principales funciones disponibles para ti.",
+  "tutorialSlideSpiritualGuideTitle": "Tu Guía Espiritual",
+  "tutorialSlideSpiritualGuideDescription": "Usa el chatbot para hacer preguntas sobre la medicina ancestral, la preparación o nuestro centro. Está aquí para ayudarte 24/7.",
+  "tutorialSlideDreamInterpreterTitle": "Intérprete de Sueños",
+  "tutorialSlideDreamInterpreterDescription": "Registra tus sueños y experiencias espirituales. Nuestra IA te proporcionará una interpretación simbólica basada en la sabiduría chamánica y junguiana.",
+  "tutorialSlidePreparationTitle": "Preparación Personalizada",
+  "tutorialSlidePreparationDescription": "Completa el cuestionario inicial para acceder a una guía completa y personalizada que te ayudará a prepararte para tu viaje espiritual.",
+  "tutorialSlideCommunityTitle": "Conecta con la Comunidad",
+  "tutorialSlideCommunityDescription": "Accede a ceremonias pasadas, mira videos y ve testimonios de otros miembros para conectar con la experiencia de la comunidad.",
+  "tutorialSkip": "Saltar",
+  "tutorialNext": "Siguiente",
+  "tutorialDone": "Finalizar"
 }

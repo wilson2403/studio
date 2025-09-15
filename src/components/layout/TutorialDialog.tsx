@@ -48,25 +48,21 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
       icon: Bot,
       titleKey: 'tutorialSlideSpiritualGuideTitle',
       descriptionKey: 'tutorialSlideSpiritualGuideDescription',
-      image: '/images/tutorial-guide.png'
     },
     {
       icon: NotebookText,
       titleKey: 'tutorialSlideDreamInterpreterTitle',
       descriptionKey: 'tutorialSlideDreamInterpreterDescription',
-      image: '/images/tutorial-dream.png'
     },
     {
       icon: Sparkles,
       titleKey: 'tutorialSlidePreparationTitle',
       descriptionKey: 'tutorialSlidePreparationDescription',
-      image: '/images/tutorial-prep.png'
     },
     {
       icon: Users,
       titleKey: 'tutorialSlideCommunityTitle',
       descriptionKey: 'tutorialSlideCommunityDescription',
-      image: '/images/tutorial-community.png'
     },
   ];
 
@@ -85,7 +81,7 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
                     <EditableTitle tag="h2" id="tutorialTitle" initialValue={t('tutorialTitle')} className="text-lg font-semibold" />
                 </DialogTitle>
                 <DialogDescription>
-                    <EditableTitle tag="p" id="tutorialDescription" initialValue={t('tutorialDescription')} className="text-sm text-muted-foreground" />
+                    <EditableTitle tag="p" id="tutorialDescription" initialValue={t('tutorialDescription')} />
                 </DialogDescription>
             </DialogHeader>
             <div className="flex-grow flex flex-col">
@@ -94,9 +90,6 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
                     {tutorialSlides.map((slide, index) => (
                       <CarouselItem key={index}>
                         <div className="flex flex-col items-center text-center px-6">
-                           <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden mb-4 bg-muted">
-                             <Image src={slide.image} alt={t(slide.titleKey)} fill className="object-contain" />
-                           </div>
                           <div className="p-2 bg-primary/10 rounded-full mb-4">
                             <slide.icon className="h-8 w-8 text-primary" />
                           </div>
