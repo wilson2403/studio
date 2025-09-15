@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { setContent, logError, getContent } from '@/lib/firebase/firestore';
+import { setContent, logError, getContent, Content } from '@/lib/firebase/firestore';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -55,8 +55,7 @@ export const migrateContent = ai.defineFlow(
             
             if (existingContent === null) {
               // Key does not exist, create it
-              const contentData = {
-                id: key,
+              const contentData: Omit<Content, 'id'> = {
                 value: { es: esValue, en: enValue },
                 type: 'text' as const,
                 visible: true,

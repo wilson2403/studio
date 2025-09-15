@@ -689,6 +689,25 @@
   "tutorialDone": "Done",
   "ceremoniesPageTitle": "Our Ceremonies",
   "ceremoniesPageSubtitle": "Explore all of our upcoming and past healing events.",
-  "tutorialTitle": "Welcome to Your Journey!"
+  "tutorialTitle": "Welcome to Your Journey!",
+  "yourDream": "Your Dream",
+  "interpretation": "Interpretation",
+  "recommendations": "Recommendations",
+  "lucidDreamingTips": "Lucid Dreaming Tips",
+  "noDreamEntries": "You haven't recorded any dreams yet. Use the field below to start your journal.",
+  "transcribing": "Transcribing...",
+  "recording": "Recording... Release to stop.",
+  "dreamInterpreterAuth": "You must be logged in to use the dream interpreter.",
+  "dreamInterpretationError": "Sorry, an error occurred while interpreting your dream. Please try again.",
+  "microphoneErrorTitle": "Microphone Access Error",
+  "microphoneErrorDescription": "Could not access the microphone. Please check your browser permissions.",
+  "transcriptionErrorTitle": "Transcription Error",
+  "transcriptionErrorDescription": "Could not transcribe the audio. Please try again.",
+  "migratingButtonText": "Migrating...",
+  "migrationSuccessTitle": "Migration Successful",
+  "migrationErrorTitle": "Migration Error",
+  "migrationWarningTitle": "Start Migration?",
+  "migrationWarningDescription": "This process will read your local translation files and add any new keys to Firestore. Existing keys in Firestore will NOT be modified. This action is irreversible.",
+  "errorDetails": "Error Details:"
 }
   
