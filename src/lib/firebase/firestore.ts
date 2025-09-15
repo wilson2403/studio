@@ -1377,7 +1377,7 @@ export const importAllData = async (data: BackupData): Promise<void> => {
                     value: contentItem.value, 
                     type: contentItem.type || 'text', 
                     visible: contentItem.visible !== undefined ? contentItem.visible : true,
-                    page: contentItem.page 
+                    page: contentItem.page || null 
                 });
             }
         });
