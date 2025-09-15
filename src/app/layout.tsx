@@ -10,6 +10,7 @@ import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import Chatbot from '@/components/chat/Chatbot';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import LoadingScreen from '@/components/layout/LoadingScreen';
+import DreamInterpreterDialog from '@/components/chat/DreamInterpreterDialog';
 
 const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
 
@@ -92,7 +93,10 @@ export default async function RootLayout({
                       {children}
                     </main>
                     <Footer />
-                    <Chatbot />
+                    <div className="fixed bottom-6 right-6 flex flex-col gap-4 z-40">
+                      <DreamInterpreterDialog />
+                      <Chatbot />
+                    </div>
                   </div>
                   <Toaster />
                   <div id="fb-root"></div>
@@ -108,5 +112,3 @@ export default async function RootLayout({
     </html>
   );
 }
-
-    

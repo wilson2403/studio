@@ -708,7 +708,6 @@
   "migrationErrorTitle": "Migration Error",
   "migrationWarningTitle": "Start Migration?",
   "migrationWarningDescription": "This process will read your local translation files and add any new keys to Firestore. Existing keys in Firestore will NOT be modified. This action is irreversible.",
-  "errorDetails": "Error Details:" ,
-  
+  "errorDetails": "Error Details:" 
 }
   
