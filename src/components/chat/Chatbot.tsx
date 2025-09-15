@@ -300,7 +300,7 @@ export default function Chatbot() {
                         </TabsList>
                         
                         <TabsContent value="guide" className="flex-1 flex flex-col min-h-0">
-                             <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
+                            <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
                                 <div className='flex items-center gap-3'>
                                     <div className="p-2 bg-primary/10 rounded-full">
                                     <Bot className="h-6 w-6 text-primary" />
@@ -314,133 +314,129 @@ export default function Chatbot() {
                                     <X className="h-4 w-4" />
                                 </Button>
                             </div>
-                            <div className="flex-1 flex flex-col min-h-0">
-                                <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-                                    <div className="space-y-4">
-                                        {Object.entries(groupedMessages).map(([date, dayMessages]) => (
-                                            <div key={date}>
-                                                <DateSeparator date={parseISO(date)} locale={locale} />
-                                                {dayMessages.map((message, index) => (
-                                                    <div key={index} className={cn("flex items-start gap-3 mt-4", message.role === 'user' ? 'justify-start' : 'justify-start')}>
-                                                        {message.role === 'model' ? (
-                                                            <Bot className="h-6 w-6 text-primary flex-shrink-0" />
-                                                        ) : (
-                                                            <Avatar className="h-6 w-6 flex-shrink-0">
-                                                                <AvatarImage src={user?.photoURL || undefined} />
-                                                                <AvatarFallback>
-                                                                <User className="h-4 w-4" />
-                                                                </AvatarFallback>
-                                                            </Avatar>
-                                                        )}
-                                                        <div className={cn("max-w-xs md:max-w-sm rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'bg-transparent border')}>
-                                                            <p className="whitespace-pre-wrap">{message.content}</p>
-                                                        </div>
+                            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+                                <div className="space-y-4">
+                                    {Object.entries(groupedMessages).map(([date, dayMessages]) => (
+                                        <div key={date}>
+                                            <DateSeparator date={parseISO(date)} locale={locale} />
+                                            {dayMessages.map((message, index) => (
+                                                <div key={index} className={cn("flex items-start gap-3 mt-4", message.role === 'user' ? 'justify-start' : 'justify-start')}>
+                                                    {message.role === 'model' ? (
+                                                        <Bot className="h-6 w-6 text-primary flex-shrink-0" />
+                                                    ) : (
+                                                        <Avatar className="h-6 w-6 flex-shrink-0">
+                                                            <AvatarImage src={user?.photoURL || undefined} />
+                                                            <AvatarFallback>
+                                                            <User className="h-4 w-4" />
+                                                            </AvatarFallback>
+                                                        </Avatar>
+                                                    )}
+                                                    <div className={cn("max-w-xs md:max-w-sm rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'bg-transparent border')}>
+                                                        <p className="whitespace-pre-wrap">{message.content}</p>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        ))}
-                                        {loading && (
-                                            <div className="flex items-start gap-3 mt-4">
-                                                <Bot className="h-6 w-6 text-primary" />
-                                                <div className="bg-transparent border rounded-lg px-4 py-2">
-                                                    <Skeleton className="h-4 w-10 bg-primary/20" />
                                                 </div>
+                                            ))}
+                                        </div>
+                                    ))}
+                                    {loading && (
+                                        <div className="flex items-start gap-3 mt-4">
+                                            <Bot className="h-6 w-6 text-primary" />
+                                            <div className="bg-transparent border rounded-lg px-4 py-2">
+                                                <Skeleton className="h-4 w-10 bg-primary/20" />
                                             </div>
-                                        )}
-                                    </div>
-                                </ScrollArea>
-
-                                <div className="flex-shrink-0 p-4 border-t">
-                                    <form onSubmit={handleSubmit} className="flex items-center gap-2">
-                                        <Input
-                                            value={input}
-                                            onChange={(e) => setInput(e.target.value)}
-                                            placeholder={isRecording ? t('recording') : t('typeYourMessage')}
-                                            autoComplete="off"
-                                            disabled={loading}
-                                        />
-                                        <Button 
-                                            type="button" 
-                                            size="icon" 
-                                            variant={isRecording ? 'destructive' : 'outline'} 
-                                            onMouseDown={() => startRecording('chat')}
-                                            onMouseUp={() => stopRecording('chat')}
-                                            onTouchStart={() => startRecording('chat')}
-                                            onTouchEnd={() => stopRecording('chat')}
-                                        >
-                                            <Mic className="h-4 w-4" />
-                                        </Button>
-                                        <Button type="submit" size="icon" disabled={loading || !input.trim()}>
-                                            <Send className="h-4 w-4" />
-                                        </Button>
-                                    </form>
+                                        </div>
+                                    )}
                                 </div>
+                            </ScrollArea>
+
+                            <div className="flex-shrink-0 p-4 border-t">
+                                <form onSubmit={handleSubmit} className="flex items-center gap-2">
+                                    <Input
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        placeholder={isRecording ? t('recording') : t('typeYourMessage')}
+                                        autoComplete="off"
+                                        disabled={loading}
+                                    />
+                                    <Button 
+                                        type="button" 
+                                        size="icon" 
+                                        variant={isRecording ? 'destructive' : 'outline'} 
+                                        onMouseDown={() => startRecording('chat')}
+                                        onMouseUp={() => stopRecording('chat')}
+                                        onTouchStart={() => startRecording('chat')}
+                                        onTouchEnd={() => stopRecording('chat')}
+                                    >
+                                        <Mic className="h-4 w-4" />
+                                    </Button>
+                                    <Button type="submit" size="icon" disabled={loading || !input.trim()}>
+                                        <Send className="h-4 w-4" />
+                                    </Button>
+                                </form>
                             </div>
                         </TabsContent>
                         
                         <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
-                            <div className="flex-shrink-0 p-4 border-b text-center">
+                             <div className="flex-shrink-0 p-4 border-b text-center">
                                 <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
                                 <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
                             </div>
-                            <div className="flex-1 flex flex-col min-h-0">
-                                <ScrollArea className="flex-1 p-4">
-                                    <div className="space-y-4">
-                                    {loadingDreams && <Skeleton className="h-24 w-full"/>}
-                                    {!loadingDreams && dreamEntries.length === 0 && (
-                                        <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
-                                    )}
-                                    {dreamEntries.map((entry, index) => (
-                                        <div key={index} className="p-3 border rounded-lg bg-muted/30">
-                                            <p className="text-xs text-muted-foreground">{format(entry.date, 'PPP', { locale })}</p>
-                                            <p className="font-semibold mt-1">{t('yourDream')}</p>
-                                            <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
-                                            <p className="font-semibold mt-2">{t('interpretation')}</p>
-                                            <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
-                                            {entry.recommendations?.personal && (
-                                                <>
-                                                    <p className="font-semibold mt-2">{t('recommendations')}</p>
-                                                    <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
-                                                </>
-                                            )}
-                                        </div>
-                                    ))}
-                                    {lucidDreamingTips.length > 0 && (
-                                        <div className='pt-4 border-t'>
-                                            <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
-                                            <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
-                                                {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
-                                            </ul>
-                                        </div>
-                                    )}
+                            <ScrollArea className="flex-1 p-4">
+                                <div className="space-y-4">
+                                {loadingDreams && <Skeleton className="h-24 w-full"/>}
+                                {!loadingDreams && dreamEntries.length === 0 && (
+                                    <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
+                                )}
+                                {dreamEntries.map((entry, index) => (
+                                    <div key={index} className="p-3 border rounded-lg bg-muted/30">
+                                        <p className="text-xs text-muted-foreground">{format(entry.date, 'PPP', { locale })}</p>
+                                        <p className="font-semibold mt-1">{t('yourDream')}</p>
+                                        <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
+                                        <p className="font-semibold mt-2">{t('interpretation')}</p>
+                                        <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
+                                        {entry.recommendations?.personal && (
+                                            <>
+                                                <p className="font-semibold mt-2">{t('recommendations')}</p>
+                                                <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
+                                            </>
+                                        )}
                                     </div>
-                                </ScrollArea>
-                                <div className="flex-shrink-0 p-4 border-t space-y-2">
-                                    <div className="relative">
-                                    <Textarea 
-                                        placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
-                                        value={dreamInput}
-                                        onChange={(e) => setDreamInput(e.target.value)}
-                                        rows={3}
-                                        className="pr-12"
-                                    />
-                                        <Button 
-                                        type="button" 
-                                        size="icon" 
-                                        variant={isDreamRecording ? 'destructive' : 'ghost'} 
-                                        className="absolute right-2 bottom-2"
-                                        onMouseDown={() => startRecording('dream')}
-                                        onMouseUp={() => stopRecording('dream')}
-                                        onTouchStart={() => startRecording('dream')}
-                                        onTouchEnd={() => stopRecording('dream')}
-                                    >
-                                        <Mic className="h-4 w-4" />
-                                    </Button>
+                                ))}
+                                {lucidDreamingTips.length > 0 && (
+                                    <div className='pt-4 border-t'>
+                                        <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
+                                        <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
+                                            {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
+                                        </ul>
+                                    </div>
+                                )}
                                 </div>
-                                <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
-                                {t('interpretDream')}
+                            </ScrollArea>
+                            <div className="flex-shrink-0 p-4 border-t space-y-2">
+                                <div className="relative">
+                                <Textarea 
+                                    placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
+                                    value={dreamInput}
+                                    onChange={(e) => setDreamInput(e.target.value)}
+                                    rows={3}
+                                    className="pr-12"
+                                />
+                                    <Button 
+                                    type="button" 
+                                    size="icon" 
+                                    variant={isDreamRecording ? 'destructive' : 'ghost'} 
+                                    className="absolute right-2 bottom-2"
+                                    onMouseDown={() => startRecording('dream')}
+                                    onMouseUp={() => stopRecording('dream')}
+                                    onTouchStart={() => startRecording('dream')}
+                                    onTouchEnd={() => stopRecording('dream')}
+                                >
+                                    <Mic className="h-4 w-4" />
                                 </Button>
-                                </div>
+                            </div>
+                            <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
+                            {t('interpretDream')}
+                            </Button>
                             </div>
                         </TabsContent>
                     </Tabs>
