@@ -60,7 +60,7 @@ export const migrateContent = ai.defineFlow(
                 value: { es: esValue, en: enValue },
                 type: 'text' as const,
                 visible: true,
-                page: 'general' // Assign a default page/group
+                page: 'common' // Assign a default page/group
               };
               await setContent(key, contentData);
               processedKeys++;
