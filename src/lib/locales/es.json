@@ -83,7 +83,7 @@
     "spiritualGuide": "Guía Espiritual",
     "online": "En línea",
     "dreamInterpreter": "Intérprete de Sueños",
-    "dreamInterpreterDescription": "Registra tus sueños y experiencias para recibir una interpretación chamánico-jungiana.",
+    "dreamInterpreterDescription": "Describe tu sueño o experiencia para recibir una interpretación simbólica.",
     "typeYourMessage": "Escribe tu mensaje...",
     "transcribing": "Transcribiendo...",
     "recording": "Grabando... Suelta para detener.",
@@ -112,5 +112,6 @@
     "migrationErrorTitle": "Error en la Migración",
     "migrationWarningTitle": "¿Iniciar Migración?",
     "migrationWarningDescription": "Este proceso leerá tus archivos de traducción locales y añadirá cualquier clave nueva a Firestore. Las claves existentes en Firestore NO serán modificadas. Esta acción es irreversible.",
-    "errorDetails": "Detalles del Error:"
+    "errorDetails": "Detalles del Error:",
+    "myDreams": "Mis Sueños"
 }

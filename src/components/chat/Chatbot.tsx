@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Bot, Send, User, X, Mic, NotebookText, MessageCircle } from 'lucide-react';
+import { Bot, Send, User, X, Mic } from 'lucide-react';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -15,18 +15,14 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { v4 as uuidv4 } from 'uuid';
-import { getUserProfile, UserProfile, getChat, getDreamEntries, DreamEntry } from '@/lib/firebase/firestore';
-import { interpretDreamAndGetRecommendations } from '@/ai/flows/dream-interpreter-flow';
+import { getUserProfile, UserProfile, getChat } from '@/lib/firebase/firestore';
 import { transcribeAudio } from '@/ai/flows/speech-to-text-flow';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Textarea } from '../ui/textarea';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
 import { EditableTitle } from '../home/EditableTitle';
 import { EditableProvider } from '../home/EditableProvider';
 import { Separator } from '../ui/separator';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 const DateSeparator = ({ date, locale }: { date: Date, locale: Locale }) => {
   let dateText: string;
@@ -53,7 +49,6 @@ export default function Chatbot() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState<FirebaseUser | null>(null);
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [chatId, setChatId] = useState<string | null>(null);
     const { t, i18n } = useTranslation();
     const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -61,27 +56,11 @@ export default function Chatbot() {
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
     const { toast } = useToast();
-
-    // Dream Interpreter State
-    const [dreamInput, setDreamInput] = useState('');
-    const [dreamEntries, setDreamEntries] = useState<DreamEntry[]>([]);
-    const [isInterpreting, setIsInterpreting] = useState(false);
-    const [loadingDreams, setLoadingDreams] = useState(false);
-    const [lucidDreamingTips, setLucidDreamingTips] = useState<string[]>([]);
-    const [isDreamRecording, setIsDreamRecording] = useState(false);
-
     const locale = i18n.language === 'es' ? es : enUS;
 
-
      useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-             if (currentUser) {
-                const profile = await getUserProfile(currentUser.uid);
-                setUserProfile(profile);
-            } else {
-                setUserProfile(null);
-            }
         });
         return () => unsubscribe();
     }, []);
@@ -95,25 +74,13 @@ export default function Chatbot() {
     useEffect(() => {
         const fetchUserData = async (uid: string) => {
             setLoading(true);
-            setLoadingDreams(true);
-            
             const chatHistory = await getChat(uid);
             if (chatHistory?.messages && chatHistory.messages.length > 0) {
                 setMessages(chatHistory.messages);
             } else {
                  setMessages([{ role: 'model', content: t('chatbotWelcome'), createdAt: new Date() as any }]);
             }
-            
-            const entries = await getDreamEntries(uid);
-            setDreamEntries(entries);
-            const tips = new Set<string>();
-            entries.forEach(entry => {
-                entry.recommendations?.lucidDreaming?.forEach(tip => tips.add(tip));
-            });
-            setLucidDreamingTips(Array.from(tips));
-
             setLoading(false);
-            setLoadingDreams(false);
         };
 
         if (isOpen) {
@@ -124,14 +91,11 @@ export default function Chatbot() {
                 fetchUserData(user.uid);
             } else {
                  setMessages([{ role: 'model', content: t('chatbotWelcome'), createdAt: new Date() as any }]);
-                 setDreamEntries([]);
             }
         } else {
             // Reset on close
             setMessages([]);
             setChatId(null);
-            setDreamEntries([]);
-            setDreamInput('');
             if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
                 mediaRecorderRef.current.stop();
             }
@@ -168,47 +132,9 @@ export default function Chatbot() {
         }
     };
     
-    const handleInterpretDream = async () => {
-        if (!dreamInput.trim() || !user?.uid) {
-            if (!user) {
-                toast({ title: t('authRequiredTitle'), description: t('dreamInterpreterAuth'), variant: 'destructive'});
-            }
-            return;
-        }
-
-        setIsInterpreting(true);
-        try {
-            const { interpretation, recommendations } = await interpretDreamAndGetRecommendations({
-                uid: user.uid,
-                dream: dreamInput,
-                history: dreamEntries,
-            });
-            
-            const newEntry: DreamEntry = {
-                date: new Date(),
-                dream: dreamInput,
-                interpretation,
-                recommendations,
-            };
-            
-            setDreamEntries(prev => [newEntry, ...prev]);
-             // Extract unique tips
-            const tips = new Set<string>(lucidDreamingTips);
-            recommendations?.lucidDreaming?.forEach(tip => tips.add(tip));
-            setLucidDreamingTips(Array.from(tips));
-
-            setDreamInput('');
-
-        } catch (error) {
-            console.error('Error interpreting dream:', error);
-            toast({ title: t('dreamInterpretationError'), variant: 'destructive' });
-        } finally {
-            setIsInterpreting(false);
-        }
-    }
     
-     const startRecording = async (target: 'chat' | 'dream') => {
-        if (isRecording || isDreamRecording) return;
+     const startRecording = async () => {
+        if (isRecording) return;
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const mediaRecorder = new MediaRecorder(stream);
@@ -226,29 +152,19 @@ export default function Chatbot() {
                 reader.onloadend = async () => {
                     const base64Audio = reader.result as string;
                     try {
-                        if (target === 'chat') {
-                            setInput(t('transcribing'));
-                        } else {
-                            setDreamInput(t('transcribing'));
-                        }
+                        setInput(t('transcribing'));
                         const { transcription } = await transcribeAudio(base64Audio);
-                        if (target === 'chat') {
-                            setInput(transcription);
-                        } else {
-                            setDreamInput(transcription);
-                        }
+                        setInput(transcription);
                     } catch (error) {
                         toast({ title: t('transcriptionErrorTitle'), description: t('transcriptionErrorDescription'), variant: 'destructive' });
-                        if (target === 'chat') setInput('');
-                        else setDreamInput('');
+                        setInput('');
                     }
                 };
                 stream.getTracks().forEach(track => track.stop());
             };
 
             mediaRecorder.start();
-            if (target === 'chat') setIsRecording(true);
-            else setIsDreamRecording(true);
+            setIsRecording(true);
 
         } catch (error) {
             console.error("Error accessing microphone:", error);
@@ -256,12 +172,11 @@ export default function Chatbot() {
         }
     };
 
-    const stopRecording = (target: 'chat' | 'dream') => {
+    const stopRecording = () => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
             mediaRecorderRef.current.stop();
         }
-        if (target === 'chat') setIsRecording(false);
-        else setIsDreamRecording(false);
+        setIsRecording(false);
     };
 
     const groupedMessages = useMemo(() => {
@@ -276,24 +191,13 @@ export default function Chatbot() {
         }, {} as Record<string, ChatMessage[]>);
     }, [messages]);
 
-    const groupedDreamEntries = useMemo(() => {
-        return dreamEntries.reduce((acc, entry) => {
-            const dateStr = format(entry.date, 'yyyy-MM-dd');
-            if (!acc[dateStr]) {
-                acc[dateStr] = [];
-            }
-            acc[dateStr].push(entry);
-            return acc;
-        }, {} as Record<string, DreamEntry[]>);
-    }, [dreamEntries]);
-
 
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
                 <Button
                     variant="default"
-                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-500"
+                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-40 flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-500"
                 >
                     <Bot className="h-8 w-8" />
                 </Button>
@@ -305,164 +209,82 @@ export default function Chatbot() {
                 onOpenAutoFocus={(e) => e.preventDefault()}
             >
                 <EditableProvider>
-                    <Tabs defaultValue="guide" className="w-full h-full flex flex-col">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="guide"><MessageCircle className="mr-2"/><EditableTitle tag="span" id="spiritualGuide" initialValue={t('spiritualGuide')} /></TabsTrigger>
-                            <TabsTrigger value="interpreter"><NotebookText className="mr-2"/>{t('dreamInterpreter')}</TabsTrigger>
-                        </TabsList>
-                        
-                        <TabsContent value="guide" className="flex-1 flex flex-col min-h-0">
-                            <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
-                                <div className='flex items-center gap-3'>
-                                    <div className="p-2 bg-primary/10 rounded-full">
-                                    <Bot className="h-6 w-6 text-primary" />
-                                    </div>
-                                    <div>
-                                        <EditableTitle tag="h3" id="spiritualGuide" initialValue={t('spiritualGuide')} className="text-lg font-headline" />
-                                        <EditableTitle tag="p" id="online" initialValue={t('online')} className="text-sm text-muted-foreground" />
-                                    </div>
+                    <div className="flex-1 flex flex-col min-h-0">
+                        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b">
+                            <div className='flex items-center gap-3'>
+                                <div className="p-2 bg-primary/10 rounded-full">
+                                <Bot className="h-6 w-6 text-primary" />
                                 </div>
-                                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-                                    <X className="h-4 w-4" />
-                                </Button>
+                                <div>
+                                    <EditableTitle tag="h3" id="spiritualGuide" initialValue={t('spiritualGuide')} className="text-lg font-headline" />
+                                    <EditableTitle tag="p" id="online" initialValue={t('online')} className="text-sm text-muted-foreground" />
+                                </div>
                             </div>
-                            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-                                <div className="space-y-4">
-                                    {Object.entries(groupedMessages).map(([date, dayMessages]) => (
-                                        <div key={date}>
-                                            <DateSeparator date={parseISO(date)} locale={locale} />
-                                            {dayMessages.map((message, index) => (
-                                                <div key={index} className={cn("flex items-start gap-3 mt-4", message.role === 'user' ? 'justify-start' : 'justify-start')}>
-                                                    {message.role === 'model' ? (
-                                                        <Bot className="h-6 w-6 text-primary flex-shrink-0" />
-                                                    ) : (
-                                                        <Avatar className="h-6 w-6 flex-shrink-0">
-                                                            <AvatarImage src={user?.photoURL || undefined} />
-                                                            <AvatarFallback>
-                                                            <User className="h-4 w-4" />
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                    )}
-                                                    <div className={cn("max-w-xs md:max-w-sm rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'bg-transparent border')}>
-                                                        <p className="whitespace-pre-wrap">{message.content}</p>
-                                                    </div>
+                            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+                            <div className="space-y-4">
+                                {Object.entries(groupedMessages).map(([date, dayMessages]) => (
+                                    <div key={date}>
+                                        <DateSeparator date={parseISO(date)} locale={locale} />
+                                        {dayMessages.map((message, index) => (
+                                            <div key={index} className={cn("flex items-start gap-3 mt-4", message.role === 'user' ? 'justify-start' : 'justify-start')}>
+                                                {message.role === 'model' ? (
+                                                    <Bot className="h-6 w-6 text-primary flex-shrink-0" />
+                                                ) : (
+                                                    <Avatar className="h-6 w-6 flex-shrink-0">
+                                                        <AvatarImage src={user?.photoURL || undefined} />
+                                                        <AvatarFallback>
+                                                        <User className="h-4 w-4" />
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                )}
+                                                <div className={cn("max-w-xs md:max-w-sm rounded-lg px-4 py-2 text-sm", message.role === 'user' ? 'bg-muted' : 'bg-transparent border')}>
+                                                    <p className="whitespace-pre-wrap">{message.content}</p>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    ))}
-                                    {loading && (
-                                        <div className="flex items-start gap-3 mt-4">
-                                            <Bot className="h-6 w-6 text-primary" />
-                                            <div className="bg-transparent border rounded-lg px-4 py-2">
-                                                <Skeleton className="h-4 w-10 bg-primary/20" />
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </ScrollArea>
-
-                            <div className="flex-shrink-0 p-4 border-t">
-                                <form onSubmit={handleSubmit} className="flex items-center gap-2">
-                                    <Input
-                                        value={input}
-                                        onChange={(e) => setInput(e.target.value)}
-                                        placeholder={isRecording ? t('recording') : t('typeYourMessage')}
-                                        autoComplete="off"
-                                        disabled={loading}
-                                    />
-                                    <Button 
-                                        type="button" 
-                                        size="icon" 
-                                        variant={isRecording ? 'destructive' : 'outline'} 
-                                        onMouseDown={() => startRecording('chat')}
-                                        onMouseUp={() => stopRecording('chat')}
-                                        onTouchStart={() => startRecording('chat')}
-                                        onTouchEnd={() => stopRecording('chat')}
-                                    >
-                                        <Mic className="h-4 w-4" />
-                                    </Button>
-                                    <Button type="submit" size="icon" disabled={loading || !input.trim()}>
-                                        <Send className="h-4 w-4" />
-                                    </Button>
-                                </form>
-                            </div>
-                        </TabsContent>
-                        
-                        <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
-                           <div className="flex-shrink-0 p-4 border-b text-center">
-                                <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
-                                <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
-                            </div>
-                            <ScrollArea className="flex-1 p-4">
-                                {loadingDreams ? <Skeleton className="h-full w-full"/> : 
-                                 Object.keys(groupedDreamEntries).length === 0 ? (
-                                    <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
-                                ) : (
-                                    <Accordion type="single" collapsible className="w-full space-y-2">
-                                        {Object.entries(groupedDreamEntries).map(([date, entries]) => (
-                                            <AccordionItem key={date} value={date} className="border-none">
-                                                <AccordionTrigger className="py-2 px-3 border rounded-md bg-muted/50 hover:no-underline">
-                                                    <p className="font-semibold text-sm">{format(parseISO(date), 'PPP', { locale })}</p>
-                                                </AccordionTrigger>
-                                                <AccordionContent className="pt-2">
-                                                    <div className="space-y-2">
-                                                    {entries.map((entry, index) => (
-                                                         <div key={index} className="p-3 border rounded-lg bg-muted/30">
-                                                            <p className="font-semibold mt-1">{t('yourDream')}</p>
-                                                            <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
-                                                            <p className="font-semibold mt-2">{t('interpretation')}</p>
-                                                            <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
-                                                            {entry.recommendations?.personal && (
-                                                                <>
-                                                                    <p className="font-semibold mt-2">{t('recommendations')}</p>
-                                                                    <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                    </div>
-                                                </AccordionContent>
-                                            </AccordionItem>
                                         ))}
-                                    </Accordion>
-                                )}
-                                {lucidDreamingTips.length > 0 && (
-                                    <div className='pt-4 mt-4 border-t'>
-                                        <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
-                                        <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
-                                            {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
-                                        </ul>
+                                    </div>
+                                ))}
+                                {loading && (
+                                    <div className="flex items-start gap-3 mt-4">
+                                        <Bot className="h-6 w-6 text-primary" />
+                                        <div className="bg-transparent border rounded-lg px-4 py-2">
+                                            <Skeleton className="h-4 w-10 bg-primary/20" />
+                                        </div>
                                     </div>
                                 )}
-                            </ScrollArea>
-                            <div className="flex-shrink-0 p-4 border-t space-y-2">
-                                <div className="relative">
-                                <Textarea 
-                                    placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
-                                    value={dreamInput}
-                                    onChange={(e) => setDreamInput(e.target.value)}
-                                    rows={3}
-                                    className="pr-12"
+                            </div>
+                        </ScrollArea>
+
+                        <div className="flex-shrink-0 p-4 border-t">
+                            <form onSubmit={handleSubmit} className="flex items-center gap-2">
+                                <Input
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder={isRecording ? t('recording') : t('typeYourMessage')}
+                                    autoComplete="off"
+                                    disabled={loading}
                                 />
-                                    <Button 
+                                <Button 
                                     type="button" 
                                     size="icon" 
-                                    variant={isDreamRecording ? 'destructive' : 'ghost'} 
-                                    className="absolute right-2 bottom-2"
-                                    onMouseDown={() => startRecording('dream')}
-                                    onMouseUp={() => stopRecording('dream')}
-                                    onTouchStart={() => startRecording('dream')}
-                                    onTouchEnd={() => stopRecording('dream')}
+                                    variant={isRecording ? 'destructive' : 'outline'} 
+                                    onMouseDown={startRecording}
+                                    onMouseUp={stopRecording}
+                                    onTouchStart={startRecording}
+                                    onTouchEnd={stopRecording}
                                 >
                                     <Mic className="h-4 w-4" />
                                 </Button>
-                            </div>
-                            <Button onClick={handleInterpretDream} disabled={isInterpreting || !dreamInput.trim()} className="w-full">
-                            {t('interpretDream')}
-                            </Button>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                                <Button type="submit" size="icon" disabled={loading || !input.trim()}>
+                                    <Send className="h-4 w-4" />
+                                </Button>
+                            </form>
+                        </div>
+                    </div>
                 </EditableProvider>
             </PopoverContent>
         </Popover>
