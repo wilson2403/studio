@@ -81,8 +81,12 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
       <DialogContent className="sm:max-w-md p-0 flex flex-col">
         <EditableProvider>
             <DialogHeader className="p-6 text-center">
-                <EditableTitle tag="h2" id="tutorialTitle" initialValue={t('tutorialTitle')} className="text-lg font-semibold" />
-                <EditableTitle tag="p" id="tutorialDescription" initialValue={t('tutorialDescription')} className="text-sm text-muted-foreground" />
+                <DialogTitle>
+                    <EditableTitle tag="h2" id="tutorialTitle" initialValue={t('tutorialTitle')} className="text-lg font-semibold" />
+                </DialogTitle>
+                <DialogDescription>
+                    <EditableTitle tag="p" id="tutorialDescription" initialValue={t('tutorialDescription')} className="text-sm text-muted-foreground" />
+                </DialogDescription>
             </DialogHeader>
             <div className="flex-grow flex flex-col">
                 <Carousel setApi={setApi} className='w-full'>
