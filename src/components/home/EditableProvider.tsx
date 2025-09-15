@@ -7,7 +7,7 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { auth } from '@/lib/firebase/config';
 import { getContent, setContent } from '@/lib/firebase/firestore';
 
-const ADMIN_EMAIL = 'wilson2403@gmail.com';
+const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type ContentObject = { [key: string]: string };
 type ContentValue = string | ContentObject;
@@ -37,7 +37,7 @@ export const EditableProvider = ({ children }: { children: React.ReactNode }) =>
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setIsAdmin(currentUser?.email === ADMIN_EMAIL);
+      setIsAdmin(!!currentUser?.email && ADMIN_EMAILS.includes(currentUser.email));
     });
     return () => unsubscribe();
   }, []);
