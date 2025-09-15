@@ -92,37 +92,35 @@ export default function Chatbot() {
     }, [messages]);
     
     useEffect(() => {
-        const fetchUserData = async () => {
-            if (user?.uid) {
-                setLoading(true);
-                setLoadingDreams(true);
-                
-                const chatHistory = await getChat(user.uid);
-                if (chatHistory?.messages) {
-                    setMessages(chatHistory.messages);
-                } else {
-                     setMessages([{ role: 'model', content: t('chatbotWelcome'), createdAt: new Date() as any }]);
-                }
-                
-                const entries = await getDreamEntries(user.uid);
-                setDreamEntries(entries);
-                const tips = new Set<string>();
-                entries.forEach(entry => {
-                    entry.recommendations?.lucidDreaming?.forEach(tip => tips.add(tip));
-                });
-                setLucidDreamingTips(Array.from(tips));
-
-                setLoading(false);
-                setLoadingDreams(false);
+        const fetchUserData = async (uid: string) => {
+            setLoading(true);
+            setLoadingDreams(true);
+            
+            const chatHistory = await getChat(uid);
+            if (chatHistory?.messages && chatHistory.messages.length > 0) {
+                setMessages(chatHistory.messages);
+            } else {
+                 setMessages([{ role: 'model', content: t('chatbotWelcome'), createdAt: new Date() as any }]);
             }
+            
+            const entries = await getDreamEntries(uid);
+            setDreamEntries(entries);
+            const tips = new Set<string>();
+            entries.forEach(entry => {
+                entry.recommendations?.lucidDreaming?.forEach(tip => tips.add(tip));
+            });
+            setLucidDreamingTips(Array.from(tips));
+
+            setLoading(false);
+            setLoadingDreams(false);
         };
 
         if (isOpen) {
-            const newChatId = user?.uid || uuidv4();
-            setChatId(newChatId);
+            const currentChatId = user?.uid || uuidv4();
+            setChatId(currentChatId);
 
             if(user) {
-                fetchUserData();
+                fetchUserData(user.uid);
             } else {
                  setMessages([{ role: 'model', content: t('chatbotWelcome'), createdAt: new Date() as any }]);
                  setDreamEntries([]);
@@ -142,7 +140,7 @@ export default function Chatbot() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim() || loading) return;
+        if (!input.trim() || loading || !chatId) return;
 
         const userMessage: ChatMessage = { role: 'user', content: input, createdAt: new Date() as any };
         setMessages(prev => [...prev, userMessage]);
@@ -151,15 +149,8 @@ export default function Chatbot() {
         setLoading(true);
 
         try {
-            let currentChatId = chatId;
-            if (!currentChatId) {
-                const newId = user?.uid || uuidv4();
-                setChatId(newId);
-                currentChatId = newId;
-            }
-
             const response = await continueChat({
-                chatId: currentChatId,
+                chatId: chatId,
                 question: question,
                 user: user ? { uid: user.uid, email: user.email, displayName: user.displayName } : null
             });
@@ -298,7 +289,7 @@ export default function Chatbot() {
             <PopoverContent
                 side="top"
                 align="end"
-                className="w-[90vw] max-w-lg h-[70vh] flex flex-col p-0 rounded-xl"
+                className="w-[90vw] max-w-lg h-[80vh] flex flex-col p-0 rounded-xl"
                 onOpenAutoFocus={(e) => e.preventDefault()}
             >
                 <EditableProvider>

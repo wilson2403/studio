@@ -79,11 +79,13 @@ Tu respuesta como Guía Espiritual (role: model):`,
 async function runContinueChatFlow(input: ChatInput): Promise<ChatOutput> {
     const { question, chatId, user } = input;
     
-    console.log('Continuing chat with ID:', chatId);
-    
-    // Retrieve existing chat history from Firestore
-    const existingChat = await getChat(chatId);
-    const history = existingChat?.messages || [];
+    // It's possible for a non-logged-in user to have a temporary chat,
+    // so we only try to load history if there's a user.
+    let history: ChatMessage[] = [];
+    if (user?.uid) {
+        const existingChat = await getChat(chatId);
+        history = existingChat?.messages || [];
+    }
 
     // Generate AI response
     const { output } = await spiritualGuidePrompt({ history, question });
@@ -91,20 +93,23 @@ async function runContinueChatFlow(input: ChatInput): Promise<ChatOutput> {
 
     const now = Timestamp.now();
 
-    // Save the full conversation history to Firestore
-    const updatedHistory: ChatMessage[] = [
-        ...history,
-        { role: 'user', content: question, createdAt: now },
-        { role: 'model', content: answer, createdAt: now }
-    ];
-    
-    try {
-        await saveChatMessage(chatId, updatedHistory, user);
-    } catch (error) {
-        console.error("Failed to save chat message:", error);
-        await logError(error, { function: 'runContinueChatFlow - saveChatMessage' });
-        // We don't throw here because we still want to return the answer to the user
+    // Save the full conversation history to Firestore only if a user is logged in
+    if (user?.uid) {
+        const updatedHistory: ChatMessage[] = [
+            ...history,
+            { role: 'user', content: question, createdAt: now },
+            { role: 'model', content: answer, createdAt: now }
+        ];
+        
+        try {
+            await saveChatMessage(chatId, updatedHistory, user);
+        } catch (error) {
+            console.error("Failed to save chat message:", error);
+            await logError(error, { function: 'runContinueChatFlow - saveChatMessage' });
+            // We don't throw here because we still want to return the answer to the user
+        }
     }
+
 
     return { answer };
 }
