@@ -227,10 +227,6 @@ export default function Header() {
                 <BookOpen className="mr-2 h-4 w-4" />
                 <span>{t('navCourses')}</span>
             </DropdownMenuItem>
-             <DropdownMenuItem onMouseDown={() => router.push('/dreams')}>
-                <NotebookText className="mr-2 h-4 w-4" />
-                <span>{t('myDreams')}</span>
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setIsTutorialOpen(true)}>
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>{t('help')}</span>
@@ -393,12 +389,6 @@ export default function Header() {
                               </Link>
                           </SheetClose>
                            <SheetClose asChild>
-                              <Link href="/dreams" className="transition-colors hover:text-primary flex items-center gap-2">
-                                  <NotebookText className="h-5 w-5" />
-                                  {t('myDreams')}
-                              </Link>
-                          </SheetClose>
-                           <SheetClose asChild>
                               <button onClick={() => setIsTutorialOpen(true)} className="transition-colors hover:text-primary flex items-center gap-2">
                                   <HelpCircle className="h-5 w-5" />
                                   <span>{t('help')}</span>
@@ -473,3 +463,5 @@ export default function Header() {
     </>
   );
 }
+
+    

@@ -112,6 +112,7 @@
     "migrationErrorTitle": "Error en la Migración",
     "migrationWarningTitle": "¿Iniciar Migración?",
     "migrationWarningDescription": "Este proceso leerá tus archivos de traducción locales y añadirá cualquier clave nueva a Firestore. Las claves existentes en Firestore NO serán modificadas. Esta acción es irreversible.",
-    "errorDetails": "Detalles del Error:",
-    "myDreams": "Mis Sueños"
+    "errorDetails": "Detalles del Error:"
 }
+
+    
