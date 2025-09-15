@@ -7,10 +7,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, MessageCircle, NotebookText, User } from 'lucide-react';
+import { Bot, MessageCircle, NotebookText, Trash2, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getAllChats, Chat, getUserProfile, getAllDreamEntries, DreamEntry, UserProfile, ChatMessage } from '@/lib/firebase/firestore';
+import { getAllChats, Chat, getUserProfile, getAllDreamEntries, DreamEntry, UserProfile, ChatMessage, deleteDreamEntry } from '@/lib/firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -20,6 +20,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { es, enUS } from 'date-fns/locale';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 type DreamEntryWithUser = DreamEntry & { user: UserProfile };
 
@@ -112,6 +114,17 @@ export default function AdminInteractionHistoryPage() {
             return acc;
         }, {} as Record<string, ChatMessage[]>);
     };
+
+    const handleDeleteDream = async (userId: string, dreamId: string) => {
+        try {
+            await deleteDreamEntry(userId, dreamId);
+            setDreamEntries(prev => prev.filter(entry => entry.id !== dreamId));
+            toast({ title: t('dreamDeletedSuccess') });
+        } catch (error) {
+            console.error("Failed to delete dream entry:", error);
+            toast({ title: t('dreamDeletedError'), variant: 'destructive' });
+        }
+    }
 
 
     if (!isAuthorized || loading) {
@@ -249,6 +262,26 @@ export default function AdminInteractionHistoryPage() {
                                                         <p className="text-sm whitespace-pre-wrap mt-1">{entry.recommendations.personal}</p>
                                                     </div>
                                                 )}
+                                                <div className="flex justify-end pt-4 border-t border-border/50">
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="destructive" size="sm">
+                                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                                {t('delete')}
+                                                            </Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
+                                                                <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleDeleteDream(entry.user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </div>
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>

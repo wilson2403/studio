@@ -470,7 +470,7 @@ export const seedGuides = async () => {
             name: 'Johanna',
             imageUrl: 'https://i.postimg.cc/mD3mXj50/harley.jpg',
             description: 'guide_desc_johanna'
-        },
+        }
     ];
 
     const guideDescriptions: Record<string, { es: string, en: string }> = {
@@ -1794,6 +1794,18 @@ export const getDreamEntries = async (uid: string): Promise<DreamEntry[]> => {
         console.error("Error getting dream entries:", error);
         logError(error, { function: 'getDreamEntries', uid });
         return [];
+    }
+};
+
+export const deleteDreamEntry = async (userId: string, dreamId: string): Promise<void> => {
+    try {
+        const dreamRef = doc(db, `users/${userId}/dreamJournal`, dreamId);
+        await deleteDoc(dreamRef);
+        await logUserAction('delete_dream_entry', { targetId: dreamId, changes: { userId } });
+    } catch (error) {
+        console.error("Error deleting dream entry:", error);
+        logError(error, { function: 'deleteDreamEntry', dreamId, userId });
+        throw error;
     }
 };
 
