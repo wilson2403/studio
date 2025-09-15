@@ -685,5 +685,10 @@
   "migrationErrorTitle": "Error en la Migración",
   "migrationWarningTitle": "¿Iniciar Migración?",
   "migrationWarningDescription": "Este proceso leerá tus archivos de traducción locales y añadirá cualquier clave nueva a Firestore. Las claves existentes en Firestore NO serán modificadas. Esta acción es irreversible.",
-  "errorDetails": "Detalles del Error:"
+  "errorDetails": "Detalles del Error:",
+  "contentMigrationTitle": "Migración de Contenido",
+  "contentMigrationDescription": "Esta herramienta te permite migrar los textos de los archivos `common.json` locales a la base de datos de Firestore. Se agregarán las claves nuevas y no se modificarán las existentes.",
+  "migrationToolTitle": "Herramienta de Migración a Firestore",
+  "migrationToolDescription": "Inicia el proceso para mover los textos de los archivos `common.json` a la colección `content` en Firestore.",
+  "startMigrationButton": "Iniciar Migración"
 }
