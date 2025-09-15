@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { setContent, logError } from '@/lib/firebase/firestore';
+import { setContent, logError, getContent } from '@/lib/firebase/firestore';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -45,33 +45,40 @@ export const migrateContent = ai.defineFlow(
       const allKeys = [...new Set([...Object.keys(esJson), ...Object.keys(enJson)])];
 
       for (const key of allKeys) {
-        const esValue = esJson[key] || '';
-        const enValue = enJson[key] || '';
-
-        // Only process if at least one language has a value
-        if (esValue || enValue) {
-          try {
-            const contentData = {
-              id: key,
-              value: { es: esValue, en: enValue },
-              type: 'text' as const,
-              visible: true,
-              page: 'general' // Assign a default page/group
-            };
-            await setContent(key, contentData);
-            processedKeys++;
-          } catch (e: any) {
-            const errorMessage = `Failed to process key "${key}": ${e.message}`;
-            console.error(errorMessage);
-            errors.push(errorMessage);
+        try {
+          // Check if the key already exists in Firestore
+          const existingContent = await getContent(key);
+          if (existingContent !== null) {
+            // Key exists, skip it
+            continue;
           }
+
+          const esValue = esJson[key] || '';
+          const enValue = enJson[key] || '';
+
+          // Only process if at least one language has a value
+          if (esValue || enValue) {
+              const contentData = {
+                id: key,
+                value: { es: esValue, en: enValue },
+                type: 'text' as const,
+                visible: true,
+                page: 'general' // Assign a default page/group
+              };
+              await setContent(key, contentData);
+              processedKeys++;
+          }
+        } catch (e: any) {
+          const errorMessage = `Failed to process key "${key}": ${e.message}`;
+          console.error(errorMessage);
+          errors.push(errorMessage);
         }
       }
       
       if (errors.length > 0) {
           return {
               success: false,
-              message: `Migration completed with ${errors.length} errors.`,
+              message: `Migration completed with ${errors.length} errors. ${processedKeys} new keys were added.`,
               processedKeys,
               errors,
           };
@@ -79,7 +86,7 @@ export const migrateContent = ai.defineFlow(
 
       return {
         success: true,
-        message: `Successfully migrated ${processedKeys} keys to Firestore.`,
+        message: `Successfully migrated ${processedKeys} new keys to Firestore.`,
         processedKeys,
         errors: [],
       };
