@@ -361,7 +361,7 @@ export default function Chatbot() {
                                 </div>
                             </ScrollArea>
 
-                            <div className="flex-shrink-0 p-4 border-t mt-auto">
+                            <div className="flex-shrink-0 p-4 border-t">
                                 <form onSubmit={handleSubmit} className="flex items-center gap-2">
                                     <Input
                                         value={input}
@@ -435,7 +435,7 @@ export default function Chatbot() {
                                     </div>
                                 )}
                             </ScrollArea>
-                            <div className="flex-shrink-0 p-4 border-t space-y-2 mt-auto">
+                            <div className="flex-shrink-0 p-4 border-t space-y-2">
                                 <div className="relative">
                                 <Textarea 
                                     placeholder={isDreamRecording ? t('recording') : t('dreamInputPlaceholder')}
