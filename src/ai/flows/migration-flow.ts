@@ -8,7 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { setContent, logError, getContent, updateContentFields } from '@/lib/firebase/firestore';
+import { setContent, logError, getContent } from '@/lib/firebase/firestore';
 import { promises as fs } from 'fs';
 import path from 'path';
 
@@ -53,15 +53,7 @@ export const migrateContent = ai.defineFlow(
             // Check if the key already exists in Firestore
             const existingContent = await getContent(key);
             
-            if (existingContent !== null && typeof existingContent === 'object') {
-              // Key exists, update only the 'es' and 'en' fields of the value
-              const updatedValue = {
-                es: esValue,
-                en: enValue
-              };
-              await updateContentFields(key, { value: updatedValue });
-              processedKeys++;
-            } else if (existingContent === null) {
+            if (existingContent === null) {
               // Key does not exist, create it
               const contentData = {
                 id: key,
@@ -73,7 +65,7 @@ export const migrateContent = ai.defineFlow(
               await setContent(key, contentData);
               processedKeys++;
             }
-            // If existingContent is a string or some other legacy format, we skip it to be safe.
+            // If the key exists, do nothing.
           }
         } catch (e: any) {
           const errorMessage = `Failed to process key "${key}": ${e.message}`;
@@ -85,7 +77,7 @@ export const migrateContent = ai.defineFlow(
       if (errors.length > 0) {
           return {
               success: false,
-              message: `Migration completed with ${errors.length} errors. ${processedKeys} keys were processed.`,
+              message: `Migration completed with ${errors.length} errors. ${processedKeys} new keys were added.`,
               processedKeys,
               errors,
           };
@@ -93,7 +85,7 @@ export const migrateContent = ai.defineFlow(
 
       return {
         success: true,
-        message: `Successfully processed ${processedKeys} keys.`,
+        message: `Successfully processed and added ${processedKeys} new keys.`,
         processedKeys,
         errors: [],
       };
