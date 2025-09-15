@@ -55,25 +55,62 @@ export const EditableTitle = ({ tag: Tag, id, initialValue, className, isInsideB
 
   const RenderTag = Tag;
   
-  if (isInsideButton || Tag === 'span' || Tag === 'p') {
-    return (
-        <RenderTag className={cn("relative group inline-flex items-center gap-2", className)}>
-            {displayValue.split('\n').map((line, index) => (
-                <span key={index} className="block">{line}</span>
-            ))}
-            {isAdmin && (
+  if (isInsideButton) {
+      return (
+        <span className={cn("relative group inline-flex items-center gap-2", className)}>
+            {displayValue}
+             {isAdmin && (
                 <span
                     className={cn(
-                        'h-6 w-6 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors ml-2',
-                        isInsideButton ? 'bg-transparent' : 'hover:bg-accent'
+                        'h-6 w-6 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors ml-2 bg-transparent'
                     )}
                     onClick={handleEditClick}
                 >
-                    <Edit className={cn("h-3 w-3", isInsideButton ? 'text-inherit' : 'text-accent-foreground')} />
+                    <Edit className={cn("h-3 w-3 text-inherit")} />
                 </span>
             )}
-        </RenderTag>
-    );
+        </span>
+      );
+  }
+
+  if (Tag === 'p') {
+    return (
+        <p className={cn("relative group", className)}>
+            {displayValue.split('\n').map((line, index) => (
+                <span key={index} className="block">{line}</span>
+            ))}
+             {isAdmin && (
+                <span
+                    className={cn(
+                        'h-6 w-6 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors ml-2 hover:bg-accent'
+                    )}
+                    onClick={handleEditClick}
+                >
+                    <Edit className={cn("h-3 w-3 text-accent-foreground")} />
+                </span>
+            )}
+        </p>
+    )
+  }
+  
+  if (Tag === 'span') {
+     return (
+        <span className={cn("relative group inline-flex items-center gap-2", className)}>
+            {displayValue.split('\n').map((line, index) => (
+                <span key={index} className="block">{line}</span>
+            ))}
+             {isAdmin && (
+                <span
+                    className={cn(
+                        'h-6 w-6 rounded-full inline-flex items-center justify-center cursor-pointer transition-colors ml-2 hover:bg-accent'
+                    )}
+                    onClick={handleEditClick}
+                >
+                    <Edit className={cn("h-3 w-3 text-accent-foreground")} />
+                </span>
+            )}
+        </span>
+     )
   }
 
   return (
