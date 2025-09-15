@@ -26,6 +26,7 @@ import { es, enUS } from 'date-fns/locale';
 import { EditableTitle } from '../home/EditableTitle';
 import { EditableProvider } from '../home/EditableProvider';
 import { Separator } from '../ui/separator';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 const DateSeparator = ({ date, locale }: { date: Date, locale: Locale }) => {
   let dateText: string;
@@ -275,6 +276,17 @@ export default function Chatbot() {
         }, {} as Record<string, ChatMessage[]>);
     }, [messages]);
 
+    const groupedDreamEntries = useMemo(() => {
+        return dreamEntries.reduce((acc, entry) => {
+            const dateStr = format(entry.date, 'yyyy-MM-dd');
+            if (!acc[dateStr]) {
+                acc[dateStr] = [];
+            }
+            acc[dateStr].push(entry);
+            return acc;
+        }, {} as Record<string, DreamEntry[]>);
+    }, [dreamEntries]);
+
 
     return (
         <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -382,35 +394,46 @@ export default function Chatbot() {
                                 <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
                             </div>
                             <ScrollArea className="flex-1 p-4">
-                                <div className="space-y-4">
-                                {loadingDreams && <Skeleton className="h-24 w-full"/>}
-                                {!loadingDreams && dreamEntries.length === 0 && (
+                                {loadingDreams ? <Skeleton className="h-24 w-full"/> : 
+                                 Object.keys(groupedDreamEntries).length === 0 ? (
                                     <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
+                                ) : (
+                                    <Accordion type="single" collapsible className="w-full space-y-2">
+                                        {Object.entries(groupedDreamEntries).map(([date, entries]) => (
+                                            <AccordionItem key={date} value={date} className="border-none">
+                                                <AccordionTrigger className="py-2 px-3 border rounded-md bg-muted/50 hover:no-underline">
+                                                    <p className="font-semibold text-sm">{format(parseISO(date), 'PPP', { locale })}</p>
+                                                </AccordionTrigger>
+                                                <AccordionContent className="pt-2">
+                                                    <div className="space-y-2">
+                                                    {entries.map((entry, index) => (
+                                                         <div key={index} className="p-3 border rounded-lg bg-muted/30">
+                                                            <p className="font-semibold mt-1">{t('yourDream')}</p>
+                                                            <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
+                                                            <p className="font-semibold mt-2">{t('interpretation')}</p>
+                                                            <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
+                                                            {entry.recommendations?.personal && (
+                                                                <>
+                                                                    <p className="font-semibold mt-2">{t('recommendations')}</p>
+                                                                    <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                    </div>
+                                                </AccordionContent>
+                                            </AccordionItem>
+                                        ))}
+                                    </Accordion>
                                 )}
-                                {dreamEntries.map((entry, index) => (
-                                    <div key={index} className="p-3 border rounded-lg bg-muted/30">
-                                        <p className="text-xs text-muted-foreground">{format(entry.date, 'PPP', { locale })}</p>
-                                        <p className="font-semibold mt-1">{t('yourDream')}</p>
-                                        <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
-                                        <p className="font-semibold mt-2">{t('interpretation')}</p>
-                                        <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
-                                        {entry.recommendations?.personal && (
-                                            <>
-                                                <p className="font-semibold mt-2">{t('recommendations')}</p>
-                                                <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
-                                            </>
-                                        )}
-                                    </div>
-                                ))}
                                 {lucidDreamingTips.length > 0 && (
-                                    <div className='pt-4 border-t'>
+                                    <div className='pt-4 mt-4 border-t'>
                                         <h4 className='font-bold text-center mb-2'>{t('lucidDreamingTips')}</h4>
                                         <ul className='text-xs list-disc list-inside space-y-1 text-muted-foreground'>
                                             {lucidDreamingTips.map((tip, i) => <li key={i}>{tip}</li>)}
                                         </ul>
                                     </div>
                                 )}
-                                </div>
                             </ScrollArea>
                             <div className="flex-shrink-0 p-4 border-t space-y-2">
                                 <div className="relative">
