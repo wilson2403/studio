@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, LogOut, ShieldCheck, User as UserIcon, HelpCircle, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2, FileText, Anchor, NotebookText } from 'lucide-react';
+import { Menu, LogOut, ShieldCheck, User as UserIcon, HelpCircle, History, MessageSquare, Terminal, Hand, Star, Video, Briefcase, BookOpen, Bot, Settings, MessageCircle, StarIcon, TestTube2, FileText, Anchor, NotebookText, Database } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import React, { useEffect, useState } from 'react';
@@ -77,6 +77,7 @@ export default function Header() {
       { href: '/admin', labelKey: 'backupTitle', icon: History },
       { href: '/admin/users', labelKey: 'userManagementTitle', icon: UserIcon },
       { href: '/admin/content', labelKey: 'contentManagement', icon: FileText },
+      { href: '/admin/migration', labelKey: 'contentMigrationTitle', icon: Database },
       { href: '/admin/chats', labelKey: 'chatHistoryTitle', icon: MessageSquare },
       { href: '/admin/logs', labelKey: 'errorLogsTitle', icon: Terminal, id: 'error-logs' },
       { href: '/admin/settings', labelKey: 'systemSettings', icon: Settings }
