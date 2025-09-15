@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import {
@@ -18,13 +19,16 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { EditableTitle } from '../home/EditableTitle';
 import { EditableProvider } from '../home/EditableProvider';
+import { User } from 'firebase/auth';
+import { markTutorialAsSeen } from '@/lib/firebase/firestore';
 
 interface TutorialDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  user: User | null;
 }
 
-export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps) {
+export default function TutorialDialog({ isOpen, onClose, user }: TutorialDialogProps) {
   const { t, i18n } = useTranslation();
   const [api, setApi] = useState<CarouselApi>();
   const [currentStep, setCurrentStep] = useState(0);
@@ -68,6 +72,9 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
 
   const handleClose = (open: boolean) => {
     if (!open) {
+      if (user) {
+        markTutorialAsSeen(user.uid);
+      }
       onClose();
     }
   };
@@ -81,7 +88,9 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
                     <EditableTitle tag="h2" id="tutorialTitle" initialValue={t('tutorialTitle')} className="text-lg font-semibold" />
                 </DialogTitle>
                 <DialogDescription>
-                    <EditableTitle tag="p" id="tutorialDescription" initialValue={t('tutorialDescription')} />
+                  <p>
+                    <EditableTitle tag="span" id="tutorialDescription" initialValue={t('tutorialDescription')} />
+                  </p>
                 </DialogDescription>
             </DialogHeader>
             <div className="flex-grow flex flex-col">
@@ -110,11 +119,11 @@ export default function TutorialDialog({ isOpen, onClose }: TutorialDialogProps)
                 <div className="flex gap-2">
                     {currentStep < tutorialSlides.length - 1 ? (
                         <>
-                            <Button variant="ghost" onClick={onClose}><EditableTitle tag="span" id="tutorialSkip" initialValue={t('tutorialSkip')} isInsideButton/></Button>
+                            <Button variant="ghost" onClick={() => handleClose(false)}><EditableTitle tag="span" id="tutorialSkip" initialValue={t('tutorialSkip')} isInsideButton/></Button>
                             <Button onClick={() => api?.scrollNext()}><EditableTitle tag="span" id="tutorialNext" initialValue={t('tutorialNext')} isInsideButton/></Button>
                         </>
                     ) : (
-                        <Button onClick={onClose} className="w-full"><EditableTitle tag="span" id="tutorialDone" initialValue={t('tutorialDone')} isInsideButton/></Button>
+                        <Button onClick={() => handleClose(false)} className="w-full"><EditableTitle tag="span" id="tutorialDone" initialValue={t('tutorialDone')} isInsideButton/></Button>
                     )}
                 </div>
             </DialogFooter>

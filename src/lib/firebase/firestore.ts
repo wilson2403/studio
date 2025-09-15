@@ -677,6 +677,17 @@ export const updateUserLanguage = async (uid: string, language: 'es' | 'en'): Pr
     }
 }
 
+export const markTutorialAsSeen = async (uid: string): Promise<void> => {
+    try {
+        const userRef = doc(db, 'users', uid);
+        await updateDoc(userRef, { tutorialSeen: true });
+    } catch (error) {
+        console.error("Error marking tutorial as seen:", error);
+        logError(error, { function: 'markTutorialAsSeen', uid });
+        throw error;
+    }
+}
+
 
 export const updateUserRole = async (uid: string, role: UserRole): Promise<void> => {
     try {

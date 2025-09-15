@@ -106,15 +106,10 @@ export default function Header() {
   }, []);
   
   useEffect(() => {
-    // Show tutorial on first visit after login
-    if (user && !loading) {
-      const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
-      if (!hasSeenTutorial) {
-        setIsTutorialOpen(true);
-        localStorage.setItem('hasSeenTutorial', 'true');
-      }
+    if (userProfile && !userProfile.tutorialSeen) {
+      setIsTutorialOpen(true);
     }
-  }, [user, loading]);
+  }, [userProfile]);
 
   useEffect(() => {
         if (isAdmin) {
@@ -461,6 +456,7 @@ export default function Header() {
           onClose={() => setIsProfileDialogOpen(false)}
       />
       <TutorialDialog 
+          user={user}
           isOpen={isTutorialOpen}
           onClose={() => setIsTutorialOpen(false)}
       />

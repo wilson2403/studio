@@ -686,5 +686,9 @@
   "tutorialSlideCommunityDescription": "Accede a ceremonias pasadas, mira videos y ve testimonios de otros miembros para conectar con la experiencia de la comunidad.",
   "tutorialSkip": "Saltar",
   "tutorialNext": "Siguiente",
-  "tutorialDone": "Finalizar"
+  "tutorialDone": "Finalizar",
+  "admin": "Administrador",
+  "ceremoniesPageTitle": "Nuestras Ceremonias",
+  "ceremoniesPageSubtitle": "Explora todos nuestros próximos y pasados eventos de sanación.",
+  "tutorialTitle": "¡Bienvenido a Tu Viaje!"
 }

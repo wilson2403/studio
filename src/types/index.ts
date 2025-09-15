@@ -78,6 +78,7 @@ export type UserProfile = {
         canViewChatHistory?: boolean;
     };
     questionnaireCompleted?: boolean;
+    tutorialSeen?: boolean;
     status?: UserStatus;
     preparationStep?: number;
     assignedCeremonies?: (string | { ceremonyId: string; planId: string })[];
@@ -365,4 +366,5 @@ export type DreamEntry = {
         lucidDreaming?: string[];
     }
 };
+
 
