@@ -671,6 +671,9 @@
   "contentMigrationDescription": "Herramienta para migrar textos de archivos locales a la base de datos.",
   "migrationToolTitle": "Herramienta de Migración",
   "migrationToolDescription": "Migra el contenido de `public/locales` a Firestore.",
-  "startMigrationButton": "Iniciar Migración"
+  "startMigrationButton": "Iniciar Migración",
+  "ayahuascaBenefitClarityDescription": "Obtén una nueva perspectiva sobre tu vida, tus relaciones y tu propósito. La Ayahuasca te ayuda a ver más allá del velo de la confusión y a encontrar respuestas que residen en tu interior.",
+  "ayahuascaBenefitHealingDescription": "Libera traumas, miedos y bloqueos emocionales arraigados. La medicina te permite enfrentar y procesar emociones reprimidas en un espacio seguro y contenido, abriendo el corazón a la compasión y el perdón.",
+  "ayahuascaBenefitConnectionDescription": "Experimenta una sensación de unidad con la naturaleza, el universo y tu verdadero ser. La Ayahuasca expande la conciencia y te recuerda que eres parte de algo mucho más grande."
   
 }

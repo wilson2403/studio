@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,7 @@ import {
 import { Globe } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { updateUserLanguage } from '@/lib/firebase/firestore';
+import { useEffect } from 'react';
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -22,7 +24,7 @@ export default function LanguageSwitcher() {
   const { user, userProfile, loading } = useAuth();
 
   const changeLanguage = async (lng: string) => {
-    i18n.changeLanguage(lng);
+    await i18n.changeLanguage(lng);
     if (user?.uid && userProfile) { // Ensure profile is loaded before saving
         try {
             await updateUserLanguage(user.uid, lng as 'es' | 'en');
@@ -30,7 +32,16 @@ export default function LanguageSwitcher() {
             console.error("Failed to save language preference:", error);
         }
     }
+    window.location.reload();
   };
+
+  useEffect(() => {
+    // When the language changes from the server (e.g. from user profile),
+    // this will set it on the client.
+    if(userProfile?.language && i18n.language !== userProfile.language) {
+      i18n.changeLanguage(userProfile.language);
+    }
+  }, [userProfile, i18n]);
 
   return (
     <DropdownMenu>
