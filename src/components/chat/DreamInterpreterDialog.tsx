@@ -1,10 +1,11 @@
 
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks/useAuth';
-import { DreamEntry, getDreamEntries, interpretDreamAndGetRecommendations } from '@/lib/firebase/firestore';
+import { DreamEntry, getDreamEntries } from '@/lib/firebase/firestore';
+import { interpretDreamAndGetRecommendations } from '@/ai/flows/dream-interpreter-flow';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
@@ -214,4 +215,3 @@ export default function DreamInterpreterDialog() {
     </Dialog>
   );
 }
-
