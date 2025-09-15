@@ -378,11 +378,11 @@ export default function Chatbot() {
                         </TabsContent>
                         
                         <TabsContent value="interpreter" className="flex-1 flex flex-col min-h-0">
-                            <div className="flex-shrink-0 p-4 border-b text-center">
+                             <div className="flex-shrink-0 p-4 border-b text-center">
                                 <h3 className="text-lg font-headline">{t('dreamInterpreter')}</h3>
                                 <p className="text-sm text-muted-foreground">{t('dreamInterpreterDescription')}</p>
                             </div>
-                            <ScrollArea className="flex-1 p-4">
+                             <ScrollArea className="flex-1 p-4">
                                 <div className="space-y-4">
                                 {loadingDreams && <Skeleton className="h-24 w-full"/>}
                                 {!loadingDreams && dreamEntries.length === 0 && (
