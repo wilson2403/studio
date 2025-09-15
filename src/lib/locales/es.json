@@ -1,4 +1,20 @@
 
 {
-    
+    "tutorialTitle": "¡Bienvenido a El Arte de Sanar!",
+    "tutorialDescription": "Aquí tienes un rápido recorrido por nuestras herramientas para acompañarte en tu viaje.",
+    "tutorialSlideSpiritualGuideTitle": "Tu Guía Espiritual IA",
+    "tutorialSlideSpiritualGuideDescription": "Conversa con nuestra IA para obtener guía y sabiduría sobre la medicina ancestral y tu camino espiritual. Encuéntrala en el botón flotante.",
+    "tutorialSlideDreamInterpreterTitle": "Intérprete de Sueños",
+    "tutorialSlideDreamInterpreterDescription": "Registra y recibe interpretaciones de tus sueños y visiones para entender mejor sus mensajes. Disponible en el menú de usuario.",
+    "tutorialSlidePreparationTitle": "Preparación y Cursos",
+    "tutorialSlidePreparationDescription": "Accede a guías completas y cursos en video para prepararte física, mental y espiritualmente para tu ceremonia.",
+    "tutorialSlideCommunityTitle": "Comunidad y Ceremonias",
+    "tutorialSlideCommunityDescription": "Explora las próximas ceremonias, deja testimonios y conecta con nuestra comunidad para compartir tu viaje.",
+    "tutorialSkip": "Saltar",
+    "tutorialNext": "Siguiente",
+    "contentMigrationTitle": "Migración de Contenido",
+    "contentMigrationDescription": "Esta herramienta migra el contenido de los archivos JSON locales a la base de datos de Firestore.",
+    "migrationToolTitle": "Herramienta de Migración",
+    "migrationToolDescription": "Ejecuta el proceso para sincronizar el contenido de `public/locales` a Firestore. Esto solo añade claves nuevas, no sobrescribe las existentes.",
+    "startMigrationButton": "Iniciar Migración"
 }

@@ -1,4 +1,20 @@
 
 {
-    
+    "tutorialTitle": "Welcome to The Art of Healing!",
+    "tutorialDescription": "Here's a quick tour of our tools to accompany you on your journey.",
+    "tutorialSlideSpiritualGuideTitle": "Your AI Spiritual Guide",
+    "tutorialSlideSpiritualGuideDescription": "Chat with our AI to get guidance and wisdom about ancestral medicine and your spiritual path. Find it in the floating button.",
+    "tutorialSlideDreamInterpreterTitle": "Dream Interpreter",
+    "tutorialSlideDreamInterpreterDescription": "Record and receive interpretations of your dreams and visions to better understand their messages. Available in the user menu.",
+    "tutorialSlidePreparationTitle": "Preparation and Courses",
+    "tutorialSlidePreparationDescription": "Access complete guides and video courses to prepare yourself physically, mentally, and spiritually for your ceremony.",
+    "tutorialSlideCommunityTitle": "Community and Ceremonies",
+    "tutorialSlideCommunityDescription": "Explore upcoming ceremonies, leave testimonials, and connect with our community to share your journey.",
+    "tutorialSkip": "Skip",
+    "tutorialNext": "Next",
+    "contentMigrationTitle": "Content Migration",
+    "contentMigrationDescription": "This tool migrates content from local JSON files to the Firestore database.",
+    "migrationToolTitle": "Migration Tool",
+    "migrationToolDescription": "Run the process to sync content from `public/locales` to Firestore. This only adds new keys, it does not overwrite existing ones.",
+    "startMigrationButton": "Start Migration"
 }
