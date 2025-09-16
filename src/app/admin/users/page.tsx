@@ -207,9 +207,9 @@ export default function AdminUsersPage() {
 
     const handleSendInvite = async (template: CombinedTemplate, lang: 'es' | 'en') => {
         if (!invitingUser || !invitingUser.phone) return;
-        
-        let message = template?.[lang as keyof typeof template] as string || template?.es;
-        
+
+        let message = (template as any)[lang] || (template as any).es;
+
         if (template.name === 'Invitar al Intérprete de Sueños') {
             const dreamInterpreterLink = `${window.location.origin}/interpreter`;
             message = message.replace('{{dreamInterpreterLink}}', dreamInterpreterLink);
@@ -223,15 +223,16 @@ export default function AdminUsersPage() {
             const active = await getCeremonies('active');
             setActiveCeremonies(active);
             setSelectingCeremonyForInvite({ user: invitingUser, template });
-            return; // Exit here, the rest will be handled by the ceremony selection dialog
+            return;
         }
-        
+
         const phoneNumber = invitingUser.phone.replace(/\D/g, '');
         const encodedMessage = encodeURIComponent(message);
         const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        
         window.open(url, '_blank');
         setInvitingUser(null);
-    }
+    };
     
     const handleSendCeremonyInvite = (ceremony: Ceremony) => {
         if (!selectingCeremonyForInvite) return;
@@ -1032,6 +1033,7 @@ export default function AdminUsersPage() {
     
 
     
+
 
 
 
