@@ -96,7 +96,7 @@ export default function MyChatsPage() {
                     <MessageSquare className="h-5 w-5 text-primary" />
                     <div className='text-left'>
                       <p className="font-semibold">
-                        {t('conversationOnDate', { date: chat.createdAt ? format(chat.createdAt.toDate(), 'PPP p', { locale }) : 'No date' })}
+                        {t('conversationOnDate', { date: chat.createdAt ? format(chat.createdAt as any, 'PPP p', { locale }) : 'No date' })}
                       </p>
                     </div>
                   </div>
@@ -137,4 +137,3 @@ export default function MyChatsPage() {
     </div>
   );
 }
-
