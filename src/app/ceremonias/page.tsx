@@ -321,10 +321,10 @@ export default function AllCeremoniesPage() {
                                         />
                                     </div>
                                     <CardContent className="p-4 bg-primary/10 rounded-b-lg text-center flex flex-col justify-center flex-grow">
-                                        <p className="font-mono text-xl font-bold text-primary-foreground mb-2">
+                                        <p className="font-mono text-xl font-bold text-white mb-2">
                                             {ceremony.title}
                                         </p>
-                                        <div className="flex justify-center gap-4 text-xs text-primary-foreground/70 mb-4">
+                                        <div className="flex justify-center gap-4 text-xs text-white/70 mb-4">
                                             {isAuthorized && ceremony.showParticipantCount && (
                                                 <div className="flex items-center gap-1.5 cursor-pointer hover:underline" onClick={() => registeredCount > 0 && setViewingParticipants(ceremony)}>
                                                     <Users className="h-4 w-4" />
@@ -343,10 +343,10 @@ export default function AllCeremoniesPage() {
                                                 {isAssigned ? getButtonText('buttonViewDetails', 'Ver Detalles') : t('reserveNow')}
                                             </Button>
                                         ) : (
-                                            ceremony.date && <p className="text-sm text-primary-foreground/70">{ceremony.date}</p>
+                                            ceremony.date && <p className="text-sm text-white/70">{ceremony.date}</p>
                                         )}
                                         {isAuthorized && (
-                                            <div className="flex justify-center gap-4 text-xs text-primary-foreground/70 mt-3 pt-3 border-t border-primary-foreground/20">
+                                            <div className="flex justify-center gap-4 text-xs text-white/70 mt-3 pt-3 border-t border-white/20">
                                                 <div className='flex items-center gap-1.5'>
                                                     <MousePointerClick className="h-4 w-4" />
                                                     <span>{ceremony.reserveClickCount || 0}</span>
@@ -399,3 +399,5 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
+    
