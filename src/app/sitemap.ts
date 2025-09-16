@@ -14,7 +14,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/login',
     '/register',
     '/artedesanar',
-    '/interpreter',
+    '/interpreter/es',
+    '/interpreter/en',
   ].map(route => ({
     url: `${BASE_URL}${route}`,
     lastModified: new Date().toISOString(),
@@ -40,4 +41,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [...staticRoutes, ...ceremonyRoutes, ...ceremonyMemoryRoutes];
 }
+    
+
+    
+
+    
+
     

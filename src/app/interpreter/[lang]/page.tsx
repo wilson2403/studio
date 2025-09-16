@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function InterpreterPage() {
-  return <InterpreterClientPage />;
+export default function InterpreterPage({ params }: { params: { lang: string } }) {
+  return <InterpreterClientPage params={params} />;
 }
+
+    

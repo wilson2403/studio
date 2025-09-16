@@ -40,10 +40,13 @@ export default function DreamInterpreterDialog() {
   const router = useRouter();
 
   useEffect(() => {
-    if (pathname === '/interpreter') {
+    // This effect handles opening the dialog when the specific URL is visited.
+    if (pathname.startsWith('/interpreter')) {
       if (!user && !authLoading) {
+        // If the user is not logged in and auth has loaded, redirect to login.
         router.push('/login?redirect=/interpreter');
       } else if (user) {
+        // If the user is logged in, open the dialog.
         setIsOpen(true);
       }
     }
@@ -51,7 +54,9 @@ export default function DreamInterpreterDialog() {
   
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (!open && pathname === '/interpreter') {
+    // If the dialog is closed and the user is on the interpreter page,
+    // navigate them back to the home page.
+    if (!open && pathname.startsWith('/interpreter')) {
       router.push('/');
     }
   };
@@ -251,3 +256,8 @@ export default function DreamInterpreterDialog() {
     </Dialog>
   );
 }
+
+
+    
+
+    
