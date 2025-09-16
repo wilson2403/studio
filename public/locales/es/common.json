@@ -721,5 +721,6 @@
   "dreamsTab": "Sueños",
   "allDreamEntries": "Todos los sueños",
   "allDreamEntriesDescription": "Explora el registro completo de tus sueños e interpretaciones anteriores.",
-  "noDreamEntriesAdmin": "Aún no hay sueños registrados por los usuarios."
+  "noDreamEntriesAdmin": "Aún no hay sueños registrados por los usuarios.",
+  "noDreamEntries": "Aún no hay sueños registrados."
 }
