@@ -18,6 +18,7 @@ import { Textarea } from '../ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { transcribeAudio } from '@/ai/flows/speech-to-text-flow';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function DreamInterpreterDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,6 +35,27 @@ export default function DreamInterpreterDialog() {
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
   const [activeAccordionItem, setActiveAccordionItem] = useState<string | undefined>();
+  
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (pathname === '/interpreter') {
+      if (!user && !authLoading) {
+        router.push('/login?redirect=/interpreter');
+      } else if (user) {
+        setIsOpen(true);
+      }
+    }
+  }, [pathname, user, authLoading, router]);
+  
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open && pathname === '/interpreter') {
+      router.push('/');
+    }
+  };
+
 
   useEffect(() => {
     if (!isOpen || !user) return;
@@ -141,7 +163,7 @@ export default function DreamInterpreterDialog() {
 
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
             variant="default"
