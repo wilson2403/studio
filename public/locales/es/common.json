@@ -710,5 +710,6 @@
   "deleteDreamConfirmDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente la entrada del sueño.",
   "dreamDeletedSuccess": "Entrada de sueño eliminada con éxito.",
   "dreamDeletedError": "Error al eliminar la entrada del sueño.",
-  "tutorialDone": "Siguiente"
+  "tutorialDone": "Siguiente",
+  "lucidDreamingTips": "Consejos Para sueños lucido"
 }

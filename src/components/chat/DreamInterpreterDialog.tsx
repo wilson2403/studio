@@ -183,6 +183,16 @@ export default function DreamInterpreterDialog() {
                                         <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
                                     </>
                                 )}
+                                {entry.recommendations?.lucidDreaming && entry.recommendations.lucidDreaming.length > 0 && (
+                                    <>
+                                        <p className="font-semibold mt-2">{t('lucidDreamingTips')}</p>
+                                        <ul className="text-sm list-disc list-inside mt-1 space-y-1">
+                                            {entry.recommendations.lucidDreaming.map((tip, i) => (
+                                                <li key={i}>{tip}</li>
+                                            ))}
+                                        </ul>
+                                    </>
+                                )}
                             </AccordionContent>
                         </AccordionItem>
                     ))}
