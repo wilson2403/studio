@@ -20,38 +20,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { EditableProvider } from '@/components/home/EditableProvider';
 import { EditableTitle } from '@/components/home/EditableTitle';
-import type { Metadata } from 'next';
-
-type Props = {
-    params: { id: string };
-};
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const id = params.id;
-  const ceremony = await getCeremonyById(id);
-
-  if (!ceremony) {
-    return {
-      title: 'Ceremonia no encontrada',
-    };
-  }
-  
-  const ogImage = ceremony.mediaUrl || 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
-
-  return {
-    title: `${ceremony.title} | El Arte de Sanar`,
-    description: ceremony.description,
-    openGraph: {
-      title: `${ceremony.title} | El Arte de Sanar`,
-      description: ceremony.description,
-      images: [
-        {
-          url: ogImage,
-        },
-      ],
-    },
-  };
-}
 
 export default function SingleCeremonyPage() {
     const [ceremony, setCeremony] = useState<Ceremony | null>(null);
@@ -355,5 +323,3 @@ export default function SingleCeremonyPage() {
         </EditableProvider>
     );
 }
-
-    
