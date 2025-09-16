@@ -232,8 +232,8 @@ export default function AdminInteractionHistoryPage() {
                             <Accordion type="single" collapsible className="w-full space-y-4">
                                 {dreamEntries.map((entry) => (
                                     <AccordionItem key={entry.id} value={entry.id} className="border rounded-lg bg-muted/20 px-4">
-                                        <AccordionTrigger className="w-full hover:no-underline">
-                                            <div className="flex items-center justify-between gap-4 w-full">
+                                        <div className="flex items-center w-full">
+                                            <AccordionTrigger className="w-full hover:no-underline">
                                                 <div className='flex items-center gap-4'>
                                                     <Avatar className='h-9 w-9'>
                                                         <AvatarImage src={entry.user?.photoURL || undefined} />
@@ -244,25 +244,25 @@ export default function AdminInteractionHistoryPage() {
                                                         <p className="text-sm text-muted-foreground">{format(entry.date, 'PPP p', { locale })}</p>
                                                     </div>
                                                 </div>
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="destructive" size="icon" className='h-8 w-8' onClick={(e) => e.stopPropagation()}>
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
-                                                            <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteDream(entry.user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </div>
-                                        </AccordionTrigger>
+                                            </AccordionTrigger>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="destructive" size="icon" className='h-8 w-8 ml-2 flex-shrink-0'>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
+                                                        <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDeleteDream(entry.user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
                                         <AccordionContent>
                                             <div className="pt-4 mt-2 border-t space-y-4">
                                                 <div>
@@ -304,4 +304,3 @@ export default function AdminInteractionHistoryPage() {
         </div>
     );
 }
-
