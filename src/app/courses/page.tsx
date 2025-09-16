@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { CheckCircle, Clock, Edit, PlusCircle, Trash, Video } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AddCourseDialog from '@/components/admin/AddCourseDialog';
+import type { Metadata } from 'next';
 
 export default function CoursesPage() {
     const [user, setUser] = useState<User | null>(null);
