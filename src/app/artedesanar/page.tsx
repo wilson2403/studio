@@ -181,6 +181,13 @@ export default function QuestionnairePage() {
         toast({ title: t('questionnaireErrorTitle'), description: t('questionnaireErrorDescription'), variant: 'destructive' });
     }
   };
+  
+  const handleTalkToGuideClick = () => {
+    const chatbotTrigger = document.querySelector('[data-chatbot-trigger="true"]') as HTMLButtonElement | null;
+    if (chatbotTrigger) {
+      chatbotTrigger.click();
+    }
+  };
 
   const getQuestionStepComponent = (stepInfo: (typeof allSteps)[number]) => {
     switch(stepInfo.id) {
@@ -378,7 +385,7 @@ export default function QuestionnairePage() {
                                             : (
                                                 <div className="flex flex-col items-center gap-2">
                                                     <Button asChild className="w-full"><Link href="/preparation"><BookOpen className="mr-2 h-4 w-4" />{t('myPreparation')}</Link></Button>
-                                                    <Button asChild className="w-full"><Link href="/chats"><Bot className="mr-2 h-4 w-4" />{t('talkToGuide')}</Link></Button>
+                                                    <Button className="w-full" onClick={handleTalkToGuideClick}><Bot className="mr-2 h-4 w-4" />{t('talkToGuide')}</Button>
                                                     <Button asChild variant="outline" className="w-full"><Link href="/courses">{t('viewCourses')}</Link></Button>
                                                     <Button variant="outline" className="w-full" onClick={() => setIsAnswersDialogOpen(true)}>{t('viewMyAnswers')}</Button>
                                                 </div>
@@ -415,4 +422,3 @@ export default function QuestionnairePage() {
     </EditableProvider>
   );
 }
-

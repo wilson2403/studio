@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -200,6 +201,7 @@ export default function Chatbot() {
                 <Button
                     variant="default"
                     className="h-16 w-16 rounded-full shadow-lg flex items-center justify-center animate-in fade-in-0 zoom-in-95 duration-500"
+                    data-chatbot-trigger="true"
                 >
                     <Bot className="h-8 w-8" />
                 </Button>
