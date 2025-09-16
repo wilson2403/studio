@@ -22,6 +22,21 @@ import TestimonialDialog from '@/components/admin/TestimonialDialog';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import type { Metadata } from 'next';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
+  
+  return {
+    title: 'Testimonios de Sanación | El Arte de Sanar',
+    description: 'Lee y escucha las experiencias transformadoras de quienes han participado en nuestras ceremonias de Ayahuasca. Descubre historias reales de sanación, claridad y conexión.',
+    openGraph: {
+      title: 'Testimonios de Sanación | El Arte de Sanar',
+      description: 'Inspírate con las historias de transformación de nuestra comunidad. Experiencias auténticas de quienes han recorrido el camino de la medicina ancestral.',
+      images: [ { url: ogImage } ],
+    },
+  };
+}
 
 export default function TestimonialsPage() {
   const { t, i18n } = useTranslation();
@@ -258,3 +273,5 @@ export default function TestimonialsPage() {
     </EditableProvider>
   );
 }
+
+    

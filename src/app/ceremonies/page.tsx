@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -23,6 +22,21 @@ import { EditableTitle } from '@/components/home/EditableTitle';
 import { SystemSettings } from '@/types';
 import { getSystemSettings } from '@/ai/flows/settings-flow';
 import ViewParticipantsDialog from '@/components/admin/ViewParticipantsDialog';
+import type { Metadata } from 'next';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const ogImage = 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg';
+  
+  return {
+    title: 'Ceremonias de Ayahuasca | El Arte de Sanar',
+    description: 'Explora nuestras próximas ceremonias de Ayahuasca en Costa Rica. Únete a un viaje de sanación, transformación y conexión espiritual guiado por maestros expertos.',
+    openGraph: {
+      title: 'Ceremonias de Ayahuasca | El Arte de Sanar',
+      description: 'Encuentra tu ceremonia y reserva tu espacio. Vive una experiencia transformadora con la medicina ancestral en un entorno seguro y de confianza.',
+      images: [ { url: ogImage } ],
+    },
+  };
+}
 
 export default function AllCeremoniesPage() {
     const [ceremonies, setCeremonies] = useState<Ceremony[]>([]);
@@ -399,3 +413,5 @@ export default function AllCeremoniesPage() {
         </EditableProvider>
     );
 }
+
+    
