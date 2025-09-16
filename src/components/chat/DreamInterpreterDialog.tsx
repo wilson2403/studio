@@ -159,24 +159,31 @@ export default function DreamInterpreterDialog() {
                 <Accordion type="single" collapsible className="w-full space-y-2">
                     {Object.entries(groupedDreamEntries).map(([date, entries]) => (
                         <AccordionItem key={date} value={date} className="border-none">
-                            <AccordionTrigger className="py-2 px-3 border rounded-md bg-muted/50 hover:no-underline">
+                             <AccordionTrigger className="py-2 px-3 border rounded-md bg-muted/50 hover:no-underline">
                                 <p className="font-semibold text-sm">{format(parseISO(date), 'PPP', { locale: routerLocale })}</p>
                             </AccordionTrigger>
                             <AccordionContent className="pt-2">
                                 <div className="space-y-2">
                                 {entries.map((entry, index) => (
-                                        <div key={index} className="p-3 border rounded-lg bg-muted/30">
-                                        <p className="font-semibold mt-1">{t('yourDream')}</p>
-                                        <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
-                                        <p className="font-semibold mt-2">{t('interpretation')}</p>
-                                        <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
-                                        {entry.recommendations?.personal && (
-                                            <>
-                                                <p className="font-semibold mt-2">{t('recommendations')}</p>
-                                                <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
-                                            </>
-                                        )}
-                                    </div>
+                                     <Accordion key={index} type="single" collapsible className="w-full">
+                                        <AccordionItem value={`sub-item-${index}`} className="p-3 border rounded-lg bg-muted/30">
+                                            <AccordionTrigger className="py-0 hover:no-underline">
+                                                <p className="font-semibold text-sm truncate">{entry.dream}</p>
+                                            </AccordionTrigger>
+                                            <AccordionContent className="pt-2 mt-2 border-t">
+                                                <p className="font-semibold mt-1">{t('yourDream')}</p>
+                                                <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
+                                                <p className="font-semibold mt-2">{t('interpretation')}</p>
+                                                <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
+                                                {entry.recommendations?.personal && (
+                                                    <>
+                                                        <p className="font-semibold mt-2">{t('recommendations')}</p>
+                                                        <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
+                                                    </>
+                                                )}
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                     </Accordion>
                                 ))}
                                 </div>
                             </AccordionContent>
