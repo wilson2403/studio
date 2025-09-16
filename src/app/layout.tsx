@@ -95,8 +95,8 @@ export default async function RootLayout({
                     <Footer />
                     <div className="fixed bottom-6 right-6 flex flex-col gap-4 z-40">
                       <Chatbot />
+                      <DreamInterpreterDialog />
                     </div>
-                    <DreamInterpreterDialog />
                   </div>
                   <Toaster />
                   <div id="fb-root"></div>
