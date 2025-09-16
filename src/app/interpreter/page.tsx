@@ -32,3 +32,5 @@ export const metadata: Metadata = {
 export default function InterpreterPage() {
   return <InterpreterClientPage />;
 }
+
+    
