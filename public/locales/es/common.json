@@ -711,5 +711,9 @@
   "dreamDeletedSuccess": "Entrada de sueño eliminada con éxito.",
   "dreamDeletedError": "Error al eliminar la entrada del sueño.",
   "tutorialDone": "Siguiente",
-  "lucidDreamingTips": "Consejos Para sueños lúcidos"
+  "lucidDreamingTips": "Consejos Para sueños lúcidos",
+  "interactionHistoryTitle": "Interaction History",
+  "interactionHistorySubtitle": "Here you can view your past interactions",
+  "conversationsTab": "Conversations",
+  "dreamsTab": "Dreams"
 }
