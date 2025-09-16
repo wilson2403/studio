@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo, useRef } from 'react';
@@ -32,6 +33,7 @@ export default function DreamInterpreterDialog() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
+  const [activeAccordionItem, setActiveAccordionItem] = useState<string | undefined>();
 
   useEffect(() => {
     if (!isOpen || !user) return;
@@ -71,6 +73,8 @@ export default function DreamInterpreterDialog() {
         
         setDreamEntries(prev => [newEntry, ...prev]);
         setDreamInput('');
+        setActiveAccordionItem(`item-0`);
+
 
     } catch (error) {
         console.error('Error interpreting dream:', error);
@@ -153,39 +157,32 @@ export default function DreamInterpreterDialog() {
         </DialogHeader>
         <ScrollArea className="flex-1 p-4">
             {loading ? <Skeleton className="h-full w-full"/> : 
-                Object.keys(groupedDreamEntries).length === 0 ? (
+                dreamEntries.length === 0 ? (
                 <p className='text-center text-sm text-muted-foreground pt-4'>{t('noDreamEntries')}</p>
             ) : (
-                <Accordion type="single" collapsible className="w-full space-y-2">
-                    {Object.entries(groupedDreamEntries).map(([date, entries]) => (
-                        <AccordionItem key={date} value={date} className="border-none">
-                             <AccordionTrigger className="py-2 px-3 border rounded-md bg-muted/50 hover:no-underline">
-                                <p className="font-semibold text-sm">{format(parseISO(date), 'PPP', { locale: routerLocale })}</p>
+                <Accordion 
+                    type="single" 
+                    collapsible 
+                    className="w-full space-y-2"
+                    value={activeAccordionItem}
+                    onValueChange={setActiveAccordionItem}
+                >
+                    {dreamEntries.map((entry, index) => (
+                         <AccordionItem key={index} value={`item-${index}`} className="p-3 border rounded-lg bg-muted/30">
+                            <AccordionTrigger className="py-0 hover:no-underline text-left">
+                                <p className="font-semibold text-sm truncate">{entry.dream}</p>
                             </AccordionTrigger>
-                            <AccordionContent className="pt-2">
-                                <div className="space-y-2">
-                                {entries.map((entry, index) => (
-                                     <Accordion key={index} type="single" collapsible className="w-full">
-                                        <AccordionItem value={`sub-item-${index}`} className="p-3 border rounded-lg bg-muted/30">
-                                            <AccordionTrigger className="py-0 hover:no-underline">
-                                                <p className="font-semibold text-sm truncate">{entry.dream}</p>
-                                            </AccordionTrigger>
-                                            <AccordionContent className="pt-2 mt-2 border-t">
-                                                <p className="font-semibold mt-1">{t('yourDream')}</p>
-                                                <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
-                                                <p className="font-semibold mt-2">{t('interpretation')}</p>
-                                                <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
-                                                {entry.recommendations?.personal && (
-                                                    <>
-                                                        <p className="font-semibold mt-2">{t('recommendations')}</p>
-                                                        <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
-                                                    </>
-                                                )}
-                                            </AccordionContent>
-                                        </AccordionItem>
-                                     </Accordion>
-                                ))}
-                                </div>
+                            <AccordionContent className="pt-2 mt-2 border-t">
+                                <p className="font-semibold mt-1">{t('yourDream')}</p>
+                                <p className="text-sm text-muted-foreground italic">"{entry.dream}"</p>
+                                <p className="font-semibold mt-2">{t('interpretation')}</p>
+                                <p className="text-sm whitespace-pre-wrap">{entry.interpretation}</p>
+                                {entry.recommendations?.personal && (
+                                    <>
+                                        <p className="font-semibold mt-2">{t('recommendations')}</p>
+                                        <p className="text-sm whitespace-pre-wrap">{entry.recommendations.personal}</p>
+                                    </>
+                                )}
                             </AccordionContent>
                         </AccordionItem>
                     ))}
