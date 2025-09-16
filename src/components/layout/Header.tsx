@@ -41,7 +41,7 @@ import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 import TutorialDialog from './TutorialDialog';
 
-const APP_VERSION = '3.13';
+const APP_VERSION = '3.14';
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type NavLinkDef = {
@@ -482,5 +482,3 @@ export default function Header() {
     </>
   );
 }
-
-    
