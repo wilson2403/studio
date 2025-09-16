@@ -1,5 +1,4 @@
 
-
 import type { Metadata } from 'next';
 import InterpreterClientPage from './InterpreterClientPage';
 
@@ -33,5 +32,3 @@ export const metadata: Metadata = {
 export default function InterpreterPage() {
   return <InterpreterClientPage />;
 }
-
-    
