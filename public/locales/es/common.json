@@ -712,11 +712,11 @@
   "dreamDeletedError": "Error al eliminar la entrada del sueño.",
   "tutorialDone": "Siguiente",
   "lucidDreamingTips": "Consejos Para sueños lúcidos",
-  "interactionHistoryTitle": "Interaction History",
-  "interactionHistorySubtitle": "Here you can view your past interactions",
-  "conversationsTab": "Conversations",
-  "dreamsTab": "Dreams",
   "ayahuascaBenefitClarityDescription": "Adquiera una nueva perspectiva sobre su vida, sus relaciones y su propósito. La ayahuasca le ayuda a ver más allá del velo de la confusión y a encontrar respuestas que se encuentran dentro de usted",
   "ayahuascaBenefitHealingDescription": "Libérese de traumas profundamente arraigados, miedos y bloqueos emocionales. La medicina te permite afrontar y procesar emociones reprimidas en un espacio seguro y controlado, abriendo tu corazón a la compasión y al perdón.",
-  "ayahuascaBenefitConnectionDescription": "Experimenta una sensación de unidad con la naturaleza, el universo y tu verdadero yo. La ayahuasca expande la conciencia y te recuerda que formas parte de algo mucho más grande."
+  "ayahuascaBenefitConnectionDescription": "Experimenta una sensación de unidad con la naturaleza, el universo y tu verdadero yo. La ayahuasca expande la conciencia y te recuerda que formas parte de algo mucho más grande.",
+  "interactionHistoryTitle": "Historial de interacciones",
+  "interactionHistorySubtitle": "Aquí puedes ver tus interacciones pasadas",
+  "conversationsTab": "Conversaciones",
+  "dreamsTab": "Sueños"
 }

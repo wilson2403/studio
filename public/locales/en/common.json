@@ -734,9 +734,9 @@
   "deleteDreamConfirmDescription": "This action cannot be undone. This will permanently delete the dream entry.",
   "dreamDeletedSuccess": "Dream entry deleted successfully.",
   "dreamDeletedError": "Error deleting dream entry.",
-  "interactionHistoryTitle": "Historial de interacciones",
-  "interactionHistorySubtitle": "Aquí puedes ver tus interacciones pasadas",
-  "conversationsTab": "Conversaciones",
-  "dreamsTab": "Sueños"
+  "interactionHistoryTitle": "Interaction History",
+  "interactionHistorySubtitle": "Here you can view your past interactions",
+  "conversationsTab": "Conversations",
+  "dreamsTab": "Dreams"
 }
   
