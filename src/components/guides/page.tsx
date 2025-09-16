@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { getGuides, Guide, seedGuides, getContent } from '@/lib/firebase/firestore';
+import { getGuides, Guide, seedGuides, getContent, getUserProfile, UserProfile } from '@/lib/firebase/firestore';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
@@ -13,21 +12,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
 import { EditableTitle } from '@/components/home/EditableTitle';
 import EditGuideDialog from '@/components/guides/EditGuideDialog';
-import { EditableProvider } from '@/components/home/EditableProvider';
 import { useToast } from '@/hooks/use-toast';
 
-const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
-
-export default function GuidesPage() {
+export default function GuidesPageContent() {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingGuide, setEditingGuide] = useState<Guide | null>(null);
   const { t, i18n } = useTranslation();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if(currentUser) {
+        const profile = await getUserProfile(currentUser.uid);
+        setUserProfile(profile);
+        setIsAdmin(profile?.role === 'admin' || (profile?.role === 'organizer' && !!profile?.permissions?.canEditCeremonies));
+      } else {
+        setIsAdmin(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -62,7 +67,6 @@ export default function GuidesPage() {
     setEditingGuide(null);
   };
 
-  const isAdmin = user && user.email && ADMIN_EMAILS.includes(user.email);
 
   if (loading) {
     return (
@@ -82,7 +86,6 @@ export default function GuidesPage() {
 
 
   return (
-    <EditableProvider>
       <div className="container py-12 md:py-24">
           <div className="flex flex-col items-center text-center space-y-4 mb-12 animate-in fade-in-0 duration-1000">
               <EditableTitle
@@ -147,6 +150,6 @@ export default function GuidesPage() {
               />
           )}
       </div>
-    </EditableProvider>
   );
 }
+
