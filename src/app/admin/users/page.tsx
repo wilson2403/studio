@@ -210,25 +210,25 @@ export default function AdminUsersPage() {
         
         let message = template?.[lang as keyof typeof template] as string || template?.es;
         
-        if (template.type === 'invitation' && message.includes('{{activeCeremoniesList}}')) {
+        if (template.name === 'Invitar al Intérprete de Sueños') {
+            const dreamInterpreterLink = `${window.location.origin}/interpreter`;
+            message = message.replace('{{dreamInterpreterLink}}', dreamInterpreterLink);
+        } else if (template.type === 'invitation' && message.includes('{{activeCeremoniesList}}')) {
             const active = await getCeremonies('active');
             const ceremoniesList = active.map(c => `✨ ${c.title}`).join('\n');
             const pageLink = `${window.location.origin}/ceremonies`;
             message = message.replace('{{activeCeremoniesList}}', ceremoniesList)
                              .replace('{{pageLink}}', pageLink);
-            const phoneNumber = invitingUser.phone.replace(/\D/g, '');
-            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-        } else if (template.type === 'invitation') {
-            const phoneNumber = invitingUser.phone.replace(/\D/g, '');
-            const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
         } else if (template.type === 'ceremony') {
             const active = await getCeremonies('active');
             setActiveCeremonies(active);
             setSelectingCeremonyForInvite({ user: invitingUser, template });
+            return; // Exit here, the rest will be handled by the ceremony selection dialog
         }
         
+        const phoneNumber = invitingUser.phone.replace(/\D/g, '');
+        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
         setInvitingUser(null);
     }
     
@@ -276,37 +276,38 @@ export default function AdminUsersPage() {
     };
     
     const handleAddTemplate = async (type: TemplateType) => {
-        const id = uuidv4();
         let name = '';
         let es = '';
         let en = '';
-        let newTemplate: CombinedTemplate | null = null;
-
+        
         if (type === 'invitation') {
             name = t('newTemplateName', { count: allTemplates.filter(t => t.type === 'invitation').length + 1 });
             es = t('newTemplateMessageES');
             en = t('newTemplateMessageEN');
-            newTemplate = { id, name, es, en, type };
-            await addInvitationMessage(newTemplate as InvitationMessage);
+            const newId = await addInvitationMessage({ name, es, en });
+            const newTemplate = { id: newId, name, es, en, type };
+            setEditingTemplate(newTemplate);
+            setOriginalEditingTemplate(newTemplate);
         } else if (type === 'ceremony') {
             name = t('newCeremonyTemplateName', { count: allTemplates.filter(t => t.type === 'ceremony').length + 1 });
             es = t('defaultCeremonyInvitationTextES');
             en = t('defaultCeremonyInvitationTextEN');
-            newTemplate = { id, name, es, en, type };
-            await addCeremonyInvitationMessage(newTemplate as CeremonyInvitationMessage);
+            const newId = await addCeremonyInvitationMessage({ name, es, en });
+            const newTemplate = { id: newId, name, es, en, type };
+            setEditingTemplate(newTemplate);
+            setOriginalEditingTemplate(newTemplate);
         } else {
             name = t('newShareMemoryTemplateName', { count: allTemplates.filter(t => t.type === 'share-memory').length + 1 });
             es = t('defaultShareMemoryTextES');
             en = t('defaultShareMemoryTextEN');
-            newTemplate = { id, name, es, en, type };
-            await addShareMemoryMessage(newTemplate as ShareMemoryMessage);
-        }
-        await fetchAllMessages(); // Re-fetch all to get the new one
-        if (newTemplate) {
+            const newId = await addShareMemoryMessage({ name, es, en });
+            const newTemplate = { id: newId, name, es, en, type };
             setEditingTemplate(newTemplate);
             setOriginalEditingTemplate(newTemplate);
         }
+        await fetchAllMessages();
     };
+
 
     const handleSaveTemplate = async (originalTemplate: CombinedTemplate, updatedTemplate: CombinedTemplate) => {
         try {
@@ -320,9 +321,9 @@ export default function AdminUsersPage() {
                 else if (oldType === 'share-memory') await deleteShareMemoryMessage(originalTemplate.id);
                 
                 // Add to new collection
-                if (newType === 'invitation') await addInvitationMessage(dataToSave as InvitationMessage);
-                else if (newType === 'ceremony') await addCeremonyInvitationMessage(dataToSave as CeremonyInvitationMessage);
-                else if (newType === 'share-memory') await addShareMemoryMessage(dataToSave as ShareMemoryMessage);
+                if (newType === 'invitation') await addInvitationMessage(dataToSave as Omit<InvitationMessage, 'id'>);
+                else if (newType === 'ceremony') await addCeremonyInvitationMessage(dataToSave as Omit<CeremonyInvitationMessage, 'id'>);
+                else if (newType === 'share-memory') await addShareMemoryMessage(dataToSave as Omit<ShareMemoryMessage, 'id'>);
 
             } else {
                  // Update in the same collection
@@ -1029,5 +1030,6 @@ export default function AdminUsersPage() {
     
 
     
+
 
 

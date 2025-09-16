@@ -1142,10 +1142,10 @@ export const getInvitationMessages = async (): Promise<InvitationMessage[]> => {
     }
 }
 
-export const addInvitationMessage = async (message: InvitationMessage): Promise<void> => {
+export const addInvitationMessage = async (message: Omit<InvitationMessage, 'id'>): Promise<string> => {
     try {
-        const docRef = doc(db, 'invitationMessages', message.id);
-        await setDoc(docRef, message);
+        const docRef = await addDoc(invitationMessagesCollection, message);
+        return docRef.id;
     } catch (error) {
         console.error("Error adding invitation message:", error);
         logError(error, { function: 'addInvitationMessage' });
@@ -1187,10 +1187,10 @@ export const getCeremonyInvitationMessages = async (): Promise<CeremonyInvitatio
     }
 };
 
-export const addCeremonyInvitationMessage = async (message: CeremonyInvitationMessage): Promise<void> => {
+export const addCeremonyInvitationMessage = async (message: Omit<CeremonyInvitationMessage, 'id'>): Promise<string> => {
     try {
-        const docRef = doc(db, 'ceremonyInvitationMessages', message.id);
-        await setDoc(docRef, message);
+        const docRef = await addDoc(ceremonyInvitationMessagesCollection, message);
+        return docRef.id;
     } catch (error) {
         console.error("Error adding ceremony invitation message:", error);
         logError(error, { function: 'addCeremonyInvitationMessage' });
@@ -1232,10 +1232,10 @@ export const getShareMemoryMessages = async (): Promise<ShareMemoryMessage[]> =>
     }
 };
 
-export const addShareMemoryMessage = async (message: ShareMemoryMessage): Promise<void> => {
+export const addShareMemoryMessage = async (message: Omit<ShareMemoryMessage, 'id'>): Promise<string> => {
     try {
-        const docRef = doc(db, 'shareMemoryMessages', message.id);
-        await setDoc(docRef, message);
+        const docRef = await addDoc(shareMemoryMessagesCollection, message);
+        return docRef.id;
     } catch (error) {
         console.error("Error adding share memory message:", error);
         logError(error, { function: 'addShareMemoryMessage' });
