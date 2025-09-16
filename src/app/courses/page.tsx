@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -18,18 +17,6 @@ import { Label } from '@/components/ui/label';
 import { CheckCircle, Clock, Edit, PlusCircle, Trash, Video } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AddCourseDialog from '@/components/admin/AddCourseDialog';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = {
-  title: 'Cursos de Preparación | El Arte de Sanar',
-  description: 'Accede a nuestros cursos en video para prepararte de la mejor manera para tu ceremonia. Contenido esencial para tu viaje de sanación.',
-  openGraph: {
-    title: 'Cursos de Preparación | El Arte de Sanar',
-    description: 'Material audiovisual para profundizar en tu preparación y entendimiento de la medicina ancestral.',
-    images: [ { url: 'https://i.postimg.cc/HkWJLSsK/IMG-20250101-WA0004.jpg' } ],
-  },
-};
-
 
 export default function CoursesPage() {
     const [user, setUser] = useState<User | null>(null);
