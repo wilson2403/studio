@@ -718,5 +718,8 @@
   "interactionHistoryTitle": "Historial de interacciones",
   "interactionHistorySubtitle": "Aquí puedes ver tus interacciones pasadas",
   "conversationsTab": "Conversaciones",
-  "dreamsTab": "Sueños"
+  "dreamsTab": "Sueños",
+  "allDreamEntries": "Todos los sueños",
+  "allDreamEntriesDescription": "Explora el registro completo de tus sueños e interpretaciones anteriores.",
+  "noDreamEntriesAdmin": "Aún no hay sueños registrados por los usuarios."
 }
