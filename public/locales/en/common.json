@@ -718,6 +718,21 @@
   "myChatsDescription": "Here you can review the history of all your conversations with the Spiritual Guide.",
   "conversationOnDate": "Conversation on {{date}}",
   "authRequiredForChats": "You need to be logged in to view your chat history.",
-  "noConversationsDescription": "Start a conversation with our spiritual guide and it will appear here."
+  "noConversationsDescription": "Start a conversation with our spiritual guide and it will appear here.",
+  "benefitClarity": "Clarity and Purpose",
+  "benefitHealing": "Emotional Healing",
+  "benefitConnection": "Spiritual Connection",
+  "audioNotSupported": "Your browser does not support the audio element.",
+  "noUpcomingCeremonies": "There are no upcoming ceremonies scheduled at this time. Please check back soon.",
+  "componentButtonViewDetails": "View Details",
+  "editProfileDescription": "Update your personal information.",
+  "enterPasswordToConfirm": "Please enter your current password to confirm this change.",
+  "userDream": "Your Dream",
+  "noDreamsFound": "No dreams recorded yet.",
+  "myDreamsSubtitle": "Use the Dream Interpreter to start your journal.",
+  "deleteDreamConfirmTitle": "Are you sure you want to delete this dream?",
+  "deleteDreamConfirmDescription": "This action cannot be undone. This will permanently delete the dream entry.",
+  "dreamDeletedSuccess": "Dream entry deleted successfully.",
+  "dreamDeletedError": "Error deleting dream entry."
 }
   

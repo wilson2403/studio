@@ -262,6 +262,16 @@ export default function AdminInteractionHistoryPage() {
                                                         <p className="text-sm whitespace-pre-wrap mt-1">{entry.recommendations.personal}</p>
                                                     </div>
                                                 )}
+                                                {entry.recommendations?.lucidDreaming && entry.recommendations.lucidDreaming.length > 0 && (
+                                                    <div>
+                                                        <h4 className="font-semibold text-primary">{t('lucidDreamingTips')}</h4>
+                                                        <ul className="list-disc list-inside mt-1 space-y-1">
+                                                            {entry.recommendations.lucidDreaming.map((tip, i) => (
+                                                                <li key={i}>{tip}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
                                                 <div className="flex justify-end pt-4 border-t border-border/50">
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>

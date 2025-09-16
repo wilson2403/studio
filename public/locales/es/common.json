@@ -692,5 +692,22 @@
   "contentMigrationDescription": "Esta herramienta migra el contenido de los archivos JSON locales a la base de datos de Firestore.",
   "migrationToolTitle": "Herramienta de Migración",
   "migrationToolDescription": "Ejecuta el proceso para sincronizar el contenido de `public/locales` a Firestore. Esto solo añade claves nuevas, no sobrescribe las existentes.",
-  "startMigrationButton": "Iniciar Migración"
+  "startMigrationButton": "Iniciar Migración",
+  "benefitClarity": "Claridad y Propósito",
+  "benefitHealing": "Sanación Emocional",
+  "benefitConnection": "Conexión Espiritual",
+  "audioNotSupported": "Tu navegador no soporta el elemento de audio.",
+  "noUpcomingCeremonies": "No hay próximas ceremonias programadas en este momento. Por favor, vuelve a consultar pronto.",
+  "componentButtonViewDetails": "Ver Detalles",
+  "editProfileDescription": "Actualiza tu información personal.",
+  "enterPasswordToConfirm": "Por favor, introduce tu contraseña actual para confirmar este cambio.",
+  "userDream": "Tu Sueño",
+  "interpretation": "Interpretación",
+  "recommendations": "Recomendaciones",
+  "noDreamsFound": "Aún no hay sueños registrados.",
+  "myDreamsSubtitle": "Usa el Intérprete de Sueños para empezar tu diario.",
+  "deleteDreamConfirmTitle": "¿Estás seguro de que quieres eliminar este sueño?",
+  "deleteDreamConfirmDescription": "Esta acción no se puede deshacer. Esto eliminará permanentemente la entrada del sueño.",
+  "dreamDeletedSuccess": "Entrada de sueño eliminada con éxito.",
+  "dreamDeletedError": "Error al eliminar la entrada del sueño."
 }
