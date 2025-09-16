@@ -227,7 +227,8 @@ export default function AdminUsersPage() {
         }
         
         const phoneNumber = invitingUser.phone.replace(/\D/g, '');
-        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        const encodedMessage = encodeURIComponent(message);
+        const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
         window.open(url, '_blank');
         setInvitingUser(null);
     }
@@ -249,7 +250,8 @@ export default function AdminUsersPage() {
         message = message.replace(/{{locationLink}}/g, ceremony.locationLink || '');
         
         const phoneNumber = userToInvite.phone!.replace(/\D/g, '');
-        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        const encodedMessage = encodeURIComponent(message);
+        const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
         
         window.open(url, '_blank');
         toast({ title: t('invitationSent') });
@@ -1030,6 +1032,7 @@ export default function AdminUsersPage() {
     
 
     
+
 
 
 

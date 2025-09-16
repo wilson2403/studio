@@ -44,7 +44,8 @@ export default function ShareMemoryDialog({ user, ceremony, isOpen, onClose, sha
     message = message.replace(/{{memoryLink}}/g, memoryLink);
     
     const phoneNumber = user.phone.replace(/\D/g, '');
-    const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const encodedMessage = encodeURIComponent(message);
+    const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
     
     window.open(url, '_blank');
     onClose();
