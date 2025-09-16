@@ -244,6 +244,23 @@ export default function AdminInteractionHistoryPage() {
                                                         <p className="text-sm text-muted-foreground">{format(entry.date, 'PPP p', { locale })}</p>
                                                     </div>
                                                 </div>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="destructive" size="icon" className='h-8 w-8' onClick={(e) => e.stopPropagation()}>
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
+                                                            <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleDeleteDream(entry.user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </div>
                                         </AccordionTrigger>
                                         <AccordionContent>
@@ -272,26 +289,6 @@ export default function AdminInteractionHistoryPage() {
                                                         </ul>
                                                     </div>
                                                 )}
-                                                <div className="flex justify-end pt-4 border-t border-border/50">
-                                                    <AlertDialog>
-                                                        <AlertDialogTrigger asChild>
-                                                            <Button variant="destructive" size="sm">
-                                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                                {t('delete')}
-                                                            </Button>
-                                                        </AlertDialogTrigger>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
-                                                                <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleDeleteDream(entry.user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
-                                                </div>
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
@@ -307,3 +304,4 @@ export default function AdminInteractionHistoryPage() {
         </div>
     );
 }
+
