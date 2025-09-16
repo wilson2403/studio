@@ -324,7 +324,7 @@ export const getCeremonyById = async (idOrSlug: string): Promise<Ceremony | null
              ceremonies.sort((a, b) => {
                 const dateA = a.date ? new Date(a.date.split(' de ')[2], new Date(`${a.date.split(' de ')[1]} 1, 2000`).getMonth(), a.date.split(' de ')[0]) : new Date(0);
                 const dateB = b.date ? new Date(b.date.split(' de ')[2], new Date(`${b.date.split(' de ')[1]} 1, 2000`).getMonth(), b.date.split(' de ')[0]) : new Date(0);
-                return dateB.getTime() - dateA.getTime();
+                return dateB.getTime() - a.getTime();
             });
             return ceremonies[0];
         }
@@ -936,9 +936,16 @@ export const getChatsByUserId = async (userId: string): Promise<Chat[]> => {
     try {
         const q = query(chatsCollection, where('user.uid', '==', userId));
         const snapshot = await getDocs(q);
-        const chats = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Chat));
-        // Sort in-memory to avoid composite index requirement
-        chats.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+        const chats = snapshot.docs.map(doc => {
+            const data = doc.data();
+            // Safely convert Firestore Timestamps to JS Dates
+            const createdAt = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
+            const updatedAt = data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date();
+            return { id: doc.id, ...data, createdAt, updatedAt } as Chat;
+        });
+
+        // Sort in-memory using the converted Date objects
+        chats.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         return chats;
     } catch (error) {
         console.error(`Error getting chats for user ${userId}:`, error);
