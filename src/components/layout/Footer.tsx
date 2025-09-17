@@ -15,7 +15,7 @@ export default function Footer() {
          <p className="text-xs text-muted-foreground mt-2">
           {t('developedBy')}{' '}
           <Link
-            href="https://creatuapp.vercel.app/en"
+            href="https://creatuapp.vercel.app/"
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-primary hover:underline"
