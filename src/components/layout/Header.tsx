@@ -42,7 +42,7 @@ import { getSystemSettings } from '@/ai/flows/settings-flow';
 import { useAuth } from '@/hooks/useAuth';
 import TutorialDialog from './TutorialDialog';
 
-const APP_VERSION = '3.17';
+const APP_VERSION = '3.18';
 const ADMIN_EMAILS = ['wilson2403@gmail.com', 'wilson2403@hotmail.com'];
 
 type NavLinkDef = {
@@ -354,9 +354,18 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="flex flex-col">
                 <SheetHeader>
-                   <SheetTitle className="sr-only">{t('headerMenuTitle')}</SheetTitle>
+                   <SheetTitle className="flex items-center gap-2">
+                        <Logo className="h-8 w-8" />
+                        <span className="font-bold font-headline text-lg">
+                            <EditableTitle
+                                tag="p"
+                                id="appName"
+                                initialValue={t('appName')}
+                            />
+                        </span>
+                   </SheetTitle>
                    {user && (
-                    <div className="flex items-center gap-4 border-b pb-4">
+                    <div className="flex items-center gap-4 border-b pb-4 pt-4">
                        <Avatar className="h-12 w-12">
                           <AvatarImage
                             src={user.photoURL || undefined}
@@ -489,3 +498,4 @@ export default function Header() {
     
 
     
+
