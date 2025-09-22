@@ -270,23 +270,25 @@ export default function AdminInteractionHistoryPage() {
                                                                 <AccordionTrigger className="w-full hover:no-underline text-sm font-semibold">
                                                                     {format(entry.date, 'PPP p', { locale })}
                                                                 </AccordionTrigger>
-                                                                <AlertDialog>
-                                                                    <AlertDialogTrigger asChild>
-                                                                        <Button variant="destructive" size="icon" className='h-8 w-8 ml-2 flex-shrink-0'>
-                                                                            <Trash2 className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </AlertDialogTrigger>
-                                                                    <AlertDialogContent>
-                                                                        <AlertDialogHeader>
-                                                                            <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
-                                                                            <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
-                                                                        </AlertDialogHeader>
-                                                                        <AlertDialogFooter>
-                                                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                                            <AlertDialogAction onClick={() => handleDeleteDream(user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
-                                                                        </AlertDialogFooter>
-                                                                    </AlertDialogContent>
-                                                                </AlertDialog>
+                                                                {canViewFullDream && (
+                                                                    <AlertDialog>
+                                                                        <AlertDialogTrigger asChild>
+                                                                            <Button variant="destructive" size="icon" className='h-8 w-8 ml-2 flex-shrink-0'>
+                                                                                <Trash2 className="h-4 w-4" />
+                                                                            </Button>
+                                                                        </AlertDialogTrigger>
+                                                                        <AlertDialogContent>
+                                                                            <AlertDialogHeader>
+                                                                                <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
+                                                                                <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
+                                                                            </AlertDialogHeader>
+                                                                            <AlertDialogFooter>
+                                                                                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                                <AlertDialogAction onClick={() => handleDeleteDream(user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
+                                                                            </AlertDialogFooter>
+                                                                        </AlertDialogContent>
+                                                                    </AlertDialog>
+                                                                )}
                                                             </div>
                                                             <AccordionContent className="pt-2 mt-2 border-t space-y-2">
                                                                 {canViewFullDream && (
