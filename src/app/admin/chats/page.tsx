@@ -3,11 +3,11 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, MessageCircle, NotebookText, Trash2, User } from 'lucide-react';
+import { Bot, MessageCircle, NotebookText, Trash2, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getAllChats, Chat, getUserProfile, getAllDreamEntries, DreamEntry, UserProfile, ChatMessage, deleteDreamEntry } from '@/lib/firebase/firestore';
@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 type DreamEntryWithUser = DreamEntry & { user: UserProfile };
+type GroupedDreams = { [userId: string]: { user: UserProfile; dreams: DreamEntry[] } };
 
 const DateSeparator = ({ date, locale }: { date: Date, locale: Locale }) => {
   let dateText: string;
@@ -45,6 +46,7 @@ const DateSeparator = ({ date, locale }: { date: Date, locale: Locale }) => {
 
 
 export default function AdminInteractionHistoryPage() {
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [chats, setChats] = useState<Chat[]>([]);
     const [dreamEntries, setDreamEntries] = useState<DreamEntryWithUser[]>([]);
@@ -54,15 +56,18 @@ export default function AdminInteractionHistoryPage() {
     const { toast } = useToast();
     const locale = i18n.language === 'es' ? es : enUS;
 
+    const canViewFullDream = currentUser?.email === 'wilson2403@hotmail.com';
+
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (!currentUser) {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setCurrentUser(user);
+            if (!user) {
                 router.push('/');
                 return;
             }
             
             try {
-                const profile = await getUserProfile(currentUser.uid);
+                const profile = await getUserProfile(user.uid);
                 const hasPermission = profile?.role === 'admin' || (profile?.role === 'organizer' && profile?.permissions?.canViewChatHistory);
 
                 if (!hasPermission) {
@@ -103,7 +108,7 @@ export default function AdminInteractionHistoryPage() {
         
     }, [isAuthorized, toast, t]);
 
-    const groupMessagesByDate = (messages: ChatMessage[]) => {
+    const groupedMessagesByDate = (messages: ChatMessage[]) => {
         return messages.reduce((acc, message) => {
             const messageDate = message.createdAt?.toDate ? message.createdAt.toDate() : new Date();
             const dateStr = format(messageDate, 'yyyy-MM-dd');
@@ -114,6 +119,18 @@ export default function AdminInteractionHistoryPage() {
             return acc;
         }, {} as Record<string, ChatMessage[]>);
     };
+    
+    const groupedDreamsByUser = useMemo(() => {
+        return dreamEntries.reduce((acc, entry) => {
+            const userId = entry.user.uid;
+            if (!acc[userId]) {
+                acc[userId] = { user: entry.user, dreams: [] };
+            }
+            acc[userId].dreams.push(entry);
+            return acc;
+        }, {} as GroupedDreams);
+    }, [dreamEntries]);
+
 
     const handleDeleteDream = async (userId: string, dreamId: string) => {
         try {
@@ -168,7 +185,7 @@ export default function AdminInteractionHistoryPage() {
                         <CardContent>
                             <Accordion type="single" collapsible className="w-full space-y-4">
                                 {chats.map((chat) => {
-                                    const groupedMessages = groupMessagesByDate(chat.messages);
+                                    const groupedMessages = groupedMessagesByDate(chat.messages);
                                     return (
                                         <AccordionItem key={chat.id} value={chat.id} className="border rounded-lg bg-muted/20 px-4">
                                             <AccordionTrigger className="w-full hover:no-underline">
@@ -197,7 +214,7 @@ export default function AdminInteractionHistoryPage() {
                                                                             <Avatar className="h-6 w-6 flex-shrink-0">
                                                                                 <AvatarImage src={chat.user?.photoURL || undefined} />
                                                                                 <AvatarFallback>
-                                                                                <User className="h-4 w-4" />
+                                                                                <UserIcon className="h-4 w-4" />
                                                                                 </AvatarFallback>
                                                                             </Avatar>
                                                                         )}
@@ -230,65 +247,80 @@ export default function AdminInteractionHistoryPage() {
                         </CardHeader>
                         <CardContent>
                             <Accordion type="single" collapsible className="w-full space-y-4">
-                                {dreamEntries.map((entry) => (
-                                    <AccordionItem key={entry.id} value={entry.id} className="border rounded-lg bg-muted/20 px-4">
-                                        <div className="flex items-center w-full">
-                                            <AccordionTrigger className="w-full hover:no-underline">
-                                                <div className='flex items-center gap-4'>
-                                                    <Avatar className='h-9 w-9'>
-                                                        <AvatarImage src={entry.user?.photoURL || undefined} />
-                                                        <AvatarFallback>{entry.user?.displayName?.charAt(0) || entry.user?.email?.charAt(0) || 'U'}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className='flex-1 text-left'>
-                                                        <p className="font-semibold truncate max-w-xs sm:max-w-md">{entry.user?.displayName || entry.user?.email || 'Anonymous'}</p>
-                                                        <p className="text-sm text-muted-foreground">{format(entry.date, 'PPP p', { locale })}</p>
-                                                    </div>
+                                {Object.values(groupedDreamsByUser).map(({ user, dreams }) => (
+                                    <AccordionItem key={user.uid} value={user.uid} className="border rounded-lg bg-muted/20 px-4">
+                                        <AccordionTrigger className="w-full hover:no-underline">
+                                            <div className='flex items-center gap-4'>
+                                                <Avatar className='h-9 w-9'>
+                                                    <AvatarImage src={user?.photoURL || undefined} />
+                                                    <AvatarFallback>{user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}</AvatarFallback>
+                                                </Avatar>
+                                                <div className='flex-1 text-left'>
+                                                    <p className="font-semibold truncate max-w-xs sm:max-w-md">{user?.displayName || user?.email || 'Anonymous'}</p>
+                                                    <p className="text-sm text-muted-foreground">{t('dreamCount', { count: dreams.length })}</p>
                                                 </div>
-                                            </AccordionTrigger>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="destructive" size="icon" className='h-8 w-8 ml-2 flex-shrink-0'>
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
-                                                        <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDeleteDream(entry.user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </div>
+                                            </div>
+                                        </AccordionTrigger>
                                         <AccordionContent>
                                             <div className="pt-4 mt-2 border-t space-y-4">
-                                                <div>
-                                                    <h4 className="font-semibold text-primary">{t('userDream')}</h4>
-                                                    <p className="text-sm text-muted-foreground italic mt-1">"{entry.dream}"</p>
-                                                </div>
-                                                 <div>
-                                                    <h4 className="font-semibold text-primary">{t('interpretation')}</h4>
-                                                    <p className="text-sm whitespace-pre-wrap mt-1">{entry.interpretation}</p>
-                                                </div>
-                                                {entry.recommendations?.personal && (
-                                                    <div>
-                                                        <h4 className="font-semibold text-primary">{t('recommendations')}</h4>
-                                                        <p className="text-sm whitespace-pre-wrap mt-1">{entry.recommendations.personal}</p>
-                                                    </div>
-                                                )}
-                                                {entry.recommendations?.lucidDreaming && entry.recommendations.lucidDreaming.length > 0 && (
-                                                    <div>
-                                                        <h4 className="font-semibold text-primary">{t('lucidDreamingTips')}</h4>
-                                                        <ul className="list-disc list-inside mt-1 space-y-1">
-                                                            {entry.recommendations.lucidDreaming.map((tip, i) => (
-                                                                <li key={i}>{tip}</li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                )}
+                                                <Accordion type="single" collapsible className="w-full space-y-2">
+                                                    {dreams.map((entry) => (
+                                                        <AccordionItem key={entry.id} value={entry.id} className="border rounded-lg bg-background/50 px-4">
+                                                            <div className="flex items-center w-full">
+                                                                <AccordionTrigger className="w-full hover:no-underline text-sm font-semibold">
+                                                                    {format(entry.date, 'PPP p', { locale })}
+                                                                </AccordionTrigger>
+                                                                <AlertDialog>
+                                                                    <AlertDialogTrigger asChild>
+                                                                        <Button variant="destructive" size="icon" className='h-8 w-8 ml-2 flex-shrink-0'>
+                                                                            <Trash2 className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </AlertDialogTrigger>
+                                                                    <AlertDialogContent>
+                                                                        <AlertDialogHeader>
+                                                                            <AlertDialogTitle>{t('deleteDreamConfirmTitle')}</AlertDialogTitle>
+                                                                            <AlertDialogDescription>{t('deleteDreamConfirmDescription')}</AlertDialogDescription>
+                                                                        </AlertDialogHeader>
+                                                                        <AlertDialogFooter>
+                                                                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                                                                            <AlertDialogAction onClick={() => handleDeleteDream(user.uid, entry.id)}>{t('delete')}</AlertDialogAction>
+                                                                        </AlertDialogFooter>
+                                                                    </AlertDialogContent>
+                                                                </AlertDialog>
+                                                            </div>
+                                                            <AccordionContent className="pt-2 mt-2 border-t space-y-2">
+                                                                {canViewFullDream && (
+                                                                    <>
+                                                                        <div>
+                                                                            <h4 className="font-semibold text-primary">{t('userDream')}</h4>
+                                                                            <p className="text-sm text-muted-foreground italic mt-1">"{entry.dream}"</p>
+                                                                        </div>
+                                                                        <div>
+                                                                            <h4 className="font-semibold text-primary">{t('interpretation')}</h4>
+                                                                            <p className="text-sm whitespace-pre-wrap mt-1">{entry.interpretation}</p>
+                                                                        </div>
+                                                                    </>
+                                                                )}
+                                                                {entry.recommendations?.personal && (
+                                                                    <div>
+                                                                        <h4 className="font-semibold text-primary">{t('recommendations')}</h4>
+                                                                        <p className="text-sm whitespace-pre-wrap mt-1">{entry.recommendations.personal}</p>
+                                                                    </div>
+                                                                )}
+                                                                {entry.recommendations?.lucidDreaming && entry.recommendations.lucidDreaming.length > 0 && (
+                                                                    <div>
+                                                                        <h4 className="font-semibold text-primary">{t('lucidDreamingTips')}</h4>
+                                                                        <ul className="list-disc list-inside mt-1 space-y-1 text-sm">
+                                                                            {entry.recommendations.lucidDreaming.map((tip, i) => (
+                                                                                <li key={i}>{tip}</li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                )}
+                                                            </AccordionContent>
+                                                        </AccordionItem>
+                                                    ))}
+                                                </Accordion>
                                             </div>
                                         </AccordionContent>
                                     </AccordionItem>
