@@ -197,7 +197,7 @@ export default function DreamInterpreterDialog() {
                     {dreamEntries.map((entry, index) => (
                          <AccordionItem key={index} value={`item-${index}`} className="p-3 border rounded-lg bg-muted/30">
                             <AccordionTrigger className="py-0 hover:no-underline text-left">
-                                <p className="font-semibold text-sm truncate">{entry.dream}</p>
+                                <p className="font-semibold text-sm">{entry.dream}</p>
                             </AccordionTrigger>
                             <AccordionContent className="pt-2 mt-2 border-t">
                                 <p className="font-semibold mt-1">{t('yourDream')}</p>
