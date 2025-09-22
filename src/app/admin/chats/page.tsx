@@ -257,7 +257,7 @@ export default function AdminInteractionHistoryPage() {
                                                 </Avatar>
                                                 <div className='flex-1 text-left'>
                                                     <p className="font-semibold truncate max-w-xs sm:max-w-md">{user?.displayName || user?.email || 'Anonymous'}</p>
-                                                    <p className="text-sm text-muted-foreground">{t('dreamCount', { count: dreams.length })}</p>
+                                                    <p className="text-sm text-muted-foreground">{t('dreamCount', { count: dreams.length, defaultValue: `${dreams.length} ${dreams.length === 1 ? t('dream') : t('dreams')}` })}</p>
                                                 </div>
                                             </div>
                                         </AccordionTrigger>
@@ -338,3 +338,4 @@ export default function AdminInteractionHistoryPage() {
         </div>
     );
 }
+
