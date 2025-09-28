@@ -38,7 +38,7 @@ export type DreamInterpretationOutput = z.infer<typeof DreamOutputSchema>;
 
 const dreamInterpretationPrompt = ai.definePrompt({
     name: 'dreamInterpretationPrompt',
-    model: 'googleai/gemini-1.5-flash-latest',
+    model: 'googleai/gemini-1.5-flash',
     input: { schema: DreamInputSchema.omit({ uid: true }) },
     output: { schema: DreamOutputSchema },
     prompt: `Eres un intérprete de sueños y experiencias espirituales. Tu enfoque es chamánico y junguiano. Analiza el siguiente sueño o experiencia y proporciona una interpretación profunda y simbólica.

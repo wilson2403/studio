@@ -21,7 +21,7 @@ export type TranscriptionOutput = z.infer<typeof TranscriptionOutputSchema>;
 
 const transcriptionPrompt = ai.definePrompt({
     name: 'transcriptionPrompt',
-    model: 'googleai/gemini-1.5-flash-latest',
+    model: 'googleai/gemini-1.5-flash',
     input: { schema: z.object({ audioDataUri: z.string() }) },
     output: { schema: TranscriptionOutputSchema },
     prompt: `Transcribe el siguiente audio. Responde únicamente con el texto transcrito.
